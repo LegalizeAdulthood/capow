@@ -96,7 +96,7 @@ BOOL checkError(ios& s, char *msg)
 	else return FALSE;
 }
 
-void writeDebugInfo(ofstream& ofs, char *msg)
+void writeDebugInfo(ofstream& ofs, const char *msg)
 //
 // For debugging: if "msg" != dMsg then out of sychnoize
 //
@@ -150,7 +150,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, unsigned char *val, unsigned short 
 	return ofs;
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, char *val)
+ofstream& outWrite(ofstream& ofs, const char *msg, char *val)
 {
 	if (BINARY)
 	{
@@ -170,7 +170,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, char *val)
 	return ofs;
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, int val)
+ofstream& outWrite(ofstream& ofs, const char *msg, int val)
 {
 	if (BINARY)
 	{
@@ -182,7 +182,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, int val)
 	return ofs;
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, unsigned int val)
+ofstream& outWrite(ofstream& ofs, const char *msg, unsigned int val)
 {
 	if (BINARY)
 	{
@@ -194,7 +194,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, unsigned int val)
 	return ofs;
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, long val)
+ofstream& outWrite(ofstream& ofs, const char *msg, long val)
 {
 	if (BINARY)
 	{
@@ -206,7 +206,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, long val)
 	return ofs;
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, float val)
+ofstream& outWrite(ofstream& ofs, const char *msg, float val)
 {
 	if (BINARY)
 	{
@@ -218,7 +218,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, float val)
 	return ofs;
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, double val)
+ofstream& outWrite(ofstream& ofs, const char *msg, double val)
 {
 	if (BINARY)
 	{
@@ -230,7 +230,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, double val)
 	return ofs;
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, Real *val, int total)
+ofstream& outWrite(ofstream& ofs, const char *msg, Real *val, int total)
 {
 	if (BINARY)
 	{
@@ -249,20 +249,20 @@ ofstream& outWrite(ofstream& ofs, char *msg, Real *val, int total)
 	return ofs;
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, AdditiveTweakParam& val)
+ofstream& outWrite(ofstream& ofs, const char *msg, AdditiveTweakParam& val)
 {
 //We should be writing and reading the Min() and Max() as well!!!!
 	Real value = val.Val();
 	return outWrite(ofs, msg, value);
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, MultiplicativeTweakParam& val)
+ofstream& outWrite(ofstream& ofs, const char *msg, MultiplicativeTweakParam& val)
 {
 	Real value = val.Val();
 	return outWrite(ofs, msg, value);
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, COLORREF val)
+ofstream& outWrite(ofstream& ofs, const char *msg, COLORREF val)
 {
 	if (BINARY)
 	{
@@ -274,7 +274,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, COLORREF val)
 	return ofs;
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, Wavecell *val, int total)
+ofstream& outWrite(ofstream& ofs, const char *msg, Wavecell *val, int total)
 {
 	if (BINARY)
 	{
@@ -321,7 +321,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, Wavecell *val, int total)
 	return ofs;
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, Wavecell2 *val, int total)
+ofstream& outWrite(ofstream& ofs, const char *msg, Wavecell2 *val, int total)
 {
 	if (BINARY)
 	{
@@ -356,7 +356,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, Wavecell2 *val, int total)
 	return ofs;
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, COLORREF *val, int total)
+ofstream& outWrite(ofstream& ofs, const char *msg, COLORREF *val, int total)
 {
 	if (BINARY)
 	{
@@ -376,7 +376,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, COLORREF *val, int total)
 	return ofs;
 }
 
-ofstream& outWrite(ofstream& ofs, char *msg, vector<class TweakParam *> *userParam)
+ofstream& outWrite(ofstream& ofs, const char *msg, vector<class TweakParam *> *userParam)
 {
 	if (BINARY)
 	{
