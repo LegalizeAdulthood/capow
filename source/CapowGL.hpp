@@ -17,8 +17,8 @@
 #include "types.h"
 #include "ca.hpp"
 #include "bitmap.hpp"
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include <gl/GL.h>
+#include <gl/GLU.h>
 // #include <GL/glaux.h> 2017
 #define STACKLIMIT 30 //For OpenGl ?
 

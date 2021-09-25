@@ -7,7 +7,7 @@ of windows.h gets used throughout.  Don't allow any #include windows.h
 anywhere else.  Always do #include types.h instead. */
 #define STRICT
 #define NOMINMAX
-#include <windows.h>
+#include <Windows.h>
 #include <windowsx.h>
 #pragma warning (disable : 4068)
 
@@ -33,7 +33,7 @@ full cycle*/
 //=================ASSERT============
 //#define NDEBUG //Comment this in to turn off assert checking.
 #include <assert.h>
-#include <COMMCTRL.H>
+#include <CommCtrl.h>
 //================FUNCTION TYPES=====
 class CA; //Forward declaration for the FPCELLUPDATE typedef.
 //Microsoft Visual C++ case

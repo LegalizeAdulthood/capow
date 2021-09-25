@@ -1,6 +1,6 @@
 #include "ca.hpp"
 #include <commdlg.h>
-#include "userpara.hpp"
+#include "USERPARA.HPP"
 
 static char temp_user_rule_file_name[MAXFILENAME];
 

@@ -13,7 +13,7 @@
 #ifndef CA_HPP
 #define CA_HPP
 using namespace std; //2017
-#include "types.h" //To include windows.h in a standard way
+#include "Types.h" //To include windows.h in a standard way
 #include "resource.h"
 #include <vector> //Threw errors 2017, changed
 /* This is the STL header.  Because Microsoft makes it hard to
@@ -110,8 +110,8 @@ then the program hangs on startup.*/
 //=================INCLUDES==================================
 #include <fstream> //For iostream //changed to not have .h 2017
 #include <iomanip> // added 2017
-#include "bitmap.hpp" //For WindowBitmap class
-#include "tweak.hpp"   //For TweakParam class
+#include "Bitmap.hpp" //For WindowBitmap class
+#include "TWEAK.HPP"   //For TweakParam class
 //============MACROS============================================
 #define MIN(x,y) ((x)<=(y))?(x):(y)
 /* We use CLAMP on Reals in the CA rules, also we use it on ints and

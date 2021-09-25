@@ -42,10 +42,10 @@
 // Preprocessor Directives
 #include <math.h>
 #include "ca.hpp"
-#include "random.h" // random.h will be needed later for Rain effect
+#include "RANDOM.H" // random.h will be needed later for Rain effect
 						  // so I'll just add it now.
 //#include "Graph3D.hpp"
-#include "capowgl.hpp"
+#include "CapowGL.hpp"
 
 // Defines and module globals
 
