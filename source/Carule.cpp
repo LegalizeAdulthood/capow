@@ -70,7 +70,7 @@ different name for the *.DLL you are building.
 //#define CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION //2D Activator Inhibitor Saturation 9.DLL 
 //#define CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION_5//2D Activator Inhibitor Saturation 5.DLL 
 //#define CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_WAVE //2D Activator Inhibitor Wave.DLL 
-#define CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_DIFFUSE //2D Activator Wave Inhibitor Diffuse.DLL 
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_DIFFUSE //2D Activator Wave Inhibitor Diffuse.DLL 
 //#define CARULE_2D_AIS_WAVE_DIFFUSE //2D AIS Wave Diffuse.DLL 
 //#define CARULE_2D_ACTIVATOR_INHIBITOR_DIFFUSE_WAVE //2D Activator Diffuse Inhibitor Wave.DLL 
 //#define CARULE_2D_OSCILLATOR_CHAOTIC    //2D Oscillator Chaotic.DLL
@@ -554,7 +554,7 @@ DllExport void USERINITIALIZE(CA* owner )
 
 DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
 { //VEL_LAMBDA is dt/(dx^2)
-	PLANE_NEW_C_I0 = (VEL_LAMBDA*(PLANE_FOUR_SUM_I0)+C_I0))/(4*VEL_LAMBDA + 1)
+	PLANE_NEW_C_I0 = (VEL_LAMBDA *(PLANE_FOUR_SUM_I0)+C_I0)/(4*VEL_LAMBDA + 1)
 		+ DT*INCREMENT;
 	WRAP(PLANE_NEW_C_I0,-MAX_INTENSITY, MAX_INTENSITY);	
 }
@@ -2371,7 +2371,7 @@ DllExport void USERINITIALIZE(CA* owner )
 	owner->userParamAdd[6]->SetRange(-1.0, 1.0); //Hi Increment	
 	owner->userParamAdd[7]->SetRange(0.0, 2.0);	//Hi L Weight
 	owner->userParamAdd[8]->SetRange(0.0, 2.0);	//Hi R Weight
-	for(i = 0; i < USERPARAM_COUNT; i++)
+	for(int i = 0; i < USERPARAM_COUNT; i++)
 		(owner->userParamAdd[i+1]->SetVal(editValue[i]));
 			 /* Need to do this again as the constructor might not have 
 			accepted the edit value becuase the range wasn't set yet to
@@ -2427,7 +2427,7 @@ DllExport void USERINITIALIZE(CA* owner )
 	owner->userParamAdd[1]->SetRange(1.0, 4.0);	//Logistic Growth Factor
 	owner->userParamAdd[2]->SetRange(0.0, 1.0); //Growth Rate
 	owner->userParamAdd[3]->SetRange(0.0, 1.0); //Diffusion Rate
-	for(i = 0; i < USERPARAM_COUNT; i++)
+	for(int i = 0; i < USERPARAM_COUNT; i++)
 		(owner->userParamAdd[i+1]->SetVal(editValue[i]));
 			 /* Need to do this again as the constructor might not have 
 			accepted the edit value becuase the range wasn't set yet to
@@ -2484,7 +2484,7 @@ DllExport void USERINITIALIZE(CA* owner )
 		by default the variance is always in place 0. */
 	owner->userParamAdd[1]->SetRange(1.0, 4.0);	//Logistic Growth Factor
 	owner->userParamAdd[2]->SetRange(0.0, 1.0); //Diffusion Rate
-	for(i = 0; i < USERPARAM_COUNT; i++)
+	for(int i = 0; i < USERPARAM_COUNT; i++)
 		(owner->userParamAdd[i+1]->SetVal(editValue[i]));
 			 /* Need to do this again as the constructor might not have 
 			accepted the edit value becuase the range wasn't set yet to
