@@ -160,7 +160,11 @@
     <ClCompile Include="Cell.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="configure.cpp" />
-    <ClCompile Include="Controlb.cpp" />
+    <ClCompile Include="Controlb.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Cycle.cpp" />
     <ClCompile Include="Digital.cpp" />
     <ClCompile Include="Dllmem.cpp" />
