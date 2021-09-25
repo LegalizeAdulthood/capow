@@ -6,7 +6,7 @@
 #include "ca.hpp"
 #include "resource.h"
 #include "CapowGL.hpp"
-#include <winuser.h>
+#include <WinUser.h>
 
 extern HWND hDlgGenerators, masterhwnd;
 extern char *szMyAppName;

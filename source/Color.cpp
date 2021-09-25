@@ -15,8 +15,8 @@
 #include "ca.hpp"
 #include <math.h>
 #include "resource.h"
-#include <COMMCTRL.H>
- 
+#include <CommCtrl.h>
+
 //====================DEBUG FLAGS ===============
 //====================DEFINE CONSTANTS ===============
 //====================GLOBAL DATA===============

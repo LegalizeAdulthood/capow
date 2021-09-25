@@ -11,10 +11,10 @@
 //
 // ***********************************************************************
 #include <stdio.h>
-#include "userpara.hpp"
+#include "USERPARA.HPP"
 #include "ca.hpp"
-#include "tweakca.hpp"
-#include <COMMCTRL.H>			// This following line must be here 
+#include "Tweakca.hpp"
+#include <CommCtrl.h>			// This following line must be here 
 								// compiling error
 extern char *szMyAppName;		// Program name
 extern char userDialogName[];	// User Dialog name

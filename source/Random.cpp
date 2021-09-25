@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <time.h>
-#include "random.h"
+#include "RANDOM.H"
 #include "math.h" //*for sqrt in Randomunitpair
 //#define MYMACROS 
 

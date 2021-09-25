@@ -7,7 +7,7 @@
 
 #include "ca.hpp"
 #include "resource.h"
-#include "tweakca.hpp"
+#include "Tweakca.hpp"
 #include <math.h>
 #include <iomanip> //2017 no .h on this anymore
 // 2017 replaced ios::in|ios::nocreate by ios::in, as the nocreate flag no longer exists 

@@ -13,12 +13,12 @@
 
 #include "ca.hpp"
 #include "resource.h"
-#include "tweakca.hpp"
+#include "Tweakca.hpp"
 #include "status.hpp"
-#include "random.h"
-#include "capowgl.hpp"
+#include "RANDOM.H"
+#include "CapowGL.hpp"
 #include <math.h>
-#include "userpara.hpp"
+#include "USERPARA.HPP"
 #include <lzexpand.h> // for compressing/decompressing files
 
 //====================DEBUG FLAGS ===============

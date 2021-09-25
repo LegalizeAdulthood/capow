@@ -11,10 +11,10 @@
 //====================INCLUDES===============
 #include "ca.hpp"
 #include <math.h>
-#include "random.h"
+#include "RANDOM.H"
 #include "resource.h"
-#include "tweakca.hpp"
-#include "userpara.hpp"
+#include "Tweakca.hpp"
+#include "USERPARA.HPP"
 //#include <vector.h> already in ca.hpp
  
 //====================EXTERNAL DATA===============

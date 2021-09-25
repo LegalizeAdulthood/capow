@@ -13,17 +13,17 @@
 
 #include "ca.hpp"
 #include "resource.h"
-#include "tweakca.hpp"
+#include "Tweakca.hpp"
 #include <math.h>
 #include <iomanip> //2017
 #include <stdlib.h> //for itoa                       
 #include <ctype.h>  //for isdigit
 #include <string.h>
 #include <stdio.h>
-#include <LZexpand.h>
+#include <lzexpand.h>
 #include <process.h>
-#include <ERRNO.H>
-#include "userpara.hpp"
+#include <errno.h>
+#include "USERPARA.HPP"
 /* 2017.  Lots of problems rebuilding with VC ver 15.  Removed all  ios::nocreate flags. Removed .h from iomanip. 
 */
 

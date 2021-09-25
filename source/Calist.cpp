@@ -14,14 +14,14 @@
 
 #include "ca.hpp"
 #include "resource.h"
-#include "random.h"
+#include "RANDOM.H"
 //#include "Graph3D.hpp"
 #include <math.h>
-#include "userpara.hpp"
-#include "capowgl.hpp"  //mike
+#include "USERPARA.HPP"
+#include "CapowGL.hpp"  //mike
 #include "status.hpp"
 //--------------------CONSTANTS used by CAPOWGL.CPP
-#include "capowgl.hpp" //For things like FLATCOLOR and SHEET
+#include "CapowGL.hpp" //For things like FLATCOLOR and SHEET
 
 
 //====================EXTERNAL DATA===============

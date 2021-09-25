@@ -1,8 +1,8 @@
-#include "types.h"
-#include <commctrl.h>
-#include "comcthlp.h"
+#include "Types.h"
+#include <CommCtrl.h>
+#include "Comcthlp.h"
 #include "GUI.hpp"
-#include "CA.hpp"
+#include "ca.hpp"
 #include "resource.h"
 
 

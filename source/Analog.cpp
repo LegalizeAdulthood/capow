@@ -16,7 +16,7 @@
 
 #include "ca.hpp"
 #include "resource.h"
-#include "tweakca.hpp"
+#include "Tweakca.hpp"
 #include <math.h>
  
 //====================DEBUG FLAGS ===============

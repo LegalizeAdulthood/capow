@@ -1,5 +1,5 @@
 #include "ca.hpp"
-#include "random.h"
+#include "RANDOM.H"
 #include <math.h>
 
 #define FOURIER_SEED_TERMS 5

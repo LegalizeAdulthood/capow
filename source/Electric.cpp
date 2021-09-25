@@ -1,6 +1,6 @@
 #include "ca.hpp"
 #include "resource.h"
-#include "tweakca.hpp"
+#include "Tweakca.hpp"
 
 #include <math.h> // for atof in the 16 bit version
 

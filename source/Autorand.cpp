@@ -1,4 +1,4 @@
-#include "types.h"
+#include "Types.h"
 #include "ca.hpp"
 
 // My profile parameters to load and save in CAPOW.EXE or CAPOW.SCR

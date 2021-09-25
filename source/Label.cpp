@@ -1,4 +1,4 @@
-#include "types.h"
+#include "Types.h"
 //#include <math.h> // need for ftoa
 //#include <stdlib.h>  //for itoa and ltoa
 

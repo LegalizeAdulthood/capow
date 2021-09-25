@@ -413,20 +413,20 @@ Weeded out the old .CA and .CAS files that don't load properly.
 // These first two headers are needed for Randomize()
 #include "ca.hpp"
 #include "resource.h"
-#include "bitmap.hpp"
-#include "random.h"
+#include "Bitmap.hpp"
+#include "RANDOM.H"
 #include <commdlg.h>
 #include <string.h>
-#include <commctrl.h>// For the 32 bit Toolbar control
-#include "userpara.hpp"
+#include <CommCtrl.h>// For the 32 bit Toolbar control
+#include "USERPARA.HPP"
 #include <stdio.h>
 #include "status.hpp"
 #include "GUI.hpp"
-#include "comcthlp.h"
-#include "capowgl.hpp"
+#include "Comcthlp.h"
+#include "CapowGL.hpp"
 //Note that you need COMCTL32.LIB in link library list for this.
 //Need this header for HTMLHelp
-#include "htmlhelp.h"
+#include "HtmlHelp.h"
 
 //==================== FLAGS ===============
 

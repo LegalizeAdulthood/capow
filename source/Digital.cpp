@@ -1,6 +1,6 @@
 #include "ca.hpp"
 #include "resource.h"
-#include "tweakca.hpp"
+#include "Tweakca.hpp"
 #include <math.h> // for atof in 16 bit.  32 bit version doesn't need it.
 
 extern char *szMyAppName;

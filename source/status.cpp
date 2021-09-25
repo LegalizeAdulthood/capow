@@ -2,8 +2,8 @@
    STATBAR.C -- Status bar helper functions.
                 (c) Paul Yao, 1996
   -------------------------------------------*/
-#include "types.h"
-#include <commctrl.h>
+#include "Types.h"
+#include <CommCtrl.h>
 #include "status.hpp"
 #include "resource.h"
 
