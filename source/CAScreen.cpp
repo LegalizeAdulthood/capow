@@ -198,7 +198,7 @@ void Cellmain(HWND hwnd) //This is the continually running thing.
 
 //====================CAPOW SCREENSAVER Code====================================
 
-LONG FAR PASCAL ScreenSaverProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT FAR PASCAL ScreenSaverProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	//Use these three variables in WM_ERASEBKGND
 	HDC hdc;

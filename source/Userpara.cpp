@@ -121,11 +121,11 @@ void createEdit( )
 		SendMessage(hwnd, WM_SETFONT, (WPARAM) hEditFont, 0L);
 		
 		// Save old window callback procedure of edit control windows
-		WNDPROC oldEditProc = (WNDPROC) GetWindowLong(hwnd, GWL_WNDPROC);
+		WNDPROC oldEditProc = (WNDPROC) GetWindowLong(hwnd, GWLP_WNDPROC);
 		// and set to new window callback procedure of edit control. This
 		// way we can process the tab and <return> key
 		userAddHOldProc.push_back(oldEditProc);
-		SetWindowLong(hwnd, GWL_WNDPROC, (LONG) EditProc);
+		SetWindowLong(hwnd, GWLP_WNDPROC, (LONG) EditProc);
 
 		// Set edit value
 		char valueText[80];
@@ -216,10 +216,10 @@ void createButton()
 								(HMENU)(BUTTONIDBASE+3), hInst, NULL);
 	SendMessage(randomButton, WM_SETFONT, (WPARAM) hEditFont, 0L);
 	// Save old window callback procedure of edit control windows
-	randomButtonOld = (WNDPROC) GetWindowLong(randomButton, GWL_WNDPROC);
+	randomButtonOld = (WNDPROC) GetWindowLong(randomButton, GWLP_WNDPROC);
 	// and set to new window callback procedure of edit control. This
 	// way we can process the tab and <return> key
-	SetWindowLong(randomButton, GWL_WNDPROC, (LONG) EditProc);
+	SetWindowLong(randomButton, GWLP_WNDPROC, (LONG) EditProc);
 }
 
 void moveButton(int x, int y)
