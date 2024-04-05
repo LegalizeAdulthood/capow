@@ -1,3 +1,12 @@
+add_library(Carule SHARED
+    Carule.cpp
+    Caruleuse.cpp
+    Palette.cpp
+    Random.cpp
+    Tweak.cpp
+    Carule.hpp
+)
+
 add_library(CAScreen SHARED
     Autorand.cpp
     Bitmap.cpp
