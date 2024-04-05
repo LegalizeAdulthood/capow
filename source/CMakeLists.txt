@@ -1,10 +1,3 @@
-cmake_minimum_required(VERSION 3.26)
-
-find_package(OpenGL REQUIRED)
-
-set(CAPOW_PROJECT_NAME "CAPow" CACHE STRING "Project name for IDEs")
-project("${CAPOW_PROJECT_NAME}")
-
 add_library(CAScreen SHARED
     Autorand.cpp
     Bitmap.cpp
