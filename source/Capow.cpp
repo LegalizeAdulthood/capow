@@ -1831,7 +1831,7 @@ InvalidateRect(masterhwnd, NULL, FALSE);
 					ToolBar_CheckButton(hwndActionToolbar, CUR_ZAP, FALSE );	
 
 			}
-			SetClassLong(hwnd, GCL_HCURSOR, (int)LoadCursor(hInst,
+			SetClassLong(hwnd, GCLP_HCURSOR, (int)LoadCursor(hInst,
 					     MAKEINTRESOURCE(id)));
 			oldcursormode = cursormode;
 			cursormode = id;

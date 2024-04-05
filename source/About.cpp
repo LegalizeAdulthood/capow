@@ -73,8 +73,7 @@ static BOOL MyWnd_MOVE(HWND hDlg, int x, int y)
 	return TRUE;
 }
 
-extern BOOL CALLBACK AboutProc (HWND hDlg, UINT message,
-												UINT wParam, LONG lParam)
+BOOL CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
@@ -99,7 +98,7 @@ static void PaintBlock(HWND hwnd)
 	PAINTSTRUCT ps;
 
 	hdc = BeginPaint(hwnd, &ps);
-	hBitmap = LoadBitmap((HINSTANCE)GetWindowLong(hCtrlBlock, GWL_HINSTANCE),
+	hBitmap = LoadBitmap((HINSTANCE)GetWindowLong(hCtrlBlock, GWLP_HINSTANCE),
 			"AboutBMP");
 	if (calife_list->numcolor() == 256)
 	{

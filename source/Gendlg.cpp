@@ -249,8 +249,7 @@ static BOOL MyWnd_MOVE(HWND hDlg, int x, int y)
 
 
 
-extern BOOL CALLBACK GeneratorsProc (HWND hDlg, UINT message,
-												UINT wParam, LONG lParam)
+BOOL CALLBACK GeneratorsProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{

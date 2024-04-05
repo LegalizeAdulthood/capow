@@ -35,7 +35,7 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 {
 	HINSTANCE hInstance;
 	
-	hInstance = (HINSTANCE)GetWindowLong(hDlg, GWL_HINSTANCE);
+	hInstance = (HINSTANCE)GetWindowLong(hDlg, GWLP_HINSTANCE);
 	
 //	CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
 //  controlID_to_TweakID[0] depends on the type of ca

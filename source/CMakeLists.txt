@@ -1,3 +1,68 @@
+add_executable(Capow WIN32
+    About.bmp
+    actionbar.bmp
+    capow.ico
+    seedbitm.bmp
+    toolbar.bmp
+    About.cpp
+    Analog.cpp
+    Autorand.cpp
+    Bitmap.cpp
+    ca.cpp
+    Calist.cpp
+    camore.cpp
+    Capow.cpp
+    CapowGL.cpp
+    Cell.cpp
+    Color.cpp
+    configure.cpp
+    #Controlb.cpp
+    Cycle.cpp
+    Digital.cpp
+    Dllmem.cpp
+    Electric.cpp
+    Exp.cpp
+    FileSave.cpp
+    Fourier.cpp
+    Gendlg.cpp
+    Label.cpp
+    Loadsav7.cpp
+    Loadsave.cpp
+    Opengldlg.cpp
+    Palette.cpp
+    Random.cpp
+    Seed.cpp
+    Smooth.cpp
+    status.cpp
+    toolbar.cpp
+    Touch.cpp
+    Tweak.cpp
+    Userpara.cpp
+    View.cpp
+    World.cpp
+    Bitmap.hpp
+    ca.hpp
+    CapowGL.hpp
+    Carule.hpp
+    Comcthlp.h
+    GUI.hpp
+    Random.h
+    resource.h
+    status.hpp
+    TWEAK.HPP
+    Tweakca.hpp
+    Types.h
+    USERPARA.HPP
+    Bolt.cur
+    Copy.cur
+    cursor1.cur
+    cursor2.cur
+    generator.cur
+    Touch.cur
+    Capow32.rc
+)
+target_link_libraries(Capow PUBLIC Glu32.lib opengl32.lib ComCtl32.lib Lz32.lib Winmm.lib)
+
 add_library(Carule SHARED
     Carule.cpp
     Caruleuse.cpp
@@ -28,7 +93,7 @@ add_library(CAScreen SHARED
     Touch.cpp
     Tweak.cpp
     Userpara.cpp
-    CAPOW.ICO
+    capow.ico
     CAScreen.rc
 )
 target_link_libraries(CAScreen PUBLIC Glu32.lib opengl32.lib ComCtl32.lib Lz32.lib Winmm.lib Scrnsave.lib)

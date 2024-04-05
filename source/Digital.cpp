@@ -39,7 +39,7 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 	HINSTANCE hInstance;
 	HBITMAP Bitmap;
 
-	hInstance = (HINSTANCE)GetWindowLong(hDlg, GWL_HINSTANCE);
+	hInstance = (HINSTANCE)GetWindowLong(hDlg, GWLP_HINSTANCE);
 
 	HWND hCntl;
 //			CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );

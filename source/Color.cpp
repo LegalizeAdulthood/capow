@@ -256,7 +256,7 @@ BOOL HandleUpDownControlColor(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 //  
 
 
-extern BOOL CALLBACK ColorProc (HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL CALLBACK ColorProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{

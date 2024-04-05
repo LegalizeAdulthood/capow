@@ -360,8 +360,7 @@ static void MyWnd_PARENTNOTIFY(HWND hDlg, UINT fwEvent, HWND lValue, UINT idChil
  
 }
 
-extern BOOL CALLBACK OpenGLProc (HWND hDlg, UINT message,
-												UINT wParam, LONG lParam)
+BOOL CALLBACK OpenGLProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{

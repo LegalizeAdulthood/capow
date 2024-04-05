@@ -21,7 +21,7 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 	HINSTANCE hInstance;
 	
 //	CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
-	hInstance = (HINSTANCE)GetWindowLong(hDlg, GWL_HINSTANCE);
+	hInstance = (HINSTANCE)GetWindowLong(hDlg, GWLP_HINSTANCE);
 	showparams( hDlg );
 	return 0;
 }
