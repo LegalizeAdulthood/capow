@@ -49,10 +49,10 @@ add_executable(Capow WIN32
     Random.h
     resource.h
     status.hpp
-    TWEAK.HPP
+    Tweak.hpp
     Tweakca.hpp
     Types.h
-    USERPARA.HPP
+    Userpara.hpp
     Bolt.cur
     Copy.cur
     cursor1.cur
