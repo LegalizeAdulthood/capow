@@ -51,6 +51,7 @@ add_library(CapowCore STATIC
     Userpara.hpp
 )
 target_link_libraries(CapowCore PUBLIC Glu32.lib opengl32.lib ComCtl32.lib Lz32.lib Winmm.lib)
+target_folder(CapowCore "Libraries")
 
 add_executable(Capow WIN32
     About.bmp
