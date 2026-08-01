@@ -410,6 +410,8 @@ Weeded out the old .CA and .CAS files that don't load properly.
 //***********************************************************************/
 //====================INCLUDES===============
 
+#include "Capow.hpp"
+
 // These first two headers are needed for Randomize()
 #include "ca.hpp"
 #include "resource.h"
@@ -642,7 +644,7 @@ extern void LocalHelpProc(HWND, WPARAM);
 // Windows Overhead
 
 
-int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
+int WINAPI CapowWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
     LPSTR lpszCmdParam, int nCmdShow) //2017 Changed PSTR to LPSTR
 {
     HACCEL hAccel;

@@ -1,9 +1,4 @@
-add_executable(Capow WIN32
-    About.bmp
-    actionbar.bmp
-    capow.ico
-    seedbitm.bmp
-    toolbar.bmp
+add_library(CapowCore STATIC
     About.cpp
     Analog.cpp
     Autorand.cpp
@@ -12,6 +7,7 @@ add_executable(Capow WIN32
     Calist.cpp
     camore.cpp
     Capow.cpp
+    Capow.hpp
     CapowGL.cpp
     Cell.cpp
     Color.cpp
@@ -53,6 +49,15 @@ add_executable(Capow WIN32
     Tweakca.hpp
     Types.h
     Userpara.hpp
+)
+target_link_libraries(CapowCore PUBLIC Glu32.lib opengl32.lib ComCtl32.lib Lz32.lib Winmm.lib)
+
+add_executable(Capow WIN32
+    About.bmp
+    actionbar.bmp
+    capow.ico
+    seedbitm.bmp
+    toolbar.bmp
     Bolt.cur
     Copy.cur
     cursor1.cur
@@ -60,8 +65,9 @@ add_executable(Capow WIN32
     generator.cur
     Touch.cur
     Capow32.rc
+    WinMain.cpp
 )
-target_link_libraries(Capow PUBLIC Glu32.lib opengl32.lib ComCtl32.lib Lz32.lib Winmm.lib)
+target_link_libraries(Capow PUBLIC CapowCore)
 
 add_library(Carule SHARED
     Carule.cpp
