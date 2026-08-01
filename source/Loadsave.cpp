@@ -1,5 +1,5 @@
 // ***********************************************************************
-// File:        loadsave.cpp                                                    
+// File:        loadsave.cpp
 // PROJECT:     CAMCOS CAPOW
 // ENVIRONMENT: Visual C++ 4.0  Win32
 //
@@ -16,7 +16,7 @@
 #include "tweakca.hpp"
 #include <math.h>
 #include <iomanip> //2017
-#include <stdlib.h> //for itoa                       
+#include <stdlib.h> //for itoa
 #include <ctype.h>  //for isdigit
 #include <string.h>
 #include <stdio.h>
@@ -24,7 +24,7 @@
 #include <process.h>
 #include <ERRNO.H>
 #include "userpara.hpp"
-/* 2017.  Lots of problems rebuilding with VC ver 15.  Removed all  ios::nocreate flags. Removed .h from iomanip. 
+/* 2017.  Lots of problems rebuilding with VC ver 15.  Removed all  ios::nocreate flags. Removed .h from iomanip.
 */
 
 // #define DEBUG                    /* For debugging only                    */
@@ -33,13 +33,13 @@ BOOL BINARY = TRUE;             /* Binary output or text output          */
 #define LIMIT_PRECISION         /* control of precision - TEXT mode only */
 #define LOADSAVE_PRECISION 3    /* # of precision       - TEXT mode only */
 
-extern HWND masterhwnd;         // The master window                     
+extern HWND masterhwnd;         // The master window
 extern CAlist *calife_list;
 extern char capowDirectory[];
 extern int blt_flag;
 extern BOOL zoomviewflag;
 extern BOOL not_seeded_yet_flag;
-extern BOOL load_save_cells_flag;   // Save cell or not                 
+extern BOOL load_save_cells_flag;   // Save cell or not
 // This determines whether to save and load the individual cell values.
 // When you are doing a save, this flag will be set from capow.cpp by
 // which File Save option you select.  When you are doing a load, this
@@ -50,7 +50,7 @@ extern BOOL load_save_cells_flag;   // Save cell or not
 
 BOOL errOccurred = FALSE;       // Reset to FALSE before any output/input
 BOOL compressFile = FALSE;      // Flag to compress on save only
-                                // Load will automatic determine whether 
+                                // Load will automatic determine whether
                                 //      compress it or not
 
 void compressTheFile(char *filename);
@@ -69,7 +69,7 @@ ifstream& operator>>(ifstream& ifs, CA* target)
 BOOL outBinary(ofstream& ofs, CA* target);
 
 //---------------------------------------------------------------
-ofstream& operator<<(ofstream& ofs, CA* target) 
+ofstream& operator<<(ofstream& ofs, CA* target)
 {
     if (!outBinary(ofs, target))
         errOccurred = TRUE;
@@ -88,7 +88,7 @@ BOOL checkError(ios& s, char *msg)
     {
         s.clear();
         if (strlen(msg) != 0)
-            MessageBox(masterhwnd, msg, "FILE ERROR", MB_APPLMODAL | MB_OK | 
+            MessageBox(masterhwnd, msg, "FILE ERROR", MB_APPLMODAL | MB_OK |
                    MB_ICONEXCLAMATION);
         errOccurred = TRUE;
         return TRUE;
@@ -104,7 +104,7 @@ void writeDebugInfo(ofstream& ofs, char *msg)
     #ifdef DEBUG
         int dTotal = strlen(msg);
         ofs.write((char *) &dTotal, sizeof(dTotal));
-        ofs.write((char *) msg, dTotal);    
+        ofs.write((char *) msg, dTotal);
     #endif
 }
 
@@ -114,17 +114,17 @@ ofstream& outWrite(ofstream& ofs, char *msg, unsigned char *val, int total)
 //
 {
     if (BINARY)
-    {   
+    {
         writeDebugInfo(ofs, msg);
 
         ofs.write((char *)&total, sizeof(total));
         ofs.write((char *)val, sizeof(unsigned char) * total);
     }
-    else 
+    else
     {
         ofs << strlen(msg) << " " << msg << " " << total << " ";
         for(int count=0; count<total; count++)
-            ofs << (int)val[count] << " "; 
+            ofs << (int)val[count] << " ";
         ofs << endl;
     }
     return ofs;
@@ -140,11 +140,11 @@ ofstream& outWrite(ofstream& ofs, char *msg, unsigned char *val, unsigned short 
         ofs.write((char *)&tot, sizeof(tot));
         ofs.write((char *)val, sizeof(unsigned char) * tot);
     }
-    else 
+    else
     {
         ofs << strlen(msg) << " " << msg << " " << total << " ";
         for(int count=0; count<total; count++)
-            ofs << (int)val[count] << " "; 
+            ofs << (int)val[count] << " ";
         ofs << endl;
     }
     return ofs;
@@ -160,11 +160,11 @@ ofstream& outWrite(ofstream& ofs, char *msg, char *val)
         ofs.write((char *)&total, sizeof(total));
         ofs.write((char *)val, sizeof(char) * total);
     }
-    else 
+    else
     {
         ofs << strlen(msg) << " " << msg << " " << strlen(val) << " ";
         for(int count=0; count<strlen(val); count++)
-            ofs << val[count] << " "; 
+            ofs << val[count] << " ";
         ofs << endl;
     }
     return ofs;
@@ -239,7 +239,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, Real *val, int total)
         ofs.write((char *)&total, sizeof(total));
         ofs.write((char *) val, sizeof(val)*total);
     }
-    else 
+    else
     {
         ofs << strlen(msg) << " " << msg << " " << total << " ";
         for(int count=0; count<total; count++)
@@ -288,14 +288,14 @@ ofstream& outWrite(ofstream& ofs, char *msg, Wavecell *val, int total)
 //          ofs.write((char *) &(val[count].intensity), sizeof(val[count].intensity));
             ofs.write((char *) &(val[count].velocity), sizeof(val[count].velocity));
             int totalSub = CELL_PARAM_COUNT;
-            char cst[80]; 
+            char cst[80];
             sprintf(cst, "%5d:", (int)cst); // 2017.  Had sprintf(cst, "%5d:", cst)
                                                // 2017 Throws a warning. See line 929 also
                                                //---format string '%5d' requires an argument of type 'int', but variadic argument 1  has type 'char *'---
                                                //The "variadic argument 1" means that second occurance of cst.  The : in the format string is part of the
-                                               //desired string's text?  %5d means print a number in decimal in a five character field possibly padded 
+                                               //desired string's text?  %5d means print a number in decimal in a five character field possibly padded
                                                //by blanks in front.
-                                               //One suggestion I found online it to put p (for pointer) instead of d (for integer). 
+                                               //One suggestion I found online it to put p (for pointer) instead of d (for integer).
                                                //Supposedly in old all 32 bit world, integer and pointer are the same, but if you have 64 bit world then
                                                // pointer is 64 bit.  And you have to cast the cst to void * to make the p format happy.
                                                //So you could try sprintf(cst, "%5p:", (void *)cst);
@@ -305,12 +305,12 @@ ofstream& outWrite(ofstream& ofs, char *msg, Wavecell *val, int total)
             outWrite(ofs, cst, &(val[count]._cell_param[0]), totalSub);
         }
     }
-    else 
+    else
     {
       ofs << strlen(msg) << " " << msg << " " << total << " ";
       for(int count=0; count<total; count++)
       {
-        ofs << val[count].state << " " << val[count].intensity << " " 
+        ofs << val[count].state << " " << val[count].intensity << " "
             << val[count].velocity << " ";
         ofs << CELL_PARAM_COUNT << " ";
         for(int count=0; count < CELL_PARAM_COUNT; count++)
@@ -344,7 +344,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, Wavecell2 *val, int total)
 //          outWrite(ofs, cst, &(val[count].param[0]), totalSub);
         }
     }
-    else 
+    else
     {
       ofs << strlen(msg) << " " << msg << " " << total << " ";
       for(int count=0; count<total; count++)
@@ -366,7 +366,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, COLORREF *val, int total)
         ofs.write((char *)&tot, sizeof(tot));
         ofs.write((char *) val, sizeof(COLORREF)*tot);
     }
-    else 
+    else
     {
         ofs << strlen(msg) << " " << msg << " " << total << " ";
         for(int count=0; count<total; count++)
@@ -385,16 +385,16 @@ ofstream& outWrite(ofstream& ofs, char *msg, vector<class TweakParam *> *userPar
         int total = userParam->size();
         ofs.write((char *)&total, sizeof(total));
         for(int count = 0; count < total; count++)
-        {   
+        {
             Real value = (*userParam)[count]->Val();
             ofs.write((char *) &value, sizeof(value));
         }
     }
-    else 
+    else
     {
         ofs << strlen(msg) << " " << msg << " " << userParam->size() << " ";
         for(int count = 0; count < userParam->size(); count++)
-        {   
+        {
             Real value = (*userParam)[count]->Val();
             ofs << value << " ";
         }
@@ -403,18 +403,18 @@ ofstream& outWrite(ofstream& ofs, char *msg, vector<class TweakParam *> *userPar
     return ofs;
 }
 
-BOOL outBinary(ofstream& ofs, CA* target) 
+BOOL outBinary(ofstream& ofs, CA* target)
 //
 // Version 8 - binary/Text
 //
-{   
+{
     // Version and Save cell flag
     outWrite(ofs, "Version: ", (int)FILEVERSION);
     outWrite(ofs, "Load Save Cell Flag: ", load_save_cells_flag);
 
     // CA Type
     outWrite(ofs, "CA Type: ", target->type_ca);
-    
+
     // Save user rule first
     if (target->type_ca == CA_USER)
     {
@@ -439,7 +439,7 @@ BOOL outBinary(ofstream& ofs, CA* target)
     outWrite(ofs, "Target Entropy: ", target->target_entropy);
     outWrite(ofs, "Bonus Entropy: ", target->entropy_bonus);
     outWrite(ofs, "Fail Stripe: ", target->fail_stripe);
-    
+
     // Standard CA Base
     //Don't really need save horz_count as you don't use it when reading in because
     //you don't resize the CA.  But we fix it in Locate
@@ -477,9 +477,9 @@ BOOL outBinary(ofstream& ofs, CA* target)
         outWrite(ofs, "Vert Count 2D: ", target->vert_count_2D);
         outWrite(ofs, "Max X 2D: ", target->maxx_2D);
         outWrite(ofs, "Max Y 2D: ", target->maxy_2D);
-    
-    }   
-        
+
+    }
+
     if (!load_save_cells_flag)
         return TRUE;
 
@@ -560,7 +560,7 @@ BOOL outBinary(ofstream& ofs, CA* target)
 //  outWrite(ofs, "Test Point: ", target->test_point);
 //  outWrite(ofs, "Temp Test Point: ", target->temp_test_point);
 //  outWrite(ofs, "Rel Test Point: ", target->rel_test_point);
-    
+
 //  outWrite(ofs, "Fourier Array: ", target->tp_real_array, 4*target->_max_horz_count);
 //  outWrite(ofs, "Fourier A: ", target->fourier_a, MAXTERM);
 //  outWrite(ofs, "Fourier B: ", target->fourier_b, MAXTERM);
@@ -581,7 +581,7 @@ BOOL outBinary(ofstream& ofs, CA* target)
 //  outWrite(ofs, "Smooth Flag: ", target->_smoothflag);
 
     errOccurred |= checkError(ofs, "Unable to write to output file");
-    
+
     return TRUE;
 }
 
@@ -612,7 +612,7 @@ ifstream& inWrite(ifstream& ifs, char *msg)
     if (BINARY)
     {
         readDebugInfo(ifs, msg);
-    }   
+    }
     else ifs.get();   // Only char so ignore it
     return ifs;
 }
@@ -622,7 +622,7 @@ ifstream& inWrite(ifstream& ifs, char *msg, unsigned char *val, int& total)
     if (BINARY)
     {
         readDebugInfo(ifs, msg);
-    
+
         int readTotal;
         ifs.read((char *) &readTotal, sizeof(readTotal));
         int left = readTotal - total;
@@ -634,12 +634,12 @@ ifstream& inWrite(ifstream& ifs, char *msg, unsigned char *val, int& total)
             ifs.seekg(left * sizeof(unsigned char), ios::cur);
         }
     }
-    else 
+    else
     {
         char inMsg[256];
         int len;
         int readTotal;
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         ifs >> readTotal;
         for(int count=0; count<readTotal; count++)
@@ -659,7 +659,7 @@ ifstream& inWrite(ifstream& ifs, char *msg, unsigned char *val, unsigned short& 
     if (BINARY)
     {
         readDebugInfo(ifs, msg);
-    
+
         int readTotal;
         ifs.read((char *) &readTotal, sizeof(readTotal));
         int left = readTotal - total;
@@ -671,11 +671,11 @@ ifstream& inWrite(ifstream& ifs, char *msg, unsigned char *val, unsigned short& 
             ifs.seekg(left * sizeof(unsigned char), ios::cur);
         }
     }
-    else 
+    else
     {
         int len;
         char inMsg[256];
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         int readTotal;
         ifs >> readTotal;
@@ -684,7 +684,7 @@ ifstream& inWrite(ifstream& ifs, char *msg, unsigned char *val, unsigned short& 
             int temp;
             ifs >> temp;
             if (count < total)
-                val[count] = (unsigned char) temp; 
+                val[count] = (unsigned char) temp;
         }
         ifs.get();
     }
@@ -699,7 +699,7 @@ ifstream& inWrite(ifstream& ifs, char *msg, char *val, int total)
     if (BINARY)
     {
         readDebugInfo(ifs, msg);
-    
+
         int readTotal;
         ifs.read((char *) &readTotal, sizeof(readTotal));
         int left = readTotal - total;
@@ -717,16 +717,16 @@ ifstream& inWrite(ifstream& ifs, char *msg, char *val, int total)
             ifs.seekg(left * sizeof(char), ios::cur);
         }
     }
-    else 
+    else
     {
         int len;
         char inMsg[256];
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         int total;
         ifs >> total;
         for(int count=0; count<total; count++)
-            ifs >> val[count]; 
+            ifs >> val[count];
         ifs.get();
     }
     return ifs;
@@ -739,12 +739,12 @@ ifstream& inWrite(ifstream& ifs, char *msg, int& val)
         readDebugInfo(ifs, msg);
         ifs.read((char *) &val, sizeof(val));
     }
-    else 
+    else
     {
         int len;
         char inMsg[256];
         char ch;
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         ifs >> val;
         ifs.get();
@@ -759,11 +759,11 @@ ifstream& inWrite(ifstream& ifs, char *msg, unsigned int& val)
         readDebugInfo(ifs, msg);
         ifs.read((char *) &val, sizeof(val));
     }
-    else 
+    else
     {
         int len;
         char inMsg[256];
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         ifs >> val;
         ifs.get();
@@ -778,11 +778,11 @@ ifstream& inWrite(ifstream& ifs, char *msg, long& val)
         readDebugInfo(ifs, msg);
         ifs.read((char *) &val, sizeof(val));
     }
-    else 
+    else
     {
         int len;
         char inMsg[256];
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         ifs >> val;
         ifs.get();
@@ -797,11 +797,11 @@ ifstream& inWrite(ifstream& ifs, char *msg, float& val)
         readDebugInfo(ifs, msg);
         ifs.read((char *) &val, sizeof(val));
     }
-    else 
+    else
     {
         int len;
         char inMsg[256];
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         ifs >> val;
         ifs.get();
@@ -816,11 +816,11 @@ ifstream& inWrite(ifstream& ifs, char *msg, double& val)
         readDebugInfo(ifs, msg);
         ifs.read((char *) &val, sizeof(val));
     }
-    else    
+    else
     {
         int len;
         char inMsg[256];
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         ifs >> val;
         ifs.get();
@@ -836,7 +836,7 @@ ifstream& inWrite(ifstream& ifs, char *msg, Real *val, int& total)
         int readTotal;
         ifs.read((char *) &readTotal, sizeof(readTotal));
         int left = readTotal - total;
-        
+
         if (left <= 0)
             ifs.read((char *)val, sizeof(Real) * readTotal);
         else {
@@ -845,11 +845,11 @@ ifstream& inWrite(ifstream& ifs, char *msg, Real *val, int& total)
             ifs.seekg(left * sizeof(Real), ios::cur);
         }
     }
-    else 
+    else
     {
         int len;
         char inMsg[256];
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         int readTotal;
         ifs >> readTotal;
@@ -890,11 +890,11 @@ ifstream& inWrite(ifstream& ifs, char *msg, COLORREF& val)
         readDebugInfo(ifs, msg);
         ifs.read((char *) &val, sizeof(val));
     }
-    else 
+    else
     {
         int len;
         char inMsg[256];
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         ifs >> val;
         ifs.get();
@@ -910,7 +910,7 @@ ifstream& inWrite(ifstream& ifs, char *msg, Wavecell *val, int& total)
         int readTotal;
         ifs.read((char *) &readTotal, sizeof(readTotal));
         int left = readTotal - total;
-        
+
         if (left <= 0)
             total = readTotal;
         else ;
@@ -926,31 +926,31 @@ ifstream& inWrite(ifstream& ifs, char *msg, Wavecell *val, int& total)
             int totalSub = CELL_PARAM_COUNT;
             char cst[80];
             sprintf(cst, "%5d:", (int)cst); // 2017.  See line 929 also. Had sprintf(cst, "%5d:", cst)
-                                            // 2017 Throws a warning. 
+                                            // 2017 Throws a warning.
                                             //---format string '%5d' requires an argument of type 'int', but variadic argument 1  has type 'char *'---
                                             //The "variadic argument 1" means that second occurance of cst.  The : in the format string is part of the
-                                            //desired string's text?  %5d means print a number in decimal in a five character field possibly padded 
+                                            //desired string's text?  %5d means print a number in decimal in a five character field possibly padded
                                             //by blanks in front.
-                                            //One suggestion I found online is to put p (for pointer) instead of d (for integer). 
+                                            //One suggestion I found online is to put p (for pointer) instead of d (for integer).
                                             //Supposedly in old all 32 bit world, integer and pointer are the same, but if you have 64 bit world then
                                             // pointer is 64 bit.  And you have to cast the cst to void * to make the p format happy.
                                             //So you could try sprintf(cst, "%5p:", (void *)cst);
                                             // or to make it simpler, I tried sprintf(cst, "%5d:", (int) cst); Seems to work.
 
 
-            
+
             inWrite(ifs, cst, &(val[count]._cell_param[0]), totalSub);
         }
-        
+
         int size = sizeof(Wavecell) + 5;    // plus five for XXXXX (count value)
         // Skip the rest
         ifs.seekg(left * size, ios::cur);
     }
-    else 
+    else
     {
         int len;
         char inMsg[256];
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         int readTotal;
         ifs >> readTotal;
@@ -987,7 +987,7 @@ ifstream& inWrite(ifstream& ifs, char *msg, Wavecell2 *val, int& total)
         int readTotal;
         ifs.read((char *) &readTotal, sizeof(readTotal));
         int left = readTotal - total;
-        
+
         if (left <= 0)
             total = readTotal;
         else ;
@@ -1000,11 +1000,11 @@ ifstream& inWrite(ifstream& ifs, char *msg, Wavecell2 *val, int& total)
         // Skip the rest
         ifs.seekg(left * size, ios::cur);
     }
-    else 
+    else
     {
         int len;
         char inMsg[256];
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         int readTotal;
         ifs >> readTotal;
@@ -1042,11 +1042,11 @@ ifstream& inWrite(ifstream& ifs, char *msg, COLORREF *val, int& total)
             ifs.seekg(left * sizeof(COLORREF), ios::cur);
         }
     }
-    else 
+    else
     {
         int len;
         char inMsg[256];
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         int readTotal;
         ifs >> readTotal;
@@ -1072,25 +1072,25 @@ ifstream& inWrite(ifstream& ifs, char *msg, vector<class TweakParam *> *userPara
         int total = userParam->size();
         ifs.read((char *) &readTotal, sizeof(readTotal));
         for(int count = 0; count < readTotal; count++)
-        {   
+        {
             Real value;
             ifs.read((char *) &value, sizeof(value));
             if (count < total)
                 (*userParam)[count]->SetVal(value);
         }
     }
-    else 
+    else
     {
         Real value;
         int len;
         char inMsg[256];
-        ifs >> len; 
+        ifs >> len;
         ifs.getline(inMsg, len+1);
         int readTotal;
         int total = userParam->size();
         ifs >> readTotal;
         for(int count = 0; count < readTotal; count++)
-        {   
+        {
             ifs >> value;
             if (count < total)
                 (*userParam)[count]->SetVal(value);
@@ -1116,10 +1116,10 @@ BOOL findUserDLL(char *pathFileName)
     ifs.clear();
     // Extract path and file name
 // 2017 The code didn't complie with the following two lines, which seem to be an incorrectly written for loop and non-shareable post variable.
-    
-    /* for(int post = strlen(pathFileName); 
+
+    /* for(int post = strlen(pathFileName);
         (pathFileName[post] != '\\') && post >= 0; post--); */
-        
+
     //New code 2017.
     int post;
     for (post = strlen(pathFileName); pathFileName[post] != '\\' && post >= 0; post--);
@@ -1210,13 +1210,13 @@ BOOL findUserDLL(char *pathFileName)
     ofn.Flags             = OFN_PATHMUSTEXIST;
     if(GetOpenFileName((LPOPENFILENAME)&ofn) )
     {
-        strcpy(pathFileName, ofn.lpstrFile);                    
+        strcpy(pathFileName, ofn.lpstrFile);
         return TRUE;
     }
     else return FALSE;
 }
 
-BOOL inBinary(ifstream& ifs, CA* target) 
+BOOL inBinary(ifstream& ifs, CA* target)
 //
 // Version 8 - binary/Text
 //
@@ -1234,7 +1234,7 @@ BOOL inBinary(ifstream& ifs, CA* target)
     int loadStates;
 
     inWrite(ifs, "CA Type: ", loadTypeCA);
-    
+
     if (loadTypeCA == CA_USER)
     {
         char userRuleName[MAXFILENAME+80];
@@ -1250,10 +1250,10 @@ BOOL inBinary(ifstream& ifs, CA* target)
             recreateUserDialog();
         }
     }
-    
+
     inWrite(ifs, "Radius: ", loadRadius);
     inWrite(ifs, "States: ", loadStates);
-    
+
     target->Settype(loadTypeCA);
     target->Changeradiusandstates(loadRadius, loadStates);
 
@@ -1270,7 +1270,7 @@ BOOL inBinary(ifstream& ifs, CA* target)
     inWrite(ifs, "Target Entropy: ", target->target_entropy);
     inWrite(ifs, "Bonus Entropy: ", target->entropy_bonus);
     inWrite(ifs, "Fail Stripe: ", target->fail_stripe);
-    
+
 
     // Standard CA base
 //Don't need read horz_count in as you aren't changing the size of the CA
@@ -1315,9 +1315,9 @@ BOOL inBinary(ifstream& ifs, CA* target)
     if (load_save_cells_flag)
     {
         // Set this flag so that the call to SetWrapflag inside of CA::Locate
-        //  will not reset smoothsteps and change the new cell info . 
+        //  will not reset smoothsteps and change the new cell info .
         target->_justloadedcells = TRUE;
-        // reset all buffers so the loaded information goes into rowbuffer[0] 
+        // reset all buffers so the loaded information goes into rowbuffer[0]
         target->sourcerowindex = 0;
         target->targetrowindex = 1;
         target->pastrowindex = MEMORY - 1;
@@ -1335,7 +1335,7 @@ BOOL inBinary(ifstream& ifs, CA* target)
         {
             case CA_STANDARD:
             case CA_REVERSIBLE:
-                temp = target->_max_horz_count;     
+                temp = target->_max_horz_count;
                 inWrite(ifs, "Source Row Index (size): ", target->source_row, temp);
                 temp = target->_max_horz_count;
                 inWrite(ifs, "Past Row Index (Size): ", target->past_row, temp);
@@ -1375,7 +1375,7 @@ BOOL inBinary(ifstream& ifs, CA* target)
                 {
                     case CA_STANDARD:
                     case CA_REVERSIBLE:
-                        temp = target->_max_horz_count;     
+                        temp = target->_max_horz_count;
                         inWrite(ifs, "Source Row Index (size): ", target->source_row, temp);
                         temp = target->_max_horz_count;
                         inWrite(ifs, "Past Row Index (Size): ", target->past_row, temp);
@@ -1461,11 +1461,11 @@ BOOL inBinary(ifstream& ifs, CA* target)
 void CAlist::Saveindividual(char *filename, CA *target)
 {
     ofstream ofs;
-    
+
     errOccurred = FALSE;
     if (!BINARY)
-        ofs.open(filename, ios::out); 
-    else ofs.open(filename, ios::out|ios::binary); 
+        ofs.open(filename, ios::out);
+    else ofs.open(filename, ios::out|ios::binary);
     if (!checkError(ofs, "Unable to create file"))
     {
         #ifdef LIMIT_PRECISION
@@ -1497,7 +1497,7 @@ void CAlist::Saveall(char *filename, BOOL auto_overwrite)
     if (checkError(ofs, "Unable to create file"))
     {
         ofs.close();
-        return; 
+        return;
     }
     if (!BINARY)
     {
@@ -1512,7 +1512,7 @@ void CAlist::Saveall(char *filename, BOOL auto_overwrite)
     {
         ofs << list[i];
         if (errOccurred)
-        {   
+        {
             errOccurred = FALSE;
             ofs.close();
             return;
@@ -1527,7 +1527,7 @@ void CAlist::Saveall(char *filename, BOOL auto_overwrite)
     outWrite(ofs, "Bread Cycle Count: ", breedcycle_count);
     outWrite(ofs, "Evolve Flag: ", evolveflag);
     outWrite(ofs, "View Mode: ", (int)IDC_SPLIT_VIEW);
-    
+
     // Next line is a workaround, as showvelocity was moved from CAlist to CA.
 //  outWrite(ofs, "Show velocity: ", Getshowvelocity());
     outWrite(ofs, "Graph flag: ", 0); //(unsigned int) graphflag;
@@ -1584,17 +1584,17 @@ void compressTheFile(char *pathFileName)
         path[post] = 0;
         strcpy(fileName, pathFileName+post+1);
     }
-    SetCurrentDirectory(path);      
-    
+    SetCurrentDirectory(path);
+
     strcpy(tempFileName, fileName);
     tempFileName[strlen(tempFileName)-1] = '~';
     DeleteFile(tempFileName);   // Remove old temp file if exist
     if (!MoveFile(fileName, tempFileName))
     {
-        MessageBox(masterhwnd, 
+        MessageBox(masterhwnd,
             (LPSTR) "Saved as non-compress mode",
             (LPSTR)"File Error", MB_OK);
-        SetCurrentDirectory(curDirectory);      
+        SetCurrentDirectory(curDirectory);
         return;
     }
 
@@ -1602,30 +1602,30 @@ void compressTheFile(char *pathFileName)
     char compressProgName[256];
     strcpy(compressProgName, capowDirectory);
     strcat(compressProgName, "\\compress");
-    
-    int res = _spawnl(_P_WAIT, compressProgName, compressProgName, 
+
+    int res = _spawnl(_P_WAIT, compressProgName, compressProgName,
                        tempFileName, fileName, NULL);
     if (res == -1)
     {   // Fail to compress
         if (MoveFile(tempFileName, fileName))
         {
             if (errno == ENOENT)
-                MessageBox(masterhwnd, 
+                MessageBox(masterhwnd,
                        (LPSTR) "Saved as non-compress mode\nCompress.exe not found",
                        (LPSTR)"File Error", MB_OK);
-            else MessageBox(masterhwnd, 
+            else MessageBox(masterhwnd,
                        (LPSTR) "Saved as non-compress mode",
                        (LPSTR)"File Error", MB_OK);
-            SetCurrentDirectory(curDirectory);      
+            SetCurrentDirectory(curDirectory);
             return;
         }
-        else 
-        { 
+        else
+        {
             if (errno == ENOENT)
-                MessageBox(masterhwnd, 
+                MessageBox(masterhwnd,
                     (LPSTR) "Compress.exe not found",
                     (LPSTR)"File Error - Compress.exe not found", MB_OK);
-            else MessageBox(masterhwnd, 
+            else MessageBox(masterhwnd,
                     (LPSTR) "Unable to rename file",
                     (LPSTR)"File Error", MB_OK);
 
@@ -1642,22 +1642,22 @@ void compressTheFile(char *pathFileName)
             if (MoveFile(tempFileName, fileName))
             {
                 if (errno == ENOENT)
-                    MessageBox(masterhwnd, 
+                    MessageBox(masterhwnd,
                            (LPSTR) "Saved as non-compress mode\nCompress.exe not found",
                            (LPSTR)"File Error", MB_OK);
-                else MessageBox(masterhwnd, 
+                else MessageBox(masterhwnd,
                            (LPSTR) "Saved as non-compress mode",
                            (LPSTR)"File Error", MB_OK);
-                SetCurrentDirectory(curDirectory);      
+                SetCurrentDirectory(curDirectory);
                 return;
             }
-            else 
-            { 
+            else
+            {
                 if (errno == ENOENT)
-                    MessageBox(masterhwnd, 
+                    MessageBox(masterhwnd,
                         (LPSTR) "Compress.exe not found",
                         (LPSTR)"File Error - Compress.exe not found", MB_OK);
-                else MessageBox(masterhwnd, 
+                else MessageBox(masterhwnd,
                         (LPSTR) "Unable to rename file",
                         (LPSTR)"File Error", MB_OK);
 
@@ -1666,7 +1666,7 @@ void compressTheFile(char *pathFileName)
         else ifs.close();
     }
     DeleteFile(tempFileName);
-    SetCurrentDirectory(curDirectory);      
+    SetCurrentDirectory(curDirectory);
 }
 
 //----------------------------------------------------------------------
@@ -1686,8 +1686,8 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
     if (checkError(ifs, "Unable to open file"))
     {
         ifs.close();
-        return FALSE;   
-    }   
+        return FALSE;
+    }
     if (!BINARY)
     {
         #ifdef LIMIT_PRECISION
@@ -1698,9 +1698,9 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
     ifs.read(fileType, 2);
     fileType[2] = 0;
     if (strcmp(fileType, FILETYPE) != 0)
-    {   
+    {
         ifs.close();
-        
+
         // Check if it is a compressed file
         compressFileHandler = LZOpenFile(filename, &fileStruct, OF_READ);
         switch(compressFileHandler)
@@ -1710,14 +1710,14 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
                 MessageBox(masterhwnd, (LPSTR) "Invalid file",
                            (LPSTR)"File Error", MB_OK);
                 return FALSE;
-        }   
+        }
         INT result = LZRead(compressFileHandler, fileType, 2);
         switch(result)
         {
             case LZERROR_BADINHANDLE:
             case LZERROR_BADOUTHANDLE:
             case LZERROR_BADVALUE:
-            case LZERROR_GLOBALLOC: 
+            case LZERROR_GLOBALLOC:
             case LZERROR_GLOBLOCK:
             case LZERROR_READ:
             case LZERROR_WRITE:
@@ -1737,7 +1737,7 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
         if (strcmp(fileType, FILETYPE) != 0)
         {   LZClose(compressFileHandler);
             // May be previous version format, so prompt for trial
-            if (MessageBox(masterhwnd, 
+            if (MessageBox(masterhwnd,
                        (LPSTR) "Invalid file type\nIt may be a previous release, do you want to try open it?",
                        (LPSTR)"File Error", MB_YESNOCANCEL | MB_ICONEXCLAMATION ) == IDYES)
             {
@@ -1772,8 +1772,8 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
         if (checkError(ifs, "Unable to open file"))
         {
             ifs.close();
-            return FALSE;   
-        }   
+            return FALSE;
+        }
         if (!BINARY)
         {
             #ifdef LIMIT_PRECISION
@@ -1802,14 +1802,14 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
     }
     ifs >> target;
     ifs.close();
-    Locate(); //This will prevent having an ugly lip at the bottom of 
+    Locate(); //This will prevent having an ugly lip at the bottom of
     //the scrolling CA.  It *will* make a ding line in the other scrolling
     //CAs, but this is acceptale.  The main thing it is doing is setting
     //blt_flag to 0 and making all of the line counters the same.
-    if (!errOccurred) 
+    if (!errOccurred)
     {
         // If we load a new file, start breed cycle all over to
-        // give the new CA a fighting chance 
+        // give the new CA a fighting chance
         if (breedflag)
     //      if (MessageBox(hwnd,
     //                     (LPSTR)"Reset Breedcycle counter and all scores?",
@@ -1831,7 +1831,7 @@ BOOL CAlist::Loadall_Individual(char* filename)// Load all CA with same *.CA
     for (int i = 0; i < count; i++)
         if (list[i] != focus)
         {
-            list[i]->_usercastyle = focus->_usercastyle; 
+            list[i]->_usercastyle = focus->_usercastyle;
             list[i]->_usernabesize = focus->_usernabesize;
 
             list[i]->Settype(focus->Gettype());
@@ -1839,7 +1839,7 @@ BOOL CAlist::Loadall_Individual(char* filename)// Load all CA with same *.CA
 //          list[i]->Mutate(mutation_strength);
         }
     return TRUE;
-} 
+}
 
 
 BOOL CAlist::Loadall(char* filename, BOOL startup)
@@ -1861,14 +1861,14 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
     {
         strcat(msg, filename);
         if (!strcmp(filename, "ACTIVE.CAS"))
-            MessageBox(masterhwnd, (LPSTR)"Using Default Parameters", 
+            MessageBox(masterhwnd, (LPSTR)"Using Default Parameters",
                        (LPSTR)"No ACTIVE.CAS File", MB_OK | MB_ICONEXCLAMATION );
         else MessageBox(masterhwnd, (LPSTR) msg,
                 (LPSTR)"File Error", MB_OK | MB_ICONEXCLAMATION );
         ifs.close();
 //BUG When I am trying to read callwave.cas I jump from 70 lines down below up to
 //this position and exit without doing the file load...
-        return FALSE; 
+        return FALSE;
     }
     if (!BINARY)
     {
@@ -1892,14 +1892,14 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
                 MessageBox(masterhwnd, (LPSTR) "Invalid file",
                            (LPSTR)"File Error", MB_OK);
                 return FALSE;
-        }   
+        }
         INT result = LZRead(compressFileHandler, fileType, 2);
         switch(result)
         {
             case LZERROR_BADINHANDLE:
             case LZERROR_BADOUTHANDLE:
             case LZERROR_BADVALUE:
-            case LZERROR_GLOBALLOC: 
+            case LZERROR_GLOBALLOC:
             case LZERROR_GLOBLOCK:
             case LZERROR_READ:
             case LZERROR_WRITE:
@@ -1919,7 +1919,7 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
         if (strcmp(fileType, FILETYPE) != 0)
         {   LZClose(compressFileHandler);
             // May be previous version format, so prompt for trial
-            if (MessageBox(masterhwnd, 
+            if (MessageBox(masterhwnd,
                        (LPSTR) "Invalid file type\nIt may be a previous release, do you want to try open it?",
                        (LPSTR)"File Error", MB_YESNOCANCEL | MB_ICONEXCLAMATION ) == IDYES)
             {
@@ -1927,7 +1927,7 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
             }
             else return FALSE;
         }
-        
+
         // File is compressed, decompress it
 //      strcat(filename, "~"); Doesn't always work.
         filename[strlen(filename)-1] = '~'; //Do it by hand
@@ -1956,7 +1956,7 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
         {
             ifs.close();
                 return FALSE;
-        }   
+        }
         if (!BINARY)
         {
             #ifdef LIMIT_PRECISION
@@ -1977,7 +1977,7 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
 
     inWrite(ifs, "Number of CA: ", filecount);
     if (filecount == 0)
-    {   // load an empty *.CAS file 
+    {   // load an empty *.CAS file
         MessageBox(masterhwnd, (LPSTR)"Invalid file format", (LPSTR)"File Error",
                    MB_OK | MB_ICONEXCLAMATION );
         ifs.close();
@@ -1990,13 +1990,13 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
         ifs.close();
         return FALSE;
     }
-    else count = filecount; 
-    
+    else count = filecount;
+
     for (int i = 0; i < count; i++)
     {
         ifs >> list[i];
         if (errOccurred)
-        {   
+        {
             errOccurred = FALSE;
             ifs.close();
             return FALSE;
@@ -2014,7 +2014,7 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
     inWrite(ifs, "Evolve Flag: ", evolveflag);
     int temp;
     inWrite(ifs, "View Mode: ", temp);
-    
+
 //  inWrite(ifs, "Show velocity: ", temp);
     inWrite(ifs, "Graph flag: ", temp); //(unsigned int) graphflag;
     inWrite(ifs, "Wire flag: ", temp); //(unsigned int) wireflag;
@@ -2037,7 +2037,7 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
         return FALSE;
     }
     ifs.close();
-        
+
     BOOL old_not_seeded_yet_flag = not_seeded_yet_flag;
     not_seeded_yet_flag = FALSE;
     if(!(SetWindowPos(hwnd,  HWND_NOTOPMOST, scr.left, scr.top,
@@ -2046,7 +2046,7 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
         MessageBox(hwnd, (LPSTR)"Resizing window",
             (LPSTR)"Unable to resize windows", MB_OK | MB_ICONEXCLAMATION );
     }
-    blt_flag = 0; //This prevents the ugly lip at bottom of scrolling CAs. 
+    blt_flag = 0; //This prevents the ugly lip at bottom of scrolling CAs.
     SendMessage(masterhwnd, WM_RBUTTONDOWN, 0, 0L); //This zooms you out so
     //you can load properly, we had a problem loading unzoomed over zoomed.
     HDC hdc = GetDC(masterhwnd);
@@ -2075,7 +2075,7 @@ and this gets rid of the bug! Rudy 5/21/97.  We also do this in WM_LBUTTONDOWN*/
             MAKELONG(rect.right, rect.bottom));// to wake up OpenGL
     }
 
-    // Start breed cycle all over to give the new ca a fighting chance 
+    // Start breed cycle all over to give the new ca a fighting chance
     if (breedflag)
 //      if (MessageBox( hwnd,
 //                  (LPSTR)"",
@@ -2088,7 +2088,7 @@ and this gets rid of the bug! Rudy 5/21/97.  We also do this in WM_LBUTTONDOWN*/
     if (load_save_cells_flag)
     {
         // Before you resize, set the _justloadedcells flags to TRUE again
-        // for the second call to Locate (a first one took place in ift >> list[i]) 
+        // for the second call to Locate (a first one took place in ift >> list[i])
         for (int i = 0; i < count; i++)
             list[i]->Set_justloadedcells(TRUE); // These are the CA mutators.
         Set_justloadedcells(TRUE); // This is the CAlist mutator.

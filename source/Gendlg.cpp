@@ -30,7 +30,7 @@ static int focusGen;        // zero based index of generator in the generator li
 static int lb_index = -1;
 static char szIndex[10] = " ";
 static BOOL phase_synced = FALSE;
- 
+
 //====================LOCAL FUNCTIONS ===============
 
 BOOL HandleUpDownControlGenerators(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -41,7 +41,7 @@ void showparams(HWND hDlg);
 static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
     edit_id = 0;
-    focusGen = -1;  
+    focusGen = -1;
     if(calife_list->FocusCA()->generatorlist.Count() >0)
         focusGen = calife_list->FocusCA()->generatorlist.Count() - 1;
 
@@ -68,28 +68,28 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
                 focusGen = -1;
                 edit_id = 0;
                 showparams(hDlg);
-            }   
+            }
             InvalidateRect(hDlg, NULL, FALSE);
             UpdateWindow(hDlg);
             break;
 
         case IDC_GENERATORS_REMOVE_INDEX_I:
             if (focusGen >= 0)
-            {   
+            {
                 newcount = calife_list->FocusCA()->generatorlist.Count() - 1;
 
                 if(calife_list->FocusCA()->Getdimension()==1) //1D CA
                     calife_list->FocusCA()->generatorlist.Delete(focusGen);
                 else if(calife_list->FocusCA()->Getdimension()==2)//2D CA
                     calife_list->FocusCA()->generatorlist.Deletexy(focusGen);
-                else    
+                else
                     break; //you don't belong here
-                
+
                 if (focusGen == newcount || newcount == 0) //if deleted generator was last in list
                     focusGen--;                            //or if only one in list, decrement focusGen
                                                     //Otherwise, the focus stays on the current generator
                 edit_id = 0;
-                showparams(hDlg);                   
+                showparams(hDlg);
             }
             break;
 
@@ -100,19 +100,19 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
         case IDC_GENERATORS_GEN_CUR:
             if (zoomviewflag)
                 SendMessage(masterhwnd, WM_COMMAND, CUR_GENERATOR, 0L);
-            else 
+            else
             {
-                SendMessage(masterhwnd, WM_LBUTTONDOWN, CUR_PICK, 0L); // zooms view 
-                SendMessage(masterhwnd, WM_COMMAND, CUR_GENERATOR, 0L);     
-                SendMessage(hDlg, WM_COMMAND, IDC_GENERATORS_GEN_CUR, 0L);      
-            }                                                         
+                SendMessage(masterhwnd, WM_LBUTTONDOWN, CUR_PICK, 0L); // zooms view
+                SendMessage(masterhwnd, WM_COMMAND, CUR_GENERATOR, 0L);
+                SendMessage(hDlg, WM_COMMAND, IDC_GENERATORS_GEN_CUR, 0L);
+            }
             break;
- 
+
 
         case IDC_GENERATORS_LIST1:
             if(codeNotify==LBN_SELCHANGE)
             {
-                focusGen = SendMessage(hwndCtl, LB_GETCURSEL,0,0L); 
+                focusGen = SendMessage(hwndCtl, LB_GETCURSEL,0,0L);
                 if(focusGen != LB_ERR)
                 {
                     edit_id = 0; // need this to counter recursive calls to OMEGA and AMP edit boxes
@@ -149,23 +149,23 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
             break;
 
         case WM_VSCROLL:
-        
+
             switch(LOWORD(codeNotify))
             {
                 case SB_LINEUP:
-                
+
 
                     edit_id = 0;
                     //showparams(hDlg);
                     break;
 
                 case SB_LINEDOWN:
-                    
+
                     edit_id = 0;
                     //showparams(hDlg);
             }
             break;
-        
+
         case IDOK:
             switch (edit_id)
             {
@@ -271,17 +271,17 @@ BOOL HandleUpDownControlGenerators(HWND hDlg, UINT message, WPARAM wParam, LPARA
 {
     float value;
     NM_UPDOWN *pnmud = (NM_UPDOWN FAR *) lParam;
-    
+
     if (pnmud->hdr.code != UDN_DELTAPOS)    // if no change then return
         return FALSE;
- 
+
     //focusGen = calife_list->FocusCA()->generatorlist.Count() - 1;
     switch ( pnmud->hdr.idFrom )
     {
 
-        case IDC_GENERATORS_SPIN_OMEGA:  //frequency 
+        case IDC_GENERATORS_SPIN_OMEGA:  //frequency
             if ( pnmud->iDelta > 0 )
-            {   
+            {
                 value = calife_list->FocusCA()->generatorlist.GetOmega(focusGen);
 //              calife_list->FocusCA()->generatorlist.SetOmega(focusGen, (value - 0.1));
                 calife_list->FocusCA()->generatorlist.SetSmoothOmega(focusGen, (value - 0.1));
@@ -296,12 +296,12 @@ BOOL HandleUpDownControlGenerators(HWND hDlg, UINT message, WPARAM wParam, LPARA
                 showparams(hDlg);
             }
             break;
-            
+
         case IDC_GENERATORS_SPIN_AMP:
             if ( pnmud->iDelta > 0 )
-            {   
-                
-                calife_list->FocusCA()->generatorlist.SetAmplitude(focusGen, calife_list->FocusCA()->generatorlist.GetAmplitude(focusGen)-.1);  
+            {
+
+                calife_list->FocusCA()->generatorlist.SetAmplitude(focusGen, calife_list->FocusCA()->generatorlist.GetAmplitude(focusGen)-.1);
                 showparams(hDlg);
             }
             else
@@ -327,7 +327,7 @@ void showparams(HWND hDlg)
     if (edit_id)
         return; // This bails on regressive showparams calls from WM_COMMAND.
 
-    // if not editing any edit box, update!!!       
+    // if not editing any edit box, update!!!
 
 
 
@@ -344,18 +344,18 @@ void showparams(HWND hDlg)
             wsprintf((LPSTR) buffer, "%2s %4s %2s",(LPSTR)buffer1, (LPSTR)"    ", (LPSTR)buffer2);
         }
         SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_ADDSTRING, 0, (LONG)(LPSTR)buffer);
-        SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_SETITEMDATA, i, (LPARAM) i); 
+        SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_SETITEMDATA, i, (LPARAM) i);
         SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_SETCURSEL, focusGen, 0L); //highlights list box sellection
     }
-    
-    
+
+
     if(focusGen >= 0)// fill the edit boxes
     {
-        value = calife_list->FocusCA()->generatorlist.GetOmega(focusGen);       
+        value = calife_list->FocusCA()->generatorlist.GetOmega(focusGen);
         realLabel (hDlg, IDC_GENERATORS_OMEGA, value);
         realLabel (hDlg, IDC_GENERATORS_AMP, calife_list->FocusCA()->generatorlist.GetAmplitude(focusGen));
-        SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_SETITEMDATA, focusGen, (LPARAM) focusGen); 
-        SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_GETTEXT,(WPARAM)(focusGen),(LPARAM)(LPCTSTR)szIndex);    
+        SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_SETITEMDATA, focusGen, (LPARAM) focusGen);
+        SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_GETTEXT,(WPARAM)(focusGen),(LPARAM)(LPCTSTR)szIndex);
         SetDlgItemText(hDlg, IDC_GENERATORS_INDEX, (LPSTR)szIndex);
     }
     else
@@ -370,4 +370,4 @@ void showparams(HWND hDlg)
 
 
 
- 
+

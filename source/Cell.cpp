@@ -6,9 +6,9 @@
 
     FILE DESCRIPTION:   This file contains functions and data to control
                         the cell dialog box and its features.
- 
-    UPDATE LOG:     9-29-97   Code Commented    
-                    
+
+    UPDATE LOG:     9-29-97   Code Commented
+
 *******************************************************************************/
 //====================INCLUDES===============
 #include "ca.hpp"
@@ -27,7 +27,7 @@ extern char *szMyAppName;
 extern class CAlist *calife_list;
 extern BOOL   update_flag;
 extern HWND   hDlgCell, masterhwnd;
-extern short  focusflag;    
+extern short  focusflag;
 
 //====================EXTERNAL FUNCTIONS===============
 extern void realLabel (HWND, int, Real);
@@ -58,16 +58,16 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
 {
             switch( id )
-            {  
+            {
                 case SC_UPDATE:
                     showcellparams(hDlg);
                     break;
 
                 case BUTT_MUTATE:
                     if( focusflag )
-                    {   
+                    {
                         calife_list->FocusCA()->Mutate( calife_list->Getmutation() );
-                        calife_list->FocusCA()->ResetGenerationCount();                 
+                        calife_list->FocusCA()->ResetGenerationCount();
                     }
                     else
                     {
@@ -78,7 +78,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
                     break;
 
                 case BUTT_COPYMUTATE:
-                    calife_list->ResetAllGenerationCount();                 
+                    calife_list->ResetAllGenerationCount();
                     calife_list->Copymutate();
                     break;
 
@@ -87,7 +87,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
                     calife_list->Breed();
                     break;
             } // switch wParam
-            
+
 
 }
 //********************************************************************************
@@ -99,7 +99,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
 static void MyWnd_CLOSE(HWND hDlg)
 {
     DestroyWindow(hDlg);
-    
+
 }
 
 //********************************************************************************
@@ -122,17 +122,17 @@ BOOL HandleUpDownControlCell(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 //
 {
     NM_UPDOWN *pnmud = (NM_UPDOWN FAR *) lParam;
-    
+
     if (pnmud->hdr.code != UDN_DELTAPOS)    // if no change then return
         return FALSE;
- 
- 
+
+
     switch ( pnmud->hdr.idFrom )
     {
-    
+
         case IDC_SPIN_BREED_MUTATE:
             if ( pnmud->iDelta < 0 )
-            {       
+            {
                 calife_list->Setmutation(+1);
                 SendMessage(hDlg, WM_COMMAND, SC_UPDATE, 0L);
             }

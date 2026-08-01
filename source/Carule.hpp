@@ -7,7 +7,7 @@
     FILE DESCRIPTION:   This file contains defintions and data to control
                         carule creation.
 
-    UPDATE LOG:         
+    UPDATE LOG:
 
 *******************************************************************************/
 //====================INCLUDES===============
@@ -69,7 +69,7 @@
 #define PHASE owner->_phase
 #define TIME owner->time
 //-------------NONLINEARITY parameter names------------
-#define NONLINEARITY owner->_nonlinearity1.Val() 
+#define NONLINEARITY owner->_nonlinearity1.Val()
 //---------------Diverse Cell Parameters--------------------------
 /* Here are a couple of individual cell parameters that are different in each
 cell, but which are always roughly around 1.0.  You can change them with the

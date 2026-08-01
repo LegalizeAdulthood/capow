@@ -1,5 +1,5 @@
 // ***********************************************************************
-// File:        userpara.hpp                                                    
+// File:        userpara.hpp
 // PROJECT:     CAMCOS CAPOW
 // ENVIRONMENT: Visual C++ 4.0  Win32
 //
@@ -21,20 +21,20 @@
 #define USERTEXTLENGTH      60 //2017 was 40. Wanted bigger font.
 #define USEREDITCODEBASE    (WM_USER + 1000)
 
-// Offset of client area. Note - left, right, top and bottom 
-#define STARTX  20  
-#define STARTY  20  
+// Offset of client area. Note - left, right, top and bottom
+#define STARTX  20
+#define STARTY  20
 
-// Initail column size 
-#define TOTALSTARTCOL   3   
+// Initail column size
+#define TOTALSTARTCOL   3
 
 // Width and height of a column in pixel */
 #define columnWidth     (labelWidth+editWidth)
 #define rowHeight       (labelHeight + 5)
 
-// Percent less of edit width this percentage less is use to display the 
+// Percent less of edit width this percentage less is use to display the
 // updown control. Use for spacing between updown control and label box.
-#define PERCENTUPDOWN   (0.7)   
+#define PERCENTUPDOWN   (0.7)
 #define UPDOWNWIDTH     (17)
 
 // width of static text less, spacing purpose between label and edit box

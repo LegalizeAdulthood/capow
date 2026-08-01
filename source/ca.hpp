@@ -6,7 +6,7 @@
 
     FILE DESCRIPTION:   This file contains CA class definitions.
 
-    UPDATE LOG:         9-26-97 
+    UPDATE LOG:         9-26-97
 *******************************************************************************/
 
 //=================COMPILER SWITCHES==================================
@@ -19,7 +19,7 @@ using namespace std; //2017
 /* This is the STL header.  Because Microsoft makes it hard to
 use STL and no longer automatically installs the STL files, we supply the necessary
 ones with our source code.  They are these *.H files (no *.C or *.CPP files):
-algobase.h, bool.h, defalloc.h, function.h, iterator.h, pair.h, and 
+algobase.h, bool.h, defalloc.h, function.h, iterator.h, pair.h, and
 vector.h.  More STL *.H files exist, but the ones listed are the only ones needed
 to make vector.h work. I might mention here that Microsoft's motivation for
 withdrawing support of STL is probably to push programmers to use the Microsft
@@ -41,9 +41,9 @@ FORCEXSIZE by FORCEYSIZE, which I define immediately below.
 I used the FORCENARROW switch on May 5, 2005, so as
 to be able to make 128 by 1280 bitmaps for borders of my book,
 The Lifebox, the Seashell and the Soul, see http://www.rudyrucker.com/lifebox
-I also used it n 2006 and 2007 to make borders of my online webzine FLURB at http://www.flurb.net 
+I also used it n 2006 and 2007 to make borders of my online webzine FLURB at http://www.flurb.net
 In both cases, I wanted a long narrow CA that I could use Edit|Copy to copy the clipboard
-and then paste into Photoshop to use as the left edge of an otherwise blank page 
+and then paste into Photoshop to use as the left edge of an otherwise blank page
 backgroudn bitmap.  In practice the bitmap you get on the clipboard may not actually be as high as
 FORCEYSIZE, it will be constrained by the actual size of the active area on your screen. */
 #define FORCEXSIZE 64
@@ -96,7 +96,7 @@ standard Euclidean metric to get a nice cone of seed */
 switching on FIT_STATUS_BAR, replacing the old one in CA.CPP.  The new way is
 good because it makes the right room for the status bar. Really the code
 for the two Locates should be merged, though, it is crazy to maintain two
-blocks that do the same thing, so the "old" locate should have this code. 
+blocks that do the same thing, so the "old" locate should have this code.
 RR 5/20/97*/
 
 //#define SAVE_QUERY
@@ -177,7 +177,7 @@ inline void WRAP(Real &vx, Real vlo, Real vhi)
 #endif //LITE
 #define VARIABLE_COUNT 2
 /* This is the number of independent variables in
-    a 1D Wavecell structure.  It must be at least 1.  We treat "intensity" 
+    a 1D Wavecell structure.  It must be at least 1.  We treat "intensity"
     as a synonym name for variable[0].  (This is going to cause trouble
     with the variable name max_intensity.) */
 #define intensity variable[0]
@@ -196,7 +196,7 @@ inline void WRAP(Real &vx, Real vlo, Real vhi)
 is no problem for the RAM. We leave BIG2D on normally now.  We could even increase the size,
 of CX_2D and CY_2D, although this will make some of the laoded *.CA and *.CAS files look bad. */
 
-#ifdef BIGGEST2D // 180,000 Modern wide screen is close to a 2x1 aspect 
+#ifdef BIGGEST2D // 180,000 Modern wide screen is close to a 2x1 aspect
     #define CX_2D 600
     #define CY_2D 300
 #endif //BIGGEST2D
@@ -237,7 +237,7 @@ code work. */
 #define OSCILLATOR_BASE_PERIOD 200 //This  many timesteps
 #define START_BLT_LINES 1 /* 3 is faster, but I don't like the way it looks
     as much.  For "Fastest" mode we do use 3.  But we start in "fast" mode.*/
-#define AMPLIFY_VEL_COLOR (Real)80.0 /* 2017 to make the velocity values show up better in the View | Velocity 
+#define AMPLIFY_VEL_COLOR (Real)80.0 /* 2017 to make the velocity values show up better in the View | Velocity
     mode, see ca.cpp CA:WaveUpdateStep */
 #define AMPLIFY_VEL_COLOR_2D (Real)0.5 /* 2017 to adjust the variable[1] values which are sometimes
     the same as a velocity, show up better in the View | Velocity mode, see ca.cpp CA:WaveUpdateStep2D */
@@ -313,10 +313,10 @@ code work. */
 #define RANDOMIZE_TIMER_ID 2
 #define RANDOMIZE_TIMER_CYCLE_START 60000//60 seconds.
 /* The ?_TIMER integers are passed to SetTimer in AUTORAND.CPP, and they are
-returend as the wParam with WM_TIMER messages so you know which timer sent the 
+returend as the wParam with WM_TIMER messages so you know which timer sent the
 signal. The ?_time_handle integers are returned by SetTimer (they are 0 if the
 timer isn't active and equal to the corresponding ?_TIMER_ID if the timer is
-active), we use the _handle to tell if we need to do the call to KillTimer to 
+active), we use the _handle to tell if we need to do the call to KillTimer to
 get rid of a timer */
 //----------------RANDOMIZATION BIT FLAGS---------------
 #define RF_ALLVW        0x00000001
@@ -347,7 +347,7 @@ get rid of a timer */
 #define START_VIEWMODE IDC_SCROLL_VIEW //Viewmode params are defined in resource.h
 //Or start with 2D Wave
 //#define START_TYPE_CA CA_WAVE_2D
-//#define START_VIEWMODE IDC_2D_VIEW 
+//#define START_VIEWMODE IDC_2D_VIEW
 //Or start with a nonlinearity-driven 1D cubic wave, a "Ulam wave"
 //#define START_TYPE_CA CA_AUTO_ULAM_WAVE //It's a great wave, but if you start from random pixels it looks bad
 //#define START_VIEWMODE IDC_SPLIT_VIEW //
@@ -448,7 +448,7 @@ class Generator
 {
     friend class CA;
     friend class CAlist;
-    
+
     friend class GeneratorList;
 private:
     CA *ca_ptr; /* know your owner */
@@ -534,7 +534,7 @@ struct DerivPair
 
 //==================Declarations of CA Things Found In DLL files=========
 extern "C" DllExport int USERNABESIZE(void);
-extern "C" DllExport int USERCASTYLE(void); 
+extern "C" DllExport int USERCASTYLE(void);
 extern "C" DllExport void USERINITIALIZE(CA *);
 extern "C" DllExport void USERRULE_1(CA*, int); //1 Cell, has pointer to nabes
 extern "C" DllExport void USERRULE_3(CA*, int, int, int); //3 1D nabes
@@ -693,14 +693,14 @@ private:
     HMODULE _DLLhandle; //Currently loaded DLL
     char _userrulename[MAXFILENAME];
     int _usernabesize; // Set from DLL with _lpfnUSERNABESIZE function.
-        //Will be 1, 3, 5, or 9. 
+        //Will be 1, 3, 5, or 9.
     int _usercastyle;   // Set from DLL with _lpfnUSERCASTYLE function.
         //Is a CA_* code of the type_ca kind, corresponding to a similar CA.
     FPINT _lpfnUSERNABESIZE;
     FPINT _lpfnUSERCASTYLE;
-    FPCELLUPDATE_1 _lpfnUSERRULE_1; // typedef of FPCELLUPDATE_1 is in types.h 
-    FPCELLUPDATE_3 _lpfnUSERRULE_3; // typedef of FPCELLUPDATE_3 is in types.h 
-    FPCELLUPDATE_5 _lpfnUSERRULE_5; // typedef of FPCELLUPDATE_5 is in types.h 
+    FPCELLUPDATE_1 _lpfnUSERRULE_1; // typedef of FPCELLUPDATE_1 is in types.h
+    FPCELLUPDATE_3 _lpfnUSERRULE_3; // typedef of FPCELLUPDATE_3 is in types.h
+    FPCELLUPDATE_5 _lpfnUSERRULE_5; // typedef of FPCELLUPDATE_5 is in types.h
     FPCELLUPDATE_9 _lpfnUSERRULE_9; // typedef of FPCELLUPDATE_9 is in types.h
     //---------------CA Digital Private----------------------------------------
     int sourcerowindex; /* AUTOSET. always have source_row =
@@ -1156,7 +1156,7 @@ public:
     void DLLRule_3(int, int, int); //calls (*pbfnUSERRULE_3)(this,l,c,r);
     void DLLRule_5(int, int, int, int, int);
     //calls (*pbfnUSERRULE_5)(this,c,e,n,w,s) or (*pbfnUSERRULE_5(this,ll,l,c,r,rr)
-    void DLLRule_9(int, int, int, int, int, int, int, int, int); 
+    void DLLRule_9(int, int, int, int, int, int, int, int, int);
     //calls (*pbfnUSERRULE_9)(this,c,e,ne,n,nw,w,sw,s,se);
     //Need a "friend" declaration so the USERRULE module can see CA privates.
     friend DllExport void USERRULE_1(CA*, int);
@@ -1306,7 +1306,7 @@ public:
     void SetAllType(int newtype, BOOL fixflag);
         /* Changes the type of all the cas, fixflag as with SetCAType*/
     void Setviewmode(int newmode); //Do all in list.
-    void Setwrapflag(int newwrapflag);  
+    void Setwrapflag(int newwrapflag);
     void Set_smoothflag(BOOL onoff);
     void Setshowmode(int newmode);
     void Setgeneratorflag(BOOL onoff);  /* 0 for off, 1 for on */
@@ -1373,7 +1373,7 @@ public:
 
         dp to figure out where to tell the list[i] CAs to put their
         minx, maxx, miny, maxy.*/
-    void Locate();   //uses the global masterhwnd   //mike 4/97 
+    void Locate();   //uses the global masterhwnd   //mike 4/97
     /* The default randomize randomizes everything.  We can also set the randflag
 to various thigns, using the RF_? flags.  This is used for autorandomizing and
 for the screensaver */
@@ -1430,7 +1430,7 @@ for the screensaver */
      BOOL Load_Individual(char* filename, CA *target); // Load on focus CA
      BOOL Loadall_Individual(char* filename); // Load all CA with same *.CA
     BOOL Loadall(char* filename, BOOL startup=FALSE); // Load entire experiment
-    // ********** FOR OLD Version of CAPOW **********   
+    // ********** FOR OLD Version of CAPOW **********
     void Load_Individual7(char* filename, CA *target); // Load on focus CA
     BOOL Loadall7(char* filename, BOOL startup=FALSE); // Load entire experiment
 

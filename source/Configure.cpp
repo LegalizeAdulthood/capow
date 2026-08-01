@@ -25,7 +25,7 @@ static char numberstring[MAX_CHARS];
 static char szBuffer[32];
 
 //From AUTORAND.CPP
-extern UINT fRandFlags; 
+extern UINT fRandFlags;
 //  fRandFlags is made of a bunch of RF_??? bitflags defined in CA.HPP.  Default is RF_START.
 extern int randomize_timer_cycle; //
 extern void setTimerCycle(HWND hwnd, int &timer_handle, int timer_ID, int millisecs);
@@ -38,7 +38,7 @@ extern int randomize_timer_handle;
 int Config_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
 //First of all, read fRandFlags and randomize_timer_cycle out of WIN.INI profile.
-    readIniSettings(); 
+    readIniSettings();
     sprintf (szBuffer, "%d", (randomize_timer_cycle / 1000));
 /* Don't do a SetDlgItemText in showparams because it generates WM_COMMAND
 messages that can lead to endless regress */
@@ -59,7 +59,7 @@ messages that can lead to endless regress */
         case IDC_TIMER:
 /* Here we enter the edit-box editing mode.  You can leave this
 mode either by clicking outside the edit box, which sends an id of IDC_TIMER
-with a codeNotify of EN_KILLFOCUS.  In either case we save the changes. 
+with a codeNotify of EN_KILLFOCUS.  In either case we save the changes.
 For future reference, here are the EN code names with their numerical values
 (from the windows header file) along with the times I see them happening in the
 debugger.  Note that I get two EN_ when the dialog opens and I get no EN_ when
@@ -101,59 +101,59 @@ a standalone modal without any CAPOW happening in the background.*/
             if (buildtype == BUILD_EXE)
             {
                 if (randomize_timer_cycle < old_randomize_timer_cycle)
-                    calife_list->Randomize(fRandFlags); 
+                    calife_list->Randomize(fRandFlags);
             }
-            showparams(hDlg); 
+            showparams(hDlg);
             break;
         case IDC_ALLOW_1D_RULES:
             fRandFlags &= (~(RF_2D | RF_BOTHD));
             fRandFlags |=  RF_1D;
-            showparams(hDlg); 
+            showparams(hDlg);
             break;
         case IDC_ALLOW_2D_RULES:
             fRandFlags &= (~(RF_1D | RF_BOTHD));
             fRandFlags |=  RF_2D;
-            showparams(hDlg); 
+            showparams(hDlg);
             break;
         case IDC_ALLOW_BOTH_RULES:
             fRandFlags &= (~(RF_1D | RF_2D));
             fRandFlags |=  RF_BOTHD;
-            showparams(hDlg); 
+            showparams(hDlg);
             break;
         case IDC_DIGITAL:
             fRandFlags &= (~(RF_BOTHVAL | RF_ANALOGVAL));
             fRandFlags |=  RF_DIGITALVAL;
-            showparams(hDlg); 
+            showparams(hDlg);
             break;
         case IDC_ANALOG:
             fRandFlags &= (~(RF_BOTHVAL | RF_DIGITALVAL));
             fRandFlags |=  RF_ANALOGVAL;
-            showparams(hDlg); 
+            showparams(hDlg);
             break;
         case IDC_DIGITALANALOG:
             fRandFlags &= (~(RF_ANALOGVAL | RF_DIGITALVAL));
             fRandFlags |=  RF_BOTHVAL;
-            showparams(hDlg); 
+            showparams(hDlg);
             break;
         case IDC_SPLIT:
             fRandFlags &= (~(RF_BOTHVW | RF_SCROLLVW | RF_ALLVW));
             fRandFlags |=  RF_SPLITVW;
-            showparams(hDlg); 
+            showparams(hDlg);
             break;
         case IDC_SCROLL:
             fRandFlags &= (~(RF_SPLITVW | RF_BOTHVW | RF_ALLVW));
             fRandFlags |=  RF_SCROLLVW;
-            showparams(hDlg); 
+            showparams(hDlg);
             break;
         case IDC_SPLITSCROLL:
             fRandFlags &= (~(RF_SPLITVW | RF_SCROLLVW | RF_ALLVW));
             fRandFlags |=  RF_BOTHVW;
-            showparams(hDlg); 
+            showparams(hDlg);
             break;
         case IDC_ALLVIEW:
             fRandFlags &= (~(RF_SPLITVW | RF_SCROLLVW | RF_BOTHVW));
             fRandFlags |=  RF_ALLVW;
-            showparams(hDlg); 
+            showparams(hDlg);
             break;
         case IDC_PROFILE_FILE:
             fRandFlags ^= RF_FILE;
@@ -162,7 +162,7 @@ a standalone modal without any CAPOW happening in the background.*/
                 if (!(calife_list->Loadall_Individual(szScreenSaverFileName)))
                     fRandFlags &= (~RF_FILE); //If you can't, turn flag off.
             }
-            showparams(hDlg); 
+            showparams(hDlg);
             break;
         case IDC_ONE_CA:
             fRandFlags |= RF_COUNT1;
@@ -207,7 +207,7 @@ a standalone modal without any CAPOW happening in the background.*/
             showparams(hDlg);
             break;
         case IDC_RANDOMIZE:
-            if (fRandFlags & RF_FILE) 
+            if (fRandFlags & RF_FILE)
             { //Try and load the file.
                 if (!(calife_list->Loadall_Individual(szScreenSaverFileName)))
                     fRandFlags &= ~RF_FILE; //If you can't, turn flag off.
@@ -217,7 +217,7 @@ a standalone modal without any CAPOW happening in the background.*/
         case IDC_AUTORANDOMIZE_ON:
             if (randomize_timer_handle) //already on
                 break;
-            if (fRandFlags & RF_FILE) 
+            if (fRandFlags & RF_FILE)
             { //Try and load the file.
                 if (!(calife_list->Loadall_Individual(szScreenSaverFileName)))
                     fRandFlags &= ~RF_FILE; //If you can't, turn flag off.
@@ -259,7 +259,7 @@ static void Config_MOVE(HWND hDlg,int x, int y)
     WriteProfileString((LPSTR)szMyAppName,(LPSTR)"CONFIGUREX",(LPSTR)buf);
     wsprintf((LPSTR)buf,"%i",rect.top);
     WriteProfileString((LPSTR)szMyAppName,(LPSTR)"CONFIGUREY",(LPSTR)buf);
-            
+
 }
 
 
@@ -280,7 +280,7 @@ static void Config_DESTROY(HWND hDlg)
 }
 
 BOOL CALLBACK ConfigureProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{   
+{
     switch (message)
     {
         case WM_INITDIALOG:
@@ -301,7 +301,7 @@ BOOL CALLBACK ConfigureProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 static void showparams(HWND hDlg)
 {
 
-/* First of all we do a bit of selection valication.  If you turned off ALL of  
+/* First of all we do a bit of selection valication.  If you turned off ALL of
 some possibilities, we make you take default*/
     if (!(fRandFlags & (RF_COUNT1 | RF_COUNT4 | RF_COUNT9)))
         fRandFlags |= RF_COUNT9;
@@ -360,8 +360,8 @@ the active button because the info is stored as a bit field.*/
         (fRandFlags & RF_3DBOTH)?BST_CHECKED:BST_UNCHECKED, 0);
 
     CheckRadioButton(hDlg, IDC_AUTORANDOMIZE_OFF, IDC_AUTORANDOMIZE_ON, IDC_AUTORANDOMIZE_OFF +
-        (randomize_timer_handle?1:0));  
-    
+        (randomize_timer_handle?1:0));
+
 
     if((fRandFlags & RF_FILE)||((fRandFlags & RF_COUNT1) && (fRandFlags & ( RF_2D | RF_BOTHD))))
     {

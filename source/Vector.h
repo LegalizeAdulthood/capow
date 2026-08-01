@@ -33,7 +33,7 @@
 template <class T>
 class vector {
 public:
-    
+
     typedef Allocator<T> vector_allocator;
     typedef T value_type;
     typedef vector_allocator::pointer pointer;
@@ -43,7 +43,7 @@ public:
     typedef vector_allocator::const_reference const_reference;
     typedef vector_allocator::size_type size_type;
     typedef vector_allocator::difference_type difference_type;
-    typedef reverse_iterator<const_iterator, value_type, const_reference, 
+    typedef reverse_iterator<const_iterator, value_type, const_reference,
                              difference_type>  const_reverse_iterator;
     typedef reverse_iterator<iterator, value_type, reference, difference_type>
         reverse_iterator;
@@ -59,12 +59,12 @@ public:
     iterator end() { return finish; }
     const_iterator end() const { return finish; }
     reverse_iterator rbegin() { return reverse_iterator(end()); }
-    const_reverse_iterator rbegin() const { 
-        return const_reverse_iterator(end()); 
+    const_reverse_iterator rbegin() const {
+        return const_reverse_iterator(end());
     }
     reverse_iterator rend() { return reverse_iterator(begin()); }
-    const_reverse_iterator rend() const { 
-        return const_reverse_iterator(begin()); 
+    const_reverse_iterator rend() const {
+        return const_reverse_iterator(begin());
     }
     size_type size() const { return size_type(end() - begin()); }
     size_type max_size() const { return static_allocator.max_size(); }
@@ -91,7 +91,7 @@ public:
     finish = uninitialized_copy(first, last, start);
     end_of_storage = finish;
     }
-    ~vector() { 
+    ~vector() {
     destroy(start, finish);
     static_allocator.deallocate(start);
     }
@@ -134,7 +134,7 @@ public:
         insert_aux(position, x);
     return begin() + n;
     }
-    void insert (iterator position, const_iterator first, 
+    void insert (iterator position, const_iterator first,
          const_iterator last);
     void insert (iterator position, size_type n, const T& x);
     void pop_back() {
@@ -153,7 +153,7 @@ public:
     vector<T>::iterator i = copy(last, end(), first);
     destroy(i, finish);
     // work around for destroy(copy(last, end(), first), finish);
-    finish = finish - (last - first); 
+    finish = finish - (last - first);
     }
 };
 
@@ -200,12 +200,12 @@ void vector<T>::insert_aux(iterator position, const T& x) {
     *position = x;
     ++finish;
     } else {
-    size_type len = size() ? 2 * size() 
+    size_type len = size() ? 2 * size()
         : static_allocator.init_page_size();
     iterator tmp = static_allocator.allocate(len);
     uninitialized_copy(begin(), position, tmp);
     construct(tmp + (position - begin()), x);
-    uninitialized_copy(position, end(), tmp + (position - begin()) + 1); 
+    uninitialized_copy(position, end(), tmp + (position - begin()) + 1);
     destroy(begin(), end());
     static_allocator.deallocate(begin());
     end_of_storage = tmp + len;
@@ -243,8 +243,8 @@ void vector<T>::insert(iterator position, size_type n, const T& x) {
 }
 
 template <class T>
-void vector<T>::insert(iterator position, 
-               const_iterator first, 
+void vector<T>::insert(iterator position,
+               const_iterator first,
                const_iterator last) {
     if (first == last) return;
     size_type n = 0;
@@ -279,4 +279,4 @@ void vector<T>::insert(iterator position,
 
 #endif
 
- 
+

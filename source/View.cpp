@@ -5,7 +5,7 @@ extern char *szMyAppName;
 extern HWND hDlgView, masterhwnd;
 extern class CAlist *calife_list;
 extern int zoomviewflag;
-extern HWND hwndStatusBar; 
+extern HWND hwndStatusBar;
 
 static void showparams(HWND);
 extern short focusflag;
@@ -14,12 +14,12 @@ extern short focusflag;
 /*----------------------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------------------*/
 //                          Message Cracker
- 
+
 #pragma argsused
 static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 {
     HINSTANCE hInstance;
-    
+
 //  CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
     hInstance = (HINSTANCE)GetWindowLong(hDlg, GWLP_HINSTANCE);
     showparams( hDlg );
@@ -39,7 +39,7 @@ static void MyWnd_DESTROY(HWND hDlg)
 static void MyWnd_CLOSE(HWND hDlg)
 {
     DestroyWindow(hDlg);
-    
+
 }
 
 
@@ -56,7 +56,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
                 case RADIO_FOCUS:
                     SendMessage(masterhwnd, WM_COMMAND, IDM_CHANGEFOCUSMENU, 0L);
                     break;
-    
+
                 case SC_UPDATE:
                     showparams( hDlg );
                     break;
@@ -111,18 +111,18 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
                     break;
 
                 case RADIO_VIEW_FOUR:
-                    calife_list->Changecount(4); 
+                    calife_list->Changecount(4);
                     break;
 
                 case RADIO_VIEW_NINE:
                     calife_list->Changecount(9);
                     break;
-               
-        
+
+
             } // switch wParam
-            
-            
-}           
+
+
+}
 
 static void MyWnd_MOVE(HWND hDlg,int x, int y)
 {
@@ -134,7 +134,7 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
     WriteProfileString((LPSTR)szMyAppName,(LPSTR)"VIEWX",(LPSTR)buf);
     wsprintf((LPSTR)buf,"%i",rect.top);
     WriteProfileString((LPSTR)szMyAppName,(LPSTR)"VIEWY",(LPSTR)buf);
-            
+
 }
 
 
@@ -169,7 +169,7 @@ it the same way.*/
 /*----------------------------------------------------------------------------------------*/
 
 void showparams( HWND hDlg )
-{   
+{
     int numcas=9;
     int viewmode = (calife_list->FocusCA()->Getviewmode() - IDC_DOWN_VIEW);
     CheckRadioButton( hDlg, RADIO_DOWN_VIEW, RADIO_POINT_VIEW,
@@ -178,7 +178,7 @@ void showparams( HWND hDlg )
       RADIO_BOTH_SHOW + calife_list->FocusCA()->Getshowmode() );
     CheckRadioButton( hDlg, RADIO_SHOW_CHARGE, RADIO_SHOW_CURRENT,
       RADIO_SHOW_CHARGE + calife_list->FocusCA()->Getshowvelocity() );
-    CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );  
+    CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
     switch ( calife_list->Count() ) // Number of CAS
     {
         case 1:
@@ -193,7 +193,7 @@ void showparams( HWND hDlg )
     }
     CheckRadioButton( hDlg, RADIO_VIEW_ONE, RADIO_VIEW_NINE,
       numcas );
-    
+
     for( int i = RADIO_DOWN_VIEW; i <= RADIO_POINT_VIEW; i++ )
         EnableWindow( GetDlgItem( hDlg, i ),
          calife_list->FocusCA()->Getviewmode() != IDC_2D_VIEW );

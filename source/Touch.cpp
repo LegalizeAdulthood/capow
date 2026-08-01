@@ -54,7 +54,7 @@ extern CapowGL* capowgl;
 // Functions
 void CA::Touch_CA(int cx, int cy, int sender)
 {
-    /* Inputs:  cx, cy - the x & y coord the user wanted to touch 
+    /* Inputs:  cx, cy - the x & y coord the user wanted to touch
                     sender - the msg that triggered the call
         Outputs: none
 
@@ -205,7 +205,7 @@ void CA::RandomTouch_CA( )
 {
     int x, y;
 
-    
+
     if (dimension == 1)
     {
         x = minx + TOUCH_BUFF + Random(horz_count - 2*TOUCH_BUFF);
@@ -269,8 +269,8 @@ void CAlist::LocateNewGenerator(int x, int y, int sender)   //mike 4/97  ,basica
 //          focus->generatorlist.Add((int)(CX_2D* x/graph->GraphRect().right),(int) (CY_2D*(y-33)/(graph->GraphRect().bottom-33)));
         if (capowgl->Type()==0)
             focus->generatorlist.Add((int)(CX_2D*x/focus->horz_count),(int)(CY_2D*(y-focus->miny)/focus->vert_count));
-            
-    
+
+
     }
     else
     {

@@ -27,7 +27,7 @@ void EnableFourierDialogControls (HWND hDlg, BOOL flag );
 
 //==================================================================
 //==================================================================
-                          
+
 #pragma argsused
 static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
@@ -36,14 +36,14 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
         EnableFourierDialogControls (hDlgFourier, FALSE );
         return 0;
     }
-    EnableFourierDialogControls (hDlgFourier,TRUE );    
+    EnableFourierDialogControls (hDlgFourier,TRUE );
     hCntrlTrackBar = GetDlgItem (  hDlg, IDC_FOURIER_SLIDER );
-    SendMessage ( hCntrlTrackBar, TBM_SETRANGE, TRUE, MAKELONG ( 0, calife_list->WidthCADisplayWindow() ) );    
-    SendMessage ( hCntrlTrackBar, TBM_SETPOS, TRUE, calife_list->FocusCA()->Get_TestPoint() );      
+    SendMessage ( hCntrlTrackBar, TBM_SETRANGE, TRUE, MAKELONG ( 0, calife_list->WidthCADisplayWindow() ) );
+    SendMessage ( hCntrlTrackBar, TBM_SETPOS, TRUE, calife_list->FocusCA()->Get_TestPoint() );
     trackoldpos =   calife_list->FocusCA()->Get_TestPoint();
     SendMessage ( hCntrlTrackBar, TBM_SETPAGESIZE, 0L, 5L );
-    
-    CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );  
+
+    CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
     CheckRadioButton(hDlg,IDC_TIMESCALEHALF,IDC_TIMESCALEDOUBLE,
                                     (calife_list->FocusCA())->Get_tpviewmode());
     CheckRadioButton(hDlg,IDC_FOURIERGRAPH,IDC_FOURIERSCROLL,
@@ -61,7 +61,7 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     CheckDlgButton(hDlg, IDC_VIEWSPECTRUM,
                             (calife_list->FocusCA())->Get_spectrumflag());
     EnableWindow( GetDlgItem( hDlg, IDC_FOURIERSCROLL ), FALSE );
-    
+
     return 0;
 }
 
@@ -77,7 +77,7 @@ static void MyWnd_DESTROY(HWND hDlg)
             else
                 (calife_list->FocusCA())->Set_TempTP();
             InvalidateRect(masterhwnd,NULL,FALSE);
-            
+
 
 }
 
@@ -111,9 +111,9 @@ static void MyWnd_COMMAND(HWND hDlg,int id, HWND hwndCtl, UINT codeNotify)
             SendMessage(masterhwnd, WM_COMMAND, IDM_CHANGEFOCUSMENU, 0L);
             break;
 
-            
+
             case SC_UPDATE:
-                    CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );  
+                    CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
                 //Fix all the checks.
                     CheckRadioButton(hDlg,IDC_TIMESCALEHALF,IDC_TIMESCALEDOUBLE,
                                     (calife_list->FocusCA())->Get_tpviewmode());
@@ -200,7 +200,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id, HWND hwndCtl, UINT codeNotify)
                         SetWindowText(GetDlgItem( hDlg, IDC_APPROXIMATE ), "Record A Time Series");
                         // fourier-flag of focus CA is 0, now will be set to 1
                         if ( !focusflag && (calife_list->Getzoomflag() == 0) )
-                        
+
                             for (i=0; i<calife_list->Count(); i++)
                             {
                                 // fourier-flag of focus CA is 0, but fourier-flag
@@ -222,7 +222,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id, HWND hwndCtl, UINT codeNotify)
                     {     // and tp_viewgraph, tp_viewapprox also set to 1
                         SetWindowText(GetDlgItem( hDlg, IDC_APPROXIMATE ), "Analyze The Time Series");
                         if ( !focusflag && (calife_list->Getzoomflag() == 0) )
-                        
+
                             for (i=0; i<calife_list->Count(); i++)
                             {
                                 // fourier-flag of focus CA is 1, but fourier-flag
@@ -240,17 +240,17 @@ static void MyWnd_COMMAND(HWND hDlg,int id, HWND hwndCtl, UINT codeNotify)
                             (calife_list->FocusCA())->Set_fourierflag(0);
                             (calife_list->FocusCA())->Reset_tp_array();
                         }
-    
+
 
                         CheckDlgButton(hDlg, IDC_VIEWGRAPH, 1);
                         CheckDlgButton(hDlg, IDC_VIEWAPPROX, 1);
-                    
+
                     }
                     break;
                 case IDC_TIMESCALEHALF:
                 case IDC_TIMESCALETRUE:
                 case IDC_TIMESCALEDOUBLE:
-                
+
                         if ( !focusflag && (calife_list->Getzoomflag() == 0) )
                         for (i=0; i<calife_list->Count(); i++)
                         {
@@ -275,7 +275,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id, HWND hwndCtl, UINT codeNotify)
 
                 case IDC_VIEWGRAPH:
                     oldflag = (calife_list->FocusCA())->Get_graphflag();
-                    
+
                     if ( !focusflag && (calife_list->Getzoomflag() == 0) )
                     {
                         for (i=0; i<calife_list->Count(); i++)
@@ -290,7 +290,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id, HWND hwndCtl, UINT codeNotify)
 
                 case IDC_VIEWAPPROX:
                     oldflag = (calife_list->FocusCA())->Get_approxflag();
-                    
+
                     if ( !focusflag && (calife_list->Getzoomflag() == 0) )
                     {
                         for (i=0; i<calife_list->Count(); i++)
@@ -306,7 +306,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id, HWND hwndCtl, UINT codeNotify)
 
                 case IDC_VIEWCOSINE:
                     oldflag = (calife_list->FocusCA())->Get_cosineflag();
-                    
+
                     if ( !focusflag && (calife_list->Getzoomflag() == 0) )
                     {
                         for (i=0; i<calife_list->Count(); i++)
@@ -322,7 +322,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id, HWND hwndCtl, UINT codeNotify)
 
                 case IDC_VIEWSINE:
                     oldflag = (calife_list->FocusCA())->Get_sineflag();
-                    
+
                     if ( !focusflag && (calife_list->Getzoomflag() == 0) )
                     {
                         for (i=0; i<calife_list->Count(); i++)
@@ -338,7 +338,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id, HWND hwndCtl, UINT codeNotify)
 
                 case IDC_VIEWSPECTRUM:
                     oldflag = (calife_list->FocusCA())->Get_spectrumflag();
-                    
+
                     if ( !focusflag && (calife_list->Getzoomflag() == 0) )
                     {
                         for (i=0; i<calife_list->Count(); i++)
@@ -365,11 +365,11 @@ BOOL HandleUpDownControlFourier(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 //
 {
     NM_UPDOWN *pnmud = (NM_UPDOWN FAR *) lParam;
-    
+
     if (pnmud->hdr.code != UDN_DELTAPOS)    // if no change then return
         return FALSE;
- 
-    
+
+
     switch ( pnmud->hdr.idFrom )
     {
         case IDC_SPIN_FOURIER_TERMS: // do for focus CA first
@@ -380,7 +380,7 @@ BOOL HandleUpDownControlFourier(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 
             if ( (calife_list->FocusCA())->Get_fourierflag() == 1 )
                 (calife_list->FocusCA())->SFT();
-                    
+
             if ( !focusflag && (calife_list->Getzoomflag() == 0) )
             {
                 int nterm = (calife_list->FocusCA())->Get_numofterm();
@@ -392,7 +392,7 @@ BOOL HandleUpDownControlFourier(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
                 }
             }
             numlabel(hDlg ,IDC_NUMTERM,(calife_list->FocusCA())->Get_numofterm());
-            break;  
+            break;
     }
 
     return TRUE;
@@ -400,21 +400,21 @@ BOOL HandleUpDownControlFourier(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 
 static void MyWnd_HSCROLL(HWND hwnd, HWND hwndCtl, UINT code, int pos)
 {
-    
+
     switch ( code )
     {
-                    
+
         case TB_LINEDOWN:
-            
+
             if ( !focusflag && (calife_list->Getzoomflag() == 0) )
                 for (int i=0; i < calife_list->Count(); i++)
                     ( calife_list->GetCA(i))->Change_TempTP(+1);
             else
                 (calife_list->FocusCA())->Change_TempTP(+1);
             break;
-        
+
         case TB_LINEUP:
-            
+
             if ( !focusflag && (calife_list->Getzoomflag() == 0) )
                     for (int i=0; i<calife_list->Count(); i++)
                         (calife_list->GetCA(i))->Change_TempTP(-1);
@@ -422,33 +422,33 @@ static void MyWnd_HSCROLL(HWND hwnd, HWND hwndCtl, UINT code, int pos)
                 (calife_list->FocusCA())->Change_TempTP(-1);
             break;
 
-        
+
         case TB_THUMBPOSITION:
         case TB_THUMBTRACK:
-        
-            
+
+
             if ( !focusflag && (calife_list->Getzoomflag() == 0) )
                     for (int i=0; i<calife_list->Count(); i++)
                         (calife_list->GetCA(i))->Change_TempTP(pos-trackoldpos);
             else
                 (calife_list->FocusCA())->Change_TempTP(pos-trackoldpos);
             break;
-    
-            
+
+
 
         case TB_PAGEDOWN:
-            
+
             if ( !focusflag && (calife_list->Getzoomflag() == 0) )
                     for (int i=0; i<calife_list->Count(); i++)
                         (calife_list->GetCA(i))->Change_TempTP((int)SendMessage ( hCntrlTrackBar, TBM_GETPAGESIZE, 0L, 0L ) );
             else
                 (calife_list->FocusCA())->Change_TempTP((int)SendMessage ( hCntrlTrackBar, TBM_GETPAGESIZE, 0L, 0L ) );
             break;
-    
 
-        
+
+
         case TB_PAGEUP:
-            
+
             if ( !focusflag && (calife_list->Getzoomflag() == 0) )
                     for (int i=0; i<calife_list->Count(); i++)
                         (calife_list->GetCA(i))->Change_TempTP(-((int)SendMessage ( hCntrlTrackBar, TBM_GETPAGESIZE, 0L, 0L ) ));
@@ -456,23 +456,23 @@ static void MyWnd_HSCROLL(HWND hwnd, HWND hwndCtl, UINT code, int pos)
             else
                 (calife_list->FocusCA())->Change_TempTP(-((int)SendMessage ( hCntrlTrackBar, TBM_GETPAGESIZE, 0L, 0L ) ));
             break;
-    
+
 
 
         case TB_BOTTOM:
         case TB_TOP:
-            
+
             if ( !focusflag && (calife_list->Getzoomflag() == 0) )
                     for (int i=0; i<calife_list->Count(); i++)
                         (calife_list->GetCA(i))->Change_TempTP(pos-trackoldpos);
             else
                 (calife_list->FocusCA())->Change_TempTP(pos-trackoldpos);
             break;
-    
+
     }
     trackoldpos = pos;
 }
-            
+
 #pragma argsused
 BOOL CALLBACK FourierProc (HWND hDlg, UINT message,
                                                     WPARAM wParam, LPARAM lParam)
@@ -600,7 +600,7 @@ void CA::SFT(void)                          // slow fourier transform
 {
     if ( Getviewmode() != IDC_POINT_GRAPH ) // Don't do if N/A
         return;
-        
+
     int Nterm, Mvalue;
     int startpos, endpos, limit;
 
@@ -820,10 +820,10 @@ void CA::Showpointgraph(HDC hdc)
                 yGen = maxy - (int)((vert_count-1) *
                             ((Real)(target_row[generatorlist.Location(i)])/ (states-1)));
                 WBM->PutRectangle(hdc, xGen - 1, yGen - 1, xGen + 1, yGen + 1, RGB(255, 0, 0));
-            }                           
+            }
         }
 
-        
+
 
     }
     else
@@ -843,7 +843,7 @@ void CA::Showpointgraph(HDC hdc)
                 yGen = maxy1 - (int)((vert_count1-1) *
                             ((float)(colorindex_target_row[generatorlist.Location(i)])/(MAX_COLOR-1)));
                 WBM->PutRectangle(hdc, xGen - 1, yGen - 1, xGen + 1, yGen + 1, RGB(255, 0, 0));
-            }                           
+            }
         }
 
         // show test point markers

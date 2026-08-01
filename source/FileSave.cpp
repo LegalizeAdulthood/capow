@@ -13,7 +13,7 @@
 #pragma hdrstop
 
 extern class CAlist *calife_list;
-extern BOOL compressFile; 
+extern BOOL compressFile;
 
 static void showparams(HWND hDlg); // function prototype
 
@@ -24,7 +24,7 @@ extern BOOL load_save_cells_flag;
 static  char szFileName[MAXFILENAME];
 static  char szFileTitle[MAXFILENAME];
 static  OPENFILENAME ofn;
-    
+
     //CA and CAS file load save
 static  char szFilterSpecCA [128] =
         "CA Files (*.CA)\0All Files (*.*)\0*.*\0";
@@ -32,7 +32,7 @@ static  char szFilterSpecCAS [128] =
         "Experiment Files (*.CAS)\0All Files (*.*)\0*.*\0";
 
 //------------ start with focus on all--------------------
-static BOOL focusflag = FALSE; 
+static BOOL focusflag = FALSE;
 
 
 
@@ -43,14 +43,14 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
     if(focusflag == FALSE) //focus on all cas
     {
-        strcpy(szFileName,"*.CAs"); 
-        ofn.lpstrDefExt   = "CAS";  
-        ofn.lpstrFilter   = szFilterSpecCAS; 
+        strcpy(szFileName,"*.CAs");
+        ofn.lpstrDefExt   = "CAS";
+        ofn.lpstrFilter   = szFilterSpecCAS;
     }
     else //focus on single ca
     {
-        strcpy(szFileName,"*.CA");      
-        ofn.lpstrDefExt     = "CA";     
+        strcpy(szFileName,"*.CA");
+        ofn.lpstrDefExt     = "CA";
         ofn.lpstrFilter     = szFilterSpecCA;
     }
     ofn.lpstrFile     = szFileName;
@@ -80,7 +80,7 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
         case IDC_FILE_COMPRESSION:
             compressFile = !compressFile;
             break;
-        
+
         case IDC_SAVE_PARAMETERS_ONLY:
             load_save_cells_flag = FALSE;
             break;
@@ -91,20 +91,20 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 
         case IDC_SAVE_FOCUS_CA:
             focusflag = TRUE;
-            strcpy(szFileName,"*.CA");  
+            strcpy(szFileName,"*.CA");
             ofn.lpstrFile       = szFileName;
             ofn.lpstrFilter     = szFilterSpecCA;
-            ofn.lpstrDefExt     = "CA";     
+            ofn.lpstrDefExt     = "CA";
             break;
 
         case IDC_SAVE_ALL_CAS:
             focusflag = FALSE;
-            strcpy(szFileName,"*.CAs"); 
+            strcpy(szFileName,"*.CAs");
             ofn.lpstrFile     = szFileName;
-            ofn.lpstrFilter   = szFilterSpecCAS;  
-            ofn.lpstrDefExt   = "CAS";  
-            break;      
-            
+            ofn.lpstrFilter   = szFilterSpecCAS;
+            ofn.lpstrDefExt   = "CAS";
+            break;
+
         case IDOK:  //Save button
             if (focusflag) //save focus
             {
@@ -124,10 +124,10 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
                         SetCursor(LoadCursor(NULL, IDC_ARROW)); //I'm done!
                 }
             }
-            
+
             EndDialog(hDlg, 0);
             return ;
-                
+
 
         case IDCANCEL:
         case IDIGNORE:
@@ -193,7 +193,7 @@ static void showparams(HWND hDlg)
 
     CheckDlgButton(hDlg,IDC_FILE_COMPRESSION, compressFile);
 
-    CheckRadioButton(hDlg,IDC_SAVE_FOCUS_CA,IDC_SAVE_ALL_CAS, 
+    CheckRadioButton(hDlg,IDC_SAVE_FOCUS_CA,IDC_SAVE_ALL_CAS,
         (focusflag== TRUE)?IDC_SAVE_FOCUS_CA:IDC_SAVE_ALL_CAS);
 
     CheckRadioButton(hDlg,IDC_SAVE_PARAMETERS_ONLY,IDC_SAVE_PARAMETERS_AND_IMAGE,

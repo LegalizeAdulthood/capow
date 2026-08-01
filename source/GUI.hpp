@@ -24,7 +24,7 @@
 #define BUT_3DLARGE          11
 #define BUT_CLOSELARGE       12
 #define BUT_DIALOG_SWAP      13
-#define BUT_RAND             14 
+#define BUT_RAND             14
 #define BUT_GENERATOR        15
 
 

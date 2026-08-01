@@ -50,7 +50,7 @@ struct binary_function {
     typedef Arg1 first_argument_type;
     typedef Arg2 second_argument_type;
     typedef Result result_type;
-};      
+};
 
 template <class T>
 struct plus : binary_function<T, T, T> {
@@ -141,17 +141,17 @@ unary_negate<Predicate> not1(const Predicate& pred) {
     return unary_negate<Predicate>(pred);
 }
 
-template <class Predicate> 
-class binary_negate 
+template <class Predicate>
+class binary_negate
     : public binary_function<Predicate::first_argument_type,
                  Predicate::second_argument_type, bool> {
 protected:
     Predicate pred;
 public:
     binary_negate(const Predicate& x) : pred(x) {}
-    bool operator()(const first_argument_type& x, 
+    bool operator()(const first_argument_type& x,
             const second_argument_type& y) const {
-    return !pred(x, y); 
+    return !pred(x, y);
     }
 };
 
@@ -160,7 +160,7 @@ binary_negate<Predicate> not2(const Predicate& pred) {
     return binary_negate<Predicate>(pred);
 }
 
-template <class Operation> 
+template <class Operation>
 class binder1st : public unary_function<Operation::second_argument_type,
                     Operation::result_type> {
 protected:
@@ -170,7 +170,7 @@ public:
     binder1st(const Operation& x, const Operation::first_argument_type& y)
     : op(x), value(y) {}
     result_type operator()(const argument_type& x) const {
-    return op(value, x); 
+    return op(value, x);
     }
 };
 
@@ -179,17 +179,17 @@ binder1st<Operation> bind1st(const Operation& op, const T& x) {
     return binder1st<Operation>(op, Operation::first_argument_type(x));
 }
 
-template <class Operation> 
+template <class Operation>
 class binder2nd : public unary_function<Operation::first_argument_type,
                     Operation::result_type> {
 protected:
     Operation op;
     Operation::second_argument_type value;
 public:
-    binder2nd(const Operation& x, const Operation::second_argument_type& y) 
+    binder2nd(const Operation& x, const Operation::second_argument_type& y)
     : op(x), value(y) {}
     result_type operator()(const argument_type& x) const {
-    return op(x, value); 
+    return op(x, value);
     }
 };
 
@@ -212,7 +212,7 @@ public:
 };
 
 template <class Operation1, class Operation2>
-unary_compose<Operation1, Operation2> compose1(const Operation1& op1, 
+unary_compose<Operation1, Operation2> compose1(const Operation1& op1,
                            const Operation2& op2) {
     return unary_compose<Operation1, Operation2>(op1, op2);
 }
@@ -225,7 +225,7 @@ protected:
     Operation2 op2;
     Operation3 op3;
 public:
-    binary_compose(const Operation1& x, const Operation2& y, 
+    binary_compose(const Operation1& x, const Operation2& y,
            const Operation3& z) : op1(x), op2(y), op3(z) { }
     result_type operator()(const argument_type& x) const {
     return op1(op2(x), op3(x));
@@ -233,7 +233,7 @@ public:
 };
 
 template <class Operation1, class Operation2, class Operation3>
-binary_compose<Operation1, Operation2, Operation3> 
+binary_compose<Operation1, Operation2, Operation3>
 compose2(const Operation1& op1, const Operation2& op2, const Operation3& op3) {
     return binary_compose<Operation1, Operation2, Operation3>(op1, op2, op3);
 }
@@ -262,7 +262,7 @@ public:
 };
 
 template <class Arg1, class Arg2, class Result>
-pointer_to_binary_function<Arg1, Arg2, Result> 
+pointer_to_binary_function<Arg1, Arg2, Result>
 ptr_fun(Result (*x)(Arg1, Arg2)) {
     return pointer_to_binary_function<Arg1, Arg2, Result>(x);
 }

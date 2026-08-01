@@ -155,12 +155,12 @@ void CAlist::Locate()        //mike 4/97
     RECT rect;
 
     /*the status bar height is dependent on the current system font size*/
-    if (hwndStatusBar) 
+    if (hwndStatusBar)
     {
         GetWindowRect(hwndStatusBar, &rect);
         statusBarHeight = rect.bottom - rect.top;
     }
-    else 
+    else
         statusBarHeight = 0;
 
     if (!zoomviewflag) //if not zoomed, call Locate for each CA
@@ -168,7 +168,7 @@ void CAlist::Locate()        //mike 4/97
             list[i] -> Locate(i, masterhwnd, CA_count_per_edge);
     else
         focus->Locate(0, hwnd, 1);
-    blt_flag = 0; 
+    blt_flag = 0;
 /* Mike left this line out, which caused an ugly
     lip at the bottom of the 1D CAs in scroll view and split view.  Rudy put it
     back in 5/20/97 after three hours of code raking.
@@ -191,7 +191,7 @@ void CAlist::Update_and_Show(HDC hdc)
     if (sleep)
     {
         if (zoomflag && focus->viewmode==IDC_2D_VIEW && !gl_sleep)
-        //the 2D CA view can still be changing even when the CA is 
+        //the 2D CA view can still be changing even when the CA is
         //sleeping, so you are allowed to change it IF you turn off gl_sleep.
         //Normally the gl_sleep value mathches the value of sleep.
         {
@@ -207,7 +207,7 @@ void CAlist::Update_and_Show(HDC hdc)
                 focus->horz_count_2D, focus->vert_count_2D,//sc size
                 SRCCOPY);
             }
-                
+
             if (hDlgOpenGL)  //if open, draw bitmap to opengl dialog
             {
                 hCtrlBlock = GetDlgItem(hDlgOpenGL, IDC_OPENGL_FLAT);
@@ -433,7 +433,7 @@ void CAlist::Show(HDC hdc, const RECT &rcPaint)
         {
 
             if (focus->viewmode== IDC_2D_VIEW)
-                capowgl->Draw(hdc, focus);              
+                capowgl->Draw(hdc, focus);
 
 
         /*      if (focus->maxx_2D == focus->maxx &&
@@ -577,8 +577,8 @@ int CAlist::Setfocus(HDC hdc, CA *new_focus)
     Boxfocus(hdc,RGB(0,0,0));
     focus = new_focus;
     Boxfocus(hdc,RGB(255,255,255));
-    
-        
+
+
     focus->GetCAStyleName ( CA_STYLE_NAME );
     Status_SetText(hwndStatusBar, 1, 0, CA_STYLE_NAME );
 
@@ -863,7 +863,7 @@ void CAlist::Copymutate()
     for (int i = 0; i < count; i++)
         if (list[i] != focus)
         {
-            list[i]->_usercastyle = focus->_usercastyle; 
+            list[i]->_usercastyle = focus->_usercastyle;
             list[i]->_usernabesize = focus->_usernabesize;
 
             list[i]->Settype(focus->Gettype());
@@ -881,7 +881,7 @@ void CAlist::SetWindowBitmap(WindowBitmap *myWBM)
 
 void CAlist::SetCAType(CA *target, int newtype, BOOL fixflag)
 {
-    
+
     target->Settype(newtype);
     if (fixflag)
         target->Full_adjust_params_for_type();
@@ -992,7 +992,7 @@ void CAlist::Setviewmode(int newmode)
 }
 
 void CAlist::RandomizeCount(UINT randflag) //******Rong Liu*********
-{   
+{
     int i;
     char szBuffer[4];
 
@@ -1013,7 +1013,7 @@ void CAlist::RandomizeCount(UINT randflag) //******Rong Liu*********
         countoptions_array[countoptions_count] = 9;
         countoptions_count++;
     }
-    //countoptions_count should be 1,2,or3 now. 
+    //countoptions_count should be 1,2,or3 now.
     int newcount;
     if (countoptions_count) //The worst that could happen is countoptions is 0.
         newcount = countoptions_array[Random(countoptions_count)];
@@ -1021,12 +1021,12 @@ void CAlist::RandomizeCount(UINT randflag) //******Rong Liu*********
         newcount = 9;
 /* If newcount != count, then Changecount(newcount) calls
      SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L), and returns TRUE.
-    If the count doesn't change we still want to Clear in case we have 
+    If the count doesn't change we still want to Clear in case we have
     RF_ALLVIEW because this allows wire and graph view which don't clear
     their backgrounds. */
     if (!Changecount(newcount) && (randflag & RF_ALLVW)) //2017 put && instead of &
         SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L);
-}   
+}
 #define FILE_RANDOMIZE_MUTATION_STRENGTH 0.1
 void CAlist::Randomize(UINT randflag)
 {
@@ -1041,7 +1041,7 @@ void CAlist::Randomize(UINT randflag)
     for (int i = 0; i < count; i++)
     {
         if (randflag & RF_FILE) //We LIKE the file so mutate instead of randomizing params.
-            list[i]->Mutate(FILE_RANDOMIZE_MUTATION_STRENGTH);  
+            list[i]->Mutate(FILE_RANDOMIZE_MUTATION_STRENGTH);
         else
         { //Begin randomizing the type
             if (list[i]->type_ca == CA_USER)    // Clear user parameter
@@ -1100,7 +1100,7 @@ void CAlist::Randomize(UINT randflag)
                         type = CA_WAVE_2D; //Don't get enough of these otherwise.
                     else
                         type = CA_HEAT_2D;
-                } 
+                }
             }
             list[i]->Settype(type);   //Sets viewmode for 2D
             list[i]->Full_adjust_params_for_type();
@@ -1216,7 +1216,7 @@ void CAlist::ResetAllGenerationCount()
 void CAlist::GetFocusRect(RECT *rect)
 //fills a RECT structure with the rectangle of the focus, if possible
 {
-    if (focus)  
+    if (focus)
     {
         rect->left = focus->minx;
         rect->top = focus->miny;
@@ -1237,7 +1237,7 @@ void CAlist::set_blt_lines(int linecount)
     CLAMP(linecount, 1, 5);
     if (_blt_lines != linecount)
     {
-        _blt_lines = linecount;  
+        _blt_lines = linecount;
         Locate();
         InvalidateRect(masterhwnd, NULL, FALSE);
         WBM->Clear(masterhwnd, RGB(0,0,0));

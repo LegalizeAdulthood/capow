@@ -4,7 +4,7 @@
     ENVIRONMENT:        MS Visual C++ 5.0/MS Windows 95/NT
 
 
-    FILE DESCRIPTION:   This file contains additional CA class 
+    FILE DESCRIPTION:   This file contains additional CA class
                         function defintions.
 
     UPDATE LOG:         9-26-97
@@ -28,7 +28,7 @@
 extern HWND hDlgCycle;
 extern HWND masterhwnd;
 extern HWND hwndStatusBar;
-extern char CA_STYLE_NAME[]; // temp buffer for userrule name, lives in CAPOW.CPP   
+extern char CA_STYLE_NAME[]; // temp buffer for userrule name, lives in CAPOW.CPP
 extern CapowGL *capowgl;
 
 //================================================================
@@ -142,8 +142,8 @@ void CA::CopyCA(CA *goodCA)
         wave_past_row[i].velocity = goodCA->wave_past_row[i].velocity;
     }
 
-    for(i = 0; i < (int)CX_2D * CY_2D; i++) //copy the WaveCell info with 
-    {               
+    for(i = 0; i < (int)CX_2D * CY_2D; i++) //copy the WaveCell info with
+    {
         wave_source_plane[i] = goodCA->wave_source_plane[i];
         wave_past_plane[i] = goodCA->wave_past_plane[i];
         wave_target_plane[i] = goodCA->wave_target_plane[i]; //2017 to be safe about full image copy. Maybe unnecessary?
@@ -651,11 +651,11 @@ void CA::Settype(int newtype)
     int old_catype = type_ca;
     int old_castyle = _castyle;
     int old_dimension = dimension;
-        
+
     //if (type_ca == newtype && type_ca != CA_USER)
     //  return;
     type_ca = newtype;
-    /*The weird usage in the switch cases is for doing member function pointers, 
+    /*The weird usage in the switch cases is for doing member function pointers,
     and was explained to rucker by Prof. Horstmann */
     ResetGenerationCount();
     switch(type_ca)
@@ -723,7 +723,7 @@ void CA::Settype(int newtype)
             UpdateFunction = &CA::WaveUpdate;
             UpdateCell_3 = &CA::Oscillator;
             _castyle = CA_OSCILLATOR;
-            SetCAStyleName ( "Oscillators" );             
+            SetCAStyleName ( "Oscillators" );
             break;
         case ALT_CA_DIVERSE_OSCILLATOR:
         case CA_DIVERSE_OSCILLATOR:
@@ -815,7 +815,7 @@ void CA::Settype(int newtype)
             SetCAStyleName ( "Wave Equation" );
             break;
     }
-    if (_castyle == CA_WAVE_2D || _castyle == CA_HEAT_2D || 
+    if (_castyle == CA_WAVE_2D || _castyle == CA_HEAT_2D ||
         _castyle == CA_CUSTOM_2D || _castyle == CA_NETWORK)
         dimension = 2;
     else
@@ -826,12 +826,12 @@ void CA::Settype(int newtype)
     //Now set the reseed flag.
     /* Reseed in case this is the first initialization.  Note that type_ca is
     always intilized to 0 by the CA constructor. */
-    if (!type_ca) 
+    if (!type_ca)
         reseed = TRUE;
     //Reeed if either the new or old style is STANDARD or REVERSIBLE
     if ( _castyle == CA_STANDARD || _castyle == CA_REVERSIBLE ||
             old_castyle == CA_STANDARD || old_castyle == CA_REVERSIBLE )
-            reseed = TRUE; 
+            reseed = TRUE;
     if (dimension == 2 && old_dimension == 1)
     {
         Setviewmode(IDC_2D_VIEW);
@@ -881,7 +881,7 @@ have just changed the type_ca*/
         case ALT_CA_WAVE:
         case CA_ULAM_WAVE:
         case ALT_CA_ULAM_WAVE:
-        case CA_CUBIC_ULAM_WAVE: 
+        case CA_CUBIC_ULAM_WAVE:
         case CA_AUTO_ULAM_WAVE:
         case CA_WAVE_2D:
         case CA_USER:
@@ -921,7 +921,7 @@ have just changed the type_ca*/
             SetTweakParam(&_max_intensity,(12.0));
             SetTweakParam(&_nonlinearity2, 1.0+Randomreal()*10.0);
             break;
-        case CA_CUBIC_ULAM_WAVE: 
+        case CA_CUBIC_ULAM_WAVE:
             SetTweakParam(&_max_intensity,(1.0));
             SetTweakParam(&_nonlinearity2, Randomreal()*0.05);
             break;
@@ -1177,7 +1177,7 @@ then turn off the _justloadedflag so you only skip the smooth once. */
         }
     }
     if (wrapflag == WF_FIXED)
-    {  
+    {
         past_row[0] = target_row[0] = source_row[0];
         wave_past_row[0].intensity = wave_target_row[0].intensity =
             wave_source_row[0].intensity;
@@ -1248,7 +1248,7 @@ it is shown to the bitmap and swapped with the source row.  This way,
 the generator value gets in as the visible target value, and is used
 as the new source value.  We use the internal onoff flag to decide
 whether to really do this, that way we can always call this Step.
-    
+
     IF you switch from 2D to 1D, this will crash because location
     is big.*/
     g_intensity = sin(omega*time+phase);
@@ -1522,7 +1522,7 @@ RandomizeTweakParam usually slams the t->Val() down to 0.  So I'm going to do
 two things (i) I'll make it a percent change and (b) I'll bounce any new val back
 off the max or min. Rudy R. November 8, 1998.
     2003. There is maybe a problem using this method if you are near zero in that the changes are very
-small.  Put in a fix RR. March 21, 2003. 
+small.  Put in a fix RR. March 21, 2003.
 2017 the method is too powerful to be useful in the User Param menu or in the Mutate method. I rewrote it
 it from scratch.  All the old crap is commented out. Now think of it this way.  tweak_strength ranges
 from 0 to 1 and (if multiplied by 100) would be the maximum percent that you want to change the thing by.
@@ -1547,7 +1547,7 @@ and tweak_strength.
         old_val -= t->Min(); //To get away from 0.0
     new_val = old_val + Randomsignreal()*tweak_strength*fabs(old_val); //Percent change
     if (allowsignflip)
-        new_val += t->Min(); 
+        new_val += t->Min();
 #endif //USERANGE
     if (new_val <= t->Min() || new_val >= t->Max()) //bounce back to center from the bottom or top.
         new_val = (t->Min() + t->Max()) / 2.0;
@@ -1741,18 +1741,18 @@ void GeneratorList::Add(int x) // x represents the x location of the generator b
     if (ca_ptr) //valid?
     {
         if (x>=0 && x < ca_ptr->horz_count && count <MAX_GENERATORS && ca_ptr->dimension==1)
-        {   
+        {
             for(int i=0; i<count;i++)
                 if(generator[i].location == x) // already have a generator at that location
                     return;
             generator[count].Seed();
             generator[count].ca_ptr = ca_ptr;
-            generator[count].location = x;      
+            generator[count].location = x;
             count++;
         }
 
     }
-    
+
 }
 
 
@@ -1761,7 +1761,7 @@ void GeneratorList::Delete(int x) // x is the index of the generator to delete f
     if (ca_ptr) //valid?
     {
         if (x>=0 && x < ca_ptr->horz_count &&  ca_ptr->dimension==1 && count > 0)
-        {   
+        {
             for(int i=0; i<count;i++)
                 if(i == x)
                 {               //just slide everything down one
@@ -1789,10 +1789,10 @@ void GeneratorList::Add(int x, int y) // x and y are the x and y locations of th
         if(x>=0 && y>=0 && ca_ptr->dimension==2 && x < CX_2D && y<CY_2D && count <MAX_GENERATORS)
         {
             for(int i=0; i<count;i++)
-                if(generator[i].location_x == x && 
+                if(generator[i].location_x == x &&
                          generator[i].location_y == y) // already have a generator at that location
                     return;
-        
+
             generator[count].Seed();
             generator[count].ca_ptr = ca_ptr;
             generator[count].location = ca_ptr->index(x,y);
@@ -1810,7 +1810,7 @@ void GeneratorList::Deletexy(int x) // x is the index of the generator to delete
     if (ca_ptr) //valid?
     {
         if (x>=0 && x < count && ca_ptr->dimension==2)
-        {   
+        {
             for(int i=0; i<count;i++)
             {
                 if(i == x)
@@ -1887,7 +1887,7 @@ void GeneratorList::SetOmega(int i, float newomega)
 }
 
 
-//mike 2/98  This is an attempt to let generators 
+//mike 2/98  This is an attempt to let generators
 //transition smoothly between changes in omega
 void GeneratorList::SetSmoothOmega(int i, float newomega)
 {
@@ -1902,7 +1902,7 @@ void GeneratorList::SetSmoothOmega(int i, float newomega)
 void Generator::SmoothOmega(float newomega)
 {
     float oldphase = phase;
-    phase = omega*time + phase - newomega*time; 
+    phase = omega*time + phase - newomega*time;
     omega = newomega;
 }
 

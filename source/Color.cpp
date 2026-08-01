@@ -7,7 +7,7 @@
     FILE DESCRIPTION:   This file contains functions and data to control
                         the analog dialog box and its features.
 
-    UPDATE LOG:         
+    UPDATE LOG:
                     9-29-97  Commented Code
 *******************************************************************************/
 //====================INCLUDES===============
@@ -16,7 +16,7 @@
 #include <math.h>
 #include "resource.h"
 #include <COMMCTRL.H>
- 
+
 //====================DEBUG FLAGS ===============
 //====================DEFINE CONSTANTS ===============
 //====================GLOBAL DATA===============
@@ -27,7 +27,7 @@ static HWND hCtrlBlock, hCtrlEdit;
 
 static void FixDialogMarks(HWND hDlg);
 static void PaintBlock(HWND hCntrlBlock);
- 
+
 //====================EXTERNAL DATA===============
 
 extern class CAlist *calife_list;
@@ -62,7 +62,7 @@ static BOOL MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 //an invalid region which includes the color lines.
     CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
     UpdateWindow(hDlg);
-    
+
 //Calls WM_PAINT, which does PaintBlock and FixDialogMarks(hDlg);
     return TRUE;
 }
@@ -71,7 +71,7 @@ static BOOL MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 //  MyWnd_PAINT
 //
 //  Paints the color map
-//  
+//
 
 static BOOL MyWnd_PAINT(HWND hDlg)
 {
@@ -79,7 +79,7 @@ static BOOL MyWnd_PAINT(HWND hDlg)
 
     //BeginPaint(hDlg, &ps);
     PaintBlock(hCtrlBlock);
-    FixDialogMarks(hDlg); 
+    FixDialogMarks(hDlg);
     //EndPaint(hDlg, &ps);
     return TRUE;
 }
@@ -87,8 +87,8 @@ static BOOL MyWnd_PAINT(HWND hDlg)
 //===============================================================
 //  MyWnd_CLOSE
 //
-//  
-//  
+//
+//
 
 static BOOL MyWnd_CLOSE(HWND hDlg)
 {
@@ -99,8 +99,8 @@ static BOOL MyWnd_CLOSE(HWND hDlg)
 //********************************************************************************
 //  MyWnd_DESTROY
 //
-//   
-  
+//
+
 static BOOL MyWnd_DESTROY(HWND hDlg)
 {
     hDlgColor = 0;
@@ -112,7 +112,7 @@ static BOOL MyWnd_DESTROY(HWND hDlg)
 //  MyWnd_COMMAND
 //
 //  Handles all the controls
-//  
+//
 
 static BOOL MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
 {
@@ -198,17 +198,17 @@ static BOOL MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
 //********************************************************************************
 //  HandleUpDownControlColor
 //
-//  Handles the SPIN control 
-//  
+//  Handles the SPIN control
+//
 
 BOOL HandleUpDownControlColor(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     NM_UPDOWN *pnmud = (NM_UPDOWN FAR *) lParam;
-    
+
     if (pnmud->hdr.code != UDN_DELTAPOS)    // if no change then return
         return FALSE;
- 
- 
+
+
     switch ( pnmud->hdr.idFrom )
     {
         case IDC_SPINBANDCOUNT:
@@ -253,7 +253,7 @@ BOOL HandleUpDownControlColor(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 //  ColorProc
 //
 //  Main Message interpretor for Color Dialog
-//  
+//
 
 
 BOOL CALLBACK ColorProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -277,7 +277,7 @@ BOOL CALLBACK ColorProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 //  PaintBlock
 //
 //  Paints the Color map in the Dialog
-//  
+//
 
 void PaintBlock (HWND hwnd)
 {
@@ -317,10 +317,10 @@ void PaintBlock (HWND hwnd)
 }
 
 //********************************************************************************
-//  FixDialogMarks 
+//  FixDialogMarks
 //
 //  Fixes the dialogs buttons and controls, etc. when they have chanced
-//  
+//
 
 static void FixDialogMarks(HWND hDlg)
 {
@@ -329,7 +329,7 @@ static void FixDialogMarks(HWND hDlg)
     CheckRadioButton(hDlg,IDM_16,IDM_1000,
         (calife_list->numcolor()==16)?IDM_16:
         ((calife_list->numcolor()==256)?IDM_256:IDM_1000));
-    
+
         numlabel(hDlg ,IDC_NUMBAND,calife_list->FocusCA()->Getband()-1);
     if (calife_list->FocusCA()->Get_monochromeflag())
     {

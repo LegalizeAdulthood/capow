@@ -107,7 +107,7 @@ TweakParam::TweakParam(Real min, Real valMean, Real valVariance, Real max, LPSTR
   _adjustothers(adjustothers)
 
 {   //  FIXME later
-    // _val = valVariance; 
+    // _val = valVariance;
 
     _label = new char[lstrlen(label)+1];
     lstrcpy (_label, label);

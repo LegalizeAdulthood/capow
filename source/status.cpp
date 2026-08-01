@@ -18,7 +18,7 @@ typedef struct tagPOPUPSTRING
 
 static POPUPSTRING popstr[MAX_MENUS] ;
 
-DWORD dwStatusBarStyles = WS_CHILD | WS_VISIBLE | 
+DWORD dwStatusBarStyles = WS_CHILD | WS_VISIBLE |
                           WS_CLIPSIBLINGS | CCS_BOTTOM |
                           SBARS_SIZEGRIP ;
 
@@ -53,7 +53,7 @@ HWND InitStatusBar (HWND hwndParent)
                                   2) ;
 
      StatusBarMessage (hwndSB, SB_SETPARTS);
-     
+
      return hwndSB ;
      }
 
@@ -85,7 +85,7 @@ HWND RebuildStatusBar (HWND hwndParent, WORD wFlag)
 
      // Post parent a WM_SIZE message to resize children
      GetClientRect (hwndParent, &r) ;
-     PostMessage (hwndParent, WM_SIZE, 0, 
+     PostMessage (hwndParent, WM_SIZE, 0,
                   MAKELPARAM (r.right, r.bottom)) ;
 
      return hwndSB ;
@@ -98,7 +98,7 @@ void StatusBarMessage (HWND hwndSB, WORD wMsg)
         case SB_SETPARTS:
             {
                 int aWidths[NPARTS]; // -1 is default for a part
-            
+
                 //These give the right hand edges of the little boxes.
                 aWidths[0] = 70; //70
                 aWidths[1] = 300; //was 200, not wide enough
@@ -106,7 +106,7 @@ void StatusBarMessage (HWND hwndSB, WORD wMsg)
                 Status_SetParts(hwndSB, NPARTS, aWidths);
             }
             break ;
-            
+
 
         case SB_SIMPLE:
             {
@@ -119,7 +119,7 @@ void StatusBarMessage (HWND hwndSB, WORD wMsg)
 }
 
 //-------------------------------------------------------------------
-LRESULT 
+LRESULT
 Statusbar_MenuSelect (HWND hwnd, WPARAM wParam, LPARAM lParam)
      {
      UINT fuFlags = (UINT) HIWORD (wParam) ;
@@ -141,7 +141,7 @@ Statusbar_MenuSelect (HWND hwnd, WPARAM wParam, LPARAM lParam)
           }
 
      // Display helpful text in status bar
-     MenuHelp (WM_MENUSELECT, wParam, lParam, hMainMenu, hInst, 
+     MenuHelp (WM_MENUSELECT, wParam, lParam, hMainMenu, hInst,
                hwndStatusBar, (UINT *) &popstr[iMenu]) ;
 
      return 0 ;

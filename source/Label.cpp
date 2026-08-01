@@ -204,7 +204,7 @@ void dlabel(HWND hwnd, int button, char title[10], double d)
     wsprintf (numberstring, "%ld", ld);
     wsprintf (decimalstring, "%ld", ldd);
 
-// don't forget the 0! 
+// don't forget the 0!
     if (!sign)
     {  if (ldd < 10 && ldd != 0)
             wsprintf((LPSTR) labeltext, "%s %s.00%s",

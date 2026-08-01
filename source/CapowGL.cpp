@@ -7,8 +7,8 @@
     FILE DESCRIPTION:   This file contains functions and data for
                         the implementation of OpenGL 3D rendering.
 
-    UPDATE LOG:         
-                
+    UPDATE LOG:
+
 *******************************************************************************/
 //====================INCLUDES===============
 
@@ -28,8 +28,8 @@
 //====================EXTERNAL DATA===============
 
 extern WindowBitmap* WBM;
-extern BOOL statusON;         
-extern BOOL toolbarON;            
+extern BOOL statusON;
+extern BOOL toolbarON;
 extern HWND masterhwnd;
 extern int toolBarHeight;
 extern int statusBarHeight;
@@ -97,7 +97,7 @@ CapowGL::CapowGL(HWND hwnd)
     antiAliased = DEFAULTANTIALIASEDFLAG;
     whichEye = LEFTEYE;
     eyeAngle = 2.5f;
-    hRC = SetUpOpenGL(hwnd);  // l.andrews 11/2/01 moved from much above so 
+    hRC = SetUpOpenGL(hwnd);  // l.andrews 11/2/01 moved from much above so
           // lots of things (like lightsflag) will be initialized
 }
 
@@ -113,7 +113,7 @@ of the program.
 */
 {
     static PIXELFORMATDESCRIPTOR pfd = {
-        sizeof (PIXELFORMATDESCRIPTOR), // strcut size 
+        sizeof (PIXELFORMATDESCRIPTOR), // strcut size
         1,                              // Version number
         PFD_DRAW_TO_WINDOW |    // Flags, draw to a window,
             PFD_DOUBLEBUFFER|
@@ -183,7 +183,7 @@ Resizing the window wakes it up. */
 /* mike 10-97: actually it doesn't die. CapowGL just wasn't being told the correct
 size of the main window, which is done through Size().  Size() wasn't being
 called in the right places within Capow.CPP, especially upon startup, so the
-viewport for opengl rendering remained zero size.  After tinking with the location of 
+viewport for opengl rendering remained zero size.  After tinking with the location of
 CapowGL->Size() in Capow.cpp, it seems to fix the problem.
 */
     if (spinflag)
@@ -237,17 +237,17 @@ CapowGL->Size() in Capow.cpp, it seems to fix the problem.
 }
 
 void CapowGL::DrawOpenGLScene()  //this is the meat of the code
-/* Oct 26, 1997, Mike: This function received a thorough rewrite, in order to make 
-the code cleaner,and possibly more efficient.  It can now logically accomodate the 
-torus shape as well as new shapes in the future (like sphere or cylinder?) Also, 
-previously the factor 'spacing' was used extensively to convert the unit length 
-between adjacent cells so that the entire CA would fit into the viewport.  However, 
-a call to glScalef() at the beginning of this function now replaces most of that work. 
-Because it directly changes the Modelview matrix, it should be more efficient this way, 
-since the numerous calls to glVertex3f() won't have multiplication with 'spacing'.  
-A side effect is that glNormal() will be scaled too, and so unit vectors aren't unit 
-vectors anymore.  I use glEnable(GL_NORMALIZE), which will let OpenGL take care of the 
-unit-vectorizing. So some of the code, like in ComputeNormals(), which did some 
+/* Oct 26, 1997, Mike: This function received a thorough rewrite, in order to make
+the code cleaner,and possibly more efficient.  It can now logically accomodate the
+torus shape as well as new shapes in the future (like sphere or cylinder?) Also,
+previously the factor 'spacing' was used extensively to convert the unit length
+between adjacent cells so that the entire CA would fit into the viewport.  However,
+a call to glScalef() at the beginning of this function now replaces most of that work.
+Because it directly changes the Modelview matrix, it should be more efficient this way,
+since the numerous calls to glVertex3f() won't have multiplication with 'spacing'.
+A side effect is that glNormal() will be scaled too, and so unit vectors aren't unit
+vectors anymore.  I use glEnable(GL_NORMALIZE), which will let OpenGL take care of the
+unit-vectorizing. So some of the code, like in ComputeNormals(), which did some
 unitvectorizing, no longer does so now.
 */
 {
@@ -266,7 +266,7 @@ unitvectorizing, no longer does so now.
 
     if (mousemode != 6) //not flying, so do the transformations to correctly position the ca
     {
-        //take care of panning, and 
+        //take care of panning, and
         // move the viewpoint out to where we can see everything, in other words zoom
         glTranslatef( panX,panY, z );
 
@@ -293,13 +293,13 @@ Consequently, it seems unnecessary to show the light's direction.
             glVertex3f(0.0f, 0.0f,1.0f);
         glEnd();
         glEnable(GL_LIGHTING);
-    */  
+    */
         glPopMatrix();  //get the Modelview matrix which was previously pushed on the stack
-    
+
         //take care of CA orientation
         glRotatef(tiltangle, 1.0f, 0.0f, 0.0f);  //rotate along graph's x axis
         glRotatef(spinangle, 0.0f, 0.0f, 1.0f);  //rotate along graph's y axis
-        if (graphtype == SHEET)  
+        if (graphtype == SHEET)
             glTranslatef(-CX_2D/2, CY_2D/2, 0.0f); //center
     }
     else  // flying
@@ -322,10 +322,10 @@ look at, and an Up vector.
         switch(surfacetype)
         {
         case DOTS:
-            //if we aren't showing generators or the fly eye, then 
+            //if we aren't showing generators or the fly eye, then
             //every object in the viewport is white, so we can ignore the zbuffer
             if ((!showgeneratorsflag && !showflypos)||threeDGlasses)
-                glDisable(GL_DEPTH_TEST);          
+                glDisable(GL_DEPTH_TEST);
             glDisable(GL_LIGHTING);
 //          if (threeDGlasses)
 //              glColor3fv(currentEyeColor);
@@ -355,7 +355,7 @@ look at, and an Up vector.
                     glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                     glVertex3f((float)i,(float)-j,(float)GraphHeight(j*CX_2D+i));
                 }
-            glEnd();        
+            glEnd();
                 glDisable(GL_POINT_SMOOTH);
                 glDisable(GL_BLEND);
             glPointSize(1.0f);
@@ -433,11 +433,11 @@ look at, and an Up vector.
                         glVertex3f(0.0f, (float)-(j+interval), (float)GraphHeight(0,j+interval));
                         for(i=interval;i<CX_2D; i+= interval)
                         {
-                            NormalVector(i-interval,j, UPPERLEFT,n, interval);              
+                            NormalVector(i-interval,j, UPPERLEFT,n, interval);
                             glNormal3fv(n);
                             glVertex3f((float)i,(float)-j,(float)GraphHeight(i,j));
-        
-                            NormalVector(i-interval,j, LOWERRIGHT,n, interval);             
+
+                            NormalVector(i-interval,j, LOWERRIGHT,n, interval);
                             glNormal3fv(n);
                             glVertex3f((float)i,(float)-(j+interval),GraphHeight(i,j+interval));
                         }
@@ -460,11 +460,11 @@ look at, and an Up vector.
                             //find the color for each point
                             pointcolor = GetPixel(WBM->GetHDC(), i-interval, (toolbarON)?j+toolBarHeight :j);
                             glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
-                            NormalVector(i-interval,j, UPPERLEFT,n, interval);              
+                            NormalVector(i-interval,j, UPPERLEFT,n, interval);
                             glNormal3fv(n);
                             glVertex3f((float)i,(float)-j,(float)GraphHeight(i,j));
-        
-                            NormalVector(i-interval,j, LOWERRIGHT,n, interval);             
+
+                            NormalVector(i-interval,j, LOWERRIGHT,n, interval);
                             glNormal3fv(n);
                             glVertex3f((float)i,(float)-(j+interval),GraphHeight(i,j+interval));
                         }
@@ -479,13 +479,13 @@ look at, and an Up vector.
             if (focusIsActive && material != UNLIGHTED_MULTICOLOR) //if the CA is changing,
                 if (! (ThreeDGlasses() && whichEye == RIGHTEYE))
                     ComputeNormals();  //compute the normals for gouraud shading
-/*Bug: When the CA is paused, ComputeNormals() sometimes isn't called when 
+/*Bug: When the CA is paused, ComputeNormals() sometimes isn't called when
 it should have been. Doing a seed for a paused 2-D CA with a smooth surface should show this.
 */
             glShadeModel(GL_SMOOTH); //use Gouraud shading
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  //render both sides of the polygon
             glEnable(GL_NORMALIZE); //allow opengl to automatically unitvectorize the glNormal() calls
-    
+
             (material == UNLIGHTED_MULTICOLOR)?glDisable(GL_LIGHTING):glEnable(GL_LIGHTING);
 
             if (material <=1) //if it's multicolor
@@ -504,7 +504,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                         glVertex3f((float)i,(float)-j, GraphHeight(i,j));
 
                         pointcolor = GetPixel(WBM->GetHDC(), i, interval+ ((toolbarON)?j+toolBarHeight:j));
-                        glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));                    
+                        glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                         glNormal3fv(normals[(j+interval)*CX_2D+i]);
                         glVertex3f((float)i,(float)(-(j+interval)),(float)GraphHeight(i,j+interval));
                     }
@@ -555,25 +555,25 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
             glEnd();
 //          glEnable(GL_LIGHTING);
         }
-    
+
         if (maxplaneflag)
         {
             glDisable(GL_LIGHTING);
             glColor3f(1.0f, 1.0f, 1.0f);
             glPushMatrix();
             glTranslatef(0.0f,0.0f,(float)graphfocus->_max_intensity.Val()*heightfactor);
-    
+
             glBegin(GL_LINE_STRIP);
                 glVertex3f(0.0f, 0.0f, 0.0f);
                 glVertex3f(0.0f, (float)-(CY_2D-1), 0.0f);
                 glVertex3f((float)(CX_2D-1), (float)-(CY_2D-1), 0.0f);
                 glVertex3f((float)(CX_2D-1), 0.0f, 0.0f);
                 glVertex3f(0.0f, 0.0f, 0.0f);
-            glEnd();    
+            glEnd();
                 glPopMatrix();
 //      glEnable(GL_LIGHTING);
         }
-    
+
         //not really used now, since I couldn't find a practical use for it.
         //I thought I could use it to place generators within the 3-D view, but it requires much work.
         if (pointerflag)
@@ -628,7 +628,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
             for (int k=0; k<graphfocus->generatorlist.Count(); k++)
             {
                 glPushMatrix();
-                i= graphfocus->generatorlist.Location(k)%CX_2D; 
+                i= graphfocus->generatorlist.Location(k)%CX_2D;
                 j= graphfocus->generatorlist.Location(k)/CX_2D;
                 glTranslatef(  i,-j,GraphHeight(i,j));
                 // auxSolidSphere(1.0f); //2017  Too much trouble to include GLAUX.LIB
@@ -670,7 +670,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
             glEnd();
             break;
 
-        
+
         case POLYLINES:
         case COLORLINES:
             glDisable (GL_LIGHTING);
@@ -709,7 +709,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                         glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
 
                         glVertex3f(slice[i][0]+slice[i][0]*section[j][0],   slice[i][1] + slice[i][1]*section [j][0] , section[j][1]);
-    
+
                         glVertex3f(slice[i][0]+slice[i][0]*section[j+interval][0],   slice[i][1] + slice[i][1]*section [j+interval][0] , section[j+interval][1]);
 
                     }
@@ -741,10 +741,10 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
 
             glEnd();
             glDisable(GL_COLOR_MATERIAL);
-            
-            
-            
-/*          
+
+
+
+/*
             glDisable(GL_LIGHTING);
             glShadeModel(GL_FLAT);
             for (j=0; j<CY_2D-interval-1; j+=interval)
@@ -822,7 +822,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
             glVertex3f(slice[0][0]+slice[0][0]*section[0][0],   slice[0][1] + slice[0][1]*section [0][0] , section[0][1]);
 
             glEnd();
-/*          
+/*
             i=0;
             for(j=0; j<CY_2D-interval;j+= interval)
             {
@@ -838,7 +838,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                         glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
 
                         glVertex3f(slice[i][0]+slice[i][0]*section[j][0],   slice[i][1] + slice[i][1]*section [j][0] , section[j][1]);
-    
+
                         glVertex3f(slice[i][0]+slice[i][0]*section[j+interval][0],   slice[i][1] + slice[i][1]*section [j+interval][0] , section[j+interval][1]);
 
                     }
@@ -872,7 +872,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
 */
             glDisable(GL_COLOR_MATERIAL);
 
-        
+
 /*
             glDisable(GL_LIGHTING);
             glShadeModel(GL_SMOOTH);
@@ -899,11 +899,11 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
         break;
         }
     break;
-    }      
+    }
 }
 
 
-void CapowGL::Size(HWND hWnd)  
+void CapowGL::Size(HWND hWnd)
 /*should be called upon startup, and whenever the window
 changes size
 */
@@ -918,7 +918,7 @@ changes size
     // make an OpenGL call here...
     HDC hDC = GetDC (hWnd);
     wglMakeCurrent (hDC, hRC);
-        
+
     // get the new size of the client window
     // note that we size according to the height,
     // not the smaller of the height or width.
@@ -963,7 +963,7 @@ The variable heightfactor scales the actual intensity value so that the CA
 will have a reasonable scale of height upon rendering.
 */
 {
-/* Changed this so that the 2D rules can either show intensity or variable[1]. 
+/* Changed this so that the 2D rules can either show intensity or variable[1].
 Recall that "intensity" is #define in CA.HPP to stand for "variable[0]". RR 11/98*/
     if (!(graphfocus->showvelocity))
         return (GLfloat) (graphfocus->wave_source_plane[graphfocus->index(i,j)].
@@ -973,12 +973,12 @@ Recall that "intensity" is #define in CA.HPP to stand for "variable[0]". RR 11/9
             variable[1]*heightfactor);
 }
 
-inline GLfloat CapowGL::GraphHeight(int i)  
+inline GLfloat CapowGL::GraphHeight(int i)
 /* same as previous function, except it uses a one dimensional index
 Is it faster? I don't know.
 */
 {
-/* Changed this so that the 2D rules can either show intensity or variable[1]. 
+/* Changed this so that the 2D rules can either show intensity or variable[1].
 Recall that "intensity" is #define in CA.HPP to stand for "variable[0]". RR 11/98*/
     if (!(graphfocus->showvelocity))
         return (GLfloat) (graphfocus->wave_source_plane[i].
@@ -989,7 +989,7 @@ Recall that "intensity" is #define in CA.HPP to stand for "variable[0]". RR 11/9
 }
 
 void CapowGL::SetUpLights()
-/* The minimal implementation of OPENGL allows for 8 lights; 
+/* The minimal implementation of OPENGL allows for 8 lights;
 I'm only using one for capowgl
 */
 {
@@ -1002,7 +1002,7 @@ I'm only using one for capowgl
     GLfloat specular0[] = { .8f, .8f, .8f, 1.0f };
     GLfloat position0[] = { 0.0f, 0.0f, 1.0f, 0.0f };  //directional
 
-//These are just parameters for other lights, which seems unnecessary                                                      
+//These are just parameters for other lights, which seems unnecessary
 /*  GLfloat ambient1[] =  { 0.0f, 0.0f, 0.0f, 1.0f };
     GLfloat diffuse1[] =  { 1.0f, 1.0f, 1.0f, 1.0f };
     GLfloat specular1[] = { 0.5f, 0.5f, 0.5f, 1.0f };
@@ -1023,7 +1023,7 @@ I'm only using one for capowgl
         ::glEnable( GL_LIGHTING );
     else
         ::glDisable(GL_LIGHTING);
-    ::glEnable(GL_LIGHT0);  
+    ::glEnable(GL_LIGHT0);
     ::glLightfv(GL_LIGHT0, GL_AMBIENT, ambient0);
     ::glLightfv(GL_LIGHT0, GL_POSITION, position0);
     ::glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse0);
@@ -1034,14 +1034,14 @@ I'm only using one for capowgl
     ::glLightfv(GL_LIGHT1, GL_POSITION, position1);
     ::glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse1);
     ::glLightfv(GL_LIGHT1, GL_SPECULAR, specular1);
-    
-    //::glEnable(GL_LIGHT2);  
+
+    //::glEnable(GL_LIGHT2);
     ::glLightfv(GL_LIGHT2, GL_AMBIENT, ambient2);
     ::glLightfv(GL_LIGHT2, GL_POSITION, position2);
     ::glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuse2);
     ::glLightfv(GL_LIGHT2, GL_SPECULAR, specular2);
 
-    //::glEnable(GL_LIGHT3);  
+    //::glEnable(GL_LIGHT3);
     ::glLightfv(GL_LIGHT3, GL_AMBIENT, ambient3);
     ::glLightfv(GL_LIGHT3, GL_POSITION, position3);
     ::glLightfv(GL_LIGHT3, GL_DIFFUSE, diffuse3);
@@ -1104,7 +1104,7 @@ void CapowGL::PickMaterial(int materialtype)
     case TURQUOISE:
         SetMaterials( 0.1, 0.18725, 0.1745,
             0.396, 0.74151, 0.69102, 0.297254, 0.30829, 0.306678, 0.1);
-        break; 
+        break;
     case BRASS:
         SetMaterials( 0.329412, 0.223529, 0.027451,
             0.780392, 0.568627, 0.113725, 0.992157, 0.941176, 0.807843,
@@ -1186,14 +1186,14 @@ void CapowGL::ComputeNormals()
 {
     //the array "normals[]" stores a normal vector for
     //each vertex in the graph. In order for the SMOOTH surface
-    //to work, each normal vector has to be average of the 
+    //to work, each normal vector has to be average of the
     //unit normals of the triangles that touch that vertex.
     //However, this function doesn't unitvectorize the final normals
     //We let OpenGL take care of this by calling glEnable(GL_NORMALIZE);
 
 /* This function looks pretty ugly, but I'm doing it this way for efficiency.
 To be specific, in reality the smoothed normal of a cell's vertex is the average of the
-the normals of the 6 triangles that share that vertex.  But the normals 
+the normals of the 6 triangles that share that vertex.  But the normals
 of those 6 triangles are shared by the adjacent cells.  My function needs
 to calculate a normal for each triangle ONLY once, and then adds them into the
 three associated vectors in the normals[] array.  Also, I don't need a
@@ -1212,7 +1212,7 @@ separate loop to initialize the entire array.
         normals[x][2] = 0.0f;
     }
     //what is being done here is that we look at each triangle associated
-    //graph, and add its normal to the three normals associated with 
+    //graph, and add its normal to the three normals associated with
     //those vertices in the "normals" array.  After that, we need
     //to make each vector in the array a unit vector.
     for(y = 0; y<CY_2D-1; y++)  //for each row of vertices, except for the last row,
@@ -1236,19 +1236,19 @@ separate loop to initialize the entire array.
             n1[0] *= d;
             n1[1] *= d;
             n1[2] *= d;
-            
+
             location = x + y*CX_2D;
             normals[location][0] += n1[0];
             normals[location][1] += n1[1];
             normals[location][2] += n1[2];
             // no more normals will be added to this normals[location]
 
-            //now add n1 to the other two normals associated with the upperleft triangle 
+            //now add n1 to the other two normals associated with the upperleft triangle
             location++;                     //  x,y --*
             normals[location][0] += n1[0];  //  |    /
             normals[location][1] += n1[1];  //  |  /
             normals[location][2] += n1[2];  //  |/
-                                
+
             location+=CX_2D-1;              //  x,y --
             normals[location][0] += n1[0];  //  |    /
             normals[location][1] += n1[1];  //  |  /
@@ -1267,7 +1267,7 @@ separate loop to initialize the entire array.
             n1[0] *= d;
             n1[1] *= d;
             n1[2] *= d;
-                                            //  x,y    
+                                            //  x,y
             normals[location][0]+=n1[0];    //       /|
             normals[location][1]+=n1[1];    //     /  |
             normals[location][2]+=n1[2];    //   /    |
@@ -1275,7 +1275,7 @@ separate loop to initialize the entire array.
             location ++;
             normals[location][0]=n1[0];   //these are not += because they are seeing that
             normals[location][1]=n1[1];   //location for the first time, which must be initialized.
-            normals[location][2]=n1[2];     //  x,y   
+            normals[location][2]=n1[2];     //  x,y
                                             //       /|
                                             //     /  |
                                             //   /    |
@@ -1298,8 +1298,8 @@ void CapowGL::NormalVector(int i,int j,int half, GLfloat n[3])
 //which can handle triangles larger than one cell unit
 
 
-/*this function calculates the normal of a triangle associated 
-with a point in the the mesh. Looking down on the x-y plane 
+/*this function calculates the normal of a triangle associated
+with a point in the the mesh. Looking down on the x-y plane
 (right handed system), x increase to the right, and y increases downward.
 
     i,j------------i+1,j------------i+2,j-----....
@@ -1315,9 +1315,9 @@ with a point in the the mesh. Looking down on the x-y plane
     i,j+1----------i+1,j+1----------i+2,j+2
 
 
-when i,j, and the half is passed to the function, 
+when i,j, and the half is passed to the function,
 the normal vector for the triangle specified will be calculated
-and copied into n[]. The vector is a unit vector, 
+and copied into n[]. The vector is a unit vector,
 and should point "out" of the screen, or CA.
 */
 
@@ -1348,7 +1348,7 @@ and should point "out" of the screen, or CA.
     if (d< (GLdouble) 0.00000001)
     {
         //error, near zero length vector
-        // 
+        //
         d = (GLdouble) 100000000.0;
     }
     else
@@ -1363,7 +1363,7 @@ and should point "out" of the screen, or CA.
 }
 
 void CapowGL::NormalVector(int i,int j,int half, GLfloat n[3], int interval)
-//same as the preceding function, except it can use triangles which are more 
+//same as the preceding function, except it can use triangles which are more
 //than one unit in width
 {
     GLdouble d;
@@ -1386,11 +1386,11 @@ void CapowGL::NormalVector(int i,int j,int half, GLfloat n[3], int interval)
         break;
     }
 
-/*10-97 commented out because I started to use glEnable(GL_NORMALIZE).  
+/*10-97 commented out because I started to use glEnable(GL_NORMALIZE).
 This function is used in two places, really- computing the normals for
-FACETS mode, and for computing the normals in ComputeNormals(). 
-Consequently, the below code is not needed for FACETS part, 'cause 
-OpenGL does it.  However in ComputeNormals, unitvectorization has 
+FACETS mode, and for computing the normals in ComputeNormals().
+Consequently, the below code is not needed for FACETS part, 'cause
+OpenGL does it.  However in ComputeNormals, unitvectorization has
 to be done, because I'm looking for the equally weighted sum of several
 vectors.
 */
@@ -1403,7 +1403,7 @@ vectors.
     if (d< (GLdouble) 0.00000001)
     {
         //error, near zero length vector
-        // 
+        //
         d = (GLdouble) 100000000.0;
     }
     else
@@ -1422,7 +1422,7 @@ void CapowGL::MouseMove(int x, int y, UINT flags)
 /*interpret mouse drag */
 {
     if (gotLButtonDown)
-    {   
+    {
         switch(mousemode)
         {
         case 0:  //CA orientation
@@ -1467,7 +1467,7 @@ void CapowGL::MouseMove(int x, int y, UINT flags)
                 z=MINZ;
             else if (z>MAXZ)
                 z=MAXZ;
-            panX = oldpanX + (float) (x-x1)/10.0f;          
+            panX = oldpanX + (float) (x-x1)/10.0f;
             break;
         case 5:
             heightfactor = oldheightfactor + (float)-(y-y1)/(4.0*(graphfocus->_max_intensity.Val()+.01));
@@ -1475,7 +1475,7 @@ void CapowGL::MouseMove(int x, int y, UINT flags)
                 heightfactor = 0.0f;
             //to take care of the bug that occurs when the height is being changed
             //for a paused 2D smooth graph, and forgets to recompute normals.
-            if (surfacetype == SMOOTH && material != UNLIGHTED_MULTICOLOR && !focusIsActive)  
+            if (surfacetype == SMOOTH && material != UNLIGHTED_MULTICOLOR && !focusIsActive)
                 ComputeNormals();
             break;
         }
@@ -1527,7 +1527,7 @@ void CapowGL::LeftButtonDown(BOOL fDoubleClick, int x, int y, UINT flags)
     case 6:  //fly mode
         flygo = !flygo;   //clicking will alternate between freezing and moving
         break;
-    }       
+    }
 }
 
 void CapowGL::LeftButtonUp(int x, int y, UINT flags)
@@ -1561,7 +1561,7 @@ void CapowGL::Pan(int direction) //not really used
         panY += panstep;
         break;
     case 2:
-        panX -= panstep; 
+        panX -= panstep;
         break;
     case 3:
         panX += panstep;
@@ -1576,7 +1576,7 @@ void CapowGL::Reset()
     surfacetype = DEFAULTSURFACETYPE;
     material =      DEFAULTMATERIAL;
 
-    
+
 //  heightfactor =  DEFAULTHEIGHTFACTOR;
     spinflag =      DEFAULTSPIN;
     spindelta =     DEFAULTSPINDELTA;
@@ -1603,7 +1603,7 @@ void CapowGL::Reset()
 
 }
 
-void CapowGL::Type(int newtype) 
+void CapowGL::Type(int newtype)
 {
     if (ThreeDGlasses() && newtype!= FLATCOLOR)
         newtype = SHEET;
@@ -1638,7 +1638,7 @@ Z_FACTOR to HEIGHT_FACTOR
     Real divisor = fabs(focus->MaxIntensity()); //This isn't ever negative, but I'm paranoid.
     if (divisor < SMALL_REAL)
         divisor = SMALL_REAL;
-    heightfactor = fabs(HEIGHT_FACTOR / divisor); 
+    heightfactor = fabs(HEIGHT_FACTOR / divisor);
     //z is negative, so need the fabs, otherwise the picture's upside down.
 }
 
@@ -1726,7 +1726,7 @@ void CapowGL::UpdateFly()
         flyEye[1] = -CY_2D;
 
     //limit the possible height of the eye
-    if (flyEye[2] >(float)graphfocus->_max_intensity.Val()*heightfactor + .3f) 
+    if (flyEye[2] >(float)graphfocus->_max_intensity.Val()*heightfactor + .3f)
         flyEye[2] =(float)graphfocus->_max_intensity.Val()*heightfactor;
     else if (flyEye[2] < -(float)graphfocus->_max_intensity.Val()*heightfactor)
         flyEye[2] = - (float)graphfocus->_max_intensity.Val()*heightfactor;
@@ -1739,8 +1739,8 @@ but to conserve memory allocation I use two arrays of size CX_2D and CY_2D, stor
 the array slice[] stores the location of the center of that slice on a 2-D plane, with
 the planes origin located at the center of the torus. The array section[] describes
 the face of that slice, like a cross section.
-To compute the location of a point on a torus requires some adding and 
-multiplying between the two arrays, which would make it a little slower 
+To compute the location of a point on a torus requires some adding and
+multiplying between the two arrays, which would make it a little slower
 than using the larger array of 3-D points as lookup table.
 */
 {
@@ -1764,7 +1764,7 @@ than using the larger array of 3-D points as lookup table.
 
 
 void CapowGL::MouseMode(int mode)
-{   
+{
     if (mousemode != mode)
     {
         if (ThreeDGlasses() && mode !=0 && mode !=5 && mode != 4)
@@ -1811,7 +1811,7 @@ void CapowGL::Resolution(int value)
         break;
     default:
         break;
-    }   
+    }
 }
 
 //this function is incomplete
@@ -1843,10 +1843,10 @@ bool CapowGL::CaptureToVRML()
     ofn.lCustData       = 0L;
     ofn.lpfnHook        = NULL;
     ofn.lpTemplateName  = NULL;
-    
+
     if (GetOpenFileName (&ofn))
     {
-        
+
     }
     return true;
 }
@@ -1881,13 +1881,13 @@ GLenum error;
         fprintf( stream, "}\n");
         fprintf( stream, "Shape {\n");
         fprintf( stream, "  geometry ElevationGrid {\n");
-        fprintf( stream, "    height [");       
+        fprintf( stream, "    height [");
         //now write the data
         for (j=0; j<CY_2D; j+= interval)
         {
             for(i=0; i<CX_2D;i+= interval)
             {
-                
+
                 fprintf(stream, " %.3f", GraphHeight(i,j)* gridspacing );
                 if (i2>=8)
                 {
@@ -1911,7 +1911,7 @@ GLenum error;
                 {
                     for (i=0; i<CX_2D-interval; i+= interval)
                     {
-                        pointcolor = GetPixel(WBM->GetHDC(), i,(toolbarON)?j+toolBarHeight:j);      
+                        pointcolor = GetPixel(WBM->GetHDC(), i,(toolbarON)?j+toolBarHeight:j);
                         fprintf(stream, " %.2f", (float)GetRValue(pointcolor)/255);
                         fprintf(stream, " %.2f", (float)GetGValue(pointcolor)/255);
                         fprintf(stream, " %.2f,", (float)GetBValue(pointcolor)/255);
@@ -1930,7 +1930,7 @@ GLenum error;
                 {
                     for (i=0; i<CX_2D; i+= interval)
                     {
-                        pointcolor = GetPixel(WBM->GetHDC(), i,(toolbarON)?j+toolBarHeight:j);      
+                        pointcolor = GetPixel(WBM->GetHDC(), i,(toolbarON)?j+toolBarHeight:j);
                         fprintf(stream, " %.2f", (float)GetRValue(pointcolor)/255);
                         fprintf(stream, " %.2f", (float)GetGValue(pointcolor)/255);
                         fprintf(stream, " %.2f,", (float)GetBValue(pointcolor)/255);
@@ -1955,12 +1955,12 @@ GLenum error;
             //will allow adjacent polygons to appear creased, rather than smoothed
             //6.0 radians is a very large angle, so every thing will be smoothed
             fprintf(stream, "    creaseAngle 3.0\n");
-        else if (surfacetype==FACETS)  
+        else if (surfacetype==FACETS)
             //color of a quad is the color of it's upper left cell
-            fprintf(stream, "    colorPerVertex FALSE\n"); 
+            fprintf(stream, "    colorPerVertex FALSE\n");
         fprintf(stream, "    solid FALSE\n"); //don't cull polygons
 
-        /*the following lines fix the calculation of the 
+        /*the following lines fix the calculation of the
         proper number of rows and columns, in the case
         where the interval does not divide evenly into CX_2D or CY_2D.
         In such a case, we add one.  For example, if interval is 4
@@ -2009,7 +2009,7 @@ GLenum error;
 
         //define the entry view
         fprintf(stream,"Transform {\n");
-        fprintf(stream,"  rotation 0 1 0 .5\n");  
+        fprintf(stream,"  rotation 0 1 0 .5\n");
         fprintf(stream,"  translation 6 0 4.5\n");
         fprintf(stream,"  children [\n");
         fprintf(stream,"    Viewpoint{\n");
@@ -2018,7 +2018,7 @@ GLenum error;
         fprintf(stream,"    description \"View 1\"\n");
         fprintf(stream,"    }\n");
         fprintf(stream,"  ]\n");
-        fprintf(stream,"}\n"); 
+        fprintf(stream,"}\n");
 
 
 

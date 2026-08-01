@@ -34,8 +34,8 @@ template <class T, class Distance> struct forward_iterator {};
 template <class T, class Distance> struct bidirectional_iterator {};
 template <class T, class Distance> struct random_access_iterator {};
 
-template <class T, class Distance> 
-inline input_iterator_tag 
+template <class T, class Distance>
+inline input_iterator_tag
 iterator_category(const input_iterator<T, Distance>&) {
     return input_iterator_tag();
 }
@@ -44,19 +44,19 @@ inline output_iterator_tag iterator_category(const output_iterator&) {
     return output_iterator_tag();
 }
 
-template <class T, class Distance> 
+template <class T, class Distance>
 inline forward_iterator_tag
 iterator_category(const forward_iterator<T, Distance>&) {
     return forward_iterator_tag();
 }
 
-template <class T, class Distance> 
+template <class T, class Distance>
 inline bidirectional_iterator_tag
 iterator_category(const bidirectional_iterator<T, Distance>&) {
     return bidirectional_iterator_tag();
 }
 
-template <class T, class Distance> 
+template <class T, class Distance>
 inline random_access_iterator_tag
 iterator_category(const random_access_iterator<T, Distance>&) {
     return random_access_iterator_tag();
@@ -67,22 +67,22 @@ inline random_access_iterator_tag iterator_category(const T*) {
     return random_access_iterator_tag();
 }
 
-template <class T, class Distance> 
+template <class T, class Distance>
 inline T* value_type(const input_iterator<T, Distance>&) {
-    return (T*)(0); 
+    return (T*)(0);
 }
 
-template <class T, class Distance> 
+template <class T, class Distance>
 inline T* value_type(const forward_iterator<T, Distance>&) {
     return (T*)(0);
 }
 
-template <class T, class Distance> 
+template <class T, class Distance>
 inline T* value_type(const bidirectional_iterator<T, Distance>&) {
     return (T*)(0);
 }
 
-template <class T, class Distance> 
+template <class T, class Distance>
 inline T* value_type(const random_access_iterator<T, Distance>&) {
     return (T*)(0);
 }
@@ -90,24 +90,24 @@ inline T* value_type(const random_access_iterator<T, Distance>&) {
 template <class T>
 inline T* value_type(const T*) { return (T*)(0); }
 
-template <class T, class Distance> 
+template <class T, class Distance>
 inline Distance* distance_type(const input_iterator<T, Distance>&) {
     return (Distance*)(0);
 }
 
-template <class T, class Distance> 
+template <class T, class Distance>
 inline Distance* distance_type(const forward_iterator<T, Distance>&) {
     return (Distance*)(0);
 }
 
-template <class T, class Distance> 
-inline Distance* 
+template <class T, class Distance>
+inline Distance*
 distance_type(const bidirectional_iterator<T, Distance>&) {
     return (Distance*)(0);
 }
 
-template <class T, class Distance> 
-inline Distance* 
+template <class T, class Distance>
+inline Distance*
 distance_type(const random_access_iterator<T, Distance>&) {
     return (Distance*)(0);
 }
@@ -122,7 +122,7 @@ protected:
 public:
     back_insert_iterator(Container& x) : container(x) {}
     back_insert_iterator<Container>&
-    operator=(const Container::value_type& value) { 
+    operator=(const Container::value_type& value) {
     container.push_back(value);
     return *this;
     }
@@ -143,7 +143,7 @@ protected:
 public:
     front_insert_iterator(Container& x) : container(x) {}
     front_insert_iterator<Container>&
-    operator=(const Container::value_type& value) { 
+    operator=(const Container::value_type& value) {
     container.push_front(value);
     return *this;
     }
@@ -163,10 +163,10 @@ protected:
     Container& container;
     Container::iterator iter;
 public:
-    insert_iterator(Container& x, Container::iterator i) 
+    insert_iterator(Container& x, Container::iterator i)
     : container(x), iter(i) {}
     insert_iterator<Container>&
-    operator=(const Container::value_type& value) { 
+    operator=(const Container::value_type& value) {
     iter = container.insert(iter, value);
     ++iter;
     return *this;
@@ -181,11 +181,11 @@ insert_iterator<Container> inserter(Container& x, Iterator i) {
     return insert_iterator<Container>(x, Container::iterator(i));
 }
 
-template <class BidirectionalIterator, class T, class Reference, 
-          class Distance> 
-// Reference = T& 
+template <class BidirectionalIterator, class T, class Reference,
+          class Distance>
+// Reference = T&
 // Distance = ptrdiff_t
-class reverse_bidirectional_iterator 
+class reverse_bidirectional_iterator
     : public bidirectional_iterator<T, Distance> {
     typedef reverse_bidirectional_iterator<BidirectionalIterator, T, Reference,
                                            Distance> self;
@@ -224,14 +224,14 @@ template <class BidirectionalIterator, class T, class Reference,
           class Distance>
 inline bool operator==(
     const reverse_bidirectional_iterator<BidirectionalIterator, T, Reference,
-                                 Distance>& x, 
+                                 Distance>& x,
     const reverse_bidirectional_iterator<BidirectionalIterator, T, Reference,
                                  Distance>& y) {
     return x.current == y.current;
 }
 
 template <class RandomAccessIterator, class T, class Reference,
-          class Distance> 
+          class Distance>
 // Reference = T&
 // Distance = ptrdiff_t
 class reverse_iterator : public random_access_iterator<T, Distance> {
@@ -285,7 +285,7 @@ public:
 
 template <class RandomAccessIterator, class T, class Reference, class Distance>
 inline bool operator==(const reverse_iterator<RandomAccessIterator, T,
-                                      Reference, Distance>& x, 
+                                      Reference, Distance>& x,
                const reverse_iterator<RandomAccessIterator, T,
                                       Reference, Distance>& y) {
     return x.current == y.current;
@@ -293,7 +293,7 @@ inline bool operator==(const reverse_iterator<RandomAccessIterator, T,
 
 template <class RandomAccessIterator, class T, class Reference, class Distance>
 inline bool operator<(const reverse_iterator<RandomAccessIterator, T,
-                                     Reference, Distance>& x, 
+                                     Reference, Distance>& x,
               const reverse_iterator<RandomAccessIterator, T,
                                      Reference, Distance>& y) {
     return y.current < x.current;
@@ -301,14 +301,14 @@ inline bool operator<(const reverse_iterator<RandomAccessIterator, T,
 
 template <class RandomAccessIterator, class T, class Reference, class Distance>
 inline Distance operator-(const reverse_iterator<RandomAccessIterator, T,
-                                     Reference, Distance>& x, 
+                                     Reference, Distance>& x,
               const reverse_iterator<RandomAccessIterator, T,
                                      Reference, Distance>& y) {
     return y.current - x.current;
 }
 
 template <class RandomAccessIterator, class T, class Reference, class Distance>
-inline reverse_iterator<RandomAccessIterator, T, Reference, Distance> 
+inline reverse_iterator<RandomAccessIterator, T, Reference, Distance>
 operator+(Distance n,
       const reverse_iterator<RandomAccessIterator, T, Reference,
                              Distance>& x) {
@@ -327,7 +327,7 @@ public:
     raw_storage_iterator<OutputIterator, T>& operator=(const T& element) {
     construct(iter, element);
     return *this;
-    }        
+    }
     raw_storage_iterator<OutputIterator, T>& operator++() {
     ++iter;
     return *this;
@@ -357,8 +357,8 @@ public:
     istream_iterator() : stream(&cin), end_marker(false) {}
     istream_iterator(istream& s) : stream(&s) { read(); }
     const T& operator*() const { return value; }
-    istream_iterator<T, Distance>& operator++() { 
-    read(); 
+    istream_iterator<T, Distance>& operator++() {
+    read();
     return *this;
     }
     istream_iterator<T, Distance> operator++(int)  {
@@ -383,14 +383,14 @@ protected:
 public:
     ostream_iterator(ostream& s) : stream(&s), string(0) {}
     ostream_iterator(ostream& s, char* c) : stream(&s), string(c)  {}
-    ostream_iterator<T>& operator=(const T& value) { 
+    ostream_iterator<T>& operator=(const T& value) {
     *stream << value;
     if (string) *stream << string;
     return *this;
     }
     ostream_iterator<T>& operator*() { return *this; }
-    ostream_iterator<T>& operator++() { return *this; } 
-    ostream_iterator<T>& operator++(int) { return *this; } 
+    ostream_iterator<T>& operator++() { return *this; }
+    ostream_iterator<T>& operator++(int) { return *this; }
 };
 
 #endif

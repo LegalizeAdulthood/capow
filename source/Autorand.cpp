@@ -65,7 +65,7 @@ be confusion. */
         timer_handle = 0;
     }
     if (!(timer_handle = SetTimer(hwnd, timer_ID, millisecs, NULL)))
-    {   
+    {
         MessageBox( hwnd,
             (LPSTR)"Unable to Create a Windows Timer.  Close Other Apps & Try Again!",
             (LPSTR)"Resource Problem!",
@@ -84,8 +84,8 @@ void writeProfileInt(LPSTR szSection, LPSTR szKey, int save_int)
     WriteProfileString(szSection, szKey,(LPSTR)buf);
 }
 
-/* ------------------------------------------------------------------- 
- writeIniSettings --Helper function to Write parameter settings to WIN.INI 
+/* -------------------------------------------------------------------
+ writeIniSettings --Helper function to Write parameter settings to WIN.INI
  ------------------------------------------------------------------- */
 void writeIniSettings(HWND hDlg)
 {
@@ -102,7 +102,7 @@ void writeIniSettings(HWND hDlg)
 }
 
 /* ----------------------------------------------------------------
- readIniSettings -- helper function to Read parameter settings from WIN.INI           
+ readIniSettings -- helper function to Read parameter settings from WIN.INI
  ------------------------------------------------------------------- */
 void readIniSettings()
 {
@@ -115,9 +115,9 @@ and use them in the configOK as well. */
 }
 
 /*
-Here is the sample code I found in the MSDN Knowledge Base entry called 
-"Moving your Game to Windows".  I'm going to use this code 
-to vary the program speed by letting replacing UDPATE_TICKS_MS 
+Here is the sample code I found in the MSDN Knowledge Base entry called
+"Moving your Game to Windows".  I'm going to use this code
+to vary the program speed by letting replacing UDPATE_TICKS_MS
 with a user-adjustable update_millisecs_per_cycle.
 
 #define UPDATE_TICKS_MS 100    // milliseconds per world update
@@ -143,7 +143,7 @@ QueryPerformanceCounter((LARGE_INTEGER*)&start);
     TranslateMessage(&msg);
     DispatchMessage(&msg);
     QueryPerformanceCounter((LARGE_INTEGER*)&end);
-  // The inner loop ensures that the world gets updated more than 
+  // The inner loop ensures that the world gets updated more than
   //   once if need be.
     while ((end - start) >= update_ticks_per_cycle)
       {

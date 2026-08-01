@@ -34,9 +34,9 @@ static int controlID_to_TweakID[NUM_TWEAKPARAMS];
 static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 {
     HINSTANCE hInstance;
-    
+
     hInstance = (HINSTANCE)GetWindowLong(hDlg, GWLP_HINSTANCE);
-    
+
 //  CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
 //  controlID_to_TweakID[0] depends on the type of ca
     controlID_to_TweakID[1] = FRICTION_TYPE;
@@ -70,7 +70,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
 
     switch( id )
     {
-    
+
         case RADIO_ALL:
             SendMessage(masterhwnd, WM_COMMAND, IDM_CHANGEALLMENU, 0L);
             break;
@@ -111,11 +111,11 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
 BOOL HandleUpDownControlElectric(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     NM_UPDOWN *pnmud = (NM_UPDOWN FAR *) lParam;
-    
+
     if (pnmud->hdr.code != UDN_DELTAPOS)    // if no change then return
         return FALSE;
- 
- 
+
+
     switch ( pnmud->hdr.idFrom )
     {
         case IDC_SPIN_ELECTRIC_CAP:
@@ -128,7 +128,7 @@ BOOL HandleUpDownControlElectric(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
                 if( focusflag )
                 {
                     calife_list->FocusCA()->BumpTweakParam(controlID_to_TweakID[(pnmud->hdr.idFrom-IDC_SPIN_ELECTRIC_CAP)/2],(+1));
-                    calife_list->FocusCA()->ResetGenerationCount();                 
+                    calife_list->FocusCA()->ResetGenerationCount();
                 }
                 else
                 {
@@ -143,7 +143,7 @@ BOOL HandleUpDownControlElectric(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
                 if( focusflag )
                 {
                     calife_list->FocusCA()->BumpTweakParam(controlID_to_TweakID[(pnmud->hdr.idFrom-IDC_SPIN_ELECTRIC_CAP+1)/2],(-1));
-                    calife_list->FocusCA()->ResetGenerationCount();                 
+                    calife_list->FocusCA()->ResetGenerationCount();
                 }
                 else
                 {
@@ -155,7 +155,7 @@ BOOL HandleUpDownControlElectric(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
             }
             break;
 
-    
+
     } // Switch
     // We must return true so that the position remain the same value
     return TRUE;
@@ -171,7 +171,7 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
     WriteProfileString((LPSTR)szMyAppName,(LPSTR)"ELECTIRCX",(LPSTR)buf);
     wsprintf((LPSTR)buf,"%i",rect.top);
     WriteProfileString((LPSTR)szMyAppName,(LPSTR)"ELECTIRCY",(LPSTR)buf);
-            
+
 }
 /*----------------------------------------------------------------------------------------*/
 

@@ -7,7 +7,7 @@
     FILE DESCRIPTION:   This file contains functions and data to control
                         the analog dialog box and its features.
 
-    UPDATE LOG:         
+    UPDATE LOG:
                     9-29-97  Rewrote the Dialog Enable/Disable rountine.
                              Eliminated Processing of WM_RBUTTONDOWN, WM_MOVE
                              Removed MyWnd_RBUTTON, and MyWnd_Move
@@ -18,7 +18,7 @@
 #include "resource.h"
 #include "tweakca.hpp"
 #include <math.h>
- 
+
 //====================DEBUG FLAGS ===============
 //====================DEFINE CONSTANTS ===============
 
@@ -30,19 +30,19 @@
 
 static int edit_id = 0; // Initialization for editing stage in this dialogbox
 static int controlID_to_TweakID[NUM_TWEAKPARAMS];
- 
+
 //====================LOCAL FUNCTIONS ===============
 
 static void  showparams(HWND);
 static void enable_active_buttons( HWND hwnd, int castyle );
- 
+
 //====================EXTERNAL DATA===============
 
 extern class CAlist *calife_list;
-extern short focusflag; 
+extern short focusflag;
 extern char  *szMyAppName;
 extern HWND  hDlgAnalog, masterhwnd;
- 
+
 //====================EXTERNAL FUNCTIONS===============
 
 extern void  textLabel (HWND, int, char*);
@@ -61,7 +61,7 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
     HINSTANCE hInstance;
 
     hInstance = (HINSTANCE)GetWindowLong(hDlg, GWLP_HINSTANCE);
-    
+
 //  CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
     controlID_to_TweakID[0] = SPACE_STEP_TYPE;
     controlID_to_TweakID[1] = TIME_STEP_TYPE;
@@ -124,7 +124,7 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
             edit_id = 0;
             showparams(hDlg);
             break;
-        
+
             case HEAT_INC_TYPE:     // fall through
             case MAX_VELOCITY_TYPE:
             case MAX_INTENSITY_TYPE:
@@ -151,8 +151,8 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
                 edit_id = 0;
                 showparams(hDlg);
                 break;
-        
-    } // end switch on id of the WM_COMMAND 
+
+    } // end switch on id of the WM_COMMAND
 }
 
 
@@ -186,11 +186,11 @@ static void MyWnd_DESTROY(HWND hDlg)
 BOOL HandleUpDownControlAnalog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     NM_UPDOWN *pnmud = (NM_UPDOWN FAR *) lParam;
-    
+
     if (pnmud->hdr.code != UDN_DELTAPOS)    // if no change then return
         return FALSE;
- 
-    
+
+
     switch ( pnmud->hdr.idFrom )
     {
         case IDC_SPIN_ANALOG_SPACESTEP:
@@ -201,7 +201,7 @@ BOOL HandleUpDownControlAnalog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
         case IDC_SPIN_ANALOG_STATEGRAIN:
         case IDC_SPIN_ANALOG_3DHEIGHT:
             if ( pnmud->iDelta < 0 )
-            {   
+            {
                 if( focusflag )
                 {
                     calife_list->FocusCA()->BumpTweakParam(controlID_to_TweakID[(pnmud->hdr.idFrom-IDC_SPIN_ANALOG_SPACESTEP)/2],(+1));
@@ -251,12 +251,12 @@ extern BOOL CALLBACK AnalogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM 
         HANDLE_MSG(hDlg,WM_CLOSE,MyWnd_CLOSE);
         HANDLE_MSG(hDlg,WM_COMMAND,MyWnd_COMMAND);
         case WM_NOTIFY:
-            return HandleUpDownControlAnalog(hDlg, message, wParam, lParam);                
+            return HandleUpDownControlAnalog(hDlg, message, wParam, lParam);
         default:
-            return FALSE; 
-    } 
+            return FALSE;
+    }
 
-} 
+}
 
 //********************************************************************************
 // showparams
@@ -279,7 +279,7 @@ void showparams( HWND hDlg )
     if (edit_id)
             return; // This bails on regressive showparams calls from WM_COMMAND.
     // if not editing any edit box, update!!!
-    
+
     // stable DX check box
     if( calife_list->FocusCA()->Get_dx_lock() )
         CheckDlgButton( hDlg, CHK_DX_LOCK, 1 );
@@ -325,7 +325,7 @@ void showparams( HWND hDlg )
 
 void enable_active_buttons( HWND hDlg, int castyle )
 {
-    
+
     switch( castyle )
     {
         case CA_STANDARD:
@@ -344,7 +344,7 @@ void enable_active_buttons( HWND hDlg, int castyle )
             EnableWindow( GetDlgItem( hDlg, CHUNK_TYPE ), FALSE );
             break;
 
-        
+
         case CA_WAVE:
         case CA_ULAM_WAVE:
         case CA_AUTO_ULAM_WAVE:
@@ -369,23 +369,23 @@ void enable_active_buttons( HWND hDlg, int castyle )
             EnableWindow( GetDlgItem( hDlg, HEAT_INC_TYPE ), TRUE );
             EnableWindow( GetDlgItem( hDlg, IDC_SPIN_ANALOG_STATEGRAIN ), TRUE );
             EnableWindow( GetDlgItem( hDlg, CHUNK_TYPE ), TRUE );
-            
+
             if ( castyle == CA_OSCILLATOR ||  castyle == CA_DIVERSE_OSCILLATOR )
             {
                 EnableWindow( GetDlgItem( hDlg, IDC_SPIN_ANALOG_HEATCOUNT ), FALSE );
                 EnableWindow( GetDlgItem( hDlg, HEAT_INC_TYPE ), FALSE );
             }
-                
+
             break;
     }
-    
+
     if( calife_list->FocusCA()->Get_dx_lock() ) // if locked, can't hand change it
     {
         EnableWindow( GetDlgItem( hDlg, IDC_SPIN_ANALOG_SPACESTEP ), FALSE );
         EnableWindow( GetDlgItem( hDlg, SPACE_STEP_TYPE ), FALSE );
     } // if dx locked
     else
-    {   
+    {
         EnableWindow( GetDlgItem( hDlg, IDC_SPIN_ANALOG_SPACESTEP ), TRUE );
         EnableWindow( GetDlgItem( hDlg, SPACE_STEP_TYPE ), TRUE );
     } // else dx is not locked

@@ -15,7 +15,7 @@ static void set_active_buttons(int);
 static void enable_active_buttons(HWND);
 
 static int edit_id = 0;
-extern short focusflag; 
+extern short focusflag;
     // 0 is all, 1 is one only
 
 #define MAX_PLUSES_MINUSES 4        // number of incrementors and decrementors
@@ -73,14 +73,14 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
     WriteProfileString((LPSTR)szMyAppName,(LPSTR)"DIGITALX",(LPSTR)buf);
     wsprintf((LPSTR)buf,"%i",rect.top);
     WriteProfileString((LPSTR)szMyAppName,(LPSTR)"DIGITALY",(LPSTR)buf);
-            
+
 }
 
 static void MyWnd_DESTROY(HWND hDlg)
 {
             hDlgDigital = 0;
             InvalidateRect( masterhwnd, NULL, FALSE );
-            
+
 }
 
 
@@ -88,7 +88,7 @@ static void MyWnd_DESTROY(HWND hDlg)
 static void MyWnd_CLOSE(HWND hDlg)
 {
     DestroyWindow(hDlg);
-    
+
 }
 
 
@@ -125,7 +125,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
                 break;
             } // if
 
-            if(!SendMessage((HWND)hwndCtl, CB_GETDROPPEDSTATE, 0, 0L ) && 
+            if(!SendMessage((HWND)hwndCtl, CB_GETDROPPEDSTATE, 0, 0L ) &&
                 new_drop == 1)
             {
                 int combo = CA1_2 + (unsigned char)SendMessage( (HWND)hwndCtl,
@@ -174,7 +174,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
             }
             break;
 
-        
+
         case VARIANCE_TYPE:
         case LAMBDA_TYPE:
              edit_id = id;
@@ -214,18 +214,18 @@ BOOL HandleUpDownControlDigital(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 //
 {
     NM_UPDOWN *pnmud = (NM_UPDOWN FAR *) lParam;
-    
+
     if (pnmud->hdr.code != UDN_DELTAPOS)    // if no change then return
         return FALSE;
- 
- 
+
+
     switch ( pnmud->hdr.idFrom )
     {
         case IDC_SPINLAMBDA:
             if( focusflag )
             {
                 calife_list->FocusCA()->Changelambda( pnmud->iDelta * 0.1 );
-                calife_list->FocusCA()->ResetGenerationCount();                 
+                calife_list->FocusCA()->ResetGenerationCount();
             }
             else
             {
@@ -235,12 +235,12 @@ BOOL HandleUpDownControlDigital(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
             edit_id = 0;
             showparams(hDlg);
             break;
-        
+
         case IDC_SPINDIVERSE:
             if( focusflag )
             {
                 calife_list->FocusCA()->BumpTweakParam(VARIANCE_TYPE,-pnmud->iDelta );
-                calife_list->FocusCA()->ResetGenerationCount();                 
+                calife_list->FocusCA()->ResetGenerationCount();
             }
             else
             {
@@ -251,7 +251,7 @@ BOOL HandleUpDownControlDigital(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
             showparams(hDlg);
             break;
 
-        
+
     } // Switch
     // We must return true so that the position remain the same value
     return TRUE;
@@ -296,9 +296,9 @@ void showparams( HWND hDlg )
             return; // This bails on regressive showparams calls from WM_COMMAND.
 
     if( calife_list->FocusCA()->Getcastyle() == CA_REVERSIBLE ||
-         calife_list->FocusCA()->Getcastyle() == CA_WAVE || 
-         calife_list->FocusCA()->Getcastyle() == CA_ULAM_WAVE || 
-         calife_list->FocusCA()->Getcastyle() == CA_CUBIC_ULAM_WAVE || 
+         calife_list->FocusCA()->Getcastyle() == CA_WAVE ||
+         calife_list->FocusCA()->Getcastyle() == CA_ULAM_WAVE ||
+         calife_list->FocusCA()->Getcastyle() == CA_CUBIC_ULAM_WAVE ||
          calife_list->FocusCA()->Getcastyle() == CA_WAVE_2D )
         EnableWindow( GetDlgItem( hDlg, BUTT_REVERSE ), TRUE );
     else
@@ -323,7 +323,7 @@ void showparams( HWND hDlg )
         SendMessage( GetDlgItem( hDlg, RADIUSSTATES_NEW ), CB_SETCURSEL,
                          (int)curr_radius_states, 0 );
 
-    
+
     set_active_buttons(calife_list->FocusCA()->Getcastyle());
     enable_active_buttons( hDlg );
     textLabel (hDlg, TARGET_LAMBDA_NEW, "lambda");

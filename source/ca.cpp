@@ -16,7 +16,7 @@
 #include "tweakca.hpp"
 #include "userpara.hpp"
 //#include <vector.h> already in ca.hpp
- 
+
 //====================EXTERNAL DATA===============
 //extern int  toolBarHeight;
 extern BOOL toolbarON;
@@ -35,11 +35,11 @@ void AddUserParam(CA* owner, LPSTR label,  Real value)
         1000.0, label, FALSE, range);
 //  param->SetVal(value);
     owner->userParamAdd.push_back(param);
-}                   
+}
 
  Wavecell::Wavecell()  //Constructor
   :state(0.0), velocity(0.0)
-{ 
+{
     for (int i = 0; i<VARIABLE_COUNT; i++)
             variable[i] = 0.0;
 //Set these in the range 1.0 +- CELL_VARIANCE  and  multiply
@@ -111,7 +111,7 @@ CA::CA(CAlist *mylist)
     /*End of stuff needed before Allocate*/
     Allocate();
    monochromeflag = FALSE;
-    band_count = START_BAND_COUNT;   // l.andrews 11/2/01 moved from 
+    band_count = START_BAND_COUNT;   // l.andrews 11/2/01 moved from
          // below because band_count is used in setcolortable
    type_ca = 0;    // l.andrews 11/2/01 since it will be used by Gettype()
                    // before any other initialization
@@ -167,7 +167,7 @@ CA::CA(CAlist *mylist)
     _lpfnUSERRULE_3 = NULL;
     _lpfnUSERRULE_5 = NULL;
     _lpfnUSERRULE_9 = NULL;
-    _usernabesize = 3; //means use a three argument 1D update rule. 
+    _usernabesize = 3; //means use a three argument 1D update rule.
     _usercastyle = CA_WAVE_2D; // means that if you ever have _user_nabesize
         //set for 5 args, do as a 2D rule.
     lstrcpy(_userrulename, "");
@@ -466,7 +466,7 @@ void CA::SyncRows()
         wave_past_row = waverowbuffer[2];
         wavepastindex = 2;
     }
-    if (viewmode == IDC_SPLIT_VIEW) 
+    if (viewmode == IDC_SPLIT_VIEW)
         row_number = splity - (calist_ptr->_blt_lines) + 1;
     if (viewmode == IDC_SCROLL_VIEW)
         row_number = maxy - (calist_ptr->_blt_lines) + 1;
@@ -481,13 +481,13 @@ void CA::Locate(int tile, HWND hwnd, int CA_count_per_edge)
 
     GetClientRect(hwnd, &windowrect);
 #ifdef FORCENARROW
-    windowrect.right = FORCEXSIZE; //FORCEXSIZE is defined in CA.HPP.  
+    windowrect.right = FORCEXSIZE; //FORCEXSIZE is defined in CA.HPP.
             // Used 64 for most of the border pix.  32 for
             //"reversible circuit 2x CA" for illo for chapter 4 of my
             //LIFEBOX book.  Used 64 for FLURB.
 #endif //FORCENARROW
 #ifndef FIT_STATUS_BAR
-    Locate(tile, windowrect.right, windowrect.bottom, CA_count_per_edge); 
+    Locate(tile, windowrect.right, windowrect.bottom, CA_count_per_edge);
 #else //do new FIT_STATUS_BAR way
     tile_number = tile;
     i= tile % CA_count_per_edge;
@@ -581,7 +581,7 @@ void CA::Locate(int itile_number, int dmaxx, int dmaxy, int CA_count_per_edge)
     ypos = tile_number / CA_count_per_edge;
 
     minx = xpos*(cwidth + BORDER);
-    miny = ypos*(cheight + BORDER) + ((toolbarON)?toolBarHeight:0); 
+    miny = ypos*(cheight + BORDER) + ((toolbarON)?toolBarHeight:0);
     maxx = minx + cwidth;
     maxy = miny + cheight;
     splity = SPLIT_SCROLL_PROPORTION * (maxy - miny); //Like cheight.
@@ -772,7 +772,7 @@ void CA::Show(HDC hdc)
             if (type_ca == CA_STANDARD || type_ca == CA_REVERSIBLE)
             {
                 for (i = 0; i < horz_count; ++i)
-                    
+
                     WBM->WBMOnlyPutPixel(minx + i,
                     maxy - (int)((vert_count-1) *
                     ((Real)(target_row[i])/ (states-1))),
@@ -805,9 +805,9 @@ void CA::Show(HDC hdc)
                 {
                     x = minx + generatorlist.Location(i);
                     y=maxy - (int)((vert_count-1) *
-                            ((float)(colorindex_target_row[generatorlist.Location(i)])/ (MAX_COLOR-1)));                    
+                            ((float)(colorindex_target_row[generatorlist.Location(i)])/ (MAX_COLOR-1)));
                     WBM->PutRectangle(hdc, x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
-                }                           
+                }
             }
 
             }
@@ -846,7 +846,7 @@ void CA::Show(HDC hdc)
                 /*  WBM->WBMOnlyPutPixel(minx + generatorlist.Location(i),
                     maxy - (int)(((split_vert_count)-2) *
                     ((float)(colorindex_target_row[generatorlist.Location(i)])/ (MAX_COLOR-1))),
-                    RGB(255, 0, 0));        
+                    RGB(255, 0, 0));
                 */
                     if (generatorlist.Location(i)<horz_count)
                     {
@@ -854,7 +854,7 @@ void CA::Show(HDC hdc)
                         y = maxy - (int)(((split_vert_count)-2) *
                         ((Real)(target_row[generatorlist.Location(i)])/ (states-1)));
                         WBM->PutRectangle(hdc, x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
-                    }           
+                    }
 
                 }
 
@@ -874,16 +874,16 @@ void CA::Show(HDC hdc)
                 /*  WBM->WBMOnlyPutPixel(minx + generatorlist.Location(i),
                     maxy - (int)(((split_vert_count)-2) *
                     ((float)(colorindex_target_row[generatorlist.Location(i)])/ (MAX_COLOR-1))),
-                    RGB(255, 0, 0));        
+                    RGB(255, 0, 0));
                 */
                     if (generatorlist.Location(i)<horz_count)
                     {
                         x = minx + generatorlist.Location(i);
                         y = maxy - (int)(((split_vert_count)-2) *
                         ((float)(colorindex_target_row[generatorlist.Location(i)])/ (MAX_COLOR-1)));
-                    
+
                         WBM->PutRectangle(hdc, x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
-                    }           
+                    }
 
                 }
             }
@@ -993,7 +993,7 @@ void CA::ReversibleUpdate(HDC hdc)
             nabe <<= statebits;
             nabe &= mask;
             nabe |= source_row[horz_count-1];
-            target_row[i] = (unsigned char)((lookup[nabe] + 
+            target_row[i] = (unsigned char)((lookup[nabe] +
                 (states - past_row[i])) & statesmask);
             if (entropyflag)
             {
@@ -1037,7 +1037,7 @@ void CA::WaveUpdate(HDC hdc)
         // right end update
             (this->*UpdateCell_3)(horz_count-2, horz_count-1, 0);
         }
-        else if(wrapflag == WF_FREE) 
+        else if(wrapflag == WF_FREE)
             //Act as if there is an identical cell to left or right
         {
         // left end update
@@ -1046,7 +1046,7 @@ void CA::WaveUpdate(HDC hdc)
             (this->*UpdateCell_3)(horz_count-2, horz_count-1, horz_count-1);
         }
         else if (wrapflag== WF_ABSORB)  //mike 11-18-97
-        { 
+        {
             //target value is the source value of its inner neighbor
             wave_target_row[0].intensity = wave_source_row[1].intensity;
             wave_target_row[horz_count-1].intensity = wave_source_row[horz_count-2].intensity;
@@ -1095,7 +1095,7 @@ void CA::WaveUpdate_5(HDC hdc)
         wave_target_row[horz_count-2].intensity = wave_source_row[horz_count-3].intensity;
         wave_target_row[horz_count-1].intensity = wave_source_row[horz_count-2].intensity;
     }
-    
+
     else //WF_ZERO and WF_FIXED
     {
     // left end, wrap off
@@ -1155,7 +1155,7 @@ after the rows are swapped just below.*/
 
         /* map the (intensity to max_intensity) range to (0 to 256) color range
         and store the result in colorindex_target_row */
-        //Note that if, say, A ranges between -maxA and maxA, 
+        //Note that if, say, A ranges between -maxA and maxA,
         // then (maxA + A) / 2A ranges between 0 and 1.
         //2017 I worked on this code and the similar code in WaveUpdateStep2D, which is used by most  User rules.
         if (!(showvelocity))
@@ -1544,9 +1544,9 @@ void CA::Wave2D(int c, int e, int n,
     for stability, so this rule is stable as long as dt < sqrt(2.0) * dx. */
     wave_target_plane[c].intensity = -wave_past_plane[c].intensity +
         2.0*wave_source_plane[c].intensity +
-        _wavespeed_2_times_dt_2_over_dx_2 * 
+        _wavespeed_2_times_dt_2_over_dx_2 *
     /* I do FOUR_SUM/4.0 - C; if I use the more logical FOUR_SUM - 4.0*C, then
-    I need an extra 1/4.0 here for stability.  So it's easer to put it inside. */       
+    I need an extra 1/4.0 here for stability.  So it's easer to put it inside. */
           ((wave_source_plane[e].intensity
         +  wave_source_plane[n].intensity + wave_source_plane[w].intensity +
         wave_source_plane[s].intensity)/4.0 - wave_source_plane[c].intensity);
@@ -1585,7 +1585,7 @@ void CA::WaveUpdateStep2D(HDC hdc)  //You don't need the hdc argument!
         pixy = (short)(miny+y);
         for (short x = 0; x< horz_count_2D; x++)
         {
-/* Changed this so that the 2D rules can either show intensity or variable[1]. 
+/* Changed this so that the 2D rules can either show intensity or variable[1].
 Recall that "intensity" is #define in CA.HPP to stand for "variable[0]".*/
 //2017 I worked on this code and the similar code in WaveUpdateStep
 
@@ -1602,14 +1602,14 @@ Recall that "intensity" is #define in CA.HPP to stand for "variable[0]".*/
                 /* 2017 second change needed. I'm getting monochrome images,
                 even though in 3D view, the variable[1] has good range.  I'm trying out
                 the idea of "amplifying" the velocity value before displaying it. A large
-                amplification like the 80.0 used by AMPLIFY_VEL_COLOR for 1D is too big.  
+                amplification like the 80.0 used by AMPLIFY_VEL_COLOR for 1D is too big.
                 Let's try 1.0. */
 
                 colindex = (unsigned short) (((MAX_COLOR-1) *
                     (AMPLIFY_VEL_COLOR_2D * wave_target_plane[c].variable[1] +
                     _max_intensity.Val())) / (2.0 * _max_intensity.Val())); // 2017 changed
 
-                
+
             POSITIVECLAMP(colindex, (unsigned short)(MAX_COLOR-1));
             WBM->WBMOnlyPutPixel(pixx, pixy, colortable[colindex]);
             c++;
@@ -1635,8 +1635,8 @@ void CA::WaveUpdate2D(HDC hdc)
 
     if (!_smoothsteps)
     {
-        for (y = 1; y < vert_count_2D - 1; y++) 
-        {           
+        for (y = 1; y < vert_count_2D - 1; y++)
+        {
             c = index(1,y); e = index(2,y);
             n = index(1,y-1); w = index(0,y); s=index(1,y+1);
             for (x = 1; x< horz_count_2D - 1; x++)
@@ -1815,13 +1815,13 @@ void CA::WaveUpdate2D(HDC hdc)
         }
         else if (wrapflag == WF_ABSORB)  //mike 11-18-97
         {
-            //the target values of the edges will be the source values of the 
+            //the target values of the edges will be the source values of the
             //inner neighbors.
             int pitch;
 
             //handle the top and bottom edges
             //pitch is the difference in indexes between cells along opposite edges
-            pitch = horz_count_2D*(vert_count_2D-1); 
+            pitch = horz_count_2D*(vert_count_2D-1);
             for (x = 1; x<horz_count_2D - 1; x++)
             {
                 //top
@@ -1867,7 +1867,7 @@ void CA::WaveUpdate2D_9(HDC hdc)
         for (y = 1; y < vert_count_2D-1; y++)
         {
             c = index(1,y); e = index(2,y); ne = index(2,y-1);
-            n = index(1,y-1); nw = index(0,y-1); w = index(0,y); 
+            n = index(1,y-1); nw = index(0,y-1); w = index(0,y);
             sw = index(0,y+1), s = index(1,y+1), se = index(2,y+1);
             for (x = 1; x< horz_count_2D-1; x++)
             {
@@ -1894,7 +1894,7 @@ void CA::WaveUpdate2D_9(HDC hdc)
                 index(0, 0),    //e
                 index(0, vert_count_2D - 1),    //ne
                 index(horz_count_2D - 1, vert_count_2D - 1),    //n
-                index(horz_count_2D - 2, vert_count_2D - 1),    //nw    
+                index(horz_count_2D - 2, vert_count_2D - 1),    //nw
                 index(horz_count_2D - 2, 0),    //w
                 index(horz_count_2D - 2, 1),    //sw
                 index(horz_count_2D - 1, 1),    //s
@@ -1905,7 +1905,7 @@ void CA::WaveUpdate2D_9(HDC hdc)
                 index(1, vert_count_2D - 1),                 //e
                 index(1, vert_count_2D - 2),    //ne
                 index(0, vert_count_2D - 2),                 //n
-                index(horz_count_2D - 1, vert_count_2D - 2),    //nw    
+                index(horz_count_2D - 1, vert_count_2D - 2),    //nw
                 index(horz_count_2D - 1, vert_count_2D - 1) ,//w
                 index(horz_count_2D - 1, 0),    //sw
                 index(0, 0),                                //s
@@ -2017,7 +2017,7 @@ void CA::WaveUpdate2D_9(HDC hdc)
                 index(horz_count_2D - 1, 0),    //e
                 index(horz_count_2D - 1, 0),    //ne
                 index(horz_count_2D - 1, 0),    //n
-                index(horz_count_2D - 2, 0),    //nw    
+                index(horz_count_2D - 2, 0),    //nw
                 index(horz_count_2D - 2, 0),    //w
                 index(horz_count_2D - 2, 1),    //sw
                 index(horz_count_2D - 1, 1),    //s
@@ -2028,7 +2028,7 @@ void CA::WaveUpdate2D_9(HDC hdc)
                 index(1, vert_count_2D - 1),                 //e
                 index(1, vert_count_2D - 2),    //ne
                 index(0, vert_count_2D - 2),                 //n
-                index(0, vert_count_2D - 2),    //nw    
+                index(0, vert_count_2D - 2),    //nw
                 index(0, vert_count_2D - 1) ,//w
                 index(0, vert_count_2D - 1),    //sw
                 index(0, vert_count_2D - 1),                                //s
@@ -2138,7 +2138,7 @@ void CA::GetCAStyleName ( char CA_Style_Name[] )
 {
     strcpy ( CA_Style_Name, _castylename );
 }
- 
+
 void CA::SetCAStyleName ( char CA_Style_Name[] )
 {
     strcpy ( _castylename, CA_Style_Name );
@@ -2149,10 +2149,10 @@ void CA::GetUserRuleName ( char UserRuleName[] )
     char *endp, temp[256] = { '\0' };
 
     strcpy ( UserRuleName, temp ); //initializes buffer to null
-    
+
     if ( _userrulename == NULL )  // is there a userrulename?
         return;
-    
+
     strcpy ( temp, _userrulename ); //  copy full path name to temp buffer
 
     if ( !( strchr ( temp, '\\' ) ) )  // if there are no '\' than there is no legal path return null

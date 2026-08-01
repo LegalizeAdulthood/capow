@@ -40,7 +40,7 @@ int type_ca;              // type of CA
     static int CurVertParam;      // vertical parameter selection
     static int numCAs;            // total number of CAs
    // l.andrews 11/2/01 "dimension" is now initialized in the constructor for CA
-    static int dimension;         // number of CAs per row or column  
+    static int dimension;         // number of CAs per row or column
 /* default min. and max. values for no paramameter, velocity, acceleration,
     max velocity range, max intensity range, heat count, lambda, band count,
     capacitance, resistance, voltage amplitude, voltage frequency, inductance,
@@ -138,10 +138,10 @@ static BOOL MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
                 EnableWindow (GetDlgItem (hDlg, IDC_ADD_SCALE), TRUE);
                 EnableWindow (GetDlgItem (hDlg, IDC_OK), TRUE);
             }
-            
+
             numCAs = calife_list->Count();
             dimension = sqrt(numCAs);  // Must be before ShowRange
-                    
+
             ShowRange (hDlg, MinX[CurHorzParam], MaxX[CurHorzParam],
                           MinY[CurVertParam], MaxY[CurVertParam],
                           CurHorzParam, CurVertParam);
@@ -240,7 +240,7 @@ static BOOL MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
                          CurHorzParam != IDC_ENTROPY)
             {
                 GetCurValues (RampX, CurHorzParam, numCAs);
-            
+
                 char valueText[80];
                 char *pValueText = valueText;
                 Real value;
@@ -251,7 +251,7 @@ static BOOL MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
                     if(value == 0 && (strcmp(valueText, "0") != 0))
                     {
                         sprintf(pValueText, "%5.5f", RampX[i]);
-                        SetWindowText(GetDlgItem(hDlg, IDC_INFO11MIN+i), valueText);    
+                        SetWindowText(GetDlgItem(hDlg, IDC_INFO11MIN+i), valueText);
                     }
                     else RampX[i] = value;
                 }
@@ -262,7 +262,7 @@ static BOOL MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
                  CurVertParam != IDC_ENTROPY)
             {
                 GetCurValues (RampY, CurVertParam, numCAs);
-            
+
                 char valueText[80];
                 char *pValueText = valueText;
                 Real value;
@@ -273,8 +273,8 @@ static BOOL MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
                     if (value == 0 && (strcmp(valueText, "0") != 0))
                     {
                         sprintf(pValueText, "%5.5f", value);
-                        SetWindowText(GetDlgItem(hDlg, IDC_INFO11MAX+i), 
-                                      valueText);   
+                        SetWindowText(GetDlgItem(hDlg, IDC_INFO11MAX+i),
+                                      valueText);
                     }
                     else RampY[i] = value;
                 }
@@ -843,12 +843,12 @@ void ShowRange (HWND hDlg, Real minx, Real maxx,
             EnableWindow (GetDlgItem (hDlg, IDC_INFO11MAX+i), FALSE);
         }
     }
-    else 
+    else
     {
         for(int row = 0; row < 3; row++)    // Row
             for(int col = 0; col < 3; col++)    // column
                 if (row < dimension && col < dimension)
-                {                   
+                {
                     SendMessage (GetDlgItem (hDlg, IDC_INFO11MAX+(row*3)+col), WM_SETTEXT, 0,   (LONG) buf);
                     EnableWindow (GetDlgItem (hDlg, IDC_INFO11MAX+(row*3)+col), TRUE);
                 }
@@ -872,12 +872,12 @@ void ShowRange (HWND hDlg, Real minx, Real maxx,
             EnableWindow (GetDlgItem (hDlg, IDC_INFO11MIN+i), FALSE);
         }
     }
-    else 
+    else
     {
         for(int row = 0; row < 3; row++)    // Row
             for(int col = 0; col < 3; col++)    // column
                 if (row < dimension && col < dimension)
-                {                   
+                {
                     SendMessage (GetDlgItem (hDlg, IDC_INFO11MIN+(row*3)+col), WM_SETTEXT, 0,   (LONG) buf);
                     EnableWindow (GetDlgItem (hDlg, IDC_INFO11MIN+(row*3)+col), TRUE);
                 }
@@ -921,7 +921,7 @@ void FillGrid (HWND hwnd, Real rampX[], Real rampY[], int d,
         for(int row = 0; row < 3; row++)    // Row
             for(int col = 0; col < 3; col++)    // column
                 if (row < d && col < d)
-                {                   
+                {
                     char valueText[80];
                     sprintf(valueText, "%.3f", rampY[index]);
                     SetWindowText(GetDlgItem(hDlgExp, IDC_INFO11MAX + (row*3) + col), valueText);
@@ -934,7 +934,7 @@ void FillGrid (HWND hwnd, Real rampX[], Real rampY[], int d,
         for(int row = 0; row < 3; row++)    // Row
             for(int col = 0; col < 3; col++)    // column
                 if (row < d && col < d)
-                {                   
+                {
                     char valueText[80];
                     sprintf(valueText, "%.3f", rampX[index]);
                     SetWindowText(GetDlgItem(hDlgExp, IDC_INFO11MIN + (row*3) + col), valueText);
@@ -948,11 +948,11 @@ void FillGrid (HWND hwnd, Real rampX[], Real rampY[], int d,
         for(int row = 0; row < 3; row++)    // Row
             for(int col = 0; col < 3; col++)    // column
                 if (row < d && col < d)
-                {                   
+                {
                     char valueText[80];
                     sprintf(valueText, "%.3f", rampX[index]);
                     SetWindowText(GetDlgItem(hDlgExp, IDC_INFO11MIN + (row*3) + col), valueText);
-        
+
                     sprintf(valueText, "%.3f", rampY[index]);
                     SetWindowText(GetDlgItem(hDlgExp, IDC_INFO11MAX + (row*3) + col), valueText);
                     index++;

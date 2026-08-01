@@ -7,8 +7,8 @@
     FILE DESCRIPTION:   This file contains functions to implement our
                         bitmap class.
 
-    UPDATE LOG:         
-                    
+    UPDATE LOG:
+
 *******************************************************************************/
 //====================INCLUDES===============
 
@@ -165,7 +165,7 @@ void WindowBitmap::Getpen(HDC hdc, int style, int width, COLORREF col)
 void WindowBitmap::Discardpen(HDC hdc)
 {
     SelectObject(hdcWBM,oldpenWBM);     // l.andrews 11/3/01 reversed the order of the
-    SelectObject(hdc,oldpen);           // two SelectObject calls and removed invalid object 
+    SelectObject(hdc,oldpen);           // two SelectObject calls and removed invalid object
                                        // complaints on 2nd and 11th calls to Discardpen
                                        // I do not understand (must need to undo in reverse order)
     if (currentpen)

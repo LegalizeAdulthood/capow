@@ -46,24 +46,24 @@ BOOL CA::LoadUserRule(HWND hwnd)
     if (_set_temp_user_rule_file_name(hwnd))
         return LoadUserRule(hwnd, temp_user_rule_file_name);
     //else couldn't find the file name.
-    return FALSE; 
+    return FALSE;
 }
 
 BOOL CA::LoadUserRule(HWND hwnd, char *DLLname)
 {
 /* First we save all of the old user-rule related fields in case the
 loading of the user rule fails at some point.  Another reason to save
-these fields is that if the load is successful, you will want to do a 
+these fields is that if the load is successful, you will want to do a
 FreeLibrary on the old _DLLhandle, if that handle was non-NULL. */
     HMODULE old_DLLhandle = _DLLhandle;
-    int old_usernabesize = _usernabesize; 
-    int old_usercastyle = _usercastyle;  
+    int old_usernabesize = _usernabesize;
+    int old_usercastyle = _usercastyle;
     FPINT old_lpfnUSERNABESIZE = _lpfnUSERNABESIZE;
     FPINT old_lpfnUSERCASTYLE = _lpfnUSERCASTYLE;
-    FPCELLUPDATE_1 old_lpfnUSERRULE_1 = _lpfnUSERRULE_1; 
-    FPCELLUPDATE_3 old_lpfnUSERRULE_3 = _lpfnUSERRULE_3; 
-    FPCELLUPDATE_5 old_lpfnUSERRULE_5 = _lpfnUSERRULE_5; 
-    FPCELLUPDATE_9 old_lpfnUSERRULE_9 = _lpfnUSERRULE_9; 
+    FPCELLUPDATE_1 old_lpfnUSERRULE_1 = _lpfnUSERRULE_1;
+    FPCELLUPDATE_3 old_lpfnUSERRULE_3 = _lpfnUSERRULE_3;
+    FPCELLUPDATE_5 old_lpfnUSERRULE_5 = _lpfnUSERRULE_5;
+    FPCELLUPDATE_9 old_lpfnUSERRULE_9 = _lpfnUSERRULE_9;
     //Now try and load the USERRULE_? function pointer.
     if (GetUserRulePtr(hwnd, DLLname))
     {
@@ -76,14 +76,14 @@ FreeLibrary on the old _DLLhandle, if that handle was non-NULL. */
     else //something went wrong, so now restore everything to the old values.
     {
         _DLLhandle = old_DLLhandle;
-        _usernabesize = old_usernabesize; 
-        _usercastyle = old_usercastyle;  
+        _usernabesize = old_usernabesize;
+        _usercastyle = old_usercastyle;
         _lpfnUSERNABESIZE = old_lpfnUSERNABESIZE;
         _lpfnUSERCASTYLE = old_lpfnUSERCASTYLE;
-        _lpfnUSERRULE_1 = old_lpfnUSERRULE_1; 
-        _lpfnUSERRULE_3 = old_lpfnUSERRULE_3; 
-        _lpfnUSERRULE_5 = old_lpfnUSERRULE_5; 
-        _lpfnUSERRULE_9 = old_lpfnUSERRULE_9; 
+        _lpfnUSERRULE_1 = old_lpfnUSERRULE_1;
+        _lpfnUSERRULE_3 = old_lpfnUSERRULE_3;
+        _lpfnUSERRULE_5 = old_lpfnUSERRULE_5;
+        _lpfnUSERRULE_9 = old_lpfnUSERRULE_9;
         return FALSE;
     }
 }
@@ -121,7 +121,7 @@ once for each time that you call LoadLibary. */
         FreeLibrary(_DLLhandle);
         return FALSE;
     }
-    
+
    // Clear all current user parameter
    removeUserParam(this, FALSE);
    (*_lpfnUSERINITIALIZE)(this);
@@ -200,7 +200,7 @@ void CA::DLLRule_9(int c, int e, int ne, int n, int nw, int w,
                    int sw, int s, int se)
 {
     (*_lpfnUSERRULE_9)(this, c, e, ne, n, nw, w, sw, s, se);
-} 
+}
 
 //=================CAlist DLL methods==========
 
@@ -215,7 +215,7 @@ BOOL CAlist::LoadUserRule(HWND hwnd, short& focusflag)
             return (focus->LoadUserRule(hwnd, temp_user_rule_file_name));
         else for (int i=0; i<count; i++)
             if (!(list[i]->LoadUserRule(hwnd, temp_user_rule_file_name)))
-                return FALSE; 
+                return FALSE;
         return TRUE; //If you make it through the loop.
     }
     //else couldn't find the file name.

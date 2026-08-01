@@ -10,8 +10,8 @@
 #include "tweakca.hpp"
 #include <math.h>
 #include <iomanip> //2017 no .h on this anymore
-// 2017 replaced ios::in|ios::nocreate by ios::in, as the nocreate flag no longer exists 
-#include <stdlib.h> //for itoa                       
+// 2017 replaced ios::in|ios::nocreate by ios::in, as the nocreate flag no longer exists
+#include <stdlib.h> //for itoa
 #include <ctype.h>  //for isdigit
 #include <string.h>
 
@@ -25,7 +25,7 @@ and parameter values.*/
 
 BOOL compress_flag = FALSE;
 // BOOL compress_flag = TRUE;
-/*If this is TRUE, we use binary file io, if FALSE we use ASCII file io.  
+/*If this is TRUE, we use binary file io, if FALSE we use ASCII file io.
 This does not seem to appreciably affect the file size, and the "binary"
 file still seem to have ASCII code in them. Is there a way to force a pure
 binary write? */
@@ -116,7 +116,7 @@ BOOL Version_7_Load_Individual(ifstream& ifs, CA* target)
     double tempReal;
     int    istates, iradius, itype, iwidth, readwidth;
     int    userCAStyle, userNabeSize;
-    
+
     // Match the real number format used by the corresponding ofs.
     // See the start of  ofstream& operator<<
 #ifdef LIMIT_PRECISION
@@ -144,7 +144,7 @@ BOOL Version_7_Load_Individual(ifstream& ifs, CA* target)
         (LPSTR)"File Problems!",
             MB_OK | MB_ICONEXCLAMATION );
     }
-    target->Settype(itype); //Second arg means don't 
+    target->Settype(itype); //Second arg means don't
     target->Changeradiusandstates(iradius, istates);
     //This sets nabeoptions.
     if (!(target->type_ca >= CA_WAVE))
@@ -688,7 +688,7 @@ BOOL CAlist::Loadall7(char* filename, BOOL startup)
     ifs.get();  // read off eoln
     ifs >> dummybuf >> dummybuf >> dummybuf >> scr.left;
     /* The SetWindowPos triggers a WM_RESIZE and if I'm in startup, I don't want to
-    seed the thing yet as I'm going to get another one after I fiinsh 
+    seed the thing yet as I'm going to get another one after I fiinsh
     WM_CREATE */
     BOOL old_not_seeded_yet_flag = not_seeded_yet_flag;
     not_seeded_yet_flag = FALSE;

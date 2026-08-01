@@ -7,15 +7,15 @@
     FILE DESCRIPTION:   This file contains class definitions for
                         Bitmap class.
 
-    UPDATE LOG:         
-                    
+    UPDATE LOG:
+
 *******************************************************************************/
 
 
 #ifndef BITMAP_HPP
 #define BITMAP_HPP
 #define BITMAP_HPP
-#include "types.h"  
+#include "types.h"
 
 /* The original WindowBitmap class is used to maintain a bitmap copy of your
 window for restoring it.  Everything you write to the screen must also

@@ -3,14 +3,14 @@
         This screensaver was written by Rudy Rucker.
         It is based on a screensaver downloaded as part of the freesave.exe
     "Complete Windows Package" from
-    http://www.escape.ca/~bbuckels/freesave.htm 
+    http://www.escape.ca/~bbuckels/freesave.htm
         Buckels says this:
         "If you use this code as the basis for your own screen saver, you
     should not have much trouble adapting it, but be careful to read
     the comments in scrnsave.h and perhaps the bouncer project and
     don't remove any of the code that Windows expects.
         "A screensaver is only an EXE file that is produced using certain
-    specific guidelines, and then renamed to a .SCR file. In Windows 3.1 
+    specific guidelines, and then renamed to a .SCR file. In Windows 3.1
     these are kept in the Windows directory and in Windows 95 they are tossed
     into the WINDOWS\SYSTEM directory. They then become visible in the Control
     Panel and run exactly the same as the Microsoft-shipped screensavers."
@@ -27,7 +27,7 @@
     * As well as defining a ScreenSaverProc and a ScreenSaverConfigureDialog,
         you must also define a (trivial) RegisterDialogClasses function
         which just returns TRUE.
-    * The running of the initialziation dialog and the screensaver are distinct.  
+    * The running of the initialziation dialog and the screensaver are distinct.
         The only way to save info from the dialog is into a profile string (easy)
         or into the Windows Registry using HKEY_USERS, RegSetValueEx, RegEnumValue,
         and RegQueryValue (don't know how to do yet, it looks gnarly.)  And you
@@ -35,7 +35,7 @@
     * Use a WM_TIMER message to keep the screensaver running.  Don't worry, by the
         way, about too many WM_TIMER messages, as only one from a given timer is
         put in the queue at the same time.  You don't have access to the message
-        loop for a screensaver in any case, so there is no  hope of using   
+        loop for a screensaver in any case, so there is no  hope of using
         a "Peekmessage else" or an "OnIdle" technique.
     * The scrnsave.h file defines an szAppName variable with the awkward type
         char [APPNAMEBUFFERLEN] instead of char *.  You must assign a value to
@@ -82,12 +82,12 @@ The SCRNSAVE.LIB also uses TCHAR instead of char, but since this isn't a Unicode
 doesn't make any difference, as TCHAR has a default typedef of char.  The bad
 thing about this variable is that if you try and reference it externally as
 an extern TCHAR szAppName * this doesn't work.  So don't use it anywhere else.
-Just put it here for SCRNSAVE.LIB.*/ 
+Just put it here for SCRNSAVE.LIB.*/
 TCHAR szAppName[APPNAMEBUFFERLEN] = "CAPOW"; //variable needed by SCRNAVE.LIB
 /* THIS is the actual appname variable I'll use in the rest of my code.  Note
 that this is also defined in CAPOW.CPP */
-char *szMyAppName = "CAPOW"; 
-/* These next two externals are defined in SCRNSAVE.LIB. I only use the 
+char *szMyAppName = "CAPOW";
+/* These next two externals are defined in SCRNSAVE.LIB. I only use the
 hMainInstance, so comment out the hMainWindow.  */
 extern HINSTANCE  hMainInstance;
 //extern HWND  hMainWindow; //I keep my own HWND mainwind which I set in WM_CREATE.
@@ -103,7 +103,7 @@ can use them as well in an autorandomize mode which mimics the screensaver.
 The timer ids UPDATE_TIMER_ID and RANDOMIZE_TIMER_ID are #defined in CA.HPP.
 The ?_TIMER ids are passed to SetTimer by my setTimerCycle function,
 and they are returned as the wParam with WM_TIMER messages so you know
-which timer sent the signal. The ?_timer_handle integers are returned 
+which timer sent the signal. The ?_timer_handle integers are returned
 by SetTimer, and they are used only in the call to KillTimer to get rid
 of a timer  */
 int update_timer_handle = NULL;
@@ -141,7 +141,7 @@ char CA_STYLE_NAME[256]; //Used in several places to get the current rule name.
 //Dummy values for consistency with full CAPOW program.
 #define ALL  0
 #define FOCUS 1
-short focusflag            = ALL; 
+short focusflag            = ALL;
 int  statusBarHeight = 0;  //Holds status bar height
 int toolBarHeight = 0;
 BOOL toolbarON = FALSE;
@@ -180,7 +180,7 @@ void Cellmain(HWND hwnd) //This is the continually running thing.
     HDC hdc;
     HPALETTE old_hpal;
     static long GenCount;
-    static char GenCountChar[10];   
+    static char GenCountChar[10];
     MSG msg;
 
     hdc = GetDC(hwnd);
@@ -216,7 +216,7 @@ LRESULT FAR PASCAL ScreenSaverProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
             WBM         = new WindowBitmap(hwnd);
             capowgl = new CapowGL(hwnd);
             calife_list = new CAlist(hwnd, MAX_CAS); //Calls CA:Allocate for members
-            calife_list->SetWindowBitmap(WBM); //Registers          
+            calife_list->SetWindowBitmap(WBM); //Registers
             calife_list->Locate(); //Uses masterhwnd.
             capowgl->Size(hwnd);
             setTimerCycle(hwnd, update_timer_handle, UPDATE_TIMER_ID,
@@ -235,7 +235,7 @@ LRESULT FAR PASCAL ScreenSaverProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
 #ifndef EXTERNAL_CA
             fRandFlags &= (~RF_FILE);
 #else
-            if (fRandFlags & RF_FILE) 
+            if (fRandFlags & RF_FILE)
             { //Try and load the file.
                 if (!(calife_list->Loadall_Individual(szScreenSaverFileName)))
                 {
@@ -273,13 +273,13 @@ LRESULT FAR PASCAL ScreenSaverProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
         case WM_SIZE:
         /* This gets called only once, at the startup */
             calife_list->Locate(); //Uses calife_list.hwnd
-            SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L); 
+            SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L);
                 //Draws our dividers on top of the bitmap.
             calife_list->FourierSeed();
             capowgl->Size(hwnd); //For use by a possible 3D view
             return 0;
         case WM_TIMER:
-        
+
             if (!calife_list)//Prevents doing update before WM_CREATE or after WM_DESTROY
                 return 0;
             if (wParam == UPDATE_TIMER_ID)
@@ -343,7 +343,7 @@ the edit box of our dialog.  We could use the same code which appears in our
 CONFIGURE.CPP version of the dialog, which does this same thing.  Except we may
 want to block RF_FILE, so we do a jiggly-do for that */
             //First of all, read fRandFlags and randomize_timer_cycle out of WIN.INI profile.
-            readIniSettings(); 
+            readIniSettings();
 #ifndef EXTERNAL_CA
             fRandFlags &= (~RF_FILE);
             writeProfileInt(szMyAppName, szFlagsName, fRandFlags);
@@ -372,7 +372,7 @@ that is in the modeless EXE dialog, so I put that code into the writeIniSettings
                     return TRUE;
 /* Our trick here is to use an autorandomize dialog box from our *.EXE to
 process most of the messages.  Our shared dialog code is in CONFIG.CPP.
-We don't have exactly the same handling because the dialog box 
+We don't have exactly the same handling because the dialog box
 in our *.EXE is modelss and a screensaver dialog is modal, also the EXE dialog
 doesn't do the loading and saving of profile strings (though maybe it should).
 We have a buildtype variable that is set to BUILD_SCR or BUILD_EXE which is

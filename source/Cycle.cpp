@@ -7,7 +7,7 @@
     FILE DESCRIPTION:   This file contains functions and data to control
                         the cycle dialog box and its features.
 
-    UPDATE LOG:         
+    UPDATE LOG:
 *******************************************************************************/
 
 //====================INCLUDES===============
@@ -88,7 +88,7 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
             WriteProfileString((LPSTR)szMyAppName,(LPSTR)"CYCLEX",(LPSTR)buf);
             wsprintf((LPSTR)buf,"%i",rect.top);
             WriteProfileString((LPSTR)szMyAppName,(LPSTR)"CYCLEY",(LPSTR)buf);
-            
+
 }
 
 
@@ -96,7 +96,7 @@ static void MyWnd_DESTROY(HWND hDlg)
 {
             hDlgCycle = 0;
             InvalidateRect(masterhwnd,NULL,FALSE);
-            
+
 
 }
 
@@ -105,7 +105,7 @@ static void MyWnd_DESTROY(HWND hDlg)
 static void MyWnd_CLOSE(HWND hDlg)
 {
     DestroyWindow(hDlg);
-    
+
 }
 
 #pragma argsused
@@ -193,7 +193,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
             else
                 CheckDlgButton(hDlg, STRIPESEED, 0);
                     break;
-                
+
                 case IDC_EVOLVE:
                     if (SendMessage( (HWND)hwndCtl, CB_GETDROPPEDSTATE, 0, 0L)
                         && drop3 == 0)
@@ -225,11 +225,11 @@ BOOL HandleUpDownControlCycle(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 //
 {
     NM_UPDOWN *pnmud = (NM_UPDOWN FAR *) lParam;
-    
+
     if (pnmud->hdr.code != UDN_DELTAPOS)    // if no change then return
         return FALSE;
- 
- 
+
+
 switch ( pnmud->hdr.idFrom )
 {
     case IDC_SPIN_BREED_BREED:
@@ -258,7 +258,7 @@ switch ( pnmud->hdr.idFrom )
             SendMessage(hDlg, WM_COMMAND, SC_UPDATE, 0L);
         }
         else
-        {       
+        {
             calife_list->Setfailstripe(-1);
             SendMessage(hDlg, WM_COMMAND, SC_UPDATE, 0L);
         }
@@ -276,7 +276,7 @@ switch ( pnmud->hdr.idFrom )
             SendMessage(hDlg, WM_COMMAND, SC_UPDATE, 0L);
         }
         else
-        {   
+        {
             changeentropy = 1;
             entropy -= 0.1;
             if (entropy < 0.1)
@@ -289,12 +289,12 @@ switch ( pnmud->hdr.idFrom )
 
     case IDC_SPIN_BREED_SCORE:
         if ( pnmud->iDelta < 0 )
-        {       
+        {
             calife_list->Setentropybonus(+1);
             SendMessage(hDlg, WM_COMMAND, SC_UPDATE, 0L);
         }
         else
-        {           
+        {
             calife_list->Setentropybonus(-1);
             SendMessage(hDlg, WM_COMMAND, SC_UPDATE, 0L);
         }
@@ -303,7 +303,7 @@ switch ( pnmud->hdr.idFrom )
 
     case IDC_SPIN_BREED_MUTATE:
         if ( pnmud->iDelta < 0 )
-        {       
+        {
             calife_list->Setmutation(+1);
             SendMessage(hDlg, WM_COMMAND, SC_UPDATE, 0L);
         }
@@ -373,6 +373,6 @@ void showcycleparams(HWND hDlg)
     realLabel (hDlg, IDC_FAILSTRIPE, calife_list->FocusCA()->Getfailstripe());
     realLabel (hDlg, IDC_ENTROPY_SCORE, calife_list->FocusCA()->Getentropybonus());
     realLabel (hDlg, IDC_BREEDING_STEPS, calife_list->Getbreedingsteps());
-        
-    
+
+
 }

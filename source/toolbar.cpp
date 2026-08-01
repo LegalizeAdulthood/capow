@@ -23,23 +23,23 @@ DWORD dwToolBarStyles = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS |
 
 extern HINSTANCE hInst ;
 
-//You can change the button order by shuffle of these 
+//You can change the button order by shuffle of these
 TBBUTTON OldToolbar[] =
 {
-    //2017 Commented out a lot of the buttons that aren't much used...to simplify.  Can 
+    //2017 Commented out a lot of the buttons that aren't much used...to simplify.  Can
     // still open these dialogs from Control menu.
     BUT_WORLDLARGE,      IDM_WORLD,      TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,0,
     BUT_VIEWLARGE,       IDM_VIEW,       TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,2,
-    BUT_3DLARGE,         IDM_OPENGL,     TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,11,  
+    BUT_3DLARGE,         IDM_OPENGL,     TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,11,
     BUT_USERDIALOGLARGE, IDM_USERDIALOG, TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,10,
 //  BUT_ANALOGLARGE,     IDM_ANALOG,     TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,4,
     BUT_COLORLARGE,      IDM_COLOR,      TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,1,
 //  BUT_DIGITALLARGE,    IDM_DIGITAL,    TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,3,
 //  BUT_BREEDINGLARGE,   IDM_CYCLE,      TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,8,
-    // BUT_DIALOG_SWAP,     IDM_SWAP ,      TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,12, 
+    // BUT_DIALOG_SWAP,     IDM_SWAP ,      TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,12,
     // 2017 Drop  Action    Toolbar
     //  0,                   0,              TBSTATE_ENABLED, TBSTYLE_SEP,   0,0,0,0, // Is this for a space?
-//  BUT_RAND,            IDM_CONFIGURE,  TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,11, // Randomize         
+//  BUT_RAND,            IDM_CONFIGURE,  TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,11, // Randomize
 //  BUT_ELECTRICLARGE,   IDM_ELECTRIC,   TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,5,
     BUT_GENERATOR,       IDM_GENERATORS, TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,5,  // Generator
 //  BUT_FOURIERLARGE,    IDM_FOURIER,    TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,6,
@@ -146,7 +146,7 @@ LRESULT ToolBarNotify(HWND hwnd, int idForm, NMHDR  * pnmhdr)
             case IDM_SAVE_INDIVIDUAL:
                ToolTip->lpszText = "Save CA";
                break;
-            
+
             case IDM_CYCLE:
                 ToolTip->lpszText = "Breeding";
                break;
@@ -194,32 +194,32 @@ LRESULT ToolBarNotify(HWND hwnd, int idForm, NMHDR  * pnmhdr)
 /*
 HWND InitToolBar (HWND hwndParent )
 {
-    if ( WhichToolBar )  // We want the new Toolbar 
+    if ( WhichToolBar )  // We want the new Toolbar
     {
         RECT r;
         int x,y,cx,cy,boxindex;
         LPTBBUTTON newTBSection1, newTBSection2, newTBSection3;
         TBADDBITMAP  TBsection1 = { HINST_COMMCTRL, IDB_STD_LARGE_COLOR, };
         TBADDBITMAP  TBsection2 = { hInst, IDB_BITMAP3, };
-    
+
         newTBSection1 = &FileSection[0];
         newTBSection2= &CursorSection[0];
         newTBSection3= &ChangeSection[0];
 
         hwndTB = CreateWindow (TOOLBARCLASSNAME, NULL, dwToolBarStyles,
-                  0,0,0,0, hwndParent, (HMENU) 1, hInst, 0 );                
+                  0,0,0,0, hwndParent, (HMENU) 1, hInst, 0 );
         ToolBar_ButtonStructSize(hwndTB);
-    
+
         int butcount1, butcount2, butcount3;
         butcount1 = sizeof ( FileSection ) / sizeof ( TBBUTTON );
         butcount2 = sizeof ( CursorSection ) / sizeof ( TBBUTTON );
         butcount3 = sizeof ( ChangeSection ) / sizeof ( TBBUTTON );
-        
+
         ToolBar_AddBitmap(hwndTB, 14, &TBsection1 );
         ToolBar_AddBitmap(hwndTB, 5, &TBsection2 );
-        ToolBar_AddButtons(hwndTB, butcount1, newTBSection1);           
-        ToolBar_AddButtons(hwndTB, butcount3, newTBSection3);           
-        ToolBar_AddButtons(hwndTB, butcount2, newTBSection2);           
+        ToolBar_AddButtons(hwndTB, butcount1, newTBSection1);
+        ToolBar_AddButtons(hwndTB, butcount3, newTBSection3);
+        ToolBar_AddButtons(hwndTB, butcount2, newTBSection2);
 
         if ( focusflag )
         {
@@ -230,7 +230,7 @@ HWND InitToolBar (HWND hwndParent )
         {
             ToolBar_SetCmdID(hwndTB, CHANGEALLFOCUS_BUTTON, IDM_CHANGEALL);
             ToolBar_ChangeBitmap(hwndTB, IDM_CHANGEALL, BUT_CHANGEALLLARGE);
-        
+
         }
         switch ( cursormode )
         {
@@ -238,7 +238,7 @@ HWND InitToolBar (HWND hwndParent )
                 ToolBar_CheckButton(hwndTB, CUR_PICK, TRUE );
                 ToolBar_CheckButton(hwndTB, CUR_TOUCH, FALSE );
                 break;
-        
+
             case CUR_TOUCH:
                 ToolBar_CheckButton(hwndTB, CUR_PICK, FALSE );
                 ToolBar_CheckButton(hwndTB, CUR_TOUCH, TRUE );
@@ -246,12 +246,12 @@ HWND InitToolBar (HWND hwndParent )
 
             case CUR_ZAP:
             case CUR_COPY:
-            case CUR_GENERATOR: 
+            case CUR_GENERATOR:
                 ToolBar_CheckButton(hwndTB, CUR_PICK, FALSE );
                 ToolBar_CheckButton(hwndTB, CUR_TOUCH, FALSE );
                 break;
-        }  // End of cursor switch 
-            
+        }  // End of cursor switch
+
     }  // END of NEW toolbar creation.
     else  // WE WANT THE OLD TOOLBAR
     {
@@ -262,7 +262,7 @@ HWND InitToolBar (HWND hwndParent )
         TOOLBARBMP, OldToolbar, butcount,
         0, 0, 24, 24,
         sizeof(TBBUTTON));
-    
+
     }
 
 
@@ -284,14 +284,14 @@ HWND RebuildToolBar (HWND hwndParent, WORD wFlag)
 
      // Post parent a WM_SIZE message to resize children
      GetClientRect (hwndParent, &r) ;
-     PostMessage (hwndParent, WM_SIZE, 0, 
+     PostMessage (hwndParent, WM_SIZE, 0,
                   MAKELPARAM (r.right, r.bottom)) ;
-    
+
      return hwndTB ;
 }
 
 //===================================================
-LRESULT CALLBACK toolbarProc(HWND hwndtoolbar, UINT message, WPARAM wParam, 
+LRESULT CALLBACK toolbarProc(HWND hwndtoolbar, UINT message, WPARAM wParam,
                                 LPARAM lParam )
 {
     switch( message )
@@ -300,7 +300,7 @@ LRESULT CALLBACK toolbarProc(HWND hwndtoolbar, UINT message, WPARAM wParam,
             //return (BOOL) !HANDLE_WM_COMMAND(hDlg,wParam,lParam,MyWnd_COMMAND);
             MessageBox ( masterhwnd, "D","D", MB_OK );
             break;
-        
+
     }
     return DefWindowProc (hwndtoolbar, message, wParam, lParam) ;
 }
@@ -359,7 +359,7 @@ void ToolBarMessage (HWND hwndTB, WORD wMsg)
                int nButtons = ToolBar_ButtonCount (hwndTB) ;
                char ach[80] ;
                wsprintf (ach, "Button Count = %d", nButtons) ;
-               MessageBox (GetParent (hwndTB), ach, 
+               MessageBox (GetParent (hwndTB), ach,
                            "TB_BUTTONCOUNT", MB_OK) ;
                break ;
                }
@@ -369,7 +369,7 @@ void ToolBarMessage (HWND hwndTB, WORD wMsg)
                int nRows = ToolBar_GetRows (hwndTB) ;
                char ach[80] ;
                wsprintf (ach, "Row Count = %d", nRows) ;
-               MessageBox (GetParent (hwndTB), ach, 
+               MessageBox (GetParent (hwndTB), ach,
                            "TB_GETROWS", MB_OK) ;
                break ;
                }
@@ -391,25 +391,25 @@ HWND InitActionToolBar (HWND hwndParent )
         LPTBBUTTON newTBSection1, newTBSection2, newTBSection3;
         TBADDBITMAP  TBsection1 = { HINST_COMMCTRL, IDB_STD_LARGE_COLOR, };
         TBADDBITMAP  TBsection2 = { hInst, IDB_BITMAP3, };
-    
+
         newTBSection1 = &FileSection[0];
         newTBSection2= &CursorSection[0];
         newTBSection3= &ChangeSection[0];
 
         hwndTB = CreateWindow (TOOLBARCLASSNAME, NULL, dwToolBarStyles,
-                  0,0,200,TOOLBARHEIGHT, hwndParent, (HMENU) 1, hInst, 0 );                
+                  0,0,200,TOOLBARHEIGHT, hwndParent, (HMENU) 1, hInst, 0 );
         ToolBar_ButtonStructSize(hwndTB);
-    
+
         int butcount1, butcount2, butcount3;
         butcount1 = sizeof ( FileSection ) / sizeof ( TBBUTTON );
         butcount2 = sizeof ( CursorSection ) / sizeof ( TBBUTTON );
         butcount3 = sizeof ( ChangeSection ) / sizeof ( TBBUTTON );
-        
+
         ToolBar_AddBitmap(hwndTB, 14, &TBsection1 );
         ToolBar_AddBitmap(hwndTB, 5, &TBsection2 );
-        ToolBar_AddButtons(hwndTB, butcount1, newTBSection1);           
-        ToolBar_AddButtons(hwndTB, butcount3, newTBSection3);           
-        ToolBar_AddButtons(hwndTB, butcount2, newTBSection2);           
+        ToolBar_AddButtons(hwndTB, butcount1, newTBSection1);
+        ToolBar_AddButtons(hwndTB, butcount3, newTBSection3);
+        ToolBar_AddButtons(hwndTB, butcount2, newTBSection2);
 
         if ( focusflag )
         {
@@ -420,7 +420,7 @@ HWND InitActionToolBar (HWND hwndParent )
         {
             ToolBar_SetCmdID(hwndTB, CHANGEALLFOCUS_BUTTON, IDM_CHANGEALL);
             ToolBar_ChangeBitmap(hwndTB, IDM_CHANGEALL, BUT_CHANGEALLLARGE);
-        
+
         }
         switch ( cursormode )
         {
@@ -428,7 +428,7 @@ HWND InitActionToolBar (HWND hwndParent )
                 ToolBar_CheckButton(hwndTB, CUR_PICK, TRUE );
                 ToolBar_CheckButton(hwndTB, CUR_TOUCH, FALSE );
                 break;
-        
+
             case CUR_TOUCH:
                 ToolBar_CheckButton(hwndTB, CUR_PICK, FALSE );
                 ToolBar_CheckButton(hwndTB, CUR_TOUCH, TRUE );
@@ -436,11 +436,11 @@ HWND InitActionToolBar (HWND hwndParent )
 
             case CUR_ZAP:
             case CUR_COPY:
-            case CUR_GENERATOR: 
+            case CUR_GENERATOR:
                 ToolBar_CheckButton(hwndTB, CUR_PICK, FALSE );
                 ToolBar_CheckButton(hwndTB, CUR_TOUCH, FALSE );
                 break;
-        }  // End of cursor switch 
+        }  // End of cursor switch
 
     ShowWindow (hwndTB, SW_HIDE) ;
     return hwndTB ;

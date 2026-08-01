@@ -11,7 +11,7 @@ extern void ShowOpenGLParams(HWND hDlg);   //so that the 3Dview dlg will update 
 extern void label(HWND, int, char *, short);
 static void showparams(HWND);
 extern short focusflag;
-    
+
 BOOL done_picking_new_type = FALSE; /*a kludge to try and keep
 from processing type selections twice */
 
@@ -27,9 +27,9 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
     HWND hCntl;
     int boxindex = 0; // l.andrews 11/3/01 just so it has a value
-    
+
 //  CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
-    
+
     // Set CA type Combo Box
     hCntl = GetDlgItem( hDlg, IDC_CATYPE_WORLD);
 
@@ -115,7 +115,7 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 {
     //((fn)((hDlg), (int)(wParam), (HWND)LOWORD(lParam), (UINT)HIWORD(lParam)), 0L)
     int comboint;
-    
+
     switch (id)
     {
         case RADIO_ALL:
@@ -284,7 +284,7 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
                 calife_list->SetAllType(CA_USER, TRUE);
             if (hDlgOpenGL)
                 InvalidateRect(hDlgOpenGL, NULL, TRUE);
-            break;      
+            break;
         case IDC_CATYPE_WORLD:
 /* This code keeps you from getting a change type command when you
 open up the list box */
@@ -392,7 +392,7 @@ from the combo box */
             break;
 
     }
-            
+
 }
 
 
@@ -406,14 +406,14 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
     WriteProfileString((LPSTR)szMyAppName,(LPSTR)"WORLDX",(LPSTR)buf);
     wsprintf((LPSTR)buf,"%i",rect.top);
     WriteProfileString((LPSTR)szMyAppName,(LPSTR)"WORLDY",(LPSTR)buf);
-            
+
 }
 
 static void MyWnd_RBUTTONDOWN(HWND hDlg, BOOL fDoubleClick, int x, int y, UINT keyFlags)
 {
     //((fn)((hDlg), FALSE, (int)LOWORD(lParam), (int)HIWORD(lParam), (UINT)(wParam)), 0L)
             DestroyWindow(hDlg);
-            
+
 }
 
 

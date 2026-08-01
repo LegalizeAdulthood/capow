@@ -2,7 +2,7 @@
 #include <time.h>
 #include "random.h"
 #include "math.h" //*for sqrt in Randomunitpair
-//#define MYMACROS 
+//#define MYMACROS
 
 /* The Borland stdlib.h defines long rotate left and long rotate right
 functions called _lrotr and _lrotl.  We need to call _lrotr(x,1) and
@@ -93,7 +93,7 @@ unsigned int Randomize() //We're in 32 bit so int means long.
 {
 /* This uses the time to install a random seed */
 /* Return the seed in case you want it for a regression test.*/
-    time_t timeslot; //2017 wants special type  
+    time_t timeslot; //2017 wants special type
     time(&timeslot);    /* unix time function is seconds since 1970*/
     rseed( (unsigned long)timeslot );
     return (unsigned int)timeslot;
@@ -305,7 +305,7 @@ unsigned char permute_buffer[MAX_PERMUTE];
 void jolt_permute_buffer(unsigned char n)
 {
     // This is really a method of permute_buffer.
-    // point is to set first n entries of permute_buffer to 
+    // point is to set first n entries of permute_buffer to
     // a permutation of 0,...,n-1.  If n is over the
     // original allocation for permute_buffer the program
     // crashes.

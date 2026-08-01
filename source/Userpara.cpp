@@ -1,5 +1,5 @@
 // ***********************************************************************
-// File:        userpara.cpp                                                    
+// File:        userpara.cpp
 // PROJECT:     CAMCOS CAPOW (Cellular Automata for Power Grid Simulation)
 // ENVIRONMENT: Visual C++ 4.0  Win32
 //
@@ -14,31 +14,31 @@
 #include "userpara.hpp"
 #include "ca.hpp"
 #include "tweakca.hpp"
-#include <COMMCTRL.H>           // This following line must be here 
+#include <COMMCTRL.H>           // This following line must be here
                                 // compiling error
 extern char *szMyAppName;       // Program name
 extern char userDialogName[];   // User Dialog name
-extern HWND hUserDialog;        // User Dialog handler 
+extern HWND hUserDialog;        // User Dialog handler
 extern HWND masterhwnd;         // Main program handler
 extern HINSTANCE hInst;         // Instance of this program
 extern CAlist *calife_list;     // CA list
 
 char userDialogName[] = "Mutate User Rule Params - Double-Click Label to Muate";
 
-// If reCreate == true, then the old column is preserve. It is used so 
-// that when users click on another CA Window, the same # of column is 
-// create. If false, then it calculate the # of column base on the 
+// If reCreate == true, then the old column is preserve. It is used so
+// that when users click on another CA Window, the same # of column is
+// create. If false, then it calculate the # of column base on the
 // client width. This will keep the dialog box width about the same.
-static BOOL reCreate = FALSE;   
+static BOOL reCreate = FALSE;
 
-// Use by MyWnd_SIZE to resize the window. This prevent re-executing 
+// Use by MyWnd_SIZE to resize the window. This prevent re-executing
 // MyWnd_SIZE again.
 static BOOL validUserDialog = FALSE;
 
-vector<HWND> userAddHEdit;      // list of edit box handler,   
+vector<HWND> userAddHEdit;      // list of edit box handler,
 vector<HWND> userAddHLabel;     // static box handler, and
-vector<HWND> userAddHUpDown;    // edit box handler,   
-vector<WNDPROC> userAddHOldProc;// window callback procedure for edit boxes 
+vector<HWND> userAddHUpDown;    // edit box handler,
+vector<WNDPROC> userAddHOldProc;// window callback procedure for edit boxes
 
 HWND    hScrollBar       = NULL;
 HWND    groupBox         = NULL;
@@ -47,17 +47,17 @@ HWND    radioChangeFocus = NULL;
 HWND    randomButton     = NULL;
 WNDPROC randomButtonOld;
 
-static int oldX      = -1;      // last user dialog coordinate and width 
+static int oldX      = -1;      // last user dialog coordinate and width
 static int oldY      = -1;      // and height
 static int oldWidth  = -1;
-static int oldHeight = -1;              
+static int oldHeight = -1;
 static int buttonHeight    = 40;// Heigh of the button rectangle
 static int numButtonRow    = 1; // # of button per row
 static int numButtonCol    = 1; //             per column
 static int lastScrollPost  = 0; // For scoll bar uses
-static int totalScrollLine = 0; 
+static int totalScrollLine = 0;
 static int totalCol = 0;        // Total column, row, and ...
-static int totalRow = 0;        
+static int totalRow = 0;
 static int cyBorder = 0;
 static int cxBorder = 0;
 static int labelWidth     = 0;
@@ -65,7 +65,7 @@ static int labelHeight    = 0;
 static int editWidth      = 0;
 static int totalUserParam = 0;
 static int vscrollWidth = 0;
-static int variancePost = 0;    
+static int variancePost = 0;
 static int firstVisible = 0;    // First and last index to visible edit box
 static int lastVisible  = 0;    // Used to show and hide edit when scroll
 static HFONT    hEditFont;
@@ -79,11 +79,11 @@ void removeUserParam(CA *activeCA, BOOL removeVariance)
 // Remove all user tweak param from a CA. IF removeVariance, then remove it also.
 // removeVariance is true on destruction.
 //
-{   
+{
     for(int a = 0; a < activeCA->userParamAdd.size(); a++)
         if (activeCA->userParamAdd[a] != NULL)
             delete (AdditiveTweakParam *)(activeCA->userParamAdd[a]);
-    activeCA->userParamAdd.erase(activeCA->userParamAdd.begin(), 
+    activeCA->userParamAdd.erase(activeCA->userParamAdd.begin(),
                                  activeCA->userParamAdd.end());
     if (!removeVariance)
         (*activeCA->pAddUserParam)(activeCA, "Mutation Strength (0 to 1)",  0.5);
@@ -98,7 +98,7 @@ void createEdit( )
     int size = activeCA->userParamAdd.size();
 
     for(int count = 0; count < size; count++)
-    {   
+    {
         AdditiveTweakParam *temp = (AdditiveTweakParam *)
                                                   activeCA->userParamAdd[count];
         LPCSTR msg = temp->Label();
@@ -106,20 +106,20 @@ void createEdit( )
                                  0, 0, 0, 0, hUserDialog, NULL, hInst, NULL);
         userAddHLabel.push_back(hwnd);
         SendMessage(hwnd, WM_SETFONT, (WPARAM) hEditFont, 0L);
-        
+
         HWND upDown;
-        hwnd = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | 
-                         WS_TABSTOP, 0, 0, 0, 0, hUserDialog, 
+        hwnd = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER |
+                         WS_TABSTOP, 0, 0, 0, 0, hUserDialog,
                          (HMENU)(count+USEREDITCODEBASE), hInst, NULL);
-        upDown = CreateUpDownControl(WS_CHILD | WS_BORDER | WS_VISIBLE | 
-                         UDS_ALIGNRIGHT, 0, 0, 0, 0, hUserDialog, 
-                         count+size+USEREDITCODEBASE, hInst, hwnd, 100, 0, 50); 
+        upDown = CreateUpDownControl(WS_CHILD | WS_BORDER | WS_VISIBLE |
+                         UDS_ALIGNRIGHT, 0, 0, 0, 0, hUserDialog,
+                         count+size+USEREDITCODEBASE, hInst, hwnd, 100, 0, 50);
         userAddHEdit.push_back(hwnd);
         userAddHUpDown.push_back(upDown);
-        
+
         // Change edit font
         SendMessage(hwnd, WM_SETFONT, (WPARAM) hEditFont, 0L);
-        
+
         // Save old window callback procedure of edit control windows
         WNDPROC oldEditProc = (WNDPROC) GetWindowLong(hwnd, GWLP_WNDPROC);
         // and set to new window callback procedure of edit control. This
@@ -132,7 +132,7 @@ void createEdit( )
         char *pValueText = valueText;
         Real value = activeCA->userParamAdd[count]->Val();
         sprintf(pValueText, "%5.5f", value);
-        SetWindowText(hwnd, valueText); 
+        SetWindowText(hwnd, valueText);
     }
 }
 
@@ -150,16 +150,16 @@ void moveEdit(int offsetX, int offsetY)
     firstVisible = -1;
     lastVisible = -1;
     // Move the label and edit box to it correct position
-    for(int count = 0, count2 = 0; count < activeCA->userParamAdd.size(); 
+    for(int count = 0, count2 = 0; count < activeCA->userParamAdd.size();
               count++)
     {
         if( count >= lastScrollPost && count2 < (totalRow * totalCol))
         {   // current edit box and label is visible
-            MoveWindow(userAddHLabel[count], x, y, 
+            MoveWindow(userAddHLabel[count], x, y,
                        labelWidth - LESSLABEL, labelHeight, TRUE);
-            MoveWindow(userAddHEdit[count], x + labelWidth, y, 
+            MoveWindow(userAddHEdit[count], x + labelWidth, y,
                        editWidth * PERCENTUPDOWN, labelHeight, TRUE);
-            MoveWindow(userAddHUpDown[count], 
+            MoveWindow(userAddHUpDown[count],
                        x + labelWidth+editWidth*PERCENTUPDOWN, y,
                        UPDOWNWIDTH, labelHeight, TRUE);
             if (x == offsetX && y == offsetY)
@@ -167,7 +167,7 @@ void moveEdit(int offsetX, int offsetY)
                 SetFocus(userAddHEdit[count]);
                 firstVisible = count;
             }
-    
+
             x += columnWidth;
             if ( totalCol == 1 || ((count+1) % totalCol == 0 && count != 0) )
             {
@@ -202,17 +202,17 @@ void createButton()
     SendMessage(groupBox, WM_SETFONT, (WPARAM) hEditFont, 0L);
     radioChangeAll = CreateWindow("button", "Change All",
                                   WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-                                  0, 0, 0, 0, hUserDialog, 
+                                  0, 0, 0, 0, hUserDialog,
                                   (HMENU)(BUTTONIDBASE+1), hInst, NULL);
     SendMessage(radioChangeAll, WM_SETFONT, (WPARAM) hEditFont, 0L);
     radioChangeFocus = CreateWindow("button", "Change Focus",
                                   WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-                                  0, 0, 0, 0, hUserDialog, 
+                                  0, 0, 0, 0, hUserDialog,
                                   (HMENU)(BUTTONIDBASE+2), hInst, NULL);
     SendMessage(radioChangeFocus, WM_SETFONT, (WPARAM) hEditFont, 0L);
     randomButton = CreateWindow("button", "Mutate Params",
                                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                                0, 0, 0, 0, hUserDialog, 
+                                0, 0, 0, 0, hUserDialog,
                                 (HMENU)(BUTTONIDBASE+3), hInst, NULL);
     SendMessage(randomButton, WM_SETFONT, (WPARAM) hEditFont, 0L);
     // Save old window callback procedure of edit control windows
@@ -229,19 +229,19 @@ void moveButton(int x, int y)
 {
     RECT        rect;
     GetClientRect(hUserDialog, &rect);
-    
+
     MoveWindow(groupBox, x, y, GROUPBOXWIDTH, GROUPBOXHEIGHT, TRUE);
     MoveWindow(radioChangeAll, 10 + x, 22 + y, 110, labelHeight, TRUE);
-    MoveWindow(radioChangeFocus, 10 + x, 24 + labelHeight+y, 110, 
+    MoveWindow(radioChangeFocus, 10 + x, 24 + labelHeight+y, 110,
                labelHeight, TRUE);
     x = ((rect.right - GROUPBOXWIDTH) - BUTTON_WIDTH) / 2;
-    MoveWindow(randomButton, x+GROUPBOXWIDTH,  
-               y + (GROUPBOXHEIGHT - BUTTON_HEIGHT) / 2, 
+    MoveWindow(randomButton, x+GROUPBOXWIDTH,
+               y + (GROUPBOXHEIGHT - BUTTON_HEIGHT) / 2,
                BUTTON_WIDTH, BUTTON_HEIGHT, TRUE);
 }
 
 void recreateUserDialog()
-// 
+//
 // Recreate user dialog. Will be call when user select a different CA window.
 //
 {
@@ -254,8 +254,8 @@ void recreateUserDialog()
         DestroyWindow(userAddHEdit[i]);
         DestroyWindow(userAddHLabel[i]);
         DestroyWindow(userAddHUpDown[i]);
-    }       
-    
+    }
+
     // Initialize storage
     userAddHEdit.erase(userAddHEdit.begin(), userAddHEdit.end());
     userAddHLabel.erase(userAddHLabel.begin(), userAddHLabel.end());
@@ -270,7 +270,7 @@ void recreateUserDialog()
     HFONT oldHFont  = (HFONT) SelectObject(hDC, hEditFont);
 
     GetTextMetrics(hDC, &tm);
-    
+
     // Calculate the largest width
     labelWidth = MINLABELWIDTH;
     for(int count1 = 0; count1 < activeCA->userParamAdd.size(); count1++)
@@ -285,23 +285,23 @@ void recreateUserDialog()
             labelWidth = size.cx + tm.tmAveCharWidth;
     }
     ReleaseDC(hUserDialog, hDC);
-    
+
     // Create all edit box with currently select CA
     createEdit();
 
     // resize the new created user dialog by calling MyWnd_SIZE
     RECT        rect;
     GetClientRect(hUserDialog, &rect);
-    
+
     // Indicate that user dialog is valid
     validUserDialog = TRUE;
-    
-    reCreate = TRUE;    
+
+    reCreate = TRUE;
     MyWnd_SIZE(hUserDialog, SIZE_RESTORED, rect.right + 1, rect.bottom + 1);
     reCreate = FALSE;
-    // Set focus back to master window. This happen when 
+    // Set focus back to master window. This happen when
     // user change focus CA window
-    SetFocus(masterhwnd);   
+    SetFocus(masterhwnd);
 }
 
 void createUserDialog()
@@ -311,7 +311,7 @@ void createUserDialog()
 {
     validUserDialog = FALSE;    // Do start processing WM_RESIZE
     if (hUserDialog)
-    {   
+    {
         DestroyWindow(hUserDialog);
         hUserDialog = 0;
         return;
@@ -326,7 +326,7 @@ void createUserDialog()
     HFONT oldHFont  = (HFONT) SelectObject(hDC, hEditFont);
 
     GetTextMetrics(hDC, &tm);
-    
+
     // Calculate the largest width of label
     labelWidth = MINLABELWIDTH;
     for(int count1 = 0; count1 < activeCA->userParamAdd.size(); count1++)
@@ -349,17 +349,17 @@ void createUserDialog()
     editWidth   = tm.tmAveCharWidth * USERCHAREDITWIDTH;
     cxBorder = 2 * (GetSystemMetrics(SM_CXBORDER) +
                    GetSystemMetrics(SM_CXSIZEFRAME)) - 2 + 2 * STARTX;
-    cyBorder = 2 * (GetSystemMetrics(SM_CYBORDER) + 
+    cyBorder = 2 * (GetSystemMetrics(SM_CYBORDER) +
                    GetSystemMetrics(SM_CYSIZEFRAME)) - 2 +
                    GetSystemMetrics(SM_CYCAPTION) + 3 * STARTY;
     vscrollWidth = GetSystemMetrics(SM_CXVSCROLL);
-    
+
     lastScrollPost = 0;
     if (oldX == -1)
     {   // First time the program create a user dialog box
         if (totalUserParam == 0)
         {   // no user param, so use default
-            totalCol = 1; 
+            totalCol = 1;
             totalRow = 1;
             totalScrollLine = lastScrollPost = 0;
             buttonHeight    = GROUPBOXHEIGHT;
@@ -369,10 +369,10 @@ void createUserDialog()
             totalCol = TOTALSTARTCOL;
             totalRow = totalUserParam / totalCol;
             if(totalUserParam % totalCol != 0) totalRow++;
-            int screenLine = (GetSystemMetrics(SM_CYSCREEN) - cyBorder) / 
+            int screenLine = (GetSystemMetrics(SM_CYSCREEN) - cyBorder) /
                                                                     labelHeight;
             if (totalRow > screenLine)
-            {   // more row of user dialog edit box than the screen 
+            {   // more row of user dialog edit box than the screen
                 // can hold.
                 lastScrollPost = 0;
                 totalScrollLine = totalUserParam - (totalRow * totalCol);
@@ -393,7 +393,7 @@ void createUserDialog()
         totalScrollLine = 0;
         lastScrollPost  = 0;
     }
-    else 
+    else
     {
         // Use old totalCol only
         // construct a user dialog box with TOTALSTARTCOL column
@@ -416,34 +416,34 @@ void createUserDialog()
             numButtonRow++;
         buttonHeight = GROUPBOXHEIGHT;
     }
-    
+
     // Calculate window width and height
     oldWidth  = cxBorder + totalCol * columnWidth;
     oldHeight = cyBorder + totalRow * rowHeight + buttonHeight;
-    if (totalScrollLine != 0)       
-        oldWidth += vscrollWidth;   // if Vertical scroll bar added, 
+    if (totalScrollLine != 0)
+        oldWidth += vscrollWidth;   // if Vertical scroll bar added,
                                     //   add the extra width of the scroll bar
     if (oldX == -1) // Use default x, y or old value
-        hUserDialog = CreateWindow(userDialogName, userDialogName,  
+        hUserDialog = CreateWindow(userDialogName, userDialogName,
                     WS_POPUPWINDOW | WS_VISIBLE |
-                    WS_CAPTION | WS_THICKFRAME, CW_USEDEFAULT, CW_USEDEFAULT, 
+                    WS_CAPTION | WS_THICKFRAME, CW_USEDEFAULT, CW_USEDEFAULT,
                     oldWidth, oldHeight, masterhwnd, NULL, hInst, NULL);
-    else hUserDialog = CreateWindow(userDialogName, userDialogName,  
+    else hUserDialog = CreateWindow(userDialogName, userDialogName,
                     WS_POPUPWINDOW | WS_VISIBLE |
-                    WS_CAPTION | WS_THICKFRAME, oldX, oldY, 
+                    WS_CAPTION | WS_THICKFRAME, oldX, oldY,
                     oldWidth, oldHeight, masterhwnd, NULL, hInst, NULL);
     // Create vertical scroll bar
     RECT rect;
     GetClientRect(hUserDialog, &rect);
-    hScrollBar = CreateWindow("Scrollbar", NULL,  
+    hScrollBar = CreateWindow("Scrollbar", NULL,
                     WS_CHILD | WS_VISIBLE | SBS_VERT | // WS_TABSTOP |
                     SBS_RIGHTALIGN | SBS_TOPALIGN,
-                    rect.right - vscrollWidth - STARTX, STARTY, vscrollWidth, 
+                    rect.right - vscrollWidth - STARTX, STARTY, vscrollWidth,
                     totalRow * rowHeight, hUserDialog, NULL, hInst, NULL);
 
     if (totalScrollLine == 0)   // hide scroll bar
         ShowWindow(hScrollBar, SW_HIDE);
-    
+
     ShowWindow(hUserDialog, SW_SHOW);
     UpdateWindow(hUserDialog);
 
@@ -453,9 +453,9 @@ void createUserDialog()
     moveButton(STARTX / 2, rect.bottom - GROUPBOXHEIGHT - labelHeight);
     validUserDialog = TRUE;     // OK to process WM_RESIZE
     if (changeAll)
-        CheckRadioButton(hUserDialog, BUTTONIDBASE+1,BUTTONIDBASE+2, 
+        CheckRadioButton(hUserDialog, BUTTONIDBASE+1,BUTTONIDBASE+2,
                          BUTTONIDBASE+1);
-    else CheckRadioButton(hUserDialog, BUTTONIDBASE+1,BUTTONIDBASE+2, 
+    else CheckRadioButton(hUserDialog, BUTTONIDBASE+1,BUTTONIDBASE+2,
                           BUTTONIDBASE+2);
 }
 
@@ -465,32 +465,32 @@ static void MyWnd_SIZE(HWND hwnd, UINT state, int cx, int cy)
 //
 {
     // current user dialog box is invalid so return. This function get call
-    // when the user resize the user dialog box.  I want to resize 
-    // them in a certain way. When I, this program call resize 
+    // when the user resize the user dialog box.  I want to resize
+    // them in a certain way. When I, this program call resize
     // (not the operating system), I just want the resize function to return.
     if (!validUserDialog) return;
-    
+
     // set vaildUserDialog to false so that this function return immediately.
-    // We do not want it to execute again. SetWindowPos will send a WM_SIZE 
+    // We do not want it to execute again. SetWindowPos will send a WM_SIZE
     // message. This protect call MyWnd_SIZE twice.
     validUserDialog = FALSE;
 
     CA *activeCA = calife_list->FocusCA();
     if (activeCA == NULL) return;
-    
+
     totalUserParam = activeCA->userParamAdd.size();
-    
+
     // Calcalute new column and row that can be fix with the new resize window
     int newTotalCol;
     if (totalCol == 0 || reCreate == FALSE)
-    {   // No user parameter or user resize the dialog box, 
+    {   // No user parameter or user resize the dialog box,
         // so calculate new column
         newTotalCol = (cx - 2 * STARTX) / columnWidth;
         while( newTotalCol * columnWidth < MINWIDTH)
             newTotalCol ++;
     }
     else // use old column value because user either load new rule
-         newTotalCol = totalCol;    
+         newTotalCol = totalCol;
     if (newTotalCol == 0) newTotalCol++;    // total column can't be 0
     // Calculate new total row
     int newTotalRow = totalUserParam / newTotalCol;
@@ -525,7 +525,7 @@ static void MyWnd_SIZE(HWND hwnd, UINT state, int cx, int cy)
     // Hide or show vertical scroll bar
     if (totalScrollLine == 0)
         ShowWindow(hScrollBar, SW_HIDE);
-    else 
+    else
     {
         ShowWindow(hScrollBar, SW_SHOW);
         SetScrollRange(hScrollBar, SB_CTL, 0, totalScrollLine, TRUE);
@@ -538,24 +538,24 @@ static void MyWnd_SIZE(HWND hwnd, UINT state, int cx, int cy)
     GetWindowRect(hUserDialog, &rect);
     oldX = rect.left;
     oldY = rect.top;
-    
+
     // Calculate the entire dialog width and height
     oldWidth  = cxBorder + totalCol * columnWidth;
     oldHeight = cyBorder +  totalRow * rowHeight + buttonHeight;
 
     if (totalScrollLine != 0)
         oldWidth += vscrollWidth; // If scrollbar add, account for it width
-    
+
     // Readjust the user dialog box, it will not call this function again because
     // set validUserDialog = FALSE
-    SetWindowPos(hUserDialog, HWND_BOTTOM, rect.left, rect.top, 
-                 oldWidth, oldHeight, 
+    SetWindowPos(hUserDialog, HWND_BOTTOM, rect.left, rect.top,
+                 oldWidth, oldHeight,
                  SWP_NOCOPYBITS | SWP_NOZORDER);
 
     // Move scroll bar
     RECT rect2;
     GetClientRect(hUserDialog, &rect2);
-    MoveWindow(hScrollBar, rect2.right - vscrollWidth - STARTX, STARTY, 
+    MoveWindow(hScrollBar, rect2.right - vscrollWidth - STARTX, STARTY,
                vscrollWidth, totalRow * rowHeight, TRUE);
     // Move edit box, label, buttons, and etc.
     moveEdit(STARTX, STARTY);
@@ -563,12 +563,12 @@ static void MyWnd_SIZE(HWND hwnd, UINT state, int cx, int cy)
     validUserDialog = TRUE; // OK to process WM_RESIZE or this procedure again
 }
 
-static LRESULT CALLBACK EditProc(HWND hwnd, UINT message, 
+static LRESULT CALLBACK EditProc(HWND hwnd, UINT message,
                                         UINT wParam, LONG lParam)
 //
 // This function replace the default edit box call back function. This
 // way we can process the TAB and RETURN key.
-// 
+//
 {
     short n = (short) GetWindowLong(hwnd, GWL_ID);
     if (n == BUTTONIDBASE+3)
@@ -584,10 +584,10 @@ static LRESULT CALLBACK EditProc(HWND hwnd, UINT message,
                 }
                 break;
         }
-        return CallWindowProc((WNDPROC) randomButtonOld, 
+        return CallWindowProc((WNDPROC) randomButtonOld,
                               hwnd, message, wParam, lParam);
     }
-    else 
+    else
     {   // Must be an edit box control
         n -= USEREDITCODEBASE;
         switch (message)
@@ -601,10 +601,10 @@ static LRESULT CALLBACK EditProc(HWND hwnd, UINT message,
                     else SetFocus(userAddHEdit[(n+1) % userAddHEdit.size()]);
                 }
                 else if (wParam == VK_RETURN)
-                {   // Enter press, sent an EN_KILLFOCUS message as signal of 
+                {   // Enter press, sent an EN_KILLFOCUS message as signal of
                     //  update
-                    SendMessage(hUserDialog, WM_COMMAND, 
-                                MAKEWPARAM(n + USEREDITCODEBASE, EN_KILLFOCUS), 
+                    SendMessage(hUserDialog, WM_COMMAND,
+                                MAKEWPARAM(n + USEREDITCODEBASE, EN_KILLFOCUS),
                                 LONG(hwnd));
                     return 0;
                 }
@@ -628,7 +628,7 @@ static void MyWnd_DESTROY(HWND hDlg)
         DestroyWindow(userAddHLabel[i]);
         DestroyWindow(userAddHUpDown[i]);
     }
-    
+
     userAddHEdit.erase(userAddHEdit.begin(), userAddHEdit.end());
     userAddHLabel.erase(userAddHLabel.begin(), userAddHLabel.end());
     userAddHOldProc.erase(userAddHOldProc.begin(), userAddHOldProc.end());
@@ -661,14 +661,14 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 //   When an edit box lost focus it set a message to the parent.
 //   all edit box is defined start from USEREDITCODEBASE. (This base value
 //   is define save from window reserved value.)
-//   codeNotify will be the EN_KILLFOCUS and id is the edit window ID.       
+//   codeNotify will be the EN_KILLFOCUS and id is the edit window ID.
 //
 {
     CA *activeCA = calife_list->FocusCA();
     if (activeCA == NULL) return;
-    
+
     // to avoid general protection fault, size must check first
-    if (hwndCtl == randomButton) 
+    if (hwndCtl == randomButton)
     {   // It is from randomize button
         char valueText[80];
         Real clampedvariance = activeCA->userParamAdd[0]->Val(); //Get the variance under control
@@ -691,21 +691,21 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
     }
     else if (hwndCtl == radioChangeAll)
     {
-        changeAll = TRUE;       
+        changeAll = TRUE;
     }
     else if (hwndCtl == radioChangeFocus)
     {
         changeAll = FALSE;
     }
     else // to avoid general protection fault, size must check first
-        if (id >= USEREDITCODEBASE && 
+        if (id >= USEREDITCODEBASE &&
             id < USEREDITCODEBASE + activeCA->userParamAdd.size() )
-    {   // it is an edit box 
+    {   // it is an edit box
         if (codeNotify == EN_KILLFOCUS)
         {   // focus lost
             char valueText[80];
             char *pValueText = valueText;
-            
+
             // Set to new value
             GetWindowText(hwndCtl, pValueText, 79);
             Real value = atof(valueText);
@@ -718,14 +718,14 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
             value = temp2->Val();   // get the actual value
             sprintf(pValueText, "%5.5f", value);
             // updown the actual value to edit box
-            SetWindowText(hwndCtl, valueText);  
+            SetWindowText(hwndCtl, valueText);
             if (changeAll)
                 for(int count = 0; count < calife_list->Count(); count++)
                 {
                     CA *curCA = calife_list->GetCA(count);
                     if (curCA == calife_list->FocusCA()) continue;
                     if (id - USEREDITCODEBASE < curCA->userParamAdd.size())
-                        curCA->userParamAdd[id-USEREDITCODEBASE]->SetVal(value);    
+                        curCA->userParamAdd[id-USEREDITCODEBASE]->SetVal(value);
                 }
         }
     }
@@ -733,7 +733,7 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 
 static void MyWnd_MOVE(HWND hwnd, int x, int y)
 //
-// User dialog box moved, so update it last position. Last position is 
+// User dialog box moved, so update it last position. Last position is
 // used to recreating the dialog box if the user close it and open again.
 //
 {
@@ -741,7 +741,7 @@ static void MyWnd_MOVE(HWND hwnd, int x, int y)
     {
         RECT rect;
         // Must use this function x & y are in client coordinate
-        GetWindowRect(hUserDialog, &rect);  
+        GetWindowRect(hUserDialog, &rect);
         oldX = rect.left;
         oldY = rect.top;
     }
@@ -749,7 +749,7 @@ static void MyWnd_MOVE(HWND hwnd, int x, int y)
 
 static void MyWnd_VSCROLL(HWND hwnd, HWND hwndCtl, UINT code, int pos)
 //
-// User dialog box got scrolled. 
+// User dialog box got scrolled.
 //
 {
     for(int index = 0; index < userAddHUpDown.size(); index ++)
@@ -784,7 +784,7 @@ static void MyWnd_VSCROLL(HWND hwnd, HWND hwndCtl, UINT code, int pos)
             break;
         case SB_THUMBPOSITION:
             // Thumb get drag, change appropriately
-            if (pos == lastScrollPost) 
+            if (pos == lastScrollPost)
                 return;
             if (pos > lastScrollPost)
             {   // move down
@@ -793,7 +793,7 @@ static void MyWnd_VSCROLL(HWND hwnd, HWND hwndCtl, UINT code, int pos)
                     displace %= totalCol;
                 if (displace > 0)
                     lastScrollPost += displace * totalCol;
-                else return;        
+                else return;
             }
             else
             {   // move up
@@ -802,14 +802,14 @@ static void MyWnd_VSCROLL(HWND hwnd, HWND hwndCtl, UINT code, int pos)
                     displace %= totalCol;
                 if (displace > 0)
                     lastScrollPost -= displace * totalCol;
-                else return;        
+                else return;
             }
-            break;          
+            break;
         default:
             return;
     }
     SetScrollPos(hScrollBar, SB_CTL, lastScrollPost, TRUE);
-        
+
     CA *activeCA = calife_list->FocusCA();
 
     SetFocus(hUserDialog);
@@ -818,7 +818,7 @@ static void MyWnd_VSCROLL(HWND hwnd, HWND hwndCtl, UINT code, int pos)
     SetScrollPos(hwnd, SB_VERT, lastScrollPost, TRUE);
 }
 
-BOOL HandleUpDownControlUserParam(HWND hDlg, UINT message, WPARAM wParam, 
+BOOL HandleUpDownControlUserParam(HWND hDlg, UINT message, WPARAM wParam,
                                   LPARAM lParam)
 //
 // Up down control work as follow:
@@ -827,7 +827,7 @@ BOOL HandleUpDownControlUserParam(HWND hDlg, UINT message, WPARAM wParam,
 //
 {
     NM_UPDOWN *pnmud = (NM_UPDOWN FAR *) lParam;
-    
+
     if (pnmud->hdr.code != UDN_DELTAPOS)    // if no change then return
         return FALSE;
 
@@ -836,7 +836,7 @@ BOOL HandleUpDownControlUserParam(HWND hDlg, UINT message, WPARAM wParam,
         {   // find the updown HWND
             char valueText[80];
             char *pValueText = valueText;
-            
+
             // Set to new value
             GetWindowText(userAddHEdit[count], pValueText, 79);
             Real value = atof(valueText);
@@ -850,21 +850,21 @@ BOOL HandleUpDownControlUserParam(HWND hDlg, UINT message, WPARAM wParam,
                 if (value == 0)
                     value -= 0.1;
                 else value /= 2;
-            
+
             TweakParam *temp2 = calife_list->FocusCA()->userParamAdd[count];
             temp2->SetVal(value);   // Try to set to new value
             value = temp2->Val();   // Get the actual value
 
             // Update the actual value of the edit box control
             sprintf(pValueText, "%5.5f", value);
-            SetWindowText(userAddHEdit[count], valueText);  
+            SetWindowText(userAddHEdit[count], valueText);
             break;
         }
     // We must return true so that the position remain the same value
     return TRUE;
 }
 
-void MyWnd_LBUTTONDBCLK(HWND hwnd, BOOL fDoubleClick, int x, int y, 
+void MyWnd_LBUTTONDBCLK(HWND hwnd, BOOL fDoubleClick, int x, int y,
                         UINT keyFlags)
 //
 // User double click. Check if double on label. If so, randomize.
@@ -878,7 +878,7 @@ void MyWnd_LBUTTONDBCLK(HWND hwnd, BOOL fDoubleClick, int x, int y,
     onRow = (y - STARTY) / rowHeight;
     int index = onRow * totalCol;
     index += onCol;
-    index += firstVisible;  // Skip invisible 
+    index += firstVisible;  // Skip invisible
     if (index == variancePost) return;
 
     CA *activeCA = calife_list->FocusCA();
@@ -886,7 +886,7 @@ void MyWnd_LBUTTONDBCLK(HWND hwnd, BOOL fDoubleClick, int x, int y,
     {
       CA *curCA = calife_list->GetCA(count);
       if (changeAll || (!changeAll &&  curCA == activeCA))
-      { 
+      {
         if (index < curCA->userParamAdd.size())
         {
             char valueText[80];
@@ -894,18 +894,18 @@ void MyWnd_LBUTTONDBCLK(HWND hwnd, BOOL fDoubleClick, int x, int y,
             // Set to new value
             GetWindowText(userAddHEdit[index], pValueText, 79);
             Real value = atof(valueText);
-    
-            curCA ->RandomizeTweakParamPercent(curCA ->userParamAdd[index], 
+
+            curCA ->RandomizeTweakParamPercent(curCA ->userParamAdd[index],
                                 curCA ->userParamAdd[index]->Val(),
                                 curCA ->userParamAdd[variancePost]->Val());
             sprintf(valueText, "%5.5f", curCA ->userParamAdd[index]->Val());
-            SetWindowText(userAddHEdit[index], valueText);  
+            SetWindowText(userAddHEdit[index], valueText);
         }
       }
     }
 }
 
-LRESULT CALLBACK userDialogProc(HWND hDlg, UINT message, WPARAM wParam, 
+LRESULT CALLBACK userDialogProc(HWND hDlg, UINT message, WPARAM wParam,
                                 LPARAM lParam )
 {
     switch( message )
@@ -924,26 +924,26 @@ LRESULT CALLBACK userDialogProc(HWND hDlg, UINT message, WPARAM wParam,
         case WM_MOVE:
             return (BOOL) !HANDLE_WM_MOVE(hDlg,wParam,lParam,MyWnd_MOVE);
         case WM_VSCROLL:
-            return (BOOL) !HANDLE_WM_VSCROLL(hDlg, wParam, lParam, 
+            return (BOOL) !HANDLE_WM_VSCROLL(hDlg, wParam, lParam,
                                              MyWnd_VSCROLL);
         case WM_NOTIFY:
             return HandleUpDownControlUserParam(hDlg, message, wParam, lParam);
         case WM_LBUTTONDBLCLK:
-            return HANDLE_WM_LBUTTONDBLCLK(hDlg, wParam, lParam, 
+            return HANDLE_WM_LBUTTONDBLCLK(hDlg, wParam, lParam,
                                            MyWnd_LBUTTONDBCLK);
         case WM_PAINT:
           { // Draw rectangle around Label and Edit control
             PAINTSTRUCT ps;
             HDC hDC = BeginPaint(hDlg, &ps);
             SelectObject(hDC, GetStockObject(NULL_BRUSH));
-            
+
             SelectObject(hDC, GetStockObject(ANSI_VAR_FONT));
-            SetBkColor(hDC, RGB(192, 192, 192));    
-                
+            SetBkColor(hDC, RGB(192, 192, 192));
+
             RECT rect;
             GetClientRect(hDlg, &rect);
-            Rectangle(hDC, STARTX / 2, STARTY / 2, 
-                      rect.right - rect.left - (STARTX /2), 
+            Rectangle(hDC, STARTX / 2, STARTY / 2,
+                      rect.right - rect.left - (STARTX /2),
                       STARTY + totalRow * rowHeight + STARTY / 2);
             EndPaint(hDlg, &ps);
             return 0;

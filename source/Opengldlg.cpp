@@ -26,7 +26,7 @@ void ShowOpenGLParams(HWND hDlg);
 
 static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
-    
+
 
     HWND hCntl;
 //  oldtype = 0; //RR 2007 don't use it
@@ -106,7 +106,7 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
         break;
 
     case IDC_OPENGL_GRAPHTYPES:
-        comboint = SendMessage((HWND)hwndCtl, CB_GETCURSEL, 0, 0L); 
+        comboint = SendMessage((HWND)hwndCtl, CB_GETCURSEL, 0, 0L);
         capowgl->Type(comboint);
         UpdateWindow(hDlg);
         break;
@@ -117,7 +117,7 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
         UpdateWindow(hDlg);
         break;
     case IDC_OPENGL_MATERIAL:
-        comboint = SendMessage((HWND)hwndCtl, CB_GETCURSEL, 0, 0L); 
+        comboint = SendMessage((HWND)hwndCtl, CB_GETCURSEL, 0, 0L);
         capowgl->Material(comboint);
         UpdateWindow(hDlg);
         break;
@@ -307,11 +307,11 @@ static BOOL MyWnd_LBUTTONDOWN(HWND hDlg, BOOL fDoubleClick, int x, int y, UINT k
     GetWindowRect(hDlgOpenGL, &rect2);
     capowgl->SetCellXY(x-(rect.left-rect2.left),y-(rect.top-rect2.top));
     if(calife_list->FocusCA()->Getviewmode() ==IDC_2D_VIEW)
-        capowgl->LeftButtonDown(fDoubleClick, x, y, keyFlags);  //mike 4/97 
+        capowgl->LeftButtonDown(fDoubleClick, x, y, keyFlags);  //mike 4/97
     return 0;
 }
 
-static void MyWnd_MOUSEMOVE(HWND hwnd, int x, int y, UINT flags) 
+static void MyWnd_MOUSEMOVE(HWND hwnd, int x, int y, UINT flags)
 {
   //  ((fn)((hwnd), (int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam), (UINT)(wParam)), 0L)
         //if zoomed on a 2D CA, and capowgl is not in fly mode, then interpret the mousemove
@@ -353,11 +353,11 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
 
 static void MyWnd_PARENTNOTIFY(HWND hDlg, UINT fwEvent, HWND lValue, UINT idChild)
 {
-//WM_PARENTNOTIFY 
-//fwEvent = LOWORD(wParam);  // event flags 
-//idChild = HIWORD(wParam);  // identifier of child window 
-//lValue = lParam;           // child handle, or cursor coordinates 
- 
+//WM_PARENTNOTIFY
+//fwEvent = LOWORD(wParam);  // event flags
+//idChild = HIWORD(wParam);  // identifier of child window
+//lValue = lParam;           // child handle, or cursor coordinates
+
 }
 
 BOOL CALLBACK OpenGLProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -385,19 +385,19 @@ void ShowOpenGLParams(HWND hDlg)
     BOOL GL_active;
     int i;
     if (!SendMessage( GetDlgItem( hDlg, IDC_OPENGL_GRAPHTYPES), CB_GETDROPPEDSTATE, 0, 0L))
-        SendMessage(GetDlgItem( hDlg, IDC_OPENGL_GRAPHTYPES), 
+        SendMessage(GetDlgItem( hDlg, IDC_OPENGL_GRAPHTYPES),
             CB_SETCURSEL, (WORD)capowgl->Type(), 0);
 
     if (!SendMessage( GetDlgItem( hDlg, IDC_OPENGL_SURFACE), CB_GETDROPPEDSTATE, 0, 0L))
-        SendMessage(GetDlgItem( hDlg, IDC_OPENGL_SURFACE), 
+        SendMessage(GetDlgItem( hDlg, IDC_OPENGL_SURFACE),
             CB_SETCURSEL, (WORD)capowgl->SurfaceType(), 0);
 
     if (!SendMessage( GetDlgItem( hDlg, IDC_OPENGL_MATERIAL), CB_GETDROPPEDSTATE, 0, 0L))
-        SendMessage(GetDlgItem( hDlg, IDC_OPENGL_MATERIAL), 
+        SendMessage(GetDlgItem( hDlg, IDC_OPENGL_MATERIAL),
             CB_SETCURSEL, (WORD)capowgl->Material(), 0);
 
     if (!SendMessage( GetDlgItem( hDlg, IDC_OPENGL_RESOLUTION), CB_GETDROPPEDSTATE, 0, 0L))
-        SendMessage(GetDlgItem( hDlg, IDC_OPENGL_RESOLUTION), 
+        SendMessage(GetDlgItem( hDlg, IDC_OPENGL_RESOLUTION),
             CB_SETCURSEL, (WORD)capowgl->Resolution(), 0);
 
 //  CheckRadioButton( hDlg, IDC_OPENGL_MOUSE_CA, IDC_OPENGL_MOUSE_FLY,
@@ -421,7 +421,7 @@ void ShowOpenGLParams(HWND hDlg)
     realLabel (hDlg, IDC_OPENGL_TEMPHEIGHT, capowgl->tempheight);
 
     GL_active = zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW && capowgl->Type();
-    
+
     EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_GRAPHTYPES ),zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW );
     EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_MATERIAL ),GL_active );
     EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_SURFACE), GL_active);

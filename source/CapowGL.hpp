@@ -9,7 +9,7 @@
     FILE DESCRIPTION:   This file contains definitions and data for
                         the implementation of OpenGL 3D rendering.
 
-    UPDATE LOG:         
+    UPDATE LOG:
 
 *******************************************************************************/
 
@@ -51,7 +51,7 @@
 #define COPPER      11
 #define GOLD        12
 #define SILVER      13
-#define BLACK_PLASTIC   14  
+#define BLACK_PLASTIC   14
 #define CYAN_PLASTIC    15
 #define GREEN_PLASTIC   16
 #define RED_PLASTIC     17
@@ -98,7 +98,7 @@
 #define DEFAULTMATERIAL     MULTICOLOR
 #define DEFAULTSPACING      .02
 #define DEFAULTFOCUSISACTIVE TRUE
-#define DEFAULTPANY 0.0f    
+#define DEFAULTPANY 0.0f
 #define DEFAULTPANX 0.0f
 #define DEFAULTPANSTEP      2.0f  //degrees
 #define DEFAULTLIGHTYAW     0.0f
@@ -110,7 +110,7 @@
 #define DEFAULTPOINTERY CY_2D/2
 #define DEFAULTPOINTERFLAG  FALSE
 #define DEFAULTSHOWGENERATORSFLAG   FALSE
-#define DEFAULTSTATS  FALSE /* Use TRUE for debugging to show 
+#define DEFAULTSTATS  FALSE /* Use TRUE for debugging to show
     window dimensions, frame rate, percent of time spent in rendering,
     see DrawStats for more info.*/
 #define DEFAULTRESOLUTION   MEDIUMRES
@@ -145,7 +145,7 @@ private:
     float panY, panX;       //x and y position of camera
     float panstep;              //rate of panning in relation to mouse movement
     int mousemode;              //index for current purpose of mouse, e.g. panning, zooming
-    float lightyaw, lightpitch, oldlightyaw, oldlightpitch, oldpanY, oldpanX; 
+    float lightyaw, lightpitch, oldlightyaw, oldlightpitch, oldpanY, oldpanX;
         //remember old positions.
     BOOL zeroplaneflag;     //show zero plane, which is a rectangle
     BOOL maxplaneflag;      //show max plane, which is a rectangle
@@ -211,7 +211,7 @@ public:
     void ZoomOut();
     void Pan(int direction);
     void Reset();
-    
+
 
     //accessors and manipulators
     void Z(float value){z = value;}
@@ -231,7 +231,7 @@ public:
 
     void Type(int newtype);
     int Type() {return graphtype;}
-    
+
     void SurfaceType(int newtype);
     int SurfaceType(){return surfacetype;}
 
@@ -250,7 +250,7 @@ public:
 
     void MaxPlane(BOOL newflag) {maxplaneflag = newflag;}
     BOOL MaxPlane(){return maxplaneflag;}
-    
+
     void Resolution(int value);
     int Resolution() {return resolution;}
 

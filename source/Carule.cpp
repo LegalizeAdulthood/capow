@@ -17,7 +17,7 @@ If this is too much trouble, externally change the name in the output DLL direct
 handy to keep all of your past rules in this file and simply comment in
 exactly one of the #define statements to pick one rule.  A good way to
 make a new rule is to look at a similar rule found in this sample code, block
-copy that code, and alter it. 
+copy that code, and alter it.
     Sometimes if you keep changing the rules, you get compiler errors like this:
 error C2084: function 'void __cdecl USERINITIALIZE(class CA *)' already has a body
 You can make this error go away by using the "Rebuild All" option instead of
@@ -29,7 +29,7 @@ are getting compiled.
 New User Rule.dll  It will be in the dll subdirectory of the source code
 directory. When you have the rule working the way you like, you can right click on it
 in Windows Explorer and change its name.
-    Alternately, you can change the name of your output *.DLL by editing the 
+    Alternately, you can change the name of your output *.DLL by editing the
 Project Output File name by using the Solution Explorer. Right click on Carule, select
 Properties to get the to Project Settings dialog. Change the target file name in two places
 (1) Configuration Properties | General | Target.  Put the file name with no .dll extenstion
@@ -64,22 +64,22 @@ different name for the *.DLL you are building.
 //#define CARULE_2D_HODGE           //2D Hodge.DLL
 //#define CARULE_2D_HODGE_WAVE      //2D Hodge Wave.DLL (Not included)
 //#define CARULE_2D_PAIR            //2D Pair.DLL (Not included)
-//#define CARULE_2D_ACTIVATOR_INHIBITOR //2D Activator Inhibitor 9.DLL 
-//#define CARULE_2D_ACTIVATOR_INHIBITOR_MIN //2D Activator Inhibitor Min 9.DLL 
-//#define CARULE_2D_ACTIVATOR_INHIBITOR_5 //2D Activator Inhibitor 5.DLL 
-//#define CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION //2D Activator Inhibitor Saturation 9.DLL 
-//#define CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION_5//2D Activator Inhibitor Saturation 5.DLL 
-//#define CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_WAVE //2D Activator Inhibitor Wave.DLL 
-#define CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_DIFFUSE //2D Activator Wave Inhibitor Diffuse.DLL 
-//#define CARULE_2D_AIS_WAVE_DIFFUSE //2D AIS Wave Diffuse.DLL 
-//#define CARULE_2D_ACTIVATOR_INHIBITOR_DIFFUSE_WAVE //2D Activator Diffuse Inhibitor Wave.DLL 
+//#define CARULE_2D_ACTIVATOR_INHIBITOR //2D Activator Inhibitor 9.DLL
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_MIN //2D Activator Inhibitor Min 9.DLL
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_5 //2D Activator Inhibitor 5.DLL
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION //2D Activator Inhibitor Saturation 9.DLL
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION_5//2D Activator Inhibitor Saturation 5.DLL
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_WAVE //2D Activator Inhibitor Wave.DLL
+#define CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_DIFFUSE //2D Activator Wave Inhibitor Diffuse.DLL
+//#define CARULE_2D_AIS_WAVE_DIFFUSE //2D AIS Wave Diffuse.DLL
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_DIFFUSE_WAVE //2D Activator Diffuse Inhibitor Wave.DLL
 //#define CARULE_2D_OSCILLATOR_CHAOTIC    //2D Oscillator Chaotic.DLL
 //#define CARULE_2D_OSCILLATOR_WAVE_CHAOTIC    //2D Oscillator Wave Chaotic.DLL
 //#define CARULE_2D_OSCILLATOR    //2D Oscillator.DLL
 //#define CARULE_2D_OSCILLATOR_WAVE    //2D Oscillator Wave.DLL
-//#define CARULE_2D_BOILING_WAVE_5    //2D Boiling Wave 5.DLL 
-//#define CARULE_2D_BOILING_WAVE_9    //2D Boiling Wave.DLL 
-//#define CARULE_2D_BOILING_WAVE_9_SMOOTH    //2D Boiling Wave Smooth.DLL 
+//#define CARULE_2D_BOILING_WAVE_5    //2D Boiling Wave 5.DLL
+//#define CARULE_2D_BOILING_WAVE_9    //2D Boiling Wave.DLL
+//#define CARULE_2D_BOILING_WAVE_9_SMOOTH    //2D Boiling Wave Smooth.DLL
 //#define CARULE_1D_INTERPOLATED  //1D Interpolated Continuous Rule.dll
 //#define CARULE_ASYMMETRIC_HEAT //1D Asymmetric Heat.dll
 //#define CARULE_TWOREGIME_HEAT //1D Two-Regime Heat.dll
@@ -96,7 +96,7 @@ different name for the *.DLL you are building.
     //This one uses a better averaging algoirthm and tries to avoid slamming
     //the max and min.
 //#define CARULE_2D_WINFREE_LOGISTIC //2D Logistic Double Smooth.dll
-//#define CARULE_2D_ACTIVATOR_INHIBITOR_BRAIN //2D Brain AI Zhabo.DLL 
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_BRAIN //2D Brain AI Zhabo.DLL
 //#define CARULE_2D_HODGE_BRAIN //2D Brain Hodge.dll
 //#define CARULE_2D_SANDPILE_5 //2D Sandpile 5.DLL
 //#define CARULE_2D_SANDPILE_9 //2D Sandpile 9.DLL
@@ -315,14 +315,14 @@ DllExport void USERINITIALIZE(CA* owner )
 
     for(int i = 0; i < sizeof(editValue)/sizeof(double); i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(0.1, 10.0); 
-    owner->userParamAdd[2]->SetRange(0.1, 10.0); 
-    owner->userParamAdd[3]->SetRange(0.1, 10.0); 
-    owner->userParamAdd[4]->SetRange(0.1, 10.0); 
-    owner->userParamAdd[5]->SetRange(0.1, 10.0); 
-    owner->userParamAdd[6]->SetRange(0.1, 10.0); 
-    owner->userParamAdd[7]->SetRange(1.0, 500.0); 
-    owner->userParamAdd[8]->SetRange(1.0, 500.0); 
+    owner->userParamAdd[1]->SetRange(0.1, 10.0);
+    owner->userParamAdd[2]->SetRange(0.1, 10.0);
+    owner->userParamAdd[3]->SetRange(0.1, 10.0);
+    owner->userParamAdd[4]->SetRange(0.1, 10.0);
+    owner->userParamAdd[5]->SetRange(0.1, 10.0);
+    owner->userParamAdd[6]->SetRange(0.1, 10.0);
+    owner->userParamAdd[7]->SetRange(1.0, 500.0);
+    owner->userParamAdd[8]->SetRange(1.0, 500.0);
 }
 
 //First kind of shell
@@ -333,7 +333,7 @@ DllExport void USERRULE_3(CA* owner, int l, int c, int r)
             (1+2.0*DIFFUSION_RATE_ACTIVATOR) +
         DT * (CELL_PARAM_0 * ( ACTIVATOR_PRODUCTION)
             - C_I1 - C_I0*DECAY_RATE_ACTIVATOR);
-    NEW_C_I1 = 
+    NEW_C_I1 =
         (DIFFUSION_RATE_INHIBITOR*L_I2+C_I2+DIFFUSION_RATE_INHIBITOR*R_I2)/
             (1+2.0*DIFFUSION_RATE_INHIBITOR) +
          DT * (INHIBITOR_PRODUCTION - C_I0 - C_I1*DECAY_RATE_INHIBITOR);
@@ -375,14 +375,14 @@ DllExport void USERINITIALIZE(CA* owner )
 
     for(int i = 0; i < sizeof(editValue)/sizeof(double); i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(0.1, 10.0); 
-    owner->userParamAdd[2]->SetRange(0.1, 10.0); 
-    owner->userParamAdd[3]->SetRange(0.1, 10.0); 
-    owner->userParamAdd[4]->SetRange(0.1, 10.0); 
-    owner->userParamAdd[5]->SetRange(0.1, 10.0); 
-    owner->userParamAdd[6]->SetRange(0.1, 10.0); 
-    owner->userParamAdd[7]->SetRange(1.0, 500.0); 
-    owner->userParamAdd[8]->SetRange(1.0, 500.0); 
+    owner->userParamAdd[1]->SetRange(0.1, 10.0);
+    owner->userParamAdd[2]->SetRange(0.1, 10.0);
+    owner->userParamAdd[3]->SetRange(0.1, 10.0);
+    owner->userParamAdd[4]->SetRange(0.1, 10.0);
+    owner->userParamAdd[5]->SetRange(0.1, 10.0);
+    owner->userParamAdd[6]->SetRange(0.1, 10.0);
+    owner->userParamAdd[7]->SetRange(1.0, 500.0);
+    owner->userParamAdd[8]->SetRange(1.0, 500.0);
 }
 
 DllExport void USERRULE_3(CA* owner, int l, int c, int r)
@@ -432,10 +432,10 @@ user dialog*/
 DllExport void USERINITIALIZE(CA* owner )
 {
     owner->_usernabesize = 3;
-    owner->_usercastyle = CA_WAVE; 
+    owner->_usercastyle = CA_WAVE;
     double  editValue[] = { 0.0, 5.0};
     char *label[] = { "Quadratic Nonlineariy", "Cubic Nonlinearity"};
-    
+
     owner->_max_intensity.SetVal(1.0f);
 
     for(int i = 0; i < sizeof(editValue)/sizeof(double); i++)
@@ -473,13 +473,13 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
     Real ncdiff = PLANE_N_I0 - PLANE_C_I0;
     Real cwdiff = PLANE_C_I0 - PLANE_W_I0;
     Real csdiff = PLANE_C_I0 - PLANE_S_I0;
-    PLANE_NEW_C_I0 = -PLANE_PAST_C_I0 + 2.0 * PLANE_C_I0 + 
+    PLANE_NEW_C_I0 = -PLANE_PAST_C_I0 + 2.0 * PLANE_C_I0 +
         LAMBDA*( PLANE_FOUR_SUM_I0 / 4.0 - PLANE_C_I0 +
             (NONLINEARITY) *
         (ecdiff*ecdiff  - cwdiff*cwdiff + ncdiff*ncdiff - csdiff*csdiff));
     CLAMP(PLANE_NEW_C_I0,-MAX_INTENSITY, MAX_INTENSITY);
     //2017 For velocity view, put velocity in owner->wave_target_plane[c].variable[1]
-    PLANE_NEW_C_I1 = 
+    PLANE_NEW_C_I1 =
         (PLANE_NEW_C_I0 - PLANE_PAST_C_I0) / DT;
 }
 #endif //CARULE_2D_WAVE_QUADRATIC
@@ -501,7 +501,7 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
     Real ncdiff = PLANE_N_I0 - PLANE_C_I0;
     Real cwdiff = PLANE_C_I0 - PLANE_W_I0;
     Real csdiff = PLANE_C_I0 - PLANE_S_I0;
-    PLANE_NEW_C_I0 = -PLANE_PAST_C_I0 + 2.0 * PLANE_C_I0 + 
+    PLANE_NEW_C_I0 = -PLANE_PAST_C_I0 + 2.0 * PLANE_C_I0 +
         LAMBDA*( PLANE_FOUR_SUM_I0 / 4.0 - PLANE_C_I0 +
             (NONLINEARITY) *
         (ecdiff*ecdiff*ecdiff - cwdiff*cwdiff*cwdiff +
@@ -525,7 +525,7 @@ DllExport void USERINITIALIZE(CA* owner )
     char *label[] = { "Fixed Heat Increment"};
     for(int i = 0; i < sizeof(editValue)/sizeof(double); i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(0.0, 100.0); 
+    owner->userParamAdd[1]->SetRange(0.0, 100.0);
 }
 
 /* A nine neighbor heat rule. */
@@ -533,7 +533,7 @@ DllExport void USERRULE_9(CA* owner, int c, int e, int ne, int n, int nw,
 int w, int sw, int s, int se)
 {
     PLANE_NEW_C_I0 = (1.0/9.0)*PLANE_NINE_SUM_I0 + INCREMENT;
-    WRAP(PLANE_NEW_C_I0,-MAX_INTENSITY, MAX_INTENSITY); 
+    WRAP(PLANE_NEW_C_I0,-MAX_INTENSITY, MAX_INTENSITY);
 }
 #endif //CARULE_2D_HEAT_9
 //========================================================================
@@ -549,14 +549,14 @@ DllExport void USERINITIALIZE(CA* owner )
     char *label[] = { "Heat Increment Per Unit Timestep"};
     for(int i = 0; i < sizeof(editValue)/sizeof(double); i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(0.0, 100.0); 
+    owner->userParamAdd[1]->SetRange(0.0, 100.0);
 }
 
 DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
 { //VEL_LAMBDA is dt/(dx^2)
     PLANE_NEW_C_I0 = (VEL_LAMBDA*(PLANE_FOUR_SUM_I0)+C_I0))/(4*VEL_LAMBDA + 1)
         + DT*INCREMENT;
-    WRAP(PLANE_NEW_C_I0,-MAX_INTENSITY, MAX_INTENSITY); 
+    WRAP(PLANE_NEW_C_I0,-MAX_INTENSITY, MAX_INTENSITY);
 }
 #endif //CARULE_2D_HEAT_5
 //========================================================================
@@ -575,7 +575,7 @@ DllExport void USERINITIALIZE(CA* owner )
 }
 
 /* The Game of Life! To make this work, use the Analog dialog to cut the
-maximum intensity down to 1.0.  Use the minimum number of color bands, 
+maximum intensity down to 1.0.  Use the minimum number of color bands,
 go to mono, and you'll see white Life on a gray background!*/
 DllExport void USERRULE_9(CA* owner, int c, int e, int ne, int n, int nw,
 int w, int sw, int s, int se)
@@ -595,7 +595,7 @@ int w, int sw, int s, int se)
         else
             PLANE_NEW_C_I0 = 0.0;
     }
-    CLAMP(PLANE_NEW_C_I0, 0.0, 1.0);    
+    CLAMP(PLANE_NEW_C_I0, 0.0, 1.0);
 }
 #endif //CARULE_2D_LIFE
 //========================================================================
@@ -613,7 +613,7 @@ DllExport void USERINITIALIZE(CA* owner )
 {
     double  editValue[] = { 0.1, 5.0, 100.0, 5.0 };
     char *label[] = { "Hodge Bottom", "Stim1", "Stim2", "Inc" };
-    
+
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_HEAT_2D;
     owner->_max_intensity.SetVal(32.0f);
@@ -667,7 +667,7 @@ DllExport void USERINITIALIZE(CA* owner )
 {
     double  editValue[] = { 0.1, 5.0, 100.0, 5.0 };
     char *label[] = { "Hodge Bottom", "Stim1", "Stim2", "Inc" };
-    
+
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_HEAT_2D;
     owner->_max_intensity.SetVal(32.0f);
@@ -696,9 +696,9 @@ int w, int sw, int s, int se)
     }
     else if (PLANE_C_I0 < HODGE_TOP)
     {
-        PLANE_NEW_C_I0 = -PLANE_PAST_C_I0 + 2.0 * PLANE_C_I0 + 
+        PLANE_NEW_C_I0 = -PLANE_PAST_C_I0 + 2.0 * PLANE_C_I0 +
             LAMBDA*( PLANE_FOUR_SUM_I0 / 4.0 - PLANE_C_I0) + //wave
-            HODGE_INC; 
+            HODGE_INC;
         CLAMP(PLANE_NEW_C_I0, 0, HODGE_TOP);
     }
     else //PLANE_C_I0 is HODGE_TOP
@@ -741,7 +741,7 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
     Real FourSum1 = PLANE_FOUR_SUM_I1;
 
     if (PLANE_C_I0 < avg1 )
-            PLANE_NEW_C_I0 = PLANE_C_I0 + 
+            PLANE_NEW_C_I0 = PLANE_C_I0 +
                 (DT * LAMBDA *(FourSum0 + past1 * PLANE_C_I0));
     else
         PLANE_NEW_C_I0 = PLANE_C_I0 +
@@ -803,31 +803,31 @@ Here are some comments on the terms.
         new maxima in blank areas, and he says bb is useful for travelling waves.
     ra, rb.  Note that these terms are multiplied times, respectively, -a and -b.
         The idea here is that this is a proportional die-off rate.  If, eg.,
-        you have a population of 100 people, you might get 1 death, but with 
+        you have a population of 100 people, you might get 1 death, but with
         a population of 1000 people you'd expect 10 deaths.  The idea here is
         that we are thinking of the a and b values as populations of molecules
         within the cell.
     s.       Meinhardt suggests that for stable patterns we set s equal to ra,
         so that the expected value of a is about 1.  That is, if a and b are
         roughly equal and ba is negligible, Eqn. 2.1.a would reduce to
-        da/dt = s*a - ra*a + diffusion, so if s = ra, then we get a da/dt 
+        da/dt = s*a - ra*a + diffusion, so if s = ra, then we get a da/dt
         consisting only of a diffusion.  For oscillating rules, however,
         we prefer to have s be 1.0.
     Min_b     Since we divide by b in the activator equation, we want to avoid
         dividing by 0.  We do this here by not replacing the divisor term by
         Min_b whenever the inhibitor value b is less than Min_b. Note that if
         Min_b is small, then the reaction gets a big boost whenever the
-        inhibitor drops down, as dividing by Min_b is a big multiplication. 
+        inhibitor drops down, as dividing by Min_b is a big multiplication.
         Note that we do allow b to drop to 0.0, we just don't divide by 0.
 Comments on diffusion term Da*d2a/dx2.
-        We're going to follow Meinhardt and ignore dt and dx in this rule, 
+        We're going to follow Meinhardt and ignore dt and dx in this rule,
     essentially assuming that they are unity.
         The most obvious thing to do is to set Da*d2a/dx2 to Da*(EightSum - 8*a),
     where EightSum is the sum of the a values in the eight neighbor cells.  This will
     be numerically unstable if Da is greater than 1/8 or 0.125, as then a positive-a
     cell surrounded by zero-a cells would become negative, so we could enforce Da
     (and Db) to be less than 0.125.
-        Actually, it's a bit better to use Da*(FourSum + 0.75*CornerSum - 7*a). 
+        Actually, it's a bit better to use Da*(FourSum + 0.75*CornerSum - 7*a).
     The idea is to weight the corner cells a bit less.  I come up with 0.75 because
     it's convenient (because 0.75*4=3) and because the area of a quarter circle
     is PI/4 the area of the enclosing square, adn PI/4 is close to 0.75.  In this
@@ -857,7 +857,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_WAVE_2D;
 
-/* We set the default values to match the values used in Meinhardt's 
+/* We set the default values to match the values used in Meinhardt's
 one-dimensional simulation 2.4d, found on page 26 of his book and stored on
 his accompanying disk in the file SP24d.PRM */
     double  editValue[] = { //Params from Meinhardt Sp24d.PRM
@@ -894,26 +894,26 @@ int w, int sw, int s, int se)
     if (inhibitor < MIN_INHIBITOR)
         inhibitor = MIN_INHIBITOR;
     //We need the following number twice, so let's just compute it once.
-    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0; 
-    
+    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0;
+
 //Do diffusion, production, reaction, and decay in one step for each variable.
     PLANE_NEW_C_I0 = PLANE_C_I0 +                       //The activator update:
         + DIFFUSION_RATE_ACTIVATOR *                    //Diffuse
-            (PLANE_FOUR_SUM_I0 + 0.75*PLANE_CORNER_SUM_I0 - 7.0*PLANE_C_I0)                                 
+            (PLANE_FOUR_SUM_I0 + 0.75*PLANE_CORNER_SUM_I0 - 7.0*PLANE_C_I0)
         + SOURCE_DENSITY*(                          //Reaction rate times...
             ACTIVATOR_PRODUCTION                    //Spontaneous Production
             +  Plane_C_I0_squared / inhibitor)      //The Reaction
         - DECAY_RATE_ACTIVATOR * PLANE_C_I0;            //Decay
 
-    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:     
-        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse       
+    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:
+        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse
             (PLANE_FOUR_SUM_I1+ 0.75*PLANE_CORNER_SUM_I1 - 7.0*PLANE_C_I1)
         + INHIBITOR_PRODUCTION                      //Spontaneous Production
         + SOURCE_DENSITY*(Plane_C_I0_squared)       //The Reaction
         - DECAY_RATE_INHIBITOR * PLANE_C_I1;            //Decay
 
     CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);
-    CLAMP(PLANE_NEW_C_I1, 0.0, MAX_INTENSITY);  
+    CLAMP(PLANE_NEW_C_I1, 0.0, MAX_INTENSITY);
 }
 #endif //CARULE_2D_ACTIVATOR_INHIBITOR
 //========================================================================
@@ -923,7 +923,7 @@ int w, int sw, int s, int se)
 /*  This is a variation on CARULE_2D_ACTIVATOR_INHIBITOR which clamps
 the inhibitor to be larger than Min_b.  This seems physically incorrect, but
 this rule happens to have given a very nice Zhabotinsky called
-"2D AI Zhabo Lace.CA", so I keep it around. That rule doesn't work well with 
+"2D AI Zhabo Lace.CA", so I keep it around. That rule doesn't work well with
 the "correct" CARULE_2D_ACTIVATOR_INHIBITOR schema.*/
 
 #define USERPARAM_COUNT 8 //This is how many user params I list right here.
@@ -942,7 +942,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_WAVE_2D;
 
-/* We set the default values to match the values used in Meinhardt's 
+/* We set the default values to match the values used in Meinhardt's
 one-dimensional simulation 2.4a, found on page 26 of his book and stored on
 his accompanying disk in the file SP24a.PRM */
     double  editValue[] = {
@@ -979,26 +979,26 @@ int w, int sw, int s, int se)
     if (PLANE_C_I1 < MIN_INHIBITOR)
         PLANE_C_I1 = MIN_INHIBITOR;
     //We need the following number twice, so let's just compute it once.
-    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0; 
-    
+    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0;
+
 //Do diffusion, production, reaction, and decay in one step for each variable.
     PLANE_NEW_C_I0 = PLANE_C_I0 +                       //The activator update:
         + DIFFUSION_RATE_ACTIVATOR *                    //Diffuse
-            (PLANE_FOUR_SUM_I0 + 0.75*PLANE_CORNER_SUM_I0 - 7.0*PLANE_C_I0)                                 
+            (PLANE_FOUR_SUM_I0 + 0.75*PLANE_CORNER_SUM_I0 - 7.0*PLANE_C_I0)
         + SOURCE_DENSITY*(                          //Reaction rate times...
             ACTIVATOR_PRODUCTION                    //Spontaneous Production
             +  Plane_C_I0_squared / PLANE_C_I1)     //The Reaction
         - DECAY_RATE_ACTIVATOR * PLANE_C_I0;            //Decay
 
-    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:     
-        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse       
+    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:
+        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse
             (PLANE_FOUR_SUM_I1+ 0.75*PLANE_CORNER_SUM_I1 - 7.0*PLANE_C_I1)
         + INHIBITOR_PRODUCTION                      //Spontaneous Production
         + SOURCE_DENSITY*(Plane_C_I0_squared)       //The Reaction
         - DECAY_RATE_INHIBITOR * PLANE_C_I1;            //Decay
 
-    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);  
-    CLAMP(PLANE_NEW_C_I1, MIN_INHIBITOR, MAX_INTENSITY);    
+    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);
+    CLAMP(PLANE_NEW_C_I1, MIN_INHIBITOR, MAX_INTENSITY);
 }
 #endif //CARULE_2D_ACTIVATOR_INHIBITOR_MIN
 //========================================================================
@@ -1048,24 +1048,24 @@ Here are some comments on the terms.
         new maxima in blank areas, and he says bb is useful for travelling waves.
     ra, rb.  Note that these terms are multiplied times, respectively, -a and -b.
         The idea here is that this is a proportional die-off rate.  If, eg.,
-        you have a population of 100 people, you might get 1 death, but with 
+        you have a population of 100 people, you might get 1 death, but with
         a population of 1000 people you'd expect 10 deaths.  The idea here is
         that we are thinking of the a and b values as populations of molecules
         within the cell.
     s.       Meinhardt suggests that for stable patterns we set s equal to ra,
         so that the expected value of a is about 1.  That is, if a and b are
         roughly equal and ba is negligible, Eqn. 2.1.a would reduce to
-        da/dt = s*a - ra*a + diffusion, so if s = ra, then we get a da/dt 
+        da/dt = s*a - ra*a + diffusion, so if s = ra, then we get a da/dt
         consisting only of a diffusion.  For oscillating rules, however,
         we prefer to have s be 1.0.
     Min_b     Since we divide by b in the activator equation, we want to avoid
         dividing by 0.  We do this here by not replacing the divisor term by
         Min_b whenever the inhibitor value b is less than Min_b. Note that if
         Min_b is small, then the reaction gets a big boost whenever the
-        inhibitor drops down, as dividing by Min_b is a big multiplication. 
+        inhibitor drops down, as dividing by Min_b is a big multiplication.
         Note that we do allow b to drop to 0.0, we just don't divide by 0.
 Comments on diffusion term Da*d2a/dx2.
-        We're going to follow Meinhardt and ignore dt and dx in this rule, 
+        We're going to follow Meinhardt and ignore dt and dx in this rule,
     essentially assuming that they are unity.
         The most obvious thing to do is to set Da*d2a/dx2 to Da*(FourSum - 4*a),
     where FourSum is the sum of the a values in the four neighbor cells.  This will
@@ -1076,7 +1076,7 @@ Comments on diffusion term Da*d2a/dx2.
     parameters the same except for his diffusion parameters.  Our raw 2D difference
     term is roughly 4 times the difference between two cells, while in 1D the
     raw difference is 2 times the difference.  So in translating from Meinhardt,
-    we multiply his diffusion paramters by a factor of 1/2. 
+    we multiply his diffusion paramters by a factor of 1/2.
 */
 
 #define USERPARAM_COUNT 8 //This is how many user params I list right here.
@@ -1095,7 +1095,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 5;
     owner->_usercastyle = CA_WAVE_2D;
 
-/* We set the default values to match the values used in Meinhardt's 
+/* We set the default values to match the values used in Meinhardt's
 one-dimensional simulation 2.4d, found on page 26 of his book and stored on
 his accompanying disk in the file SP24d.PRM */
     double  editValue[] = { //Params from Meinhardt Sp24d.PRM
@@ -1131,35 +1131,35 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
     if (inhibitor < MIN_INHIBITOR)
         inhibitor = MIN_INHIBITOR;
     //We need the following number twice, so let's just compute it once.
-    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0; 
-    
+    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0;
+
 //Do diffusion, production, reaction, and decay in one step for each variable.
     PLANE_NEW_C_I0 = PLANE_C_I0 +                       //The activator update:
         + DIFFUSION_RATE_ACTIVATOR *                    //Diffuse
-            (PLANE_FOUR_SUM_I0 - 4.0*PLANE_C_I0)                                    
+            (PLANE_FOUR_SUM_I0 - 4.0*PLANE_C_I0)
         + SOURCE_DENSITY*(                          //Reaction rate times...
             ACTIVATOR_PRODUCTION                    //Spontaneous Production
             +  Plane_C_I0_squared / inhibitor)      //The Reaction
         - DECAY_RATE_ACTIVATOR * PLANE_C_I0;            //Decay
 
-    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:     
-        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse       
+    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:
+        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse
             (PLANE_FOUR_SUM_I1 - 4.0*PLANE_C_I1)
         + INHIBITOR_PRODUCTION                      //Spontaneous Production
         + SOURCE_DENSITY*(Plane_C_I0_squared)       //The Reaction
         - DECAY_RATE_INHIBITOR * PLANE_C_I1;            //Decay
 
-    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);  
-    CLAMP(PLANE_NEW_C_I1, 0.0, MAX_INTENSITY);  
+    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);
+    CLAMP(PLANE_NEW_C_I1, 0.0, MAX_INTENSITY);
 }
 #endif //CARULE_2D_ACTIVATOR_INHIBITOR_5
 //========================================================================
 
 //========================================================================
-#ifdef CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION 
+#ifdef CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION
 /*  This is a two-dimensional activator-inhibitor rule with saturation of
 autocatalysis.  This is the same as CARULE_2D_ACTIVATOR_INHIBITOR above,
-with a change based on Equation 2.3 in Hans Meinhardt 
+with a change based on Equation 2.3 in Hans Meinhardt
 "The Algorithmic Beauty of Seashells" (Springer 1995), p. 25.
 The new parameter is sa, a saturation parameter.  Here is a complete list of
 our parameters:
@@ -1174,9 +1174,9 @@ our parameters:
     s   The source density, akin to the reaction rate.
     sb  The Michaelis-Menten term to prevent division by 0 inhibitor.
      sa The activator saturation parameter.
-    
+
 The equations Meinhardt gives are:
-    da/dt = s * (a*a/((sb+b)*(1 + sa*a*a)) + ba) - ra*a + Da*d2a/dx2    
+    da/dt = s * (a*a/((sb+b)*(1 + sa*a*a)) + ba) - ra*a + Da*d2a/dx2
         (Eqn. 2.3 with Michaelis-Menten modification from p. 42))
     db/dt = s*a*a + bb -rb*b + Db*d2b/dx2           (Eqn. 2.1.b)
     Looking in his SP.BAS program, which runs this rule for one-dimensional CAs,
@@ -1203,34 +1203,34 @@ Here are some comments on the terms.
         new maxima in blank areas, and he says bb is useful for travelling waves.
     ra, rb.  Note that these terms are multiplied times, respectively, -a and -b.
         The idea here is that this is a proportional die-off rate.  If, eg.,
-        you have a population of 100 people, you might get 1 death, but with 
+        you have a population of 100 people, you might get 1 death, but with
         a population of 1000 people you'd expect 10 deaths.  The idea here is
         that we are thinking of the a and b values as populations of molecules
         within the cell.
     s.       Meinhardt suggests that for stable patterns we set s equal to ra,
         so that the expected value of a is about 1.  That is, if a and b are
         roughly equal and ba is negligible, Eqn. 2.1.a would reduce to
-        da/dt = s*a - ra*a + diffusion, so if s = ra, then we get a da/dt 
+        da/dt = s*a - ra*a + diffusion, so if s = ra, then we get a da/dt
         consisting only of a diffusion.  For oscillating rules, however,
         we prefer to have s be 1.0.
     sb      Since we divide by b, we don't want to divide by 0.  We'll
         avoid this by always adding sb to the b term in the denominator.
         This correction is called the "Michaelis-Menten term for finite
-        activator production at low inhibitor concentration," and is 
+        activator production at low inhibitor concentration," and is
         introduced in Meinhardt, p. 42.
     sa      The saturation of activator production parameter.  This is supposed to
         allows larger larger regions of activator to form because the activator
         can only get up to a certain value.  The rule is VERY sensitive to this,
         a value of 0.00001 is often plenty.
 Comments on diffusion term Da*d2a/dx2.
-        We're going to follow Meinhardt and ignore dt and dx in this rule, 
+        We're going to follow Meinhardt and ignore dt and dx in this rule,
     essentially assuming that they are unity.
         The most obvious thing to do is to set Da*d2a/dx2 to Da*(EightSum - 8*a),
     where EightSum is the sum of the a values in the eight neighbor cells.  This will
     be numerically unstable if Da is greater than 1/8 or 0.125, as then a positive-a
     cell surrounded by zero-a cells would become negative, so we could enforce Da
     (and Db) to be less than 0.125.
-        Actually, it's a bit better to use Da*(FourSum + 0.75*CornerSum - 7*a). 
+        Actually, it's a bit better to use Da*(FourSum + 0.75*CornerSum - 7*a).
     The idea is to weight the corner cells a bit less.  I come up with 0.75 because
     it's convenient (because 0.75*4=3) and because the area of a quarter circle
     is PI/4 the area of the enclosing square, adn PI/4 is close to 0.75.  In this
@@ -1267,7 +1267,7 @@ DllExport void USERINITIALIZE(CA* owner )
     0.01, .015,     //activator and inhibitor decay rates.
     0.01,           //source density or reaction density rate.
     0.001,          //minimum inhibitor value
-    0.00001};       //saturation parameter 
+    0.00001};       //saturation parameter
     char *label[] = { "Activator Diffusion/7", "Inhibitor Diffusion/7",
         "Activator Production", "Inhibitor Production",
         "Activator Decay", "Inhibitor Decay", "Source Density",
@@ -1292,12 +1292,12 @@ DllExport void USERINITIALIZE(CA* owner )
 DllExport void USERRULE_9(CA* owner, int c, int e, int ne, int n, int nw,
 int w, int sw, int s, int se)
 {
-    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0; 
-    
+    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0;
+
 //Do diffusion, production, reaction, and decay in one step for each variable.
     PLANE_NEW_C_I0 = PLANE_C_I0 +                       //The activator update:
         + DIFFUSION_RATE_ACTIVATOR *                    //Diffuse
-            (PLANE_FOUR_SUM_I0 + 0.75*PLANE_CORNER_SUM_I0 - 7.0*PLANE_C_I0)                                 
+            (PLANE_FOUR_SUM_I0 + 0.75*PLANE_CORNER_SUM_I0 - 7.0*PLANE_C_I0)
         + SOURCE_DENSITY*                           //Source Density times...
           ( ACTIVATOR_PRODUCTION                    //Spontaneous Production
             +  Plane_C_I0_squared /                 //Autocatalysis over
@@ -1306,15 +1306,15 @@ int w, int sw, int s, int se)
           )     //The Reaction
         - DECAY_RATE_ACTIVATOR * PLANE_C_I0;            //Decay
 
-    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:     
-        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse       
+    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:
+        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse
             (PLANE_FOUR_SUM_I1+ 0.75*PLANE_CORNER_SUM_I1 - 7.0*PLANE_C_I1)
         + INHIBITOR_PRODUCTION                      //Spontaneous Production
         + SOURCE_DENSITY*(Plane_C_I0_squared)       //The Reaction
         - DECAY_RATE_INHIBITOR * PLANE_C_I1;            //Decay
 
-    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);  
-    CLAMP(PLANE_NEW_C_I1, 0.0, MAX_INTENSITY);  
+    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);
+    CLAMP(PLANE_NEW_C_I1, 0.0, MAX_INTENSITY);
 }
 #endif //CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION
 //========================================================================
@@ -1323,7 +1323,7 @@ int w, int sw, int s, int se)
 #ifdef CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION_5
 /*  This is a two-dimensional activator-inhibitor rule with saturation of
 autocatalysis.  This is the same as CARULE_2D_ACTIVATOR_INHIBITOR above,
-with a change based on Equation 2.3 in Hans Meinhardt 
+with a change based on Equation 2.3 in Hans Meinhardt
 "The Algorithmic Beauty of Seashells" (Springer 1995), p. 25.
 The new parameter is sa, a saturation parameter.  Here is a complete list of
 our parameters:
@@ -1338,9 +1338,9 @@ our parameters:
     s   The source density, akin to the reaction rate.
     sb  The Michaelis-Menten term to prevent division by 0 inhibitor.
      sa The activator saturation parameter.
-    
+
 The equations Meinhardt gives are:
-    da/dt = s * (a*a/((sb+b)*(1 + sa*a*a)) + ba) - ra*a + Da*d2a/dx2    
+    da/dt = s * (a*a/((sb+b)*(1 + sa*a*a)) + ba) - ra*a + Da*d2a/dx2
         (Eqn. 2.3 with Michaelis-Menten modification from p. 42))
     db/dt = s*a*a + bb -rb*b + Db*d2b/dx2           (Eqn. 2.1.b)
     Looking in his SP.BAS program, which runs this rule for one-dimensional CAs,
@@ -1367,33 +1367,33 @@ Here are some comments on the terms.
         new maxima in blank areas, and he says bb is useful for travelling waves.
     ra, rb.  Note that these terms are multiplied times, respectively, -a and -b.
         The idea here is that this is a proportional die-off rate.  If, eg.,
-        you have a population of 100 people, you might get 1 death, but with 
+        you have a population of 100 people, you might get 1 death, but with
         a population of 1000 people you'd expect 10 deaths.  The idea here is
         that we are thinking of the a and b values as populations of molecules
         within the cell.
     s.       Meinhardt suggests that for stable patterns we set s equal to ra,
         so that the expected value of a is about 1.  That is, if a and b are
         roughly equal and ba is negligible, Eqn. 2.1.a would reduce to
-        da/dt = s*a - ra*a + diffusion, so if s = ra, then we get a da/dt 
+        da/dt = s*a - ra*a + diffusion, so if s = ra, then we get a da/dt
         consisting only of a diffusion.  For oscillating rules, however,
         we prefer to have s be 1.0.
     sb      Since we divide by b, we don't want to divide by 0.  We'll
         avoid this by always adding sb to the b term in the denominator.
         This correction is called the "Michaelis-Menten term for finite
-        activator production at low inhibitor concentration," and is 
+        activator production at low inhibitor concentration," and is
         introduced in Meinhardt, p. 42.
     sa      The saturation of activator production parameter.  This is supposed to
         allows larger larger regions of activator to form because the activator
         can only get up to a certain value.
 Comments on diffusion term Da*d2a/dx2.
-        We're going to follow Meinhardt and ignore dt and dx in this rule, 
+        We're going to follow Meinhardt and ignore dt and dx in this rule,
         essentially assuming that they are unity.
         The most obvious thing to do is to set Da*d2a/dx2 to Da*(EightSum - 8*a),
     where EightSum is the sum of the a values in the eight neighbor cells.  This will
     be numerically unstable if Da is greater than 1/8 or 0.125, as then a positive-a
     cell surrounded by zero-a cells would become negative, so we could enforce Da
     (and Db) to be less than 0.125.
-        Actually, it's a bit better to use Da*(FourSum + 0.75*CornerSum - 7*a). 
+        Actually, it's a bit better to use Da*(FourSum + 0.75*CornerSum - 7*a).
     The idea is to weight the corner cells a bit less.  I come up with 0.75 because
     it's convenient (because 0.75*4=3) and because the area of a quarter circle
     is PI/4 the area of the enclosing square, adn PI/4 is close to 0.75.  In this
@@ -1454,12 +1454,12 @@ DllExport void USERINITIALIZE(CA* owner )
 
 DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
 {
-    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0; 
-    
+    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0;
+
 //Do diffusion, production, reaction, and decay in one step for each variable.
     PLANE_NEW_C_I0 = PLANE_C_I0 +                       //The activator update:
         + DIFFUSION_RATE_ACTIVATOR *                    //Diffuse
-            (PLANE_FOUR_SUM_I0 - 4.0*PLANE_C_I0)                                    
+            (PLANE_FOUR_SUM_I0 - 4.0*PLANE_C_I0)
         + SOURCE_DENSITY*                           //Source Density times...
           ( ACTIVATOR_PRODUCTION                    //Spontaneous Production
             +  Plane_C_I0_squared /                 //Autocatalysis over
@@ -1468,15 +1468,15 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
           )     //The Reaction
         - DECAY_RATE_ACTIVATOR * PLANE_C_I0;            //Decay
 
-    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:     
-        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse       
+    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:
+        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse
             (PLANE_FOUR_SUM_I1 - 4.0*PLANE_C_I1)
         + INHIBITOR_PRODUCTION                      //Spontaneous Production
         + SOURCE_DENSITY*(Plane_C_I0_squared)       //The Reaction
         - DECAY_RATE_INHIBITOR * PLANE_C_I1;            //Decay
 
-    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);  
-    CLAMP(PLANE_NEW_C_I1, 0.0, MAX_INTENSITY);  
+    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);
+    CLAMP(PLANE_NEW_C_I1, 0.0, MAX_INTENSITY);
 }
 #endif //CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION_5
 //========================================================================
@@ -1485,7 +1485,7 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
 #ifdef CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_WAVE
 /*  This is a two-dimensional activator-inhibitor rule where I use the wave
 equation in place of diffusion for both activator and inhibitor, just to see what
-happens.  I get selforganizing seething that looks a little like the dynamics 
+happens.  I get selforganizing seething that looks a little like the dynamics
 of water vapor clouds.  See CARULE_2D_ACTIVATOR_INHIBITOR_5 rule for notes on
 the parameters.
 */
@@ -1504,7 +1504,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 5;
     owner->_usercastyle = CA_WAVE_2D;
 
-/* We set the default values to match the values used in Meinhardt's 
+/* We set the default values to match the values used in Meinhardt's
 one-dimensional simulation 2.4a, found on page 26 of his book and stored on
 his accompanying disk in the file SP24a.PRM */
     double  editValue[] = { //Params from Meinhardt Sp24d.PRM
@@ -1514,7 +1514,7 @@ his accompanying disk in the file SP24a.PRM */
     0.001};     //minimum inhibitor value
     char *label[] = {
         "Activator Production", "Inhibitor Production",
-        "Activator Decay", "Inhibitor Decay", 
+        "Activator Decay", "Inhibitor Decay",
         "Source Density", "Minimum Inhibitor"};
 
     owner->_max_intensity.SetVal(4.0);
@@ -1549,8 +1549,8 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
     }
 #endif //INHIBPLUS
     //We need the following number twice, so let's just compute it once.
-    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0; 
-    
+    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0;
+
 //Do diffusion, production, reaction, and decay in one step for each variable.
     PLANE_NEW_C_I0 = 2*PLANE_C_I0 - PLANE_PAST_C_I0 + //C + DT * Velocity
         + SOURCE_DENSITY*(                          //Reaction rate times...
@@ -1558,22 +1558,22 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
             +  Plane_C_I0_squared / inhibition)     //The Reaction
         - DECAY_RATE_ACTIVATOR * PLANE_C_I0 +           //Decay
         LAMBDA * (PLANE_FOUR_SUM_I0/4.0 - PLANE_C_I0); //DT^2 * Wave Accel.
-        
+
     PLANE_NEW_C_I1 = 2*PLANE_C_I1 - PLANE_PAST_C_I1 + //C + DT * Velocity
         + INHIBITOR_PRODUCTION                      //Spontaneous Production
         + SOURCE_DENSITY*(Plane_C_I0_squared)       //The Reaction
         - DECAY_RATE_INHIBITOR * PLANE_C_I1 +   //Decay
         LAMBDA * (PLANE_FOUR_SUM_I1/4.0 - PLANE_C_I1); //DT^2 * Wave Accel.
 
-    CLAMP(PLANE_NEW_C_I0, -MAX_INTENSITY, MAX_INTENSITY);   
-    CLAMP(PLANE_NEW_C_I1, -MAX_INTENSITY, MAX_INTENSITY);   
+    CLAMP(PLANE_NEW_C_I0, -MAX_INTENSITY, MAX_INTENSITY);
+    CLAMP(PLANE_NEW_C_I1, -MAX_INTENSITY, MAX_INTENSITY);
 }
 #endif //CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_WAVE
 //========================================================================
 
 //========================================================================
 #ifdef CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_DIFFUSE
-/* 
+/*
     This is a two-dimensional activator-inhibitor rule where I use the wave
 equation in place of diffusion for the activator but use diffusion for the
 inhibitor.  See CARULE_2D_ACTIVATOR_INHIBITOR_5 rule for notes on
@@ -1594,7 +1594,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 5;
     owner->_usercastyle = CA_WAVE_2D;
 
-/* We set the default values to match the values used in Meinhardt's 
+/* We set the default values to match the values used in Meinhardt's
 one-dimensional simulation 2.4d, found on page 26 of his book and stored on
 his accompanying disk in the file SP24d.PRM */
     double  editValue[] = { //Params from Meinhardt Sp24d.PRM
@@ -1642,8 +1642,8 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
     }
 #endif //INHIBPLUS
     //We need the following number twice, so let's just compute it once.
-    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0; 
-    
+    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0;
+
 //Do wave or diffusion, production, reaction, and decay in one step for each variable.
     PLANE_NEW_C_I0 = 2*PLANE_C_I0 - PLANE_PAST_C_I0 + //C + DT * Velocity
         + SOURCE_DENSITY*(                          //Reaction rate times...
@@ -1652,14 +1652,14 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
         - DECAY_RATE_ACTIVATOR * PLANE_C_I0 +           //Decay
         LAMBDA * (PLANE_FOUR_SUM_I0/4.0 - PLANE_C_I0); //DT^2 * Wave Accel.
 
-    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:     
-        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse       
+    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:
+        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse
             (PLANE_FOUR_SUM_I1 - 4.0*PLANE_C_I1)
         + INHIBITOR_PRODUCTION                      //Spontaneous Production
         + SOURCE_DENSITY*(Plane_C_I0_squared)       //The Reaction
         - DECAY_RATE_INHIBITOR * PLANE_C_I1;            //Decay
     /* 2017.  I notice that in one CA example I like with this rule, called 2D AIS Slammer.ca, the
-    activator and inhibitor are repeatedly  slamming up against the MAX_INTENSITY value and getting 
+    activator and inhibitor are repeatedly  slamming up against the MAX_INTENSITY value and getting
     clamped.  So I tried tripling that number   to see what happens. And the rule just shoots up
     and dies. Ditto for 1.5 time MAX_INTENSITY. So it's kind of a finely tuned rule.*/
     CLAMP(PLANE_NEW_C_I0, MAX_INTENSITY, MAX_INTENSITY);
@@ -1669,7 +1669,7 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
 //========================================================================
 //========================================================================
 #ifdef CARULE_2D_AIS_WAVE_DIFFUSE
-/* 
+/*
     This is a two-dimensional activator-inhibitor-saturation rule where I use the wave
 equation in place of diffusion for the activator but use diffusion for the
 inhibitor.  See CARULE_2D_ACTIVATOR_INHIBITOR_5 rule for notes on
@@ -1691,7 +1691,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 5;
     owner->_usercastyle = CA_WAVE_2D;
 
-/* We set the default values to match the values used in Meinhardt's 
+/* We set the default values to match the values used in Meinhardt's
 one-dimensional simulation 2.4d, found on page 26 of his book and stored on
 his accompanying disk in the file SP24d.PRM */
     double  editValue[] = { //Params from Meinhardt Sp24d.PRM
@@ -1725,7 +1725,7 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
 {
     /* MIN_INHIBITOR can't be 0 because we are going to divide by it.  If we
         just seeded, there's a chance it is 0.0 here, so we fix that. In addtion,
-    we are going to scale as if the zero of the activation and inhibition is 
+    we are going to scale as if the zero of the activation and inhibition is
     really -MAX_INTENSITY, and we'll let the wave oscillate around what's essentially
     the halfway point. */
 
@@ -1735,7 +1735,7 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
         inhibition = MIN_INHIBITOR;
   double signed_activation_squared = PLANE_C_I0 * fabs(PLANE_C_I0);
   double abs_activation_squared = fabs(signed_activation_squared);
-    
+
 //Do wave or diffusion, production, reaction, and decay in one step for each variable.
     PLANE_NEW_C_I0 = 2*PLANE_C_I0 - PLANE_PAST_C_I0 //C + DT * Velocity
         + LAMBDA * (PLANE_FOUR_SUM_I0/4.0 - PLANE_C_I0) //DT^2 * Wave Accel.
@@ -1752,17 +1752,17 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
              /(1 + SATURATION*(PLANE_C_I1*PLANE_C_I1))  //Saturation
         - DECAY_RATE_INHIBITOR * PLANE_C_I1;        //Decay
 
-    CLAMP(PLANE_NEW_C_I0, -MAX_INTENSITY, MAX_INTENSITY);   
-    CLAMP(PLANE_NEW_C_I1, 0, MAX_INTENSITY);    
+    CLAMP(PLANE_NEW_C_I0, -MAX_INTENSITY, MAX_INTENSITY);
+    CLAMP(PLANE_NEW_C_I1, 0, MAX_INTENSITY);
 }
 #endif //CARULE_2D_AIS_WAVE_DIFFUSE
 //========================================================================
 
 //========================================================================
 #ifdef CARULE_2D_ACTIVATOR_INHIBITOR_DIFFUSE_WAVE
-/* 
+/*
     This is a two-dimensional activator-inhibitor rule where I use diffusion for
-the activator and the wave equation in place of diffusion for the 
+the activator and the wave equation in place of diffusion for the
 inhibitor.  See CARULE_2D_ACTIVATOR_INHIBITOR_5 rule for notes on
 the parameters.
 */
@@ -1781,7 +1781,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 5;
     owner->_usercastyle = CA_WAVE_2D;
 
-/* We set the default values to match the values used in Meinhardt's 
+/* We set the default values to match the values used in Meinhardt's
 one-dimensional simulation 2.4d, found on page 26 of his book and stored on
 his accompanying disk in the file SP24d.PRM */
     double  editValue[] = { //Params from Meinhardt Sp24d.PRM
@@ -1829,11 +1829,11 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
     }
 #endif //INHIBPLUS
     //We need the following number twice, so let's just compute it once.
-    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0; 
-    
+    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0;
+
 //Do wave or diffusion, production, reaction, and decay in one step for each variable.
     PLANE_NEW_C_I0 = PLANE_C_I0                     //The activator update
-        + DIFFUSION_RATE_ACTIVATOR *                    //Diffuse       
+        + DIFFUSION_RATE_ACTIVATOR *                    //Diffuse
             (PLANE_FOUR_SUM_I0 - 4.0*PLANE_C_I0)
         + SOURCE_DENSITY*(                          //Reaction rate times...
             ACTIVATOR_PRODUCTION                    //Spontaneous Production
@@ -1846,8 +1846,8 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
         - DECAY_RATE_INHIBITOR * PLANE_C_I1;            //Decay
         LAMBDA * (PLANE_FOUR_SUM_I1/4.0 - PLANE_C_I1); //DT^2 * Wave Accel.
 
-    CLAMP(PLANE_NEW_C_I0, -MAX_INTENSITY, MAX_INTENSITY);   
-    CLAMP(PLANE_NEW_C_I1, -MAX_INTENSITY, MAX_INTENSITY);   
+    CLAMP(PLANE_NEW_C_I0, -MAX_INTENSITY, MAX_INTENSITY);
+    CLAMP(PLANE_NEW_C_I1, -MAX_INTENSITY, MAX_INTENSITY);
 }
 #endif //CARULE_2D_ACTIVATOR_INHIBITOR_DIFFUSE_WAVE
 //========================================================================
@@ -1865,7 +1865,7 @@ DllExport void USERINITIALIZE(CA* owner )
 }
 
 DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
-{ 
+{
     PLANE_NEW_C_I0 = 2*PLANE_C_I0 - PLANE_PAST_C_I0 + //C + DT * Velocity
         ACCEL_LAMBDA*(
             - (FRICTION * (PLANE_C_I0 - PLANE_PAST_C_I0)/DT) //Friction * Velocity
@@ -1891,7 +1891,7 @@ DllExport void USERINITIALIZE(CA* owner )
 }
 
 DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
-{ 
+{
     PLANE_NEW_C_I0 = 2*PLANE_C_I0 - PLANE_PAST_C_I0 + //C + DT * Velocity
         ACCEL_LAMBDA*(
             - (FRICTION * (PLANE_C_I0 - PLANE_PAST_C_I0)/DT) //Friction * Velocity
@@ -1934,7 +1934,7 @@ or
 
  */
 DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
-{ 
+{
     PLANE_NEW_C_I0 = 2*PLANE_C_I0 - PLANE_PAST_C_I0 + //C + DT * Velocity
         ACCEL_LAMBDA*(
             - (FRICTION * (PLANE_C_I0 - PLANE_PAST_C_I0)/DT) //Friction * Velocity
@@ -1962,7 +1962,7 @@ DllExport void USERINITIALIZE(CA* owner )
 }
 
 DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
-{ 
+{
     PLANE_NEW_C_I0 = 2*PLANE_C_I0 - PLANE_PAST_C_I0 + //C + DT * Velocity
         ACCEL_LAMBDA*(
             - (FRICTION * (PLANE_C_I0 - PLANE_PAST_C_I0)/DT) //Friction * Velocity
@@ -1980,15 +1980,15 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
 
 #define USERPARAM_COUNT 5 //This is how many user params I list right here.
 //Recall that by default userParamAdd[0] is always the Variance.
-#define WAVE_PARAM                  owner->userParamAdd[1]->Val()   
-#define MAX_NONLINEARITY            owner->userParamAdd[2]->Val()   
-#define NONLINEARITY_GROW_FACTOR    owner->userParamAdd[3]->Val() 
-#define MIN_NONLINEARITY            owner->userParamAdd[4]->Val()   
-#define WAVE_THRESHOLD              owner->userParamAdd[5]->Val()   
+#define WAVE_PARAM                  owner->userParamAdd[1]->Val()
+#define MAX_NONLINEARITY            owner->userParamAdd[2]->Val()
+#define NONLINEARITY_GROW_FACTOR    owner->userParamAdd[3]->Val()
+#define MIN_NONLINEARITY            owner->userParamAdd[4]->Val()
+#define WAVE_THRESHOLD              owner->userParamAdd[5]->Val()
 
 /* The idea is that we need a recovery after a boiling eruption, so we go to
 diffusion rule until the nonlinearity factor gets pumped up again.  WAVE_THRESHOLD
-should be MIN_NONLINEARITY * (NONLINEARITY_GROW_FACTOR)^N for the N steps of 
+should be MIN_NONLINEARITY * (NONLINEARITY_GROW_FACTOR)^N for the N steps of
 diffusion you want. These params should be in a user dialog.*/
 
 DllExport void USERINITIALIZE(CA* owner )
@@ -1996,7 +1996,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 5;
     owner->_usercastyle = CA_WAVE_2D;
 
-    double  editValue[] = {  
+    double  editValue[] = {
     0.5, //WAVE_PARAM
     1000.0, //MAX_NONLINEARITY
     1.1,        //NONLINEARITY_GROW_FACTOR.
@@ -2015,11 +2015,11 @@ times the "averaging" term, so I use that as a label.*/
     for(int i = 0; i < USERPARAM_COUNT; i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
 
-    owner->userParamAdd[1]->SetRange(0.0, 4.0); 
-    owner->userParamAdd[2]->SetRange(0.0, 10000.0); 
-    owner->userParamAdd[3]->SetRange(1.0, 10.0);    
-    owner->userParamAdd[4]->SetRange(0.00001, 10.0);    
-    owner->userParamAdd[5]->SetRange(0.0, 10.0);        
+    owner->userParamAdd[1]->SetRange(0.0, 4.0);
+    owner->userParamAdd[2]->SetRange(0.0, 10000.0);
+    owner->userParamAdd[3]->SetRange(1.0, 10.0);
+    owner->userParamAdd[4]->SetRange(0.00001, 10.0);
+    owner->userParamAdd[5]->SetRange(0.0, 10.0);
 }
 /* A boiling wave blended with a heat rule.   */
 DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
@@ -2028,19 +2028,19 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
     Real ncdiff = PLANE_N_I0 - PLANE_C_I0;
     Real cwdiff = PLANE_C_I0 - PLANE_W_I0;
     Real csdiff = PLANE_C_I0 - PLANE_S_I0;
-    
+
     if (PLANE_C_I1 <= WAVE_THRESHOLD) //Use this to Smooth for awhile
         PLANE_NEW_C_I0 = PLANE_FIVE_SUM_I0 / 5.0;
     else
-        PLANE_NEW_C_I0 = -PLANE_PAST_C_I0 + 2.0 * PLANE_C_I0 + 
+        PLANE_NEW_C_I0 = -PLANE_PAST_C_I0 + 2.0 * PLANE_C_I0 +
             WAVE_PARAM *( PLANE_FOUR_SUM_I0 /4.0 - PLANE_C_I0 +
-                    ((PLANE_C_I1) * MAX_NONLINEARITY)* //The Local Nonlinearity 
+                    ((PLANE_C_I1) * MAX_NONLINEARITY)* //The Local Nonlinearity
                         (ecdiff*ecdiff*ecdiff - cwdiff*cwdiff*cwdiff +
                         ncdiff*ncdiff*ncdiff  - csdiff*csdiff*csdiff));
 
 /* I use the second plane of variables as my local nonlinearity parameters.  If
 a cell hits the max value I kill off all the nonlinearity at this cell for the
-next generation.  I used to do this for the cell's neighors as well, but that 
+next generation.  I used to do this for the cell's neighors as well, but that
 maybe makes the cells update-order dependent and hurts the CA's parallelism?*/
     if (RealClampAndTell(PLANE_NEW_C_I0,-MAX_INTENSITY, MAX_INTENSITY))
         PLANE_NEW_C_I1 = MIN_NONLINEARITY;
@@ -2048,7 +2048,7 @@ maybe makes the cells update-order dependent and hurts the CA's parallelism?*/
 things lively.  Also here we go ahead and copy to the next generation.  This
 means that if you a calmdown step at the next gneration the new value will go
 to the third member of the buffer. */
-    else 
+    else
     {
         PLANE_C_I1 *= NONLINEARITY_GROW_FACTOR;
         CLAMP(PLANE_C_I1, MIN_NONLINEARITY, 1.0);
@@ -2063,15 +2063,15 @@ to the third member of the buffer. */
 
 #define USERPARAM_COUNT 5 //This is how many user params I list right here.
 //Recall that by default userParamAdd[0] is always the Variance.
-#define WAVE_PARAM                  owner->userParamAdd[1]->Val()   
-#define MAX_NONLINEARITY            owner->userParamAdd[2]->Val()   
-#define NONLINEARITY_GROW_FACTOR    owner->userParamAdd[3]->Val() 
-#define MIN_NONLINEARITY            owner->userParamAdd[4]->Val()   
-#define WAVE_THRESHOLD              owner->userParamAdd[5]->Val()   
+#define WAVE_PARAM                  owner->userParamAdd[1]->Val()
+#define MAX_NONLINEARITY            owner->userParamAdd[2]->Val()
+#define NONLINEARITY_GROW_FACTOR    owner->userParamAdd[3]->Val()
+#define MIN_NONLINEARITY            owner->userParamAdd[4]->Val()
+#define WAVE_THRESHOLD              owner->userParamAdd[5]->Val()
 
 /* The idea is that we need a recovery after a boiling eruption, so we go to
 diffusion rule until the nonlinearity factor gets pumped up again.  WAVE_THRESHOLD
-should be MIN_NONLINEARITY * (NONLINEARITY_GROW_FACTOR)^N for the N steps of 
+should be MIN_NONLINEARITY * (NONLINEARITY_GROW_FACTOR)^N for the N steps of
 diffusion you want. These params should be in a user dialog.*/
 
 DllExport void USERINITIALIZE(CA* owner )
@@ -2079,7 +2079,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_WAVE_2D;
 
-    double  editValue[] = {  
+    double  editValue[] = {
     0.5, //WAVE_PARAM
     1000.0, //MAX_NONLINEARITY
     1.1,        //NONLINEARITY_GROW_FACTOR.
@@ -2098,11 +2098,11 @@ times the "averaging" term, so I use that as a label.*/
     for(int i = 0; i < USERPARAM_COUNT; i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
 
-    owner->userParamAdd[1]->SetRange(0.0, 4.0); 
-    owner->userParamAdd[2]->SetRange(0.0, 10000.0); 
-    owner->userParamAdd[3]->SetRange(1.0, 10.0);    
-    owner->userParamAdd[4]->SetRange(0.00001, 10.0);    
-    owner->userParamAdd[5]->SetRange(0.0, 10.0);        
+    owner->userParamAdd[1]->SetRange(0.0, 4.0);
+    owner->userParamAdd[2]->SetRange(0.0, 10000.0);
+    owner->userParamAdd[3]->SetRange(1.0, 10.0);
+    owner->userParamAdd[4]->SetRange(0.00001, 10.0);
+    owner->userParamAdd[5]->SetRange(0.0, 10.0);
 }
 /* A boiling wave blended with a 9 neighbor heat rule.  wave only needs 5 nabes,
 but if we do a 5 nabe heat for smoothing, we get checkerboards */
@@ -2113,21 +2113,21 @@ int w, int sw, int s, int se)
     Real ncdiff = PLANE_N_I0 - PLANE_C_I0;
     Real cwdiff = PLANE_C_I0 - PLANE_W_I0;
     Real csdiff = PLANE_C_I0 - PLANE_S_I0;
-    
+
     if (PLANE_C_I1 <= WAVE_THRESHOLD) //Use this to Smooth for awhile
         PLANE_NEW_C_I0 =
             (PLANE_C_I0 + PLANE_FOUR_SUM_I0 + 0.75*PLANE_CORNER_SUM_I0) / 8.0;
     else
-        PLANE_NEW_C_I0 = -PLANE_PAST_C_I0 + 2.0 * PLANE_C_I0 + 
+        PLANE_NEW_C_I0 = -PLANE_PAST_C_I0 + 2.0 * PLANE_C_I0 +
             WAVE_PARAM *(
                 (PLANE_FOUR_SUM_I0 + 0.75*PLANE_CORNER_SUM_I0)/7.0 - PLANE_C_I0 +
-                    ((PLANE_C_I1) * MAX_NONLINEARITY)* //The Local Nonlinearity 
+                    ((PLANE_C_I1) * MAX_NONLINEARITY)* //The Local Nonlinearity
                         (ecdiff*ecdiff*ecdiff - cwdiff*cwdiff*cwdiff +
                         ncdiff*ncdiff*ncdiff  - csdiff*csdiff*csdiff));
 
 /* I use the second plane of variables as my local nonlinearity parameters.  If
 a cell hits the max value I kill off all the nonlinearity at this cell for the
-next generation.  I used to do this for the cell's neighors as well, but that 
+next generation.  I used to do this for the cell's neighors as well, but that
 maybe makes the cells update-order dependent and hurts the CA's parallelism?*/
     if (RealClampAndTell(PLANE_NEW_C_I0,-MAX_INTENSITY, MAX_INTENSITY))
         PLANE_NEW_C_I1 = MIN_NONLINEARITY;
@@ -2135,7 +2135,7 @@ maybe makes the cells update-order dependent and hurts the CA's parallelism?*/
 things lively.  Also here we go ahead and copy to the next generation.  This
 means that if you a calmdown step at the next gneration the new value will go
 to the third member of the buffer. */
-    else 
+    else
     {
         PLANE_C_I1 *= NONLINEARITY_GROW_FACTOR;
         CLAMP(PLANE_C_I1, MIN_NONLINEARITY, 1.0);
@@ -2150,15 +2150,15 @@ to the third member of the buffer. */
 
 #define USERPARAM_COUNT 5 //This is how many user params I list right here.
 //Recall that by default userParamAdd[0] is always the Variance.
-#define WAVE_PARAM                  owner->userParamAdd[1]->Val()   
-#define MAX_NONLINEARITY            owner->userParamAdd[2]->Val()   
-#define NONLINEARITY_GROW_FACTOR    owner->userParamAdd[3]->Val() 
-#define MIN_NONLINEARITY            owner->userParamAdd[4]->Val()   
-#define WAVE_THRESHOLD              owner->userParamAdd[5]->Val()   
+#define WAVE_PARAM                  owner->userParamAdd[1]->Val()
+#define MAX_NONLINEARITY            owner->userParamAdd[2]->Val()
+#define NONLINEARITY_GROW_FACTOR    owner->userParamAdd[3]->Val()
+#define MIN_NONLINEARITY            owner->userParamAdd[4]->Val()
+#define WAVE_THRESHOLD              owner->userParamAdd[5]->Val()
 
 /* The idea is that we need a recovery after a boiling eruption, so we go to
 diffusion rule until the nonlinearity factor gets pumped up again.  WAVE_THRESHOLD
-should be MIN_NONLINEARITY * (NONLINEARITY_GROW_FACTOR)^N for the N steps of 
+should be MIN_NONLINEARITY * (NONLINEARITY_GROW_FACTOR)^N for the N steps of
 diffusion you want. These params should be in a user dialog.*/
 
 DllExport void USERINITIALIZE(CA* owner )
@@ -2166,7 +2166,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_WAVE_2D;
 
-    double  editValue[] = {  
+    double  editValue[] = {
     0.5, //WAVE_PARAM
     1000.0, //MAX_NONLINEARITY
     1.1,        //NONLINEARITY_GROW_FACTOR.
@@ -2185,11 +2185,11 @@ times the "averaging" term, so I use that as a label.*/
     for(int i = 0; i < USERPARAM_COUNT; i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
 
-    owner->userParamAdd[1]->SetRange(0.0, 4.0); 
-    owner->userParamAdd[2]->SetRange(0.0, 10000.0); 
-    owner->userParamAdd[3]->SetRange(1.0, 10.0);    
-    owner->userParamAdd[4]->SetRange(0.00001, 10.0);    
-    owner->userParamAdd[5]->SetRange(0.0, 10.0);        
+    owner->userParamAdd[1]->SetRange(0.0, 4.0);
+    owner->userParamAdd[2]->SetRange(0.0, 10000.0);
+    owner->userParamAdd[3]->SetRange(1.0, 10.0);
+    owner->userParamAdd[4]->SetRange(0.00001, 10.0);
+    owner->userParamAdd[5]->SetRange(0.0, 10.0);
 }
 /* A boiling wave blended with a 9 neighbor heat rule.  wave only needs 5 nabes,
 but if we do a 5 nabe heat for smoothing, we get checkerboards */
@@ -2200,15 +2200,15 @@ int w, int sw, int s, int se)
     Real ncdiff = PLANE_N_I0 - PLANE_C_I0;
     Real cwdiff = PLANE_C_I0 - PLANE_W_I0;
     Real csdiff = PLANE_C_I0 - PLANE_S_I0;
-    
+
     if (PLANE_C_I1 <= WAVE_THRESHOLD) //Use this to Smooth for awhile
         PLANE_NEW_C_I0 =
             (PLANE_C_I0 + PLANE_FOUR_SUM_I0 + 0.75*PLANE_CORNER_SUM_I0) / 8.0;
     else
-        PLANE_NEW_C_I0 = -PLANE_PAST_C_I0 + 2.0 * PLANE_C_I0 + 
+        PLANE_NEW_C_I0 = -PLANE_PAST_C_I0 + 2.0 * PLANE_C_I0 +
             WAVE_PARAM *(
                 (PLANE_FOUR_SUM_I0 + 0.75*PLANE_CORNER_SUM_I0)/7.0 - PLANE_C_I0 +
-                    ((PLANE_C_I1) * MAX_NONLINEARITY)* //The Local Nonlinearity 
+                    ((PLANE_C_I1) * MAX_NONLINEARITY)* //The Local Nonlinearity
                         (ecdiff*ecdiff*ecdiff - cwdiff*cwdiff*cwdiff +
                         ncdiff*ncdiff*ncdiff  - csdiff*csdiff*csdiff));
 /* Average and increase nonlinearity.   */
@@ -2218,7 +2218,7 @@ int w, int sw, int s, int se)
     CLAMP(PLANE_C_I1, MIN_NONLINEARITY, 1.0);
 /* I use the second plane of variables as my local nonlinearity parameters.  If
 a cell hits the max value I kill off all the nonlinearity at this cell for the
-next generation.  I used to do this for the cell's neighors as well, but that 
+next generation.  I used to do this for the cell's neighors as well, but that
 maybe makes the cells update-order dependent and hurts the CA's parallelism?*/
     if (RealClampAndTell(PLANE_NEW_C_I0,-MAX_INTENSITY, MAX_INTENSITY))
         PLANE_NEW_C_I1 = MIN_NONLINEARITY;
@@ -2237,7 +2237,7 @@ set f(x) = (1.0 - x)*f(0.0) + x*f(1.0).  The weight of each vertex is the region
 the vertex, you can think of a point in a cube as cutting the cube in eight pieces (if you
 regard the point as the origin of an xyz-axis system).  And the weight of the vertex is the
 volume of the diagonally opposite piece of the cube.
- Unfortunately these rule seem to  wash out quickly, there's too much averaging.*/  
+ Unfortunately these rule seem to  wash out quickly, there's too much averaging.*/
 
 
 #define USERPARAM_COUNT 1 //This is how many user params I list right here.
@@ -2253,7 +2253,7 @@ DllExport void USERINITIALIZE(CA* owner )
     char *label[] = { "Discrete Rule Code (1-255)"};
     for(int i = 0; i < USERPARAM_COUNT; i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(1.0, 255.0);   
+    owner->userParamAdd[1]->SetRange(1.0, 255.0);
 }
 
 //-----------Names for use by Interpolated CAs.
@@ -2283,20 +2283,20 @@ DllExport void USERRULE_3(CA* owner, int l, int c, int r)
 }
 #endif //CARULE_1D_INTERPOLATED
 //========================================================================
- 
+
 
 //========================================================================
 #ifdef CARULE_ASYMMETRIC_HEAT
-/* */  
+/* */
 
 
 #define USERPARAM_COUNT 5 //This is how many user params I list right here.
 //Recall that by default userParamAdd[0] is always the Variance.
 #define MULTIPLIER      owner->userParamAdd[1]->Val()
 #define INCREMENT       owner->userParamAdd[2]->Val()
-#define LEFT_WEIGHT     owner->userParamAdd[3]->Val()   
-#define CENTER_WEIGHT   owner->userParamAdd[4]->Val() 
-#define RIGHT_WEIGHT    owner->userParamAdd[5]->Val()   
+#define LEFT_WEIGHT     owner->userParamAdd[3]->Val()
+#define CENTER_WEIGHT   owner->userParamAdd[4]->Val()
+#define RIGHT_WEIGHT    owner->userParamAdd[5]->Val()
 
 DllExport void USERINITIALIZE(CA* owner )
 {
@@ -2310,7 +2310,7 @@ DllExport void USERINITIALIZE(CA* owner )
     for(int i = 0; i < USERPARAM_COUNT; i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
     owner->userParamAdd[1]->SetRange(1.0, 2.0); //Multiplier
-    owner->userParamAdd[2]->SetRange(0.0, 2.0); //Increment 
+    owner->userParamAdd[2]->SetRange(0.0, 2.0); //Increment
     owner->userParamAdd[3]->SetRange(0.0001, 1.0);  //L Weight
     owner->userParamAdd[4]->SetRange(0.0001, 1.0);  //C Weight
     owner->userParamAdd[5]->SetRange(0.0001, 1.0);  //R Weight
@@ -2321,7 +2321,7 @@ DllExport void USERRULE_3(CA* owner, int l, int c, int r)
     Real multiplier = MULTIPLIER /(LEFT_WEIGHT + CENTER_WEIGHT + RIGHT_WEIGHT);
     NEW_C_I0 = multiplier*(LEFT_WEIGHT*L_I0 + CENTER_WEIGHT*C_I0 + RIGHT_WEIGHT*R_I0) +
         INCREMENT;
-    WRAP(NEW_C_I0,0.0, MAX_INTENSITY);  
+    WRAP(NEW_C_I0,0.0, MAX_INTENSITY);
     NEW_C_V = ((C_I0 - (L_I0 + R_I0)/2.0)); /* Use the velocity field to show the difference
         between a cell and its neighbors, this will suppress the horizontal stripes pattern.*/
     CLAMP(NEW_C_V, -MAX_VELOCITY, MAX_VELOCITY); //Can scale MAX_VELOCITY to show this better
@@ -2331,19 +2331,19 @@ DllExport void USERRULE_3(CA* owner, int l, int c, int r)
 
 //========================================================================
 #ifdef CARULE_TWOREGIME_HEAT
-/* */  
+/* */
 
 
 #define USERPARAM_COUNT 8 //This is how many user params I list right here.
 //Recall that by default userParamAdd[0] is always the Variance.
 #define LO_MULTIPLIER       owner->userParamAdd[1]->Val()
 #define LO_INCREMENT        owner->userParamAdd[2]->Val()
-#define LO_LEFT_WEIGHT      owner->userParamAdd[3]->Val()   
-#define LO_RIGHT_WEIGHT     owner->userParamAdd[4]->Val()   
+#define LO_LEFT_WEIGHT      owner->userParamAdd[3]->Val()
+#define LO_RIGHT_WEIGHT     owner->userParamAdd[4]->Val()
 #define HI_MULTIPLIER       owner->userParamAdd[5]->Val()
 #define HI_INCREMENT        owner->userParamAdd[6]->Val()
-#define HI_LEFT_WEIGHT      owner->userParamAdd[7]->Val()   
-#define HI_RIGHT_WEIGHT     owner->userParamAdd[8]->Val()   
+#define HI_LEFT_WEIGHT      owner->userParamAdd[7]->Val()
+#define HI_RIGHT_WEIGHT     owner->userParamAdd[8]->Val()
 
 DllExport void USERINITIALIZE(CA* owner )
 {
@@ -2355,27 +2355,27 @@ DllExport void USERINITIALIZE(CA* owner )
         1.02,  0.01, 2.0, 1.0,  //Lo Mult, Inc, LWt., RWt.
         1.02, -0.01, 1.0, 2.0};   //Hi Mult, Inc, LWt., RWt.
     char *label[] = {
-        "(Lo) Multiplier", "(Lo) Increment", "(Lo) Left Weight", "(Lo) Right Weight", 
-        "(Hi) Multiplier", "(Hi) Increment", "(Hi) Left Weight", "(Hi) Right Weight", 
+        "(Lo) Multiplier", "(Lo) Increment", "(Lo) Left Weight", "(Lo) Right Weight",
+        "(Hi) Multiplier", "(Hi) Increment", "(Hi) Left Weight", "(Hi) Right Weight",
         };
     for(int i = 0; i < USERPARAM_COUNT; i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
     /*Note that the 0th one you added is the 1th one in the array, as
         by default the variance is always in place 0. */
     owner->userParamAdd[1]->SetRange(0.9, 1.5); //Lo Multiplier
-    owner->userParamAdd[2]->SetRange(-1.0, 1.0); //Lo Increment 
+    owner->userParamAdd[2]->SetRange(-1.0, 1.0); //Lo Increment
     owner->userParamAdd[3]->SetRange(0, 2.0);   //Lo L Weight
     owner->userParamAdd[4]->SetRange(0, 2.0);   //Lo R Weight
 
     owner->userParamAdd[5]->SetRange(0.9, 1.5); //Hi Multiplier
-    owner->userParamAdd[6]->SetRange(-1.0, 1.0); //Hi Increment 
+    owner->userParamAdd[6]->SetRange(-1.0, 1.0); //Hi Increment
     owner->userParamAdd[7]->SetRange(0.0, 2.0); //Hi L Weight
     owner->userParamAdd[8]->SetRange(0.0, 2.0); //Hi R Weight
     for(i = 0; i < USERPARAM_COUNT; i++)
         (owner->userParamAdd[i+1]->SetVal(editValue[i]));
-             /* Need to do this again as the constructor might not have 
+             /* Need to do this again as the constructor might not have
             accepted the edit value becuase the range wasn't set yet to
-            include it.  Note also that the userParamAdd index is one 
+            include it.  Note also that the userParamAdd index is one
             higher than the editValue index. */
     owner->userParamAdd[0]->SetVal(0.05);  //Fix Variance
 }
@@ -2396,7 +2396,7 @@ DllExport void USERRULE_3(CA* owner, int l, int c, int r)
         NEW_C_I0 = ( HI_MULTIPLIER * weightedaverage ) + HI_INCREMENT;
     }
 
-    WRAP(NEW_C_I0,-MAX_INTENSITY, MAX_INTENSITY);   
+    WRAP(NEW_C_I0,-MAX_INTENSITY, MAX_INTENSITY);
     NEW_C_V = C_I0 - ((L_I0 + C_I0 + R_I0)/3.0); /* Use the velocity field to show the difference
         between a cell and its neighbors, this can suppress the horizontal stripes pattern.*/
     CLAMP(NEW_C_V, -MAX_VELOCITY, MAX_VELOCITY); //Can scale MAX_VELOCITY to show this better
@@ -2415,9 +2415,9 @@ DllExport void USERINITIALIZE(CA* owner )
 {
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_HEAT_2D;
-    owner->_max_intensity.SetVal(1.0f); 
+    owner->_max_intensity.SetVal(1.0f);
 
-    double  editValue[] = {3.4, 1.0, 0.5}; 
+    double  editValue[] = {3.4, 1.0, 0.5};
         //LOGISTICFACTOR, GROWTHRATE, DIFFUSIONRATE
     char *label[] = {"Logistic Factor", "Growth Timestep", "Diffusion Rate"};
     for(int i = 0; i < USERPARAM_COUNT; i++)
@@ -2429,9 +2429,9 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->userParamAdd[3]->SetRange(0.0, 1.0); //Diffusion Rate
     for(i = 0; i < USERPARAM_COUNT; i++)
         (owner->userParamAdd[i+1]->SetVal(editValue[i]));
-             /* Need to do this again as the constructor might not have 
+             /* Need to do this again as the constructor might not have
             accepted the edit value becuase the range wasn't set yet to
-            include it.  Note also that the userParamAdd index is one 
+            include it.  Note also that the userParamAdd index is one
             higher than the editValue index. */
     owner->userParamAdd[0]->SetVal(0.2);  //Fix Variance
 }
@@ -2448,12 +2448,12 @@ int w, int sw, int s, int se)
     average = (1.0/8.0)*PLANE_EIGHT_SUM_I0;
 #endif //NABE5
     PLANE_NEW_C_I1 = fabs(PLANE_C_I0 - average); //Save diff for viewing
-        //Do diffusion 
+        //Do diffusion
     PLANE_NEW_C_I0 = (1.0 - DIFFUSIONRATE)*PLANE_C_I0 + DIFFUSIONRATE*average;
         //Do logistic growth, but moderate its speed to be GROWTHRATE
     Real targetvalue = LOGISTICFACTOR * PLANE_NEW_C_I0 * (1.0 - PLANE_NEW_C_I0);
     PLANE_NEW_C_I0 = (1.0 - GROWTHRATE)*PLANE_NEW_C_I0 + GROWTHRATE*targetvalue;
-    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);  
+    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);
 }
 
 #endif //CARULE_2D_LOGISTIC
@@ -2472,11 +2472,11 @@ DllExport void USERINITIALIZE(CA* owner )
 {
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_HEAT_2D;
-    owner->_max_intensity.SetVal(1.0f); 
+    owner->_max_intensity.SetVal(1.0f);
 
-    double  editValue[] = {2.1, 0.8}; 
+    double  editValue[] = {2.1, 0.8};
         //LOGISTICFACTOR,  DIFFUSIONRATE
-    char *label[] = {"Logistic Factor (1.0 to 4.0)", 
+    char *label[] = {"Logistic Factor (1.0 to 4.0)",
         "Diffusion Rate (0.0 to 1.0)"};
     for(int i = 0; i < USERPARAM_COUNT; i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
@@ -2486,9 +2486,9 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->userParamAdd[2]->SetRange(0.0, 1.0); //Diffusion Rate
     for(i = 0; i < USERPARAM_COUNT; i++)
         (owner->userParamAdd[i+1]->SetVal(editValue[i]));
-             /* Need to do this again as the constructor might not have 
+             /* Need to do this again as the constructor might not have
             accepted the edit value becuase the range wasn't set yet to
-            include it.  Note also that the userParamAdd index is one 
+            include it.  Note also that the userParamAdd index is one
             higher than the editValue index. */
     owner->userParamAdd[0]->SetVal(0.2);  //Fix Variance
 }
@@ -2515,14 +2515,14 @@ int w, int sw, int s, int se)
 #endif //ABRAHAM5
     //Compute difference between current val and nabe avg
     Real diffusion = average - PLANE_C_I0;
-    //While you're at it, save the differnence for viewing. 
-    PLANE_NEW_C_I1 = fabs(diffusion); 
+    //While you're at it, save the differnence for viewing.
+    PLANE_NEW_C_I1 = fabs(diffusion);
     //Scale the difference down by your diffusion factor
     diffusion *= DIFFUSIONRATE;
 
 //Combine diffusion and logisticoutput.
     PLANE_NEW_C_I0 = logisticoutput + diffusion;
-    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);  
+    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);
 }
 
 #endif //CARULE_2D_LOGISTIC_ABRAHAM
@@ -2543,7 +2543,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_WAVE_2D;
 
-/* We set the default values to match the values used in Meinhardt's 
+/* We set the default values to match the values used in Meinhardt's
 one-dimensional simulation 2.4a, found on page 26 of his book and stored on
 his accompanying disk in the file SP24a.PRM */
     double  editValue[] = {
@@ -2556,7 +2556,7 @@ his accompanying disk in the file SP24a.PRM */
 
     for(int i = 0; i < USERPARAM_COUNT; i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(0.0, 1.0); 
+    owner->userParamAdd[1]->SetRange(0.0, 1.0);
     owner->userParamAdd[2]->SetRange(0.0, 1.0);
     owner->userParamAdd[3]->SetRange(0.0, 15.0);
     owner->userParamAdd[4]->SetRange(0.0, 15.0);
@@ -2575,11 +2575,11 @@ int w, int sw, int s, int se)
         //Do logistic growth on both, but have inhibitor inhibit the activator
         //and have the activator activate the inhibitor.
     PLANE_NEW_C_I0 = ACTIVATOR_GROWTH * (1.0 - inhibitor_avg) * //Inhibition
-        activator_avg * (1.0 - activator_avg); //Logistic 
+        activator_avg * (1.0 - activator_avg); //Logistic
     PLANE_NEW_C_I1 = 0.1 + INHIBITOR_GROWTH * activator_avg * //Activation
-        inhibitor_avg * (1.0 - inhibitor_avg); //Logistic 
-    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);  
-    CLAMP(PLANE_NEW_C_I1, 0.0, MAX_INTENSITY);  
+        inhibitor_avg * (1.0 - inhibitor_avg); //Logistic
+    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);
+    CLAMP(PLANE_NEW_C_I1, 0.0, MAX_INTENSITY);
 }
 #endif //CARULE_2D_DOUBLE_LOGISTIC
 //========================================================================
@@ -2599,7 +2599,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_WAVE_2D;
 
-/* We set the default values to match the values used in Meinhardt's 
+/* We set the default values to match the values used in Meinhardt's
 one-dimensional simulation 2.4a, found on page 26 of his book and stored on
 his accompanying disk in the file SP24a.PRM */
     double  editValue[] = {
@@ -2612,7 +2612,7 @@ his accompanying disk in the file SP24a.PRM */
 
     for(int i = 0; i < USERPARAM_COUNT; i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(0.0, 1.0); 
+    owner->userParamAdd[1]->SetRange(0.0, 1.0);
     owner->userParamAdd[2]->SetRange(0.0, 1.0);
     owner->userParamAdd[3]->SetRange(0.0, 10.0);
     owner->userParamAdd[4]->SetRange(0.0, 10.0);
@@ -2633,11 +2633,11 @@ int w, int sw, int s, int se)
     Real activator_saturation = activator_avg/MAX_INTENSITY;
     Real inhibitor_saturation = inhibitor_avg/MAX_INTENSITY;
     PLANE_NEW_C_I0 = ACTIVATOR_GROWTH * (1.0 - inhibitor_saturation) * //Inhibition
-        activator_avg * (1.0 - activator_saturation); //Logistic 
+        activator_avg * (1.0 - activator_saturation); //Logistic
     PLANE_NEW_C_I1 = 0.1 + INHIBITOR_GROWTH * activator_avg * //Activation
-        inhibitor_avg * (1.0 - inhibitor_saturation); //Logistic 
-    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);  
-    CLAMP(PLANE_NEW_C_I1, 0.0, MAX_INTENSITY);  
+        inhibitor_avg * (1.0 - inhibitor_saturation); //Logistic
+    CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY);
+    CLAMP(PLANE_NEW_C_I1, 0.0, MAX_INTENSITY);
 }
 
 #endif CARULE_2D_DOUBLE_LOGISTIC_SMOOTH
@@ -2663,7 +2663,7 @@ and BRAIN_FIRING_ACTIVATION.
 #define MIN_INHIBITOR           owner->userParamAdd[8]->Val()   //Min_b
 #define MAX_ACTIVATORVALUE 5.0
 #define BRAIN_RESTVALUE (MAX_ACTIVATORVALUE)
-#define BRAIN_FIREVALUE (8*BRAIN_RESTVALUE) 
+#define BRAIN_FIREVALUE (8*BRAIN_RESTVALUE)
     //Make BRAIN_FIREVALUE high, so summing restvalues doesn't spoof a firing.
 #define MAX_INTENSITY   owner->_max_intensity.Val()
 
@@ -2672,7 +2672,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_WAVE_2D;
 
-/* We set the default values to match the values used in Meinhardt's 
+/* We set the default values to match the values used in Meinhardt's
 one-dimensional simulation 2.4d, found on page 26 of his book and stored on
 his accompanying disk in the file SP24d.PRM */
     double  editValue[] = { //Params from Meinhardt Sp24d.PRM
@@ -2689,7 +2689,7 @@ his accompanying disk in the file SP24d.PRM */
     owner->_dt.SetVal(0.05);
     owner->_max_intensity.SetVal(BRAIN_FIREVALUE + MAX_ACTIVATORVALUE);
     owner->_max_velocity.SetVal(30.0);
-    owner->_nonlinearity1.SetVal(0.46); 
+    owner->_nonlinearity1.SetVal(0.46);
 
     for(int i = 0; i < USERPARAM_COUNT; i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
@@ -2722,27 +2722,27 @@ int w, int sw, int s, int se)
     if (inhibitor < MIN_INHIBITOR)
         inhibitor = MIN_INHIBITOR;
     //We need the following number twice, so let's just compute it once.
-    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0; 
-    
+    double Plane_C_I0_squared = PLANE_C_I0 * PLANE_C_I0;
+
 //Do diffusion, production, reaction, and decay in one step for each variable.
     PLANE_NEW_C_I0 = PLANE_C_I0 +                       //The activator update:
         + DIFFUSION_RATE_ACTIVATOR *                    //Diffuse
-            (PLANE_FOUR_SUM_I0 + 0.75*PLANE_CORNER_SUM_I0 - 7.0*PLANE_C_I0)                                 
+            (PLANE_FOUR_SUM_I0 + 0.75*PLANE_CORNER_SUM_I0 - 7.0*PLANE_C_I0)
         + SOURCE_DENSITY*(                          //Reaction rate times...
             ACTIVATOR_PRODUCTION                    //Spontaneous Production
             +  Plane_C_I0_squared / inhibitor)      //The Reaction
         - DECAY_RATE_ACTIVATOR * PLANE_C_I0;            //Decay
 
-    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:     
-        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse       
+    PLANE_NEW_C_I1 = PLANE_C_I1                     //The inhibitor update:
+        + DIFFUSION_RATE_INHIBITOR *                    //Diffuse
             (PLANE_FOUR_SUM_I1+ 0.75*PLANE_CORNER_SUM_I1 - 7.0*PLANE_C_I1)
         + INHIBITOR_PRODUCTION                      //Spontaneous Production
         + SOURCE_DENSITY*(Plane_C_I0_squared)       //The Reaction
         - DECAY_RATE_INHIBITOR * PLANE_C_I1;            //Decay
-    
+
     CLAMP(PLANE_NEW_C_I0, 0.0, MAX_INTENSITY); //MAX_ACTIVATORVALUE);
     CLAMP(PLANE_NEW_C_I1, 0.0, MAX_VELOCITY);
-    }   
+    }
 }
 #endif //CARULE_2D_ACTIVATOR_INHIBITOR_BRAIN
 //========================================================================
@@ -2754,13 +2754,13 @@ int w, int sw, int s, int se)
 #define HODGE_STIM2     owner->userParamAdd[3]->Val()
 #define HODGE_INC       owner->userParamAdd[4]->Val()
 #define BRAIN_RESTVALUE (HODGE_TOP/8.0)
-#define BRAIN_FIREVALUE HODGE_TOP 
+#define BRAIN_FIREVALUE HODGE_TOP
 
 DllExport void USERINITIALIZE(CA* owner )
 {
     double  editValue[] = { 0.1, 5.0, 100.0, 5.0 };
     char *label[] = { "Hodge Bottom", "Stim1", "Stim2", "Inc" };
-    
+
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_WAVE_2D;
     owner->_max_intensity.SetVal(32.0f);
@@ -2915,7 +2915,7 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
     if (PLANE_W_I0 <= -4.0)
         C_topple -= 1.0;
     if (PLANE_S_I0 <= -4.0)
-        C_topple -= 1.0; 
+        C_topple -= 1.0;
     PLANE_NEW_C_I0 = C_topple ;//+ 0.01(-PLANE_PAST_C_I0 + PLANE_FOUR_SUM_I0/4.0); //Wave
     CLAMP(PLANE_NEW_C_I0, -MAX_INTENSITY, MAX_INTENSITY);
 }
@@ -2928,7 +2928,7 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
  Susanna Manrubia in Phycial Review Leters 79, pp. 523-526, 1997.  Online
  at http://linkage.rockefeller.edu/wli/zipf/zanette97.pdf
  Basic Zeldovich idea is that half the cells double their values and half
- go to zero, and that the cells average with each other.  Result is 
+ go to zero, and that the cells average with each other.  Result is
  an inverse powerlaw distribution of the cell values:
  frequencyofagivensize ~ 1/size^2. The paper describes this with three
  parameters alpha, p, and q, which it tests for (0.25, 0.5, 0.0),
@@ -2949,9 +2949,9 @@ DllExport void USERINITIALIZE(CA* owner )
     char *label[] = { "Diffusion Rate", "Success Probability", "Probability Tweak"};
     for(int i = 0; i < sizeof(editValue)/sizeof(double); i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(0.0, 1.0); 
-    owner->userParamAdd[2]->SetRange(0.0, 1.0); 
-    owner->userParamAdd[3]->SetRange(0.0, 0.5); 
+    owner->userParamAdd[1]->SetRange(0.0, 1.0);
+    owner->userParamAdd[2]->SetRange(0.0, 1.0);
+    owner->userParamAdd[3]->SetRange(0.0, 0.5);
     owner->_max_intensity.SetVal(10.0f);
 }
 
@@ -2960,8 +2960,8 @@ int w, int sw, int s, int se)
 {
     bool growflag = (Randomreal() <= SUCCESS_PROBABILITY);
     //First diffuse whatever values got into the cells in the last update
-    PLANE_NEW_C_I0 = PLANE_C_I0 + DIFFUSION_RATE * 
-        ((PLANE_EIGHT_SUM_I0/8.0) - PLANE_C_I0);    
+    PLANE_NEW_C_I0 = PLANE_C_I0 + DIFFUSION_RATE *
+        ((PLANE_EIGHT_SUM_I0/8.0) - PLANE_C_I0);
     //And then grow some values and shrink others
     if (growflag)  //Get bigger
         PLANE_NEW_C_I0 =
@@ -2980,7 +2980,7 @@ int w, int sw, int s, int se)
  Susanna Manrubia in Phycial Review Leters 79, pp. 523-526, 1997.  Online
  at http://linkage.rockefeller.edu/wli/zipf/zanette97.pdf
  Basic Zeldovich idea is that half the cells double their values and half
- go to zero, and that the cells average with each other.  Result is 
+ go to zero, and that the cells average with each other.  Result is
  an inverse powerlaw distribution of the cell values:
  frequencyofagivensize ~ 1/size^2. The paper describes this with three
  parameters alpha, p, and q, which it tests for (0.25, 0.5, 0.0),
@@ -3001,9 +3001,9 @@ DllExport void USERINITIALIZE(CA* owner )
     char *label[] = { "Diffusion Rate", "Success Probability", "Probability Tweak"};
     for(int i = 0; i < sizeof(editValue)/sizeof(double); i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(0.0, 1.0); 
-    owner->userParamAdd[2]->SetRange(0.0, 1.0); 
-    owner->userParamAdd[3]->SetRange(0.0, 0.5); 
+    owner->userParamAdd[1]->SetRange(0.0, 1.0);
+    owner->userParamAdd[2]->SetRange(0.0, 1.0);
+    owner->userParamAdd[3]->SetRange(0.0, 0.5);
     owner->_max_intensity.SetVal(10.0f);
 }
 
@@ -3011,8 +3011,8 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
 {
     bool growflag = (Randomreal() <= SUCCESS_PROBABILITY);
     //First diffuse whatever values got into the cells in the last update
-    PLANE_NEW_C_I0 = PLANE_C_I0 + DIFFUSION_RATE * 
-        ((PLANE_FOUR_SUM_I0/4.0) - PLANE_C_I0); 
+    PLANE_NEW_C_I0 = PLANE_C_I0 + DIFFUSION_RATE *
+        ((PLANE_FOUR_SUM_I0/4.0) - PLANE_C_I0);
     //And then grow some values and shrink others
     if (growflag)  //Get bigger
         PLANE_NEW_C_I0 =
@@ -3029,7 +3029,7 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
 /* Maybe I should be doubling and halving BEFORE doing the diffusion?  No, this
 doesn't give the effect.  This approach doesn't conserve the population as well,
 I don't think.  Because in the non delay approach every old cell val gets averaged with
-the old neighbors, which preserves people, and half the cells are doubled and half are 
+the old neighbors, which preserves people, and half the cells are doubled and half are
  zeroed, which preverse poeple if yof do it ranomly.
  In this delay approach, I double or halve first, but then I average
  those values with UNDOUBLED OR ZEROED old values, so I can lose poeple or gain.
@@ -3047,9 +3047,9 @@ DllExport void USERINITIALIZE(CA* owner )
     char *label[] = { "Diffusion Rate", "Success Probability", "Probability Tweak"};
     for(int i = 0; i < sizeof(editValue)/sizeof(double); i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(0.0, 1.0); 
-    owner->userParamAdd[2]->SetRange(0.0, 1.0); 
-    owner->userParamAdd[3]->SetRange(0.0, 0.5); 
+    owner->userParamAdd[1]->SetRange(0.0, 1.0);
+    owner->userParamAdd[2]->SetRange(0.0, 1.0);
+    owner->userParamAdd[3]->SetRange(0.0, 0.5);
     owner->_max_intensity.SetVal(10.0f);
 }
 
@@ -3064,8 +3064,8 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
     else    //Collapse
         PLANE_NEW_C_I0 =
             PLANE_C_I0*(SUCCESS_PROBABILITY_TWEAK)/(1-SUCCESS_PROBABILITY);
-    PLANE_NEW_C_I0 = PLANE_NEW_C_I0 + DIFFUSION_RATE * 
-        ((PLANE_FOUR_SUM_I0/4.0) - PLANE_NEW_C_I0); 
+    PLANE_NEW_C_I0 = PLANE_NEW_C_I0 + DIFFUSION_RATE *
+        ((PLANE_FOUR_SUM_I0/4.0) - PLANE_NEW_C_I0);
     //Then diffuse whatever values got into the cells in the last update
     CLAMP(PLANE_NEW_C_I0, 0, MAX_INTENSITY);
 }
@@ -3083,7 +3083,7 @@ DllExport void USERRULE_5(CA* owner, int c, int e, int n, int w, int s)
  http://eclectic.ss.uci.edu/~drwhite/Anthro179a/J-Doyle.ppt
  and a discussion of the paper at
  http://www.ent-consulting.com/articles/automata.pdf.
-  See also the Java applet illustrating this at 
+  See also the Java applet illustrating this at
 http://schuelaw.whitman.edu/JavaApplets/ForestFireApplet/
 I view the green, burning, and dead cases as, respectively,
 the cell value 0, 1, and 2, akin to Brian's Brain states of
@@ -3100,8 +3100,8 @@ DllExport void USERINITIALIZE(CA* owner )
     char *label[] = { "100*Rebirth Probability", "100*Lightning Probability"};
     for(int i = 0; i < sizeof(editValue)/sizeof(double); i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(0.0, 10.0); 
-    owner->userParamAdd[2]->SetRange(0.0, 10.0); 
+    owner->userParamAdd[1]->SetRange(0.0, 10.0);
+    owner->userParamAdd[2]->SetRange(0.0, 10.0);
     owner->_max_intensity.SetVal(2.1f);
 }
 
@@ -3124,7 +3124,7 @@ int w, int sw, int s, int se)
         if (PLANE_W_I0 == 2)
             newc = 2;
         if (PLANE_S_I0 == 2)
-            newc = 2; 
+            newc = 2;
 #ifdef USEFIRECORNERS
         if (PLANE_NE_I0 == 2)
             newc = 2;
@@ -3133,7 +3133,7 @@ int w, int sw, int s, int se)
         if (PLANE_SW_I0 == 2)
             newc = 2;
         if (PLANE_SE_I0 == 2)
-            newc = 2; 
+            newc = 2;
 #endif USEFIRECORNERS
     }
 //The firing case
@@ -3170,7 +3170,7 @@ DllExport void USERINITIALIZE(CA* owner )
     owner->_usernabesize = 9;
     owner->_usercastyle = CA_WAVE_2D;
 
-/* We set the default values to match the values used in Meinhardt's 
+/* We set the default values to match the values used in Meinhardt's
 one-dimensional simulation 2.4a, found on page 26 of his book and stored on
 his accompanying disk in the file SP24a.PRM */
     double  editValue[] = {
@@ -3184,7 +3184,7 @@ his accompanying disk in the file SP24a.PRM */
 
     for(int i = 0; i < USERPARAM_COUNT; i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(0.0, 1.0); 
+    owner->userParamAdd[1]->SetRange(0.0, 1.0);
     owner->userParamAdd[2]->SetRange(0.0, 1.0);
     owner->userParamAdd[3]->SetRange(0.0, 2.0);
     owner->userParamAdd[4]->SetRange(0.0, 20.0);
@@ -3207,18 +3207,18 @@ int w, int sw, int s, int se)
         PLANE_NEW_C_I0 = activator_avg +
             ACTIVATOR_GROWTH * (-activator_avg - inhibitor_avg);
     else //activator_avg >= ACTIVATOR_THRESHOLD
-        PLANE_NEW_C_I0 = activator_avg + 
+        PLANE_NEW_C_I0 = activator_avg +
             ACTIVATOR_GROWTH * (1.0 - activator_avg - inhibitor_avg);
     PLANE_NEW_C_I1 = inhibitor_avg + INHIBITOR_GROWTH * activator_avg;
-    CLAMP(PLANE_NEW_C_I0, -MAX_INTENSITY, MAX_INTENSITY);   
-    CLAMP(PLANE_NEW_C_I1, -MAX_INTENSITY, MAX_INTENSITY);   
+    CLAMP(PLANE_NEW_C_I0, -MAX_INTENSITY, MAX_INTENSITY);
+    CLAMP(PLANE_NEW_C_I1, -MAX_INTENSITY, MAX_INTENSITY);
 }
 
 #endif CARULE_2D_WINFREE_LOGISTIC
 //========================================================================
 //============================================
 #ifdef CARULE_2D_WINFREE_ZHABO_NEW
-/*  This is based on Winfree's paper. Arthur T. Winfree, "Rotating 
+/*  This is based on Winfree's paper. Arthur T. Winfree, "Rotating
 Chemical Reactions", Scientific American, June 1974, pp. 82-95.
 We think of our 0 plane as holding an activator A, and the 1 plane
 as holding an inhibitor B.  Winfree's rule is to set an inhibitor
@@ -3227,12 +3227,12 @@ We get these dynamics:
 dB/dt = K*A
 dA/dt = - L*(A+B) if A < T
 cA/dt = L*(1-(A+B)) if A > T
-We can discretize these rules as follows.  
+We can discretize these rules as follows.
 newB = B + K*A
 newA = A -L*(A+B) if A < T
 newA = A +L*(1-(A+B) if A >= T
 Now, we also need to include diffusion.  The scheme I like to use is
-to first carry out the diffusion, then to run the update rules on 
+to first carry out the diffusion, then to run the update rules on
 the diffused values, and then to put the diffused values into the cells.
 That is, we compute Aaverage and Baverage, and use these equations
 newB = Baverage + K*Aaverage
@@ -3245,10 +3245,10 @@ newA = Aaverage +L*(1-(Aaverage+Baverage) if Aaverage >= T
 #define ACTIVATOR_DIFFUSIONRATE owner->userParamAdd[1]->Val() //Da
 #define INHIBITOR_DIFFUSIONRATE owner->userParamAdd[2]->Val()   //Db
 #define ACTIVATOR_THRESHOLD     owner->userParamAdd[3]->Val()   //ba
-#define ACTIVATOR_GROWTH        owner->userParamAdd[3]->Val()   //bb 
+#define ACTIVATOR_GROWTH        owner->userParamAdd[3]->Val()   //bb
 #define INHIBITOR_GROWTH        owner->userParamAdd[4]->Val()   //bb
 
-/* 2017, note that ACTIVATOR_GROWTH = ACTIVATOR THRESHOLD.  Maybe it was a mistake to use the same index twice, I don't remember.  But 
+/* 2017, note that ACTIVATOR_GROWTH = ACTIVATOR THRESHOLD.  Maybe it was a mistake to use the same index twice, I don't remember.  But
 if I try to "fix" this by changing the last two indexes to 4 and 5, which would be logical....then the *dll rule just dies. */
 
 DllExport void USERINITIALIZE(CA* owner )
@@ -3268,7 +3268,7 @@ DllExport void USERINITIALIZE(CA* owner )
 
     for(int i = 0; i < USERPARAM_COUNT; i++)
         (*(owner->pAddUserParam))(owner, label[i], editValue[i]);
-    owner->userParamAdd[1]->SetRange(0.0, 1.0); 
+    owner->userParamAdd[1]->SetRange(0.0, 1.0);
     owner->userParamAdd[2]->SetRange(0.0, 1.0);
     owner->userParamAdd[3]->SetRange(0.0, 2.0);
     owner->userParamAdd[4]->SetRange(0.0, 2.0);
@@ -3297,14 +3297,14 @@ int w, int sw, int s, int se)
         PLANE_NEW_C_I0 = activator_avg +
             ACTIVATOR_GROWTH * (-activator_avg - inhibitor_avg);
     else //activator_avg >= ACTIVATOR_THRESHOLD
-        PLANE_NEW_C_I0 = activator_avg + 
+        PLANE_NEW_C_I0 = activator_avg +
             ACTIVATOR_GROWTH * (1.0 - activator_avg - inhibitor_avg);
     /* The activator values will generally range between -1 and 1,
     but the inhibitor values will always be positive.  But just to
     match the colors we view them as lying in the same range from
     neg max to pos max. */
-    CLAMP(PLANE_NEW_C_I0, -MAX_INTENSITY, MAX_INTENSITY);   
-    CLAMP(PLANE_NEW_C_I1, -MAX_INTENSITY, MAX_INTENSITY);   
+    CLAMP(PLANE_NEW_C_I0, -MAX_INTENSITY, MAX_INTENSITY);
+    CLAMP(PLANE_NEW_C_I1, -MAX_INTENSITY, MAX_INTENSITY);
 }
 
 #endif CARULE_2D_WINFREE_ZHABO_NEW

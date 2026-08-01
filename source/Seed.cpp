@@ -11,7 +11,7 @@
 extern HINSTANCE hInst;
 extern HWND masterhwnd;
 
-#define BLANK_HELPERS 
+#define BLANK_HELPERS
 /*This switch is to turn on the option of making all the variables except the top
 intensity variable be 0.0 whenever you seed.  This is useful for activator-inhibitor
 situations. BLANK_HELPERS was off in the CAPOW 6B ship version, turned this on
@@ -104,7 +104,7 @@ this in such a way that one term is likely to get most of the weight.*/
    // next line: l.andrews 11/3/01 changed from FOURIER_SEED_TERMS to FOURIER_SEED_TERMS_Y_2D
    // and inverted the dimensions to agree with indexing in code --THIS MAY BE WRONG --
    // IT IS POSSIBLE THAT THEN INDICES SHOULD BE INVERTED IN THE CODE INSTEAD !
-    Real fourier_frequency_Y_2D[FOURIER_SEED_TERMS_X_2D] 
+    Real fourier_frequency_Y_2D[FOURIER_SEED_TERMS_X_2D]
         [FOURIER_SEED_TERMS_Y_2D];
     Real fourier_amplitude_2D[FOURIER_SEED_TERMS_X_2D]
         [FOURIER_SEED_TERMS_Y_2D];
@@ -129,7 +129,7 @@ this in such a way that one term is likely to get most of the weight.*/
         wavetargetindex = 1;
         wave_past_row = waverowbuffer[2];
         wavepastindex = 2;
-//End 1D Setup  
+//End 1D Setup
 //Start k loop on variable[]
         for (int k = 0; k < VARIABLE_COUNT; k++)
         {
@@ -744,7 +744,7 @@ this in such a way that one term is likely to get most of the weight.*/
         wavetargetindex = 1;
         wave_past_row = waverowbuffer[2];
         wavepastindex = 2;
-//End 1D Setup  
+//End 1D Setup
          for (j=0; j<FOURIER_SEED_TERMS; j++)
         {
             fourier_frequency[j] = 1 + Random(FOURIER_SEED_MAX_FREQ);

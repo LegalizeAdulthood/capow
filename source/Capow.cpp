@@ -47,8 +47,8 @@
     with wave methods.  Beta 11.
 
     3-10-95 JL put in graph display, changed by RR.  RR changed water wave.
-----------------------------------------------------------------------------------  
-      
+----------------------------------------------------------------------------------
+
     2/1/96  New semester.  Rucker put in Alt??? wave types.
 
     2/2/96  Rucker put in smoothsteps variable.  This is to smooth
@@ -56,12 +56,12 @@
     is necessary for the AltWave type which reacts badly if the
     wave states have discontinuites.  Use the CA::Smooth function for
     smoothing.
-    
+
     Rucker also split ca.cpp into ca.cpp (the core) camore.cpp (accessors,
     tweakers, mutators, load and save) and calist.cpp (the CAlist methods).
     This was done because ca.cpp was compiling to a code seg larger than
     64K, which is not allowed.
-    
+
     2/5/96  Rucker fixed the Alt??? rules to work better.  Added a
     SMOOTH_VARIANCE switch to Set_variance, this smooths the individual
     ca tweak params so that the Alt Diverse Wave Oscillator works.  Note
@@ -71,18 +71,18 @@
     the time_step, space_step, acceleration_multiplier names were changed
     to _dx and _dt names.  Added a SMOOTH button to the World menu. This
     calls Set_smoothsteps(SMOOTHSTEPS) to smooth a too bumpy Alt wave.
-    
+
     2/14/96 Rucker changed ALT_CA_AUTO_ULAM to act like a cubic Ulam wave.
     Changed _wavespeed to 1.0.  Put in a multiplier step to the smooth
     process to try and avoid damping or amping amplitudes in the case
     where the average value isn't 0.
- 
+
     2/18/96 Rucker got 2D Wave to working. Looks very good.
-    
+
     10/28/96 Integrated the TweakParams.
 
     10/29/96 Got the DLL stuff working!!!
-    
+
     1/31/97 Iota2 build.  Cleaned up ANALOG.CPP, ELECTRIC.CPP, CYCLE.CPP.  Removed
     the bad compress code from LOADSAVE.CPP.  Removed all the __FLAT__ switches to
     make this purely 32-bit code.
@@ -92,23 +92,23 @@
     network, 1D 2-neighbor, 1D 4-nabe or 2D 4-nabe, 2D 8-nabe.  Got rid of
     almost all the unsigned int types since now we do only 32 bit builds and an
     int is always big enough.  Got rid of all the far, FAR, huge, and HUGE pointer
-    modifiers, as these don't mean anything in 32 bit.  
+    modifiers, as these don't mean anything in 32 bit.
 
     2/6/97 Simplified the DLLMEM.CPP code, now we let Windows track the reference
-    count on DLL.  Added a USERCATYPE and USERCASIZE functions to the DLL 
+    count on DLL.  Added a USERCATYPE and USERCASIZE functions to the DLL
     interface; user will specify which regular type his/her type is most like and
-    how many neighbors are used in his/her rule.  These set _usercatype and 
+    how many neighbors are used in his/her rule.  These set _usercatype and
     _usercasize fields in the CA.  Tried to fix ODD and EVEN view.
 
     2/10/97 Put in _smoothflag.
 
 IOTA group:
-    
+
     4/2/97  preliminary merge for iota8 attempted by mike. Features flexible support for
     user defined DLL rules, and 3D views. BUG- the 3D view obscures the status bar.
 
     4/6/97  Added a view Menu containing menu items to turn off ( hide ) the status bar and
-    toolbar.  A little line appears right above status bar when certain resizings are done.  
+    toolbar.  A little line appears right above status bar when certain resizings are done.
     A. Forster
 
     4/08/97 Replaced '+' '-' push buttons in Color dialog with a spin control
@@ -124,23 +124,23 @@ IOTA group:
 
     4/11/97  Cleaned up and organized the code  in capow.cpp.  Updated labels for sections
     of code and added several new comments.  Also rearrranged code so it is consistent throughout
-    the file.  Rewrote the code to handle opening and saving so that must of the "ofn" variables for 
+    the file.  Rewrote the code to handle opening and saving so that must of the "ofn" variables for
     comman dialogs are not in 5 different places.  Made sure all code is properly formated.
     A. Forster
 
     4/13/97  Rewrote the WM_COMMAND processing of Load and save to reduced duplicate code.
     A. Forster
 
-    4/14/97   Reworked the layout of the View Dialog.  Separted view styles into Normal and 3D 
+    4/14/97   Reworked the layout of the View Dialog.  Separted view styles into Normal and 3D
     categories.  Changed #of CAs from UP and DOWN control to Radio Control
     A. Forster
 
-    4/14/97   Reworked the layout of the View Dialog.  Separted view styles into Normal and 3D 
+    4/14/97   Reworked the layout of the View Dialog.  Separted view styles into Normal and 3D
     categories.  Changed #of CAs from UP and DOWN control to Radio Control
     A. Forster
 
     4/14/97   Replaced UP AND DOWN Arrows in Analog, Electric, and the '+' '-' controls in Fourier
-    with spin controls.  
+    with spin controls.
 
     4/14/97  Reworked the Breeding Dialog and removed all '+' '-' and added spin controls.
     A. Forster
@@ -162,34 +162,34 @@ IOTA group:
 
     4/21/97  Program pause now correctly implemented.  Before WM_SIZE would cause the program
     to become unpaused, whenever a such a message was sent.  Since WM_SIZE was a popular message
-    most everything done to the capow program when it was paused caused a call to WM_SIZE and 
-    a resulting unpausing of the program.  This bug is fixed. 
+    most everything done to the capow program when it was paused caused a call to WM_SIZE and
+    a resulting unpausing of the program.  This bug is fixed.
     A. Forster
 
-    4/22/97 Iota10 created.  Graph3D tossed out and replaced with CapowGL, which uses the 
-    OpenGL API.  
+    4/22/97 Iota10 created.  Graph3D tossed out and replaced with CapowGL, which uses the
+    OpenGL API.
 
     4/27/97 merged Andrew's code (with a status bar, frame counter).
     Bugs:  the OpenGL view doesn't show upon choosing a focus (resize gets past this).
     Also, counter resets when the window is resized.  3D view works poorly in 8bit color.
 
-    4/29/97 fixed the minor problem which caused the gap between the status bar 
+    4/29/97 fixed the minor problem which caused the gap between the status bar
     and the lower CA's.  The cause was in the Locate function, which is now replaced
     by a new version. The old function tried to make all the CA's the same height, which
     would mean that the total height would have to be multiple of 3, plus the border
     heights. The new function uses floats, then casts to int, to fit the CA's better.
 
-    4/25/97  Reworked the Fourier Dialog box.  Rearrange most controls.  Replaced the 
+    4/25/97  Reworked the Fourier Dialog box.  Rearrange most controls.  Replaced the
     four Arrow buttons controling the moving of the Test Point wiht a slider bar that can
     control either all the point views or simple the focus.  When the focus is changed the slider
     is updated to a position matching the position of the Test Point.  When the focus is NOT on
-    a point view CA the controls in the Fourier Dialog are disabled.  Added a new button to the 
-    dialog.  Previously there was just an apply button that did both the fourier analysis and the 
+    a point view CA the controls in the Fourier Dialog are disabled.  Added a new button to the
+    dialog.  Previously there was just an apply button that did both the fourier analysis and the
     the reseting of the point.  Now there are two... When nothing has been analyized the APPLY button
     is disable and than enabled after the Anazlye button is pressed.   Because the slider bar
     can only be drawn so much to either side, there exists a problem when multiple point views exist
     and their test points are not in equal position and the user selects to update all test points.
-    The problem is that if the user has the focus set on a CA whose test point is not aligned with the 
+    The problem is that if the user has the focus set on a CA whose test point is not aligned with the
     others the slider will only slide and subsequently move the other test points as far as the focus'
     test point can be moved.  To get around this the user should select the CA with the longest slider
     range avaiable.  Slider controls are as follows... The user can drag the slider button and this will
@@ -211,7 +211,7 @@ IOTA group:
     Replaced Mike's pause code in the dialog WM_COMMAND with a SendMessage to IDM_PAUSE.
     A.F.
 
-    5-5-97 The nonlinearity control is gone from Analog dialog.  I 
+    5-5-97 The nonlinearity control is gone from Analog dialog.  I
     think this happened because I temporarily put a 3D Height control over it.
     I didn't mean that the nonlinearity should go away, I menat that the dialog
     should be made bigger to hold both buttons.  ( OPEN )  Do Not understand!!
@@ -228,7 +228,7 @@ IOTA group:
     Ctrl + R            Randomize CAs.
     Ctrl + S            Opens Comman File Dialog for Saving an Individual CA.
     Ctrl + U            Opens the UserDialog
-    Ctrl + V            Opens the View Dialog 
+    Ctrl + V            Opens the View Dialog
     Ctrl + W            Opens the World Dialog
     F1                  Invokes Help
     F2,                 Opens Dialog to load a userrule to the focus only.
@@ -239,19 +239,19 @@ IOTA group:
     Shift + F4          Change Cursor to Place Generator.
 
     NOTE: Unresolved bug... Sometimes the cursor doesn't change back to
-    the appropriate image when using the Shift accelators. 
-    
+    the appropriate image when using the Shift accelators.
+
     A. Forster
   6/97 Cleaned up code, got rid of some bugs, built Version 5.0, posted
 this on the capow web page.  R.R.
 9/97 New team.  Begin Zeta series of builds. R.R.
 9/21/97.  Switched to using a thread to keep the program running all the time.
-Found the example code in Petzold Windows 95, p. 744.  Put in ScreenSaverProc. 
+Found the example code in Petzold Windows 95, p. 744.  Put in ScreenSaverProc.
 This meant I had to change the AppName variable in all the dialog *.CPP files
 to MyAppName. Put in a switch for SCREENSAVER.  Moved Andrew's command line
-code to a separater file Cmd_line.cpp.  R.R.     
-9/24/97  Put in compiler switch to turn THREAD on and off.   
-Put the various *.LIB into the Link sheet of Project Settings.  PUt in 
+code to a separater file Cmd_line.cpp.  R.R.
+9/24/97  Put in compiler switch to turn THREAD on and off.
+Put the various *.LIB into the Link sheet of Project Settings.  PUt in
 SAVE_QUERY switch. Put in CRITICAL_SECTION code to prevent thread conflicts, see
 comments in Cellthread.  R.R.
 9/25/97  Couldn't make thread stuff work, gave up, saved thread using file as
@@ -264,12 +264,12 @@ code in there.  Added a divider_width variable.  Cleaned up the project files.
     -Moved Change All/ Change Focus menu items to Controls;
     -Repaired broken Status Bar menu messages and added new ones for new controls.
     -Put Change All/ Change Focus Radio Buttons back into appropriate dialogs.
-    -Move % to Mutate to the CELL ( CLONE ) dialog. 
+    -Move % to Mutate to the CELL ( CLONE ) dialog.
     -Added Slam Button to Action Toolbar
     -Cleaned up some duplicated code.
     -Added a swap button to each toolbar to toggle between the two.
     -Moved Clear menu item from File to Edit... Seemed more appropriate
-    -Changed Windows Intial size from 380 X 400 to 460 X 480 so all of 
+    -Changed Windows Intial size from 380 X 400 to 460 X 480 so all of
      Dialog toolbar will appear.
 
 
@@ -277,7 +277,7 @@ code in there.  Added a divider_width variable.  Cleaned up the project files.
           Radio control, when it is changed outside of the dialog.
           All other dialogs will change this radio button when some
           action in the dialog occurs ( I don't like this; should be automatic )
-          
+
 10-27-97
     Added SaveFile.cpp for a save dialog.  Made necessary changes to resource.h.
 
@@ -285,15 +285,15 @@ code in there.  Added a divider_width variable.  Cleaned up the project files.
 the Zeta 8 build.  Cleaned up behavior of the focus/all radio buttons in dialogs.  Added
 an autorandomize feature which emulates the behavoir of the screen saver.  Moved the
 necessary timer code into Autorand.cpp so CAPOW.CPP and CASCREEN.CPP can share the code
-(can't put both into the same project).  Moved the Cascreen.dsp project up into the 
-same workspace directory as Capow.dsp.  
+(can't put both into the same project).  Moved the Cascreen.dsp project up into the
+same workspace directory as Capow.dsp.
 
 11-17-97  Zeta 9.  Added Generator dialog code (gendlg.cpp).  Added some code to the generator
-and generatorlist classes (camore.cpp, ca.hpp, ca.cpp).  Slight changes made to capow.cpp 
-LbuttonDown and RbuttonDown switch items.  There still seems to be a bug with the cursor 
+and generatorlist classes (camore.cpp, ca.hpp, ca.cpp).  Slight changes made to capow.cpp
+LbuttonDown and RbuttonDown switch items.  There still seems to be a bug with the cursor
 not always wanting to change back and forth between the generator and pick cursor styles.
 
-11-18-97 Mike : 
+11-18-97 Mike :
     -Added the capow icon to the screensaver's resources.
     -Optimized the VRML capture files; the captured file size is smaller
     -Added an absorbing edge option to the available boundary conditions
@@ -309,7 +309,7 @@ not always wanting to change back and forth between the generator and pick curso
         That was the cause the opengl related bug.
 
 
-12/2/97  Rudy.  I fixed up Rong Liu's new configure.cpp dialog.  I put in a timer so 
+12/2/97  Rudy.  I fixed up Rong Liu's new configure.cpp dialog.  I put in a timer so
 user can control the speed; we don't need to use PeekMessage anymore, though I
 left the code structured that way instead of putting GetMessage back.  We have
 a MASTERTIMER switch to choose between the "WM_TIMER" or "PeekMessage else" way.
@@ -333,12 +333,12 @@ pausing (sometimes a paused ca would unpause).
 out when 1-D CAs are viewed, and it becomes enabled when 2D is loaded and zoomed, but
 this wasn't happening.
 
-3/5/98 Mike- fixed bug: The alignment of the pop-up menus for the Change CA Type 
-and Change View toolbar buttons in the Dialog Toolbar are reversed 
+3/5/98 Mike- fixed bug: The alignment of the pop-up menus for the Change CA Type
+and Change View toolbar buttons in the Dialog Toolbar are reversed
 FIXED:  In capow.cpp, switched the #define values for VIEWMENU_BUTTON and CATYPEMENU_BUTTON
 
 3/7/98 Mike-
-Fixed another bug: When changing the frequency of a generator, it jerks in its displacement; 
+Fixed another bug: When changing the frequency of a generator, it jerks in its displacement;
 it should rather smoothly speed up or slow down according to frequency changes.
 FIXED:  Added SmoothOmega() to the Generator class; unfortunately this changes ca.hpp, which
 could cause user rules dll's to become nonfunctional.
@@ -355,7 +355,7 @@ languishing at the back of the Queue.  If I move the mouse around rapidly the
 program runs faster for a moment.  Checking a good "Moving your Game to Windows"
 article in the MSDN knowledge base, I learn that when you move the mouse the
 priority of your process and/or thread briefly goes up which is why your timer
-messages would be noticed more.  I tried putting  lines like these into  
+messages would be noticed more.  I tried putting  lines like these into
 my MyWnd_CREATE to speed up the program, but even these extreme settings didn't
 help.  Nor if I put this in MyWnd_TIMER, nor if I used a HANDLE hMainThread that
 I set with GetCurrentThread in WinMain.
@@ -367,7 +367,7 @@ doesn't actually work.  Instead you have to use the QueryPerformanceCounter func
 and use this as a timing dealy-bob inside the PeekMessage.  Most of the code is
 in the AUTORAND.CPP. So now I don't use the Windows Timer at all, though I
 could put in a switch to use it if QueryPerformanceCounter happens not to be
-supported. 
+supported.
 
 April 20, 1999.  Rudy
 I noticed that I need to separate out the two functions
@@ -380,20 +380,20 @@ variables.
 I fixed a bug that the Analog box wasn't initializing when you opened it a second
 time because edit_id wasn't being reset to 0 at each start of this dialog box.
 I made some new DLL rules. Improved the seeding functions to seed the second
-plane of variables in a reasonble way for the activator-inhibitor rules.  
+plane of variables in a reasonble way for the activator-inhibitor rules.
 Changed the View Which dialog selection so we have the choice of viewing the
-activator or the inhibitor quantity.  
+activator or the inhibitor quantity.
 Zipped this up and posted it as Source Ver 6.3 on the CAPOW website.
 
 December 31, 2007  Rudy
-Windows Vista has made HLP files obsolete, so I'm switching to CHM, or HTMLHelp. 
-For the conversion, using HTMLHelp with Visual Studio 6.0, see Rudy Rucker, 
-SOFTWARE ENGINEERING AND COMPUTER GAMES,(Addison Wesley 2003) Chap 21. 
+Windows Vista has made HLP files obsolete, so I'm switching to CHM, or HTMLHelp.
+For the conversion, using HTMLHelp with Visual Studio 6.0, see Rudy Rucker,
+SOFTWARE ENGINEERING AND COMPUTER GAMES,(Addison Wesley 2003) Chap 21.
 
 February 28, 2017 Rudy
 I upgraded my build IDE to VCC ver 15, which was free online.
 I flagged all my new code changes with a comment // 2017
-I made the CX_2D and CY_2D be 500 and 250, so get an aspect like the modern 2 x 1 screens. 
+I made the CX_2D and CY_2D be 500 and 250, so get an aspect like the modern 2 x 1 screens.
 I got rid of the "Action" toolbar, and I removed the CURSOR dialog options for Copy and Generator,
 although you can still do these via the dialogs.
 The new compiler showed an error in the post reading do loop in Loadsave.cpp and Loadsave7.cpp, and I think
@@ -402,7 +402,7 @@ Fixed some include problems with some header files that have been renamed, like 
 Rewrote the About dialog.
 Updated the capowhelplong file a little.  Updated the capow website. Made some new cA and cAs files to load.
 Added INITIAL_XSIZE and INITIAL_YSIZE defines in ca.hpp to specify the startup size of the window.
-Removed "SCREENSSAVER.CA" from configure.cpp and CONFIGURE dialog---because it doesn't work now and I 
+Removed "SCREENSSAVER.CA" from configure.cpp and CONFIGURE dialog---because it doesn't work now and I
 don't remember what it was supposed to do.
 Weeded out the old .CA and .CAS files that don't load properly.
 */
@@ -433,9 +433,9 @@ Weeded out the old .CA and .CAS files that don't load properly.
 //#define TOOL_IN_CAPOW
 //#define LOAD_ACTIVE_CAS
 //#define FIXED_640_480
-//#define MASTERTIMER 
+//#define MASTERTIMER
 /* In Windows95 and WindowsNT, MASTERTIMER works fine.  But in Win98, using it
-slows my performance waaaay down! The catch is that if I don't use this, 
+slows my performance waaaay down! The catch is that if I don't use this,
 I lose my speed control. So what I did was to add a handmade timer element
 to the PeekMessage loop, and I don't use MASTERTIMER.*/
 //====================DEFINE CONSTANTS ===============
@@ -495,7 +495,7 @@ HWND hDlgCycle = 0, hDlgExp = 0, hDlgColor = 0, //Handles to  dialog windows
     hDlgFourier = 0, hDlgAnalog = 0, hDlgCell = 0, hDlgElectric = 0,
     hDlgDigital = 0, hDlgView = 0, hDlgWorld = 0,
     hUserDialog = 0, hDlgGenerators = 0, hDlgOpenGL =0, hDlgConfigure = 0;
-                                               
+
 HMENU   hMainMenu;  // Handle to our Menu
 HMENU   hViewMenu;      // Handle to view sub menu
 HMENU   hCATypeMenu;      // Handle to view sub menu
@@ -512,7 +512,7 @@ BOOL  toolbarON            = TRUE;  // toolbar is on  Now this is used to hold
     //ActionToolbar or DialogToolbar, I think, rudy 12/6/97.
 //BOOL  pauseflag            = FALSE;
 BOOL  windowIsMinimized     = FALSE;
-BOOL  inloadsave = FALSE; 
+BOOL  inloadsave = FALSE;
 BOOL randomizenow = FALSE;
 int divider_width = 1; //Defined in CAPOW.CPP and in CASCREEN.CPP
     //Width of the gray line dividers, used in Bitmap.cpp
@@ -520,7 +520,7 @@ short focusflag            = START_FOCUSFLAG;  //Set in ca.hpp to ALL=0, or FOCU
 short WhichToolBar         = 0;    // 1 = NEW  0 = OLD
 BOOL ActionToolbar         = 0;   // 0 means off   1 means on
 BOOL DialogToolbar        = 1;   // o means off 1 means on
-    char CA_STYLE_NAME[256]; //Used in several places to get the current rule name. 
+    char CA_STYLE_NAME[256]; //Used in several places to get the current rule name.
 int filterflag = 1; //1 means start with .ca in the open file dialog box.
 //BOOL screensaver = FALSE;
  /* We use this because we are sharing a dialog with the
@@ -553,7 +553,7 @@ CAlist *calife_list = NULL;
 char commandline[1024] = { '\0' }; // Stores Commandline passed program
 /* Usually you would call this variable szAppName, but we are planning to
 make a screen saver version of this program, usign a lot of the same code
-modules (though the main will be CASCREEN.CPP instead of CAPOW.CPP), and 
+modules (though the main will be CASCREEN.CPP instead of CAPOW.CPP), and
 the screensaver SCRNSAVE.LIB has a static TCHAR szAppName[40]; whose definition
 would conflict with my using szAppName in my modules.  So instead I use a
 different name */
@@ -595,8 +595,8 @@ BOOL CheckExtension ( char Extension[], char DesiredExtension[] );
 extern DWORD dwStatusBarStyles;
 extern BOOL compressFile;
 //The following are from Autorand.cpp, they are shared with this project and with the
-//Cascreen project. 
-extern UINT fRandFlags; 
+//Cascreen project.
+extern UINT fRandFlags;
 extern int randomize_timer_cycle; // defualt is 120000 for 2 minutes.
 
 //====================EXTERNAL FUNCTIONS===============
@@ -615,7 +615,7 @@ extern BOOL CALLBACK ViewProc( HWND, UINT, WPARAM, LPARAM );
 
 extern BOOL CALLBACK GeneratorsProc(HWND, UINT, WPARAM, LPARAM);
 extern BOOL CALLBACK OpenGLProc(HWND, UINT, WPARAM, LPARAM);   //mike
-extern BOOL CALLBACK SaveFileProc(HWND, UINT, WPARAM, LPARAM);  
+extern BOOL CALLBACK SaveFileProc(HWND, UINT, WPARAM, LPARAM);
 extern BOOL CALLBACK ConfigureProc(HWND , UINT , WPARAM,  LPARAM );
 
 extern LRESULT CALLBACK userDialogProc( HWND, UINT, WPARAM, LPARAM );
@@ -707,10 +707,10 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
          //If you get an error message here, it is becasue you are
          //doing a 32 bit compile and you need to comment out
          // the caption swith stuff just above.
-    
+
     ShowWindow(masterhwnd, nCmdShow);
     UpdateWindow(masterhwnd);
-      
+
     hAccel = LoadAccelerators ( hInstance, "Capow_Accelerators" );
 
 
@@ -745,7 +745,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
                 }
         }
 #ifndef MASTERTIMER
-        else 
+        else
         {
             QueryPerformanceCounter((LARGE_INTEGER*)&_end);
             if ((_end - _start) >= _update_ticks_per_cycle)
@@ -775,7 +775,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return msg.wParam;
 
 }
-                    
+
 //====================MESSAGE CRACKERS ===============
 /* As a left-over of the port from 16 bit to 32 bit (and as prepartion for the port
 to MFC!) we process our messages with message handling functions (formerly called
@@ -802,16 +802,16 @@ BOOL MyWnd_CREATE(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     Randomize();  // Seed the randomizer
     //When debugging, comment this line out so that each run is the same,
     //For release comment it in so that runs are pleasingly surprising.
-    
-    char Extension[5] = { '\0' };   
-    
+
+    char Extension[5] = { '\0' };
+
     WBM         = new WindowBitmap(hwnd);
 
     capowgl = new CapowGL(hwnd);
     capowgl->Size(hwnd);
 
     calife_list = new CAlist(hwnd, MAX_CAS); //Calls CA:Allocate for members
-    calife_list->SetWindowBitmap(WBM); //Registers          
+    calife_list->SetWindowBitmap(WBM); //Registers
 
     hViewMenu   = LoadMenu ( hInst, "ViewPopMenu" );
     hCATypeMenu = LoadMenu ( hInst, "CATYPEPOPMENU" );
@@ -822,10 +822,10 @@ BOOL MyWnd_CREATE(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
 
 //=============== Process Command Line =====================
-    
+
     // If Command Line Contains a *.CA  File Load_Individual()
-    // If Command Line Contains a *.CAS File Loadall() 
-    // If Command Line Contains Nothing Randomize 
+    // If Command Line Contains a *.CAS File Loadall()
+    // If Command Line Contains Nothing Randomize
 #ifndef VCC6
 /*When you build the DEBUG version with Visual C++ Version 6,
 it crashes in CheckExtension.  So I #defined VCC6 in CA.HPP and am using it
@@ -843,16 +843,16 @@ here to #ifdef out the code VCC 6 doesn't like.  RR 2/17/99.*/
 
     }
     else
-        if ( CheckExtension ( Extension, "CAS" ) ) 
+        if ( CheckExtension ( Extension, "CAS" ) )
             if (calife_list->Loadall(WinArgv[0],TRUE) )
             {
                 if (calife_list->Get_justloadedcells())
                     not_seeded_yet_flag = 0; //Don't Seed it in WM_SIZE
             }
 #endif //VCC6.  End of the #ifdef-ed out code.
-//=============== Loading Previously Saved Experiment ===================== 
+//=============== Loading Previously Saved Experiment =====================
 
-#ifdef LOAD_ACTIVE_CAS         
+#ifdef LOAD_ACTIVE_CAS
 
     if (calife_list->Loadall("ACTIVE.CAS", TRUE))
     //TRUE means startup, menas don't send a WM_SIZE
@@ -861,7 +861,7 @@ here to #ifdef out the code VCC 6 doesn't like.  RR 2/17/99.*/
             not_seeded_yet_flag = 0; //Don't Seed it in WM_SIZE
         else
             not_seeded_yet_flag = 1; // seed in   WM_SIZE
-        
+
         MessageBox( hwnd,
                     (LPSTR)"(If you ever crash, delete ACTIVE.CAS.)",
                     (LPSTR)"Good! ACTIVE.CAS Has Loaded Successfully.",
@@ -869,14 +869,14 @@ here to #ifdef out the code VCC 6 doesn't like.  RR 2/17/99.*/
     }
 #endif //LOAD_ACTIVE_CAS
 
-//=============== Intialize CommonControls =====================    
+//=============== Intialize CommonControls =====================
 
     hwndStatusBar = InitStatusBar ( hwnd );  // Loads Status Bar
     hwndActionToolbar   = InitActionToolBar   ( hwnd );  // Loads Tool Bar
     hwndDialogToolbar   = InitDialogToolBar   ( hwnd );  // Loads Tool Bar
     if (toolbarON)
-        ShowWindow (hwndDialogToolbar, SW_SHOW); 
-            //ShowWindow (hwndActionToolbar, SW_SHOW); 
+        ShowWindow (hwndDialogToolbar, SW_SHOW);
+            //ShowWindow (hwndActionToolbar, SW_SHOW);
 
     setPerformanceTimerCycle(update_millisecs_per_cycle);
 //  focusflag = ALL;
@@ -908,7 +908,7 @@ static void MyWnd_PAINT(HWND hwnd)
     calife_list->Boxfocus(hdc,RGB(255,255,255));
     if (calife_list->numcolor() == 256)
         WBM->WBMSelectPalette(hdc, old_hpal);
-    
+
     EndPaint (hwnd, &ps) ;
 }
 
@@ -920,7 +920,7 @@ static void MyWnd_SIZE(HWND hwnd, UINT state, int cx, int cy)
     //((fn)((hwnd), (UINT)(wParam), (int)LOWORD(lParam), (int)HIWORD(lParam)), 0L)
     RECT rect;
     RECT rWindow;
-    
+
     windowIsMinimized = (state==SIZE_MINIMIZED);
     if (windowIsMinimized)
         return;
@@ -930,29 +930,29 @@ to fix some of the pausing functionality and window minimization
 handling.  Windows sends a WM_SIZE message AFTER a window has been
 resized, minimized, maximized or restored.  Practically speaking,
 resizing a window shouldn't cause a paused CA to unpause.  However,
-this was happening, and it was evident for 2-D CAs, 
-whose cell dimensions are independent of the size of the window.  
-For 1-D CAs, resizing the window will change their cell dimensions, 
-and thus make invalid the WBM image, but still, it doesn't relate 
+this was happening, and it was evident for 2-D CAs,
+whose cell dimensions are independent of the size of the window.
+For 1-D CAs, resizing the window will change their cell dimensions,
+and thus make invalid the WBM image, but still, it doesn't relate
 at all to pausing.  The flag windowIsMinimized is obvious in its
 purpose, but Cellmain uses it to determine whether to process or not.
-Also, even though a CA is paused, Capow can still be processing, 
+Also, even though a CA is paused, Capow can still be processing,
 for example when manipulating the 3D view of a paused 2D CA.  But
 when windowIsMinimized is TRUE, no processing occurs.
 
 
 // Put CA's to Sleep if Window is Minimized
-// Wake Up CA's if Window is Restored 
+// Wake Up CA's if Window is Restored
 
     if (!pauseflag && calife_list->GetSleep() && state == SIZE_RESTORED )
         calife_list->SetSleep(WAKE_UP);
-    
+
     //if (calife_list->GetSleep() && state == SIZE_MAXIMIZED )
     //  calife_list->SetSleep(WAKE_UP);
-    
+
     if (!pauseflag && state == SIZE_MAXIMIZED )
         calife_list->SetSleep(WAKE_UP);
-    
+
     //if (state==SIZE_MAXIMIZED)
     //  calife_list->SetSleep(WAKE_UP);
 */
@@ -981,7 +981,7 @@ when windowIsMinimized is TRUE, no processing occurs.
             height = WBM->CY() + framepixels;
         }
         //Then resize window to the correct rect.
-    
+
         SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, width, height,
                     SWP_NOMOVE); //Last param means only change size.
         GetClientRect(hwnd, &rect); //Reset the rect.
@@ -990,7 +990,7 @@ when windowIsMinimized is TRUE, no processing occurs.
 
 
     calife_list->Locate();
-    
+
 // The IDM_CLEAR erases the bitmap and the screen and draws the
 // focus box on both of them.
 
@@ -1001,7 +1001,7 @@ when windowIsMinimized is TRUE, no processing occurs.
         SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L);
 
 // Open controls button bar
-            
+
     if (not_seeded_yet_flag) //need to have set size to FourierSeed
     { //You didn't find "ACTIVE.CAS", or ACTIVE.CAS didn't store cells
         calife_list->FourierSeed();
@@ -1015,7 +1015,7 @@ when windowIsMinimized is TRUE, no processing occurs.
     {
         GetWindowRect (hwndStatusBar, &rWindow) ;
         statusBarHeight = rWindow.bottom - rWindow.top ;
-        MoveWindow (hwndStatusBar, 0, cy - statusBarHeight, 
+        MoveWindow (hwndStatusBar, 0, cy - statusBarHeight,
                                               cx, statusBarHeight, TRUE) ;
     }
 //commented out because statusbarheight is never really 0, but rather
@@ -1028,7 +1028,7 @@ when windowIsMinimized is TRUE, no processing occurs.
 */
 //InvalidateRect(hwndActionToolbar, NULL, FALSE);
 //InvalidateRect(hwndActionToolbar, NULL, FALSE);
-    
+
         SendMessage(hwndActionToolbar, WM_SIZE, state, MAKELONG(cx, cy));
         SendMessage(hwndDialogToolbar, WM_SIZE, state, MAKELONG(cx, cy));
 
@@ -1063,7 +1063,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     char szFileName[MAXFILENAME];
     char szFileTitle[MAXFILENAME];
     OPENFILENAME ofn;
-    
+
     //CA and CAS file load save
 /*  char szFilterSpecCA [128] =
         "CA Files (*.CA)\0All Files (*.*)\0*.*\0";
@@ -1075,8 +1075,8 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         "Experiment File (*.CAs)\0*.CAs\0CA Files (*.CA)\0*.CA\0User Rules (*.dll)\0*.dll\0 All Files (*.*)\0*.*\0";
 //RR 2007 Changed this trying to make CAS default file type
 //End commdlg stuff=======================
-    
-// Message Processing   
+
+// Message Processing
 
     switch(id)
     {
@@ -1090,7 +1090,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             ClientToScreen ( hwnd, &point );
             TrackPopupMenu ( hViewMenu, 0, point.x, point.y, 0 , hwnd, NULL );
         break;
-        
+
         case IDM_CATYPE_MENU:
             RECT r2;
             ToolBar_GetItemRect(hwndActionToolbar, CATYPEMENU_BUTTON, &r2);
@@ -1099,7 +1099,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             ClientToScreen ( hwnd, &point );
             TrackPopupMenu ( hCATypeMenu, 0, point.x, point.y, 0 , hwnd, NULL );
         break;
- 
+
         case IDM_SEED_MENU:
             RECT r3;
             ToolBar_GetItemRect(hwndActionToolbar, SEEDMENU_BUTTON, &r3);
@@ -1109,7 +1109,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             TrackPopupMenu ( hSeedMenu, 0, point.x, point.y, 0 , hwnd, NULL );
         break;
 
-        
+
         // For View Drop down Menu... Call ViewProc to handle it
         // Call to ViewProc used to avoid duplicate code
         case RADIO_DOWN_VIEW:
@@ -1121,8 +1121,8 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             ViewProc( hDlgView, WM_COMMAND, id, 0L );
             break;
 
-        // For CA Drop down Menu... 
-        case CA_STANDARD: 
+        // For CA Drop down Menu...
+        case CA_STANDARD:
         case CA_REVERSIBLE:
         case CA_HEATWAVE:
         case CA_HEATWAVE2:
@@ -1155,7 +1155,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         case IDC_RANDOMSEED:
         case IDC_FOURIERSEED:
         case IDC_RANDOMTOUCH:
-        case IDC_SEED_HALFMAX:  
+        case IDC_SEED_HALFMAX:
             WorldProc( 0, WM_COMMAND, id, 0L);
             break;
 
@@ -1200,10 +1200,10 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             break;
           }
 
-        case IDM_FILE_SAVE:   //Opens Modal Save Dialog  
-            inloadsave = TRUE;   //Stop running while you get ready to save            
+        case IDM_FILE_SAVE:   //Opens Modal Save Dialog
+            inloadsave = TRUE;   //Stop running while you get ready to save
             DialogBox(hInst, "SAVE", hwnd, (DLGPROC)SaveFileProc);
-            inloadsave = FALSE;  //Go back              
+            inloadsave = FALSE;  //Go back
             break;
 
         case IDM_OPEN:
@@ -1219,25 +1219,25 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             ofn.nMaxFileTitle     = MAXFILENAME;
             ofn.lpstrTitle        = NULL;
             ofn.Flags             = OFN_EXPLORER | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;
-                
-        
+
+
             strcpy(szFileName, "");
             ofn.nFilterIndex = filterflag;
             ofn.lpstrFile = szFileName;
 
-            ofn.lpstrFilter = szFilter;  
+            ofn.lpstrFilter = szFilter;
             ofn.lpstrDefExt   = "CAS";  //RR 2007.  Was CA.
             inloadsave = TRUE; //Don't do updates while you're in here
             if( GetOpenFileName((LPOPENFILENAME)&ofn) ){
             //  char* str1 = strstr(ofn.lpstrFileTitle, ".");
                 char* str2 = strupr(ofn.lpstrFileTitle);
                 SetCursor(LoadCursor(NULL, IDC_WAIT)); // Wait, I'm working!
-                        
+
                 if(strstr(str2, ".CAS"))
                 {
                     filterflag = 1;
                     calife_list->Loadall(szFileName);
-                    
+
                 }
                 else if(strstr(str2, ".CA"))
                 {
@@ -1268,7 +1268,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             update_flag = TRUE;
             break;
 
-        case IDM_RANDOMIZE:                         // Randomize the CAs    
+        case IDM_RANDOMIZE:                         // Randomize the CAs
             calife_list->Randomize();
 /* Rudy 11/10/97, I don't think I need to clear because Randoimze calls SetView for each
 CA, which does a wbm->ClearSection, which erases that CA's area and doesnt hurt the
@@ -1331,12 +1331,12 @@ grid or the bars. */
             SendMessage(hwnd,WM_CLOSE,0,0L);
             break;
 
-                
+
 // END FILE MENU====================================
 // START EDIT MENU====================================
-                
+
         case IDM_CAPTURE:       // Captures Client Rect to Clipboard
-                                    
+
             hdc = GetDC(hwnd);
             OpenClipboard ( masterhwnd );
             EmptyClipboard();
@@ -1353,7 +1353,7 @@ grid or the bars. */
 
 // END EDIT MENU====================================
 // START VIEW MENU====================================
-        
+
         case IDM_SHOW_STATUS:               // Hide or Show Status Bar
             if (hwndStatusBar)
             {
@@ -1369,7 +1369,7 @@ to toggle the window's visibility with ShowWindow.
                 ShowWindow (hwndStatusBar, SW_HIDE) ;
                 statusON = FALSE;
                 statusBarHeight = 0;
-    
+
             }
              else
              {
@@ -1381,13 +1381,13 @@ to toggle the window's visibility with ShowWindow.
             // Resize other windows.
 //          GetClientRect (masterhwnd, &r) ;
 //          PostMessage (masterhwnd, WM_SIZE, 0,MAKELPARAM (r.right, r.bottom)) ;
-            
+
             calife_list->Locate();
             InvalidateRect(masterhwnd, NULL, FALSE);
             WBM->Clear(masterhwnd, RGB(0,0,0));
             capowgl->Size(hwnd);
             break;
-                
+
         case IDM_NEWTOOLBAR:
             ActionToolbar = !ActionToolbar;
             DialogToolbar = 0;
@@ -1414,7 +1414,7 @@ to toggle the window's visibility with ShowWindow.
 /*mike 11-1-97: the preceding lines do what has been commented out
 here. But also, toolBarHeight doesn't need to change value, as
 it had been doing. I just use show toolBarON and ShowWindow() to
-toggle the appropriate toolbar's visiblility.  
+toggle the appropriate toolbar's visiblility.
             if ( DialogToolbar == 0 && ActionToolbar == 0 )
             {
                 if ( id == IDM_OLDTOOLBAR )
@@ -1423,7 +1423,7 @@ toggle the appropriate toolbar's visiblility.
                     DialogToolbar = 1;
                     WhichToolBar = 0;
                     toolbarON = TRUE;
-//                  toolBarHeight = TOOLBARHEIGHT;     
+//                  toolBarHeight = TOOLBARHEIGHT;
                     ShowWindow (hwndDialogToolbar, SW_SHOW) ;
                         else  // IDM_NEWTOOLBAR
                 {
@@ -1431,13 +1431,13 @@ toggle the appropriate toolbar's visiblility.
                     DialogToolbar = 0;
                     WhichToolBar = 1;
                     toolbarON = TRUE;
-//                  toolBarHeight = TOOLBARHEIGHT;     
+//                  toolBarHeight = TOOLBARHEIGHT;
                     ShowWindow (hwndActionToolbar, SW_SHOW) ;
                 }
         //  break;
             }
-            else    
-                // Action Toolbar is on Dialog is not               
+            else
+                // Action Toolbar is on Dialog is not
                 if ( DialogToolbar == 0 && ActionToolbar == 1 )
                 {
                     if ( id == IDM_NEWTOOLBAR )
@@ -1445,14 +1445,14 @@ toggle the appropriate toolbar's visiblility.
                         ActionToolbar = DialogToolbar = 0;
                         ShowWindow (hwndActionToolbar, SW_HIDE) ;
                         toolbarON = FALSE;
-//                      toolBarHeight = 0; 
+//                      toolBarHeight = 0;
                     }
                     else  // old toolbar clicked.
                     {
                         WhichToolBar = 0;
                         DialogToolbar = 1;
                         ActionToolbar = 0;
-//                      toolBarHeight = TOOLBARHEIGHT;     
+//                      toolBarHeight = TOOLBARHEIGHT;
                         toolbarON = TRUE;
                         ShowWindow (hwndActionToolbar, SW_HIDE) ;
                         ShowWindow (hwndDialogToolbar, SW_SHOW) ;
@@ -1468,7 +1468,7 @@ toggle the appropriate toolbar's visiblility.
                             ActionToolbar = DialogToolbar = 0;
                             ShowWindow (hwndDialogToolbar, SW_HIDE) ;
                             toolbarON = FALSE;
-//                          toolBarHeight = 0; 
+//                          toolBarHeight = 0;
                         }
                         else // New toolbar clicked
                         {
@@ -1476,25 +1476,25 @@ toggle the appropriate toolbar's visiblility.
                             DialogToolbar = 0;
                             ActionToolbar = 1;
                             toolbarON = TRUE;
-//                          toolBarHeight = TOOLBARHEIGHT;     
+//                          toolBarHeight = TOOLBARHEIGHT;
                             ShowWindow (hwndDialogToolbar, SW_HIDE) ;
                             ShowWindow (hwndActionToolbar, SW_SHOW) ;
                         }
                     //reak;
                     }  // end of if dialog == 1 action == 0
-                    
+
                 // Resize other windows.
 //               GetClientRect (masterhwnd, &r) ;
 //               PostMessage (masterhwnd, WM_SIZE, 0,MAKELPARAM (r.right, r.bottom)) ;
 */
-  
+
 InvalidateRect(masterhwnd, NULL, FALSE);
                     capowgl->Size(hwnd);
                  break;
-            
-// END VIEW MENU====================================            
+
+// END VIEW MENU====================================
 // START CONTROLS MENU and DIALOG CONTROLS =========
-            
+
         case IDM_WORLD:         // Open World Dialog
             if( !hDlgWorld )
             {
@@ -1510,10 +1510,10 @@ InvalidateRect(masterhwnd, NULL, FALSE);
                 MoveWindow( hDlgWorld, rect.left, rect.top, rect.right, rect.bottom,
                                 FALSE);
                 ShowWindow( hDlgWorld, TRUE );
-            } 
+            }
             else
                 DestroyWindow( hDlgWorld );
-            
+
             break;
 
         case IDM_CONFIGURE:         // ScreenSaver settings Dialog
@@ -1531,17 +1531,17 @@ InvalidateRect(masterhwnd, NULL, FALSE);
                 MoveWindow( hDlgConfigure, rect.left, rect.top, rect.right, rect.bottom,
                                 FALSE);
                 ShowWindow( hDlgConfigure, TRUE );
-            } 
+            }
             else
                 DestroyWindow( hDlgConfigure );
-            
+
             break;
 
 
         case IDM_COLOR:         // Open Color Dialog
             if (!hDlgColor)
             {
-                hDlgColor = CreateDialog (hInst, (LPSTR)"COLOR", hwnd, 
+                hDlgColor = CreateDialog (hInst, (LPSTR)"COLOR", hwnd,
                                          (DLGPROC)ColorProc);
                 GetWindowRect(hDlgColor, &rect);
                 rect.bottom-=rect.top;
@@ -1557,10 +1557,10 @@ InvalidateRect(masterhwnd, NULL, FALSE);
             }
             else
                 DestroyWindow(hDlgColor);
-                
+
             break;
-            
-            
+
+
 
         case IDM_VIEW:          // Open View Dialog
             if(!hDlgView)
@@ -1640,11 +1640,11 @@ InvalidateRect(masterhwnd, NULL, FALSE);
             else
                 DestroyWindow( hDlgElectric );
             break;
-            
+
         case IDM_FOURIER:           // Opens the Fourier Dialog
             if (!hDlgFourier)
             {
-                hDlgFourier = CreateDialog (hInst, (LPSTR)"FOURIER", hwnd, 
+                hDlgFourier = CreateDialog (hInst, (LPSTR)"FOURIER", hwnd,
                                            (DLGPROC)FourierProc);
                 GetWindowRect(hDlgFourier, &rect);
                 rect.bottom -=rect.top;
@@ -1670,11 +1670,11 @@ InvalidateRect(masterhwnd, NULL, FALSE);
             createUserDialog();
             break;
 
-            
+
         case IDM_CYCLE:
             if (!hDlgCycle)
             {
-                hDlgCycle = CreateDialog (hInst, (LPSTR)"CYCLE", hwnd, 
+                hDlgCycle = CreateDialog (hInst, (LPSTR)"CYCLE", hwnd,
                                          (DLGPROC)CycleProc);
                 GetWindowRect(hDlgCycle, &rect);
                 rect.bottom-=rect.top;
@@ -1713,13 +1713,13 @@ InvalidateRect(masterhwnd, NULL, FALSE);
             {
                 DestroyWindow(hDlgExp);
             }
-        
+
             break;
-            
-            
+
+
         case IDM_CELL:
             if(!hDlgCell)
-            {   
+            {
                 hDlgCell = CreateDialog( hInst, (LPSTR)"CELL", hwnd,
                                            (DLGPROC)CellProc );
                 GetWindowRect( hDlgCell, &rect );
@@ -1735,9 +1735,9 @@ InvalidateRect(masterhwnd, NULL, FALSE);
             else
                 DestroyWindow(hDlgCell);
             break;
-        
+
         case IDM_LOAD_USER_RULE:
-            
+
             if (!calife_list->LoadUserRule(masterhwnd, focusflag))
                     break;
 
@@ -1746,16 +1746,16 @@ InvalidateRect(masterhwnd, NULL, FALSE);
                 calife_list->SetCAType(calife_list->FocusCA(), CA_USER,TRUE);
             else // Second argument says adjust for the rule to be stable.
                 calife_list->SetAllType(CA_USER, TRUE);
-        
-            break;      
-    
+
+            break;
+
         case IDM_CLOSE:
             // if any dialog box is open
             if (hDlgCycle || hDlgExp || hDlgColor || hDlgFourier ||
                 hDlgAnalog ||   hDlgCell || hDlgElectric ||
                 hDlgDigital || hDlgView || hDlgWorld || hDlgConfigure ||
                 hUserDialog || hDlgGenerators || hDlgOpenGL )
-            {  
+            {
                 if (hDlgGenerators)
                     DestroyWindow(hDlgGenerators );
                 if (hDlgOpenGL)
@@ -1789,11 +1789,11 @@ InvalidateRect(masterhwnd, NULL, FALSE);
             }
             break;
 
-                    
-        
-// END CONTROLS MENU and DIALOG CONTROLS =============          
+
+
+// END CONTROLS MENU and DIALOG CONTROLS =============
 // START TOOLS MENU====================================
-            
+
         case CUR_PICK:
         case CUR_ZAP:
         case CUR_TOUCH:
@@ -1809,7 +1809,7 @@ InvalidateRect(masterhwnd, NULL, FALSE);
             else
             if ( id == CUR_TOUCH )
             {
-                    ToolBar_CheckButton(hwndActionToolbar, CUR_TOUCH, TRUE );               
+                    ToolBar_CheckButton(hwndActionToolbar, CUR_TOUCH, TRUE );
                     ToolBar_CheckButton(hwndActionToolbar, CUR_PICK, FALSE );
                     ToolBar_CheckButton(hwndActionToolbar, CUR_GENERATOR, FALSE );
                     ToolBar_CheckButton(hwndActionToolbar, CUR_ZAP, FALSE );
@@ -1817,18 +1817,18 @@ InvalidateRect(masterhwnd, NULL, FALSE);
             else
             if ( id == CUR_ZAP )
             {
-                    ToolBar_CheckButton(hwndActionToolbar, CUR_ZAP, TRUE ); 
-                    ToolBar_CheckButton(hwndActionToolbar, CUR_TOUCH, FALSE );              
+                    ToolBar_CheckButton(hwndActionToolbar, CUR_ZAP, TRUE );
+                    ToolBar_CheckButton(hwndActionToolbar, CUR_TOUCH, FALSE );
                     ToolBar_CheckButton(hwndActionToolbar, CUR_PICK, FALSE );
                     ToolBar_CheckButton(hwndActionToolbar, CUR_GENERATOR, FALSE );
             }
             else
             if ( id == CUR_GENERATOR )
             {
-                    ToolBar_CheckButton(hwndActionToolbar, CUR_GENERATOR, TRUE );   
-                    ToolBar_CheckButton(hwndActionToolbar, CUR_TOUCH, FALSE );              
+                    ToolBar_CheckButton(hwndActionToolbar, CUR_GENERATOR, TRUE );
+                    ToolBar_CheckButton(hwndActionToolbar, CUR_TOUCH, FALSE );
                     ToolBar_CheckButton(hwndActionToolbar, CUR_PICK, FALSE );
-                    ToolBar_CheckButton(hwndActionToolbar, CUR_ZAP, FALSE );    
+                    ToolBar_CheckButton(hwndActionToolbar, CUR_ZAP, FALSE );
 
             }
             SetClassLong(hwnd, GCLP_HCURSOR, (int)LoadCursor(hInst,
@@ -1869,8 +1869,8 @@ InvalidateRect(masterhwnd, NULL, FALSE);
             break;
 
 // END TOOLS MENU====================================
-// START HELP MENU====================================              
-            
+// START HELP MENU====================================
+
         case IDM_HELP:                              // Calls Help
             //WinHelp(hwnd, "capow.hlp", HELP_FINDER, 0); //Old Way
            /* As of 12/31/2007, Windows Vista has made HLP files obsolete, so I switched to CHM,
@@ -1882,7 +1882,7 @@ InvalidateRect(masterhwnd, NULL, FALSE);
 
                 ShellExecute(0, 0, "http://www.rudyrucker.com/capow/capowhelp.htm", 0, 0, SW_SHOW); //BEST solution, found in 2017.  Keep the help file online
                     //and let the users go read it online.  Easy to update this way.  ShellExecute does the job!
-                
+
                 break;
 
         case IDM_ABOUT:         // Opens About Dialog
@@ -1890,7 +1890,7 @@ InvalidateRect(masterhwnd, NULL, FALSE);
                 break;
         case IDM_GENERATORS:
             if(!hDlgGenerators)
-            {   
+            {
                 hDlgGenerators = CreateDialog( hInst, (LPSTR)"GENERATORS", hwnd,
                                            (DLGPROC)GeneratorsProc );
                 GetWindowRect( hDlgGenerators, &rect );
@@ -1908,7 +1908,7 @@ InvalidateRect(masterhwnd, NULL, FALSE);
             break;
         case IDM_OPENGL:
             if(!hDlgOpenGL)
-            {   
+            {
                 hDlgOpenGL = CreateDialog( hInst, (LPSTR)"OPENGL", hwnd,
                                            (DLGPROC)OpenGLProc);
                 GetWindowRect( hDlgOpenGL, &rect );
@@ -1930,21 +1930,21 @@ InvalidateRect(masterhwnd, NULL, FALSE);
 
 
 LRESULT MyWnd_MENUSELECT(HWND hwnd, HMENU hmenu, int item, HMENU hmenuPopup, UINT flags)
-{        
+{
      return Statusbar_MenuSelect ( hwnd, MAKEWPARAM(item, flags), LPARAM( hmenu ) );
-} 
-  
+}
+
 /*********************************************************/
- 
+
 static void MyWnd_LBUTTONDOWN(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT keyFlags)
 {
     //((fn)((hwnd), FALSE, (int)LOWORD(lParam), (int)HIWORD(lParam), (UINT)(wParam)), 0L)
     RECT rect;
-    
+
     HDC hdc = GetDC(hwnd);
     SetCapture(hwnd);  //mike
     CA*  oldfocus = calife_list->FocusCA();
-    
+
     switch(cursormode)
     {
 /* If you are unzoomed and click on the focus, this zooms.
@@ -1954,7 +1954,7 @@ static void MyWnd_LBUTTONDOWN(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
         case CUR_PICK:
             if (!zoomviewflag)
             {
-                
+
                 if (calife_list->Setfocus(hdc, calife_list->
                     Getfocus(x, y)) == 1)
                     // If == 1 then the user is clicking on the focused ca, so zoom
@@ -2005,17 +2005,17 @@ if I only do recreateUserDialog(), but the following works: */
                         DestroyWindow(hUserDialog);
                         hUserDialog = 0;
                         SendMessage(hwnd, WM_COMMAND, IDM_USERDIALOG, 0L);
-                    } 
+                    }
 //This next line erases the 1D CAs when shifting focus, which is ugly, so
 //we took this line out.
 //                  SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L);
 
                 }
             }
-            else 
+            else
             {   //ifzoomed on a 2d CA
                 if(calife_list->FocusCA()->Getviewmode() ==IDC_2D_VIEW)
-                    capowgl->LeftButtonDown(fDoubleClick, x, y, keyFlags);  //mike 4/97 
+                    capowgl->LeftButtonDown(fDoubleClick, x, y, keyFlags);  //mike 4/97
 
             }
             if( hDlgFourier )  // Adjust Slider bar to position of focus
@@ -2051,7 +2051,7 @@ if I only do recreateUserDialog(), but the following works: */
     // should also do an if focused check
             calife_list->Touch_CA(x,y,WM_LBUTTONDOWN);
             break;
-        
+
         case CUR_GENERATOR:
             calife_list->LocateNewGenerator(x,y,WM_LBUTTONDOWN);
             if (hDlgGenerators)
@@ -2071,7 +2071,7 @@ static void MyWnd_RBUTTONDOWN(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
 {
     //((fn)((hwnd), FALSE, (int)LOWORD(lParam), (int)HIWORD(lParam), (UINT)(wParam)), 0L)
     HDC hdc = GetDC(hwnd);
-    
+
     switch(cursormode)
     {
         case CUR_PICK:
@@ -2079,7 +2079,7 @@ static void MyWnd_RBUTTONDOWN(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
             if (calife_list->Zoom(0))
             {
 //              SendMessage(hwnd, WM_SIZE, 0, 0L);
-                
+
                 zoomviewflag = FALSE;
                 calife_list->Locate();
                 SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L);
@@ -2097,7 +2097,7 @@ static void MyWnd_RBUTTONDOWN(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
             calife_list->Setfocus(hdc, calife_list->Getfocus(x, y));
             update_flag = TRUE;
             break;
-                        
+
         case CUR_TOUCH: // should also do an if focused check
             calife_list->Touch_CA(x,y,WM_RBUTTONDOWN);
             break;
@@ -2122,7 +2122,7 @@ static void MyWnd_CLOSE(HWND hwnd)   //((fn)(hwnd), 0L)
         case IDYES:
             load_save_cells_flag = TRUE;
             calife_list->Saveall("ACTIVE.CAS", TRUE);
-        
+
             //The TRUE argument means do an automatic overwrite of
             //any existing ACTIVE.CAS.
             // Now drop down to IDNO case.
@@ -2165,19 +2165,19 @@ static void MyWnd_CLOSE(HWND hwnd)   //((fn)(hwnd), 0L)
         {
             DestroyWindow (hDlgAnalog);
             hDlgAnalog = 0;
-        } 
+        }
 
         if ( hDlgElectric )
         {
             DestroyWindow( hDlgElectric );
             hDlgElectric = 0;
-        } 
+        }
 
         if( hDlgDigital )
         {
             DestroyWindow( hDlgDigital );
             hDlgDigital = 0;
-        } 
+        }
 
         if (hDlgView)
         {
@@ -2186,37 +2186,37 @@ static void MyWnd_CLOSE(HWND hwnd)   //((fn)(hwnd), 0L)
         }
 
         if( hDlgWorld )
-        {   
+        {
             DestroyWindow( hDlgWorld );
             hDlgWorld = 0;
-        } 
+        }
 
         if( hDlgConfigure )
-        {   
+        {
             DestroyWindow( hDlgConfigure );
             hDlgConfigure = 0;
-        } 
+        }
 
         if( hDlgCell )
-        {   
+        {
             DestroyWindow( hDlgCell );
             hDlgCell = 0;
-        } 
+        }
 
         if (hUserDialog)
-        {   
+        {
             DestroyWindow(hUserDialog);
             hUserDialog = 0;
         } // if
 
         if (hDlgGenerators)
-        {   
+        {
             DestroyWindow(hDlgGenerators);
             hDlgGenerators = 0;
         }
 
         if (hDlgOpenGL)
-        {   
+        {
             DestroyWindow(hDlgOpenGL);
             hDlgOpenGL = 0;
         }
@@ -2228,7 +2228,7 @@ static void MyWnd_CLOSE(HWND hwnd)   //((fn)(hwnd), 0L)
         delete calife_list;
         calife_list = NULL; //This way you can avoid update after it's gone.
         //Calls dll_list destructor.  Important to call FreeLibrary on DLLS.
-    
+
         PostQuitMessage (0);
 #ifdef QUERY_ON_CLOSE
     }  // End Switch ( MessageBox YES NO )
@@ -2252,7 +2252,7 @@ BOOL MyWnd_INITDIALOG(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 }
 
 
-static void MyWnd_MOUSEMOVE(HWND hwnd, int x, int y, UINT flags) 
+static void MyWnd_MOUSEMOVE(HWND hwnd, int x, int y, UINT flags)
 {
   //  ((fn)((hwnd), (int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam), (UINT)(wParam)), 0L)
     switch(cursormode)
@@ -2278,9 +2278,9 @@ static void MyWnd_LBUTTONUP(HWND hwnd, int x, int y, UINT flags)
 
 }
 
-static void MyWnd_INITMENUPOPUP(HWND hwnd,  HMENU menu, UINT menuindex, BOOL x )        
+static void MyWnd_INITMENUPOPUP(HWND hwnd,  HMENU menu, UINT menuindex, BOOL x )
 {
-    switch ( menuindex )   
+    switch ( menuindex )
     {
         case 0:         // File Menu
             CheckMenuItem(menu, IDM_COMPRESS, MF_BYCOMMAND |
@@ -2297,9 +2297,9 @@ static void MyWnd_INITMENUPOPUP(HWND hwnd,  HMENU menu, UINT menuindex, BOOL x )
                 CheckMenuItem(menu, i, MF_BYCOMMAND |
                 (i==ID_VERYSLOW+update_timer_speed_index?MF_CHECKED:MF_UNCHECKED));
             break;
-        
 
-        case 2:  // Control Menu 
+
+        case 2:  // Control Menu
 
             if ( focusflag ) // Change all change focus
             {
@@ -2311,7 +2311,7 @@ static void MyWnd_INITMENUPOPUP(HWND hwnd,  HMENU menu, UINT menuindex, BOOL x )
                 CheckMenuItem(menu, IDM_CHANGEALLMENU, MF_BYCOMMAND   | MF_CHECKED );
                 CheckMenuItem(menu, IDM_CHANGEFOCUSMENU, MF_BYCOMMAND | MF_UNCHECKED   );
             }
-            
+
             CheckMenuItem(menu, IDM_EXP, MF_BYCOMMAND |
             (hDlgExp?MF_CHECKED:MF_UNCHECKED));
 
@@ -2320,46 +2320,46 @@ static void MyWnd_INITMENUPOPUP(HWND hwnd,  HMENU menu, UINT menuindex, BOOL x )
 
             CheckMenuItem(menu, IDM_COLOR, MF_BYCOMMAND |
             (hDlgColor?MF_CHECKED:MF_UNCHECKED));
-                    
+
             CheckMenuItem(menu, IDM_FOURIER, MF_BYCOMMAND |
             (hDlgFourier ?MF_CHECKED:MF_UNCHECKED));
-                    
+
             CheckMenuItem(menu, IDM_ANALOG, MF_BYCOMMAND |
             (hDlgAnalog?MF_CHECKED:MF_UNCHECKED));
-                        
+
             CheckMenuItem(menu, IDM_CELL, MF_BYCOMMAND |
             (hDlgCell?MF_CHECKED:MF_UNCHECKED));
-                     
+
             CheckMenuItem(menu, IDM_ELECTRIC, MF_BYCOMMAND |
             (hDlgElectric?MF_CHECKED:MF_UNCHECKED));
-                                    
+
             CheckMenuItem(menu, IDM_DIGITAL, MF_BYCOMMAND |
             (hDlgDigital ?MF_CHECKED:MF_UNCHECKED));
-            
+
             CheckMenuItem(menu, IDM_VIEW, MF_BYCOMMAND |
             (hDlgView ?MF_CHECKED:MF_UNCHECKED));
-                    
+
             CheckMenuItem(menu, IDM_WORLD, MF_BYCOMMAND |
             (hDlgWorld?MF_CHECKED:MF_UNCHECKED));
-                    
+
             CheckMenuItem(menu, IDM_CONFIGURE, MF_BYCOMMAND |
             (hDlgConfigure?MF_CHECKED:MF_UNCHECKED));
-                    
+
             CheckMenuItem(menu, IDM_USERDIALOG, MF_BYCOMMAND |
             (hUserDialog ?MF_CHECKED:MF_UNCHECKED));
-                     
+
             CheckMenuItem(menu, IDM_GENERATORS, MF_BYCOMMAND |
             (hDlgGenerators?MF_CHECKED:MF_UNCHECKED));
-                    
+
             CheckMenuItem(menu, IDM_OPENGL, MF_BYCOMMAND |
             (hDlgOpenGL?MF_CHECKED:MF_UNCHECKED));
             break;
-        case 3:  // view Menu 
+        case 3:  // view Menu
             CheckMenuItem(menu, IDM_SHOW_STATUS, MF_BYCOMMAND |
             (statusON?MF_CHECKED:MF_UNCHECKED));
             CheckMenuItem(menu, IDM_SHOW_TOOLBAR, MF_BYCOMMAND |
             (toolbarON?MF_CHECKED:MF_UNCHECKED));
-                    
+
             if ( ActionToolbar )  // New or Old Toolbar
             {
                 CheckMenuItem(menu, IDM_NEWTOOLBAR, MF_BYCOMMAND | MF_CHECKED   );
@@ -2376,10 +2376,10 @@ static void MyWnd_INITMENUPOPUP(HWND hwnd,  HMENU menu, UINT menuindex, BOOL x )
                 CheckMenuItem(menu, IDM_OLDTOOLBAR, MF_BYCOMMAND | MF_UNCHECKED   );
             }
             break;
-        case 4:  // cursor Menu 
-                
+        case 4:  // cursor Menu
 
-    
+
+
             CheckMenuItem(menu, CUR_PICK,   MF_BYCOMMAND | MF_UNCHECKED   );
             CheckMenuItem(menu, CUR_ZAP,    MF_BYCOMMAND | MF_UNCHECKED   );
             CheckMenuItem(menu, CUR_GENERATOR, MF_BYCOMMAND | MF_UNCHECKED   );
@@ -2390,11 +2390,11 @@ static void MyWnd_INITMENUPOPUP(HWND hwnd,  HMENU menu, UINT menuindex, BOOL x )
                 case CUR_PICK:
                     CheckMenuItem(menu, CUR_PICK,   MF_BYCOMMAND | MF_CHECKED   );
                     break;
-    
+
                 case CUR_ZAP:
                     CheckMenuItem(menu, CUR_ZAP,    MF_BYCOMMAND | MF_CHECKED   );
                     break;
-                        
+
                 case CUR_TOUCH:
                     CheckMenuItem(menu, CUR_TOUCH,  MF_BYCOMMAND | MF_CHECKED   );
                     break;
@@ -2404,7 +2404,7 @@ static void MyWnd_INITMENUPOPUP(HWND hwnd,  HMENU menu, UINT menuindex, BOOL x )
             }       // end switch ( cusormode )
             break;
         } // end switch ( menuindex )
-    
+
 }
 
 
@@ -2414,7 +2414,7 @@ static void MyWnd_TIMER(HWND hwnd, UINT timerid)
 #ifdef MASTERTIMER
         if (timerid == UPDATE_TIMER_ID)
         {
-            Cellmain(hwnd); 
+            Cellmain(hwnd);
             return;
         }
 #endif //MASTERTIMER
@@ -2424,7 +2424,7 @@ static void MyWnd_TIMER(HWND hwnd, UINT timerid)
 But I don't want to keep randomizing even when the CA is paused for one reason
 or another.  The code at the start of Cellmain tracks if the CA is paused.
 So we'll use this check and just set a flag here */
-        randomizenow = TRUE; 
+        randomizenow = TRUE;
 /* Rudy 11/10, I don't think I need to clear because Randoimze calls SetView for each
 CA, which does a wbm->ClearSection, which erases that CA's area and doesnt hurt the
 grid or the bars. */
@@ -2441,11 +2441,11 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UINT uiStringBase = 100;
 
-    
+
     switch (message)
     {
 //Modified code by Chi Pan Lao at 9/9/96 by using the windowsx.h Marco
-    
+
         HANDLE_MSG(hwnd,WM_CREATE, MyWnd_CREATE);
         HANDLE_MSG(hwnd,WM_PAINT, MyWnd_PAINT);
         HANDLE_MSG(hwnd,WM_SIZE,MyWnd_SIZE);
@@ -2460,7 +2460,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(hwnd, WM_MENUSELECT, MyWnd_MENUSELECT);
         HANDLE_MSG(hwnd, WM_MOUSEMOVE, MyWnd_MOUSEMOVE);  //Mike 4/97
         HANDLE_MSG(hwnd,WM_LBUTTONUP,MyWnd_LBUTTONUP);  //Mike 4/97
-        HANDLE_MSG(hwnd, WM_INITMENUPOPUP,MyWnd_INITMENUPOPUP); //Andrew 9/97   
+        HANDLE_MSG(hwnd, WM_INITMENUPOPUP,MyWnd_INITMENUPOPUP); //Andrew 9/97
         HANDLE_MSG(hwnd, WM_TIMER, MyWnd_TIMER);
     }
     return DefWindowProc (hwnd, message, wParam, lParam) ;
@@ -2479,8 +2479,8 @@ void Cellmain(HWND hwnd)
     HDC hdc;
     HPALETTE old_hpal;
     static long GenCount;
-    static char GenCountChar[10];   
-    
+    static char GenCountChar[10];
+
     MSG msg;
 /*  There are sometimes you don't want to run.  First you don't want to run
 if this call happens before WM_CREATE or WM_DESTROY, as it possibly might.
@@ -2489,17 +2489,17 @@ same till you finish saving it.  Third you want to be extra sure not to run
 when a window is minimized, though the next check would take care of this as
 well. */
     if (!calife_list || inloadsave || windowIsMinimized) //2017 put || instead of |
-        return; 
+        return;
 /* If GetForegroundWindow (or GetFocus would work as well) is not my main
 window or one of its modeless dialogs, then I won't do an update.  This check
-needn't take very long because a boolean combo gets shortcircuted 
+needn't take very long because a boolean combo gets shortcircuted
 in evaluation, and if the focus is on the main hwnd, the eval bails after 1st
 term. Rudy 12/2/97.  The reason for this is to be a better "citizen" and let
 other programs run.  We could add a _backgroundrun flag to override this good
 behavior if we wanted to.*/
     HWND activewnd = GetForegroundWindow();
     if ( hwnd != activewnd &&
-    hDlgCycle != activewnd && hDlgExp != activewnd && hDlgColor != activewnd && 
+    hDlgCycle != activewnd && hDlgExp != activewnd && hDlgColor != activewnd &&
     hDlgFourier != activewnd && hDlgAnalog != activewnd && hDlgCell != activewnd &&
     hDlgElectric != activewnd &&    hDlgDigital != activewnd &&
     hDlgView != activewnd && hDlgWorld != activewnd && hUserDialog != activewnd &&
@@ -2513,7 +2513,7 @@ behavior if we wanted to.*/
     }
 
     hdc = GetDC(hwnd);
-    
+
     if (calife_list->numcolor() == 256)
     {
         old_hpal = WBM->WBMSelectPalette(hdc, calife_list->hpal());
@@ -2559,7 +2559,7 @@ behavior if we wanted to.*/
             SendMessage( hDlgGenerators, WM_COMMAND, SC_UPDATE, 0L );
         if( hDlgOpenGL )
             SendMessage( hDlgOpenGL, WM_COMMAND, SC_UPDATE, 0L );
-            
+
         update_flag = FALSE;
     }
 
@@ -2589,7 +2589,7 @@ void ParseCommandLine ( char commandline[], char* WinArgv[] )
     }
 
 }
- 
+
 BOOL CheckExtension ( char Extension[], char DesiredExtension[] )
 {
     int i=0;
@@ -2597,7 +2597,7 @@ BOOL CheckExtension ( char Extension[], char DesiredExtension[] )
     while ( Extension[i] != '\0' )
       {
             Extension[i] = toupper ( Extension[i] );
-            
+
             i++;
       }
     i = 0;

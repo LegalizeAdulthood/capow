@@ -8,14 +8,14 @@
                         messages to common files.
 
     COPYRIGHT INFO:
-      
+
         COMCTHLP.H -- Helper macros for common controls
                  (c) Paul Yao, 1996
 
         Portions Copyright (c) 1992-1996, Microsoft Corp.
 
-    UPDATE LOG:         
-        
+    UPDATE LOG:
+
 *******************************************************************************/
 //-------------------------------------------------------------------
 // Hot-Key Helper Macros
@@ -51,7 +51,7 @@
 // Rich Edit Control Helper Macros
 //-------------------------------------------------------------------
 
-//---------------- Begin Macros Copied from windowsx.h--------------- 
+//---------------- Begin Macros Copied from windowsx.h---------------
 #define RichEdit_Enable(hwndCtl, fEnable) \
     (BOOL)EnableWindow((hwndCtl), (fEnable))
 
@@ -131,7 +131,7 @@
     ((EDITWORDBREAKPROC)SendMessage((hwndCtl), EM_GETWORDBREAKPROC, 0L, 0L))
 
 #define RichEdit_CanPaste(hwnd, uFormat) \
-    (BOOL)SendMessage((hwnd), EM_CANPASTE, (WPARAM) (UINT) uFormat, 0L) 
+    (BOOL)SendMessage((hwnd), EM_CANPASTE, (WPARAM) (UINT) uFormat, 0L)
 
 #define RichEdit_CharFromPos(hwnd, x, y) \
     (DWORD)SendMessage((hwnd), EM_CHARFROMPOS, 0, MAKELPARAM(x, y))
