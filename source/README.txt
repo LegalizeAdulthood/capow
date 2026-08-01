@@ -74,7 +74,7 @@ Fall 94: Juyoung Lee, Tuyen Ly, Bob Westergaard.
 Spring 95: David Kent, Juyoung Lee, Tuyen Ly, Ping-Chak Wong.
 Fall 95: Jerry Chang, Ning Tian.
 Spring 96: Darrel Cherry, John Briere, Bang Nguyen, Thai Truong,
-	Juiliekara Techasaratoole, Rajaneekara Techasaratoole.
+    Juiliekara Techasaratoole, Rajaneekara Techasaratoole.
 Fall 96: Chi Pan Lao, Otto Leung, Darin Levy, James Kroutch, Siu Ming Tong.
 Spring 97: Michael Ling, Andrew Forster, Loc Ho, Lorrie Tanabe.
 Fall 97: Andrew Forster, Michael Ling, Ted Colbert, Rong Liu.

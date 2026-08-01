@@ -144,14 +144,14 @@ unary_negate<Predicate> not1(const Predicate& pred) {
 template <class Predicate> 
 class binary_negate 
     : public binary_function<Predicate::first_argument_type,
-			     Predicate::second_argument_type, bool> {
+                 Predicate::second_argument_type, bool> {
 protected:
     Predicate pred;
 public:
     binary_negate(const Predicate& x) : pred(x) {}
     bool operator()(const first_argument_type& x, 
-		    const second_argument_type& y) const {
-	return !pred(x, y); 
+            const second_argument_type& y) const {
+    return !pred(x, y); 
     }
 };
 
@@ -162,15 +162,15 @@ binary_negate<Predicate> not2(const Predicate& pred) {
 
 template <class Operation> 
 class binder1st : public unary_function<Operation::second_argument_type,
-					Operation::result_type> {
+                    Operation::result_type> {
 protected:
     Operation op;
     Operation::first_argument_type value;
 public:
     binder1st(const Operation& x, const Operation::first_argument_type& y)
-	: op(x), value(y) {}
+    : op(x), value(y) {}
     result_type operator()(const argument_type& x) const {
-	return op(value, x); 
+    return op(value, x); 
     }
 };
 
@@ -181,15 +181,15 @@ binder1st<Operation> bind1st(const Operation& op, const T& x) {
 
 template <class Operation> 
 class binder2nd : public unary_function<Operation::first_argument_type,
-					Operation::result_type> {
+                    Operation::result_type> {
 protected:
     Operation op;
     Operation::second_argument_type value;
 public:
     binder2nd(const Operation& x, const Operation::second_argument_type& y) 
-	: op(x), value(y) {}
+    : op(x), value(y) {}
     result_type operator()(const argument_type& x) const {
-	return op(x, value); 
+    return op(x, value); 
     }
 };
 
@@ -207,13 +207,13 @@ protected:
 public:
     unary_compose(const Operation1& x, const Operation2& y) : op1(x), op2(y) {}
     result_type operator()(const argument_type& x) const {
-	return op1(op2(x));
+    return op1(op2(x));
     }
 };
 
 template <class Operation1, class Operation2>
 unary_compose<Operation1, Operation2> compose1(const Operation1& op1, 
-					       const Operation2& op2) {
+                           const Operation2& op2) {
     return unary_compose<Operation1, Operation2>(op1, op2);
 }
 
@@ -226,9 +226,9 @@ protected:
     Operation3 op3;
 public:
     binary_compose(const Operation1& x, const Operation2& y, 
-		   const Operation3& z) : op1(x), op2(y), op3(z) { }
+           const Operation3& z) : op1(x), op2(y), op3(z) { }
     result_type operator()(const argument_type& x) const {
-	return op1(op2(x), op3(x));
+    return op1(op2(x), op3(x));
     }
 };
 

@@ -43,8 +43,8 @@ the same for the two memory models. */
 //-----------------------------------BEGIN 32 BIT VERSION------------
 
 #ifdef MYMACROS
-	#define MYLROTR1(x) ( ( (x) >> 1 ) |  ( (x) << 31 ) )
-	#define MYLROTL1(x) ( ( (x) << 1 ) |  ( (x) >> 31 ) )
+    #define MYLROTR1(x) ( ( (x) >> 1 ) |  ( (x) << 31 ) )
+    #define MYLROTL1(x) ( ( (x) << 1 ) |  ( (x) >> 31 ) )
 #endif //MYMACROS
 
 static unsigned long shiftregister = 1946; // Rucker's birthday
@@ -59,86 +59,86 @@ unsigned long thirtytwobits(unsigned long seed)
  from different seeds. Using the same seed twice produces the same
  sequence of numbers.*/
 
-	register unsigned long l,c,r;
+    register unsigned long l,c,r;
 
-	if (seed)
-	{
-		shiftregister = seed;
-		count = 0;
-		return seed;
-	}
-	l = r = c = shiftregister;
+    if (seed)
+    {
+        shiftregister = seed;
+        count = 0;
+        return seed;
+    }
+    l = r = c = shiftregister;
 #ifndef MYMACROS  //Borland compiler
-	l = _lrotr(l, 1);/* bit i of l equals bit just left of bit i in c */
-	r = _lrotl(r, 1);/* bit i of r euqals bit just right of bit i in c */
+    l = _lrotr(l, 1);/* bit i of l equals bit just left of bit i in c */
+    r = _lrotl(r, 1);/* bit i of r euqals bit just right of bit i in c */
 #else  //other compiler
-	l = MYLROTR(l);/* bit i of l equals bit just left of bit i in c */
-	r = MYLROTL(r);/* bit i of r euqals bit just right of bit i in c */
+    l = MYLROTR(l);/* bit i of l equals bit just left of bit i in c */
+    r = MYLROTL(r);/* bit i of r euqals bit just right of bit i in c */
 #endif //MYMACROS
-	c |= r;
-	c ^= l;		/* c = l xor (c or r), aka rule 30, named by wolfram */
-	c ^= count;	/* rucker's trick to  make reaction self-sustaining */
-	count++;
-	shiftregister = c;
-	return c;
+    c |= r;
+    c ^= l;     /* c = l xor (c or r), aka rule 30, named by wolfram */
+    c ^= count; /* rucker's trick to  make reaction self-sustaining */
+    count++;
+    shiftregister = c;
+    return c;
 }
 
 void rseed(unsigned long n)
 {
 /* This installs a specific seed, so randomizers will repeat. */
-	thirtytwobits(n);
+    thirtytwobits(n);
 }
 
 unsigned int Randomize() //We're in 32 bit so int means long.
 {
 /* This uses the time to install a random seed */
 /* Return the seed in case you want it for a regression test.*/
-	time_t timeslot; //2017 wants special type  
-	time(&timeslot);	/* unix time function is seconds since 1970*/
-	rseed( (unsigned long)timeslot );
-	return (unsigned int)timeslot;
+    time_t timeslot; //2017 wants special type  
+    time(&timeslot);    /* unix time function is seconds since 1970*/
+    rseed( (unsigned long)timeslot );
+    return (unsigned int)timeslot;
 }
 
 unsigned short Randomshort(unsigned short n)
 {
 /* This returns a random integer from 0 to n - 1. */
 /* Bail 0 if n <= 1 to avoid weirdness with modulo operator.*/
-	if (n <= 0)
-		return 0;
-	return ( (unsigned short)((unsigned short)(thirtytwobits(0)) % n) );
+    if (n <= 0)
+        return 0;
+    return ( (unsigned short)((unsigned short)(thirtytwobits(0)) % n) );
 }
 
 unsigned long Randomlong(unsigned long n)
 {
 /* This returns a random integer from 0 to n - 1. */
 /* Bail 0 if n <= 1 to avoid weirdness with modulo operator.*/
-	if (n <= 0)
-		return 0;
-	return ( (unsigned long)(thirtytwobits(0) % n) );
+    if (n <= 0)
+        return 0;
+    return ( (unsigned long)(thirtytwobits(0) % n) );
 }
 
 unsigned int Random(unsigned int n)
 {  //Here in the __FLAT__ case, an int is 32 bits.
-	return (unsigned int)Randomlong(n);
+    return (unsigned int)Randomlong(n);
 }
 
 unsigned char Randombyte(void)
 {
-	return (unsigned char)( thirtytwobits(0) & 0x00FF );
+    return (unsigned char)( thirtytwobits(0) & 0x00FF );
 }
 
 Real Randomreal()
 {
 /* This returns a random real between 0 and 1. */
-	return ((Real)(thirtytwobits(0))) / 0xFFFFFFFFUL;
+    return ((Real)(thirtytwobits(0))) / 0xFFFFFFFFUL;
 }
 
 Real Randomsign(void)
 {
-	if (thirtytwobits(0) & 1)
-		return 1.0f;
-	else
-		return -1.0f;
+    if (thirtytwobits(0) & 1)
+        return 1.0f;
+    else
+        return -1.0f;
 }
 //----------------------------------END 32 BIT VERSION------------
 
@@ -148,8 +148,8 @@ Real Randomsign(void)
 
 
 #ifdef MYMACROS
-	#define MYROTR1(x) ( ( (x) >> 1 ) |  ( (x) << 15 ) )
-	#define MYROTL1(x) ( ( (x) << 1 ) |  ( (x) >> 15 ) )
+    #define MYROTR1(x) ( ( (x) >> 1 ) |  ( (x) << 15 ) )
+    #define MYROTL1(x) ( ( (x) << 1 ) |  ( (x) >> 15 ) )
 #endif //MYMACROS
 
 static unsigned short shiftregister = 1946; // Rucker's birth year
@@ -164,91 +164,91 @@ unsigned short sixteenbits(unsigned short seed)
  from different seeds. Using the same seed twice produces the same
  sequence of numbers.*/
 
-	register unsigned short l,c,r;
+    register unsigned short l,c,r;
 
-	if (seed)
-	{
-		shiftregister = seed;
-		count = 0;
-		return seed;
-	}
-	l = r = c = shiftregister;
+    if (seed)
+    {
+        shiftregister = seed;
+        count = 0;
+        return seed;
+    }
+    l = r = c = shiftregister;
 #ifndef MYMACROS  //Borland compiler
-	l = _rotr(l, 1);/* bit i of l equals bit just left of bit i in c */
-	r = _rotl(r, 1);/* bit i of r euqals bit just right of bit i in c */
+    l = _rotr(l, 1);/* bit i of l equals bit just left of bit i in c */
+    r = _rotl(r, 1);/* bit i of r euqals bit just right of bit i in c */
 #else  //other compiler
-	l = MYROTR(l);/* bit i of l equals bit just left of bit i in c */
-	r = MYROTL(r);/* bit i of r euqals bit just right of bit i in c */
+    l = MYROTR(l);/* bit i of l equals bit just left of bit i in c */
+    r = MYROTL(r);/* bit i of r euqals bit just right of bit i in c */
 #endif //MYMACROS
-	c |= r;
-	c ^= l;		/* c = l xor (c or r), aka rule 30, named by wolfram */
-	c ^= count;	/* rucker's trick to  make reaction self-sustaining */
-	count++;
-	shiftregister = c;
-	return c;
+    c |= r;
+    c ^= l;     /* c = l xor (c or r), aka rule 30, named by wolfram */
+    c ^= count; /* rucker's trick to  make reaction self-sustaining */
+    count++;
+    shiftregister = c;
+    return c;
 }
 
 void rseed(unsigned int n)
 {
 /* This installs a specific seed, so randomizers will repeat. */
-	sixteenbits(n);
+    sixteenbits(n);
 }
 
 unsigned int Randomize()
 {
 /* This uses the time to install a random seed */
 /* Return the seed in case you want it for a regression test.*/
-	long timeslot;
-	unsigned int seed; //We're in 16 bit, so int means short.
+    long timeslot;
+    unsigned int seed; //We're in 16 bit, so int means short.
 
-	time(&timeslot);	/* unix time function is seconds since 1970*/
-	seed = (unsigned int) (timeslot & 0x0000FFFFL);
-	rseed( seed );
-	return seed;
+    time(&timeslot);    /* unix time function is seconds since 1970*/
+    seed = (unsigned int) (timeslot & 0x0000FFFFL);
+    rseed( seed );
+    return seed;
 }
 
 unsigned short Randomshort(unsigned short n)
 {
 /* This returns a random integer from 0 to n - 1. */
 /* Bail 0 if n <= 1 to avoid weirdness with modulo operator.*/
-	if (n <= 0)
-		return 0;
-	return ( (unsigned short)(sixteenbits(0) % n) );
+    if (n <= 0)
+        return 0;
+    return ( (unsigned short)(sixteenbits(0) % n) );
 }
 
 unsigned long Randomlong(unsigned long n)
 {
-	unsigned long pick;
+    unsigned long pick;
 /* This returns a random integer from 0 to n - 1. */
 /* Bail 0 if n <= 1 to avoid weirdness with modulo operator.*/
-	if (n <= 0)
-		return 0;
-	pick = ((unsigned long)sixteenbits(0) << 16) + sixteenbits(0);
-	return ( pick % n );
+    if (n <= 0)
+        return 0;
+    pick = ((unsigned long)sixteenbits(0) << 16) + sixteenbits(0);
+    return ( pick % n );
 }
 
 unsigned int Random(unsigned int n)
 {
-	return Randomshort(n); //Assume 16 bit model
+    return Randomshort(n); //Assume 16 bit model
 }
 
 unsigned char Randombyte(void)
 {
-	return (unsigned char)( sixteenbits(0) & 0x00FF );
+    return (unsigned char)( sixteenbits(0) & 0x00FF );
 }
 
 Real Randomreal()
 {
 /* This returns a random real between 0 and 1. */
-	return ((Real)(sixteenbits(0))) / 0x10000L;
+    return ((Real)(sixteenbits(0))) / 0x10000L;
 }
 
 Real Randomsign(void)
 {
-	if (sixteenbits(0) & 1)
-		return 1.0;
-	else
-		return -1.0;
+    if (sixteenbits(0) & 1)
+        return 1.0;
+    else
+        return -1.0;
 }
 
 #endif //__FLAT__
@@ -259,39 +259,39 @@ Real Randomsign(void)
 Real Randomsignreal(void)
 {
 /* This returns a random real between -1 and 1. */
-	return ( -1.0f + 2.0f * Randomreal() );
+    return ( -1.0f + 2.0f * Randomreal() );
 }
 
 Real Randomreal(Real lo, Real hi) //A real between lo and hi
 {
-	return ( lo + (hi-lo) * Randomreal() );
+    return ( lo + (hi-lo) * Randomreal() );
 }
 
 void Randomunitdiskpair(Real *x, Real *y)
 {/* Randomizes the pair (x,y) within unit pythagorean distance of (0,0) */
-	*x = Randomsignreal();
-	*y = Randomsignreal();
-	while ((*x)*(*x) + (*y)*(*y) > 1.0)
-	{
-		*x = Randomsignreal();
-		*y = Randomsignreal();
-	}
+    *x = Randomsignreal();
+    *y = Randomsignreal();
+    while ((*x)*(*x) + (*y)*(*y) > 1.0)
+    {
+        *x = Randomsignreal();
+        *y = Randomsignreal();
+    }
 }
 
 #define TOO_SMALL 0.0000001 //To avoid division by something close to zero
 void Randomunitpair(Real *x, Real *y)
 {
-	Real dist;
-	*x = Randomsignreal();
-	*y = Randomsignreal();
-	while ((dist = (*x)*(*x) + (*y)*(*y)) > 1.0 || dist < TOO_SMALL)
-	{
-		*x = Randomsignreal();
-		*y = Randomsignreal();
-	}
-	dist = 1.0f/sqrt(dist); //reciprocal of length
-	*x *= dist; //Now make (x,y) a unit vector.
-	*y *= dist;
+    Real dist;
+    *x = Randomsignreal();
+    *y = Randomsignreal();
+    while ((dist = (*x)*(*x) + (*y)*(*y)) > 1.0 || dist < TOO_SMALL)
+    {
+        *x = Randomsignreal();
+        *y = Randomsignreal();
+    }
+    dist = 1.0f/sqrt(dist); //reciprocal of length
+    *x *= dist; //Now make (x,y) a unit vector.
+    *y *= dist;
 }
 
 //Permute buffer stuff
@@ -304,26 +304,26 @@ unsigned char permute_buffer[MAX_PERMUTE];
 
 void jolt_permute_buffer(unsigned char n)
 {
-	// This is really a method of permute_buffer.
-	// point is to set first n entries of permute_buffer to 
-	// a permutation of 0,...,n-1.  If n is over the
-	// original allocation for permute_buffer the program
-	// crashes.
+    // This is really a method of permute_buffer.
+    // point is to set first n entries of permute_buffer to 
+    // a permutation of 0,...,n-1.  If n is over the
+    // original allocation for permute_buffer the program
+    // crashes.
 
-	unsigned char i, j;
-	unsigned char available[MAX_PERMUTE];
+    unsigned char i, j;
+    unsigned char available[MAX_PERMUTE];
 
-	if (n>MAX_PERMUTE)
-		return; //Should return an error signal.
+    if (n>MAX_PERMUTE)
+        return; //Should return an error signal.
 
-	for (i=0; i<n; i++)
-		available[i] = i;
-	for (i=0; i<n; i++)
-	{
-		j = Random((unsigned short)(n-i));
-		permute_buffer[i] = available[j];
-		for (; j<n-i-2; j++)  //2017 had j<n-i-1, but then if i is 0, the j+1 could be n, too big.
-			available[j] = available[j+1]; // slide down.
-	}
+    for (i=0; i<n; i++)
+        available[i] = i;
+    for (i=0; i<n; i++)
+    {
+        j = Random((unsigned short)(n-i));
+        permute_buffer[i] = available[j];
+        for (; j<n-i-2; j++)  //2017 had j<n-i-1, but then if i is 0, the j+1 could be n, too big.
+            available[j] = available[j+1]; // slide down.
+    }
 }
 

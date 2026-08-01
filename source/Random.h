@@ -14,8 +14,8 @@ extern Real Randomsignreal(void); //A real between -1.0 and 1.0
 extern Real Randomreal(Real lo, Real hi); //A real between lo and hi
 extern Real Randomsign(void); //1.0 or -1.0
 extern void Randomunitdiskpair(Real *x, Real *y);
-	// Makes (x,y) a random point with distance <= 1 from (0,0)
+    // Makes (x,y) a random point with distance <= 1 from (0,0)
 extern void Randomunitpair(Real *x, Real *y);
-	// Makes (x,y) a random point with distance 1 from (0,0)
+    // Makes (x,y) a random point with distance 1 from (0,0)
 extern unsigned char permute_buffer[];
 extern void jolt_permute_buffer(unsigned char n);

@@ -4,11 +4,11 @@
 #define BUT_TOUCHLARGE       18
 #define BUT_CHANGEALLLARGE   19
 #define BUT_CHANGEFOCUSLARGE 20
-#define BUT_VIEWMENU		 21
-#define BUT_CLOSE		     22
-#define BUT_SEEDMENU	     23
+#define BUT_VIEWMENU         21
+#define BUT_CLOSE            22
+#define BUT_SEEDMENU         23
 #define BUT_ACTION_SWAP      24
-#define BUT_GENERATORCUR	 25
+#define BUT_GENERATORCUR     25
 
 #define BUT_WORLDLARGE       0
 #define BUT_COLORLARGE       1
@@ -24,8 +24,8 @@
 #define BUT_3DLARGE          11
 #define BUT_CLOSELARGE       12
 #define BUT_DIALOG_SWAP      13
-#define BUT_RAND			 14	
-#define BUT_GENERATOR		 15
+#define BUT_RAND             14 
+#define BUT_GENERATOR        15
 
 
 #define CHANGEALLFOCUS_BUTTON 6

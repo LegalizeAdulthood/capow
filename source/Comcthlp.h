@@ -1,21 +1,21 @@
 /*******************************************************************************
-	FILE:				comcthlp.h.cpp
-	PROJECT:			CAMCOS CAPOW!
-	ENVIRONMENT:		MS Visual C++ 5.0/MS Windows 95/NT
+    FILE:               comcthlp.h.cpp
+    PROJECT:            CAMCOS CAPOW!
+    ENVIRONMENT:        MS Visual C++ 5.0/MS Windows 95/NT
 
 
-	FILE DESCRIPTION:	This file contains macros to simply sending of
-						messages to common files.
+    FILE DESCRIPTION:   This file contains macros to simply sending of
+                        messages to common files.
 
-	COPYRIGHT INFO:
-	  
-		COMCTHLP.H -- Helper macros for common controls
+    COPYRIGHT INFO:
+      
+        COMCTHLP.H -- Helper macros for common controls
                  (c) Paul Yao, 1996
 
-		Portions Copyright (c) 1992-1996, Microsoft Corp.
+        Portions Copyright (c) 1992-1996, Microsoft Corp.
 
-	UPDATE LOG:			
-		
+    UPDATE LOG:         
+        
 *******************************************************************************/
 //-------------------------------------------------------------------
 // Hot-Key Helper Macros

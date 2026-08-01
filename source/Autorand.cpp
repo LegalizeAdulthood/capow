@@ -3,11 +3,11 @@
 
 // My profile parameters to load and save in CAPOW.EXE or CAPOW.SCR
 UINT fRandFlags = RF_START;
-	//Set to something like RF_ID | RF_BOTHVAL | RF_BOTHVW | RF_DING from CA.HPP
-	//Used in CONFIGURE.CPP and CASCREEN.CPP
+    //Set to something like RF_ID | RF_BOTHVAL | RF_BOTHVW | RF_DING from CA.HPP
+    //Used in CONFIGURE.CPP and CASCREEN.CPP
 int randomize_timer_cycle = RANDOMIZE_TIMER_CYCLE_START;
 
-	// Names of my Tweak Parameters (to use in readIniVariables
+    // Names of my Tweak Parameters (to use in readIniVariables
 char szFlagsName[] = "Randomize Flags";
 char szCycleName[]= "Milliseconds Between Randomization";
 
@@ -30,58 +30,58 @@ void setPerformanceTimerCycle(int millisecs);
 { /* If this is succssful, timer_handle is non-zero.  I *think* that this value
 is in fact equal to timer_ID.  Never use 0 for a timer_ID or there could be
 be confusion. */
-		/*When MASTERTIMER is on, setTimerCycle changes the nature of the update_timer_handle
-		timer.  When MASTERTIMER is off, setTimerCycle instead changes the
-		update_ticks_per_cycle variable used in the PeekMessage loop. */
+        /*When MASTERTIMER is on, setTimerCycle changes the nature of the update_timer_handle
+        timer.  When MASTERTIMER is off, setTimerCycle instead changes the
+        update_ticks_per_cycle variable used in the PeekMessage loop. */
 
-	if (!QueryPerformanceFrequency((LARGE_INTEGER*)&_freq)) //sets _freq
-		_performance_counter_present = FALSE;
-	/*freq is the cycle rate of your chip.  On my 400 MHz machine, I'm seeing
-	400,900,000 as the freq, which is reasonably close to 400 million. */
+    if (!QueryPerformanceFrequency((LARGE_INTEGER*)&_freq)) //sets _freq
+        _performance_counter_present = FALSE;
+    /*freq is the cycle rate of your chip.  On my 400 MHz machine, I'm seeing
+    400,900,000 as the freq, which is reasonably close to 400 million. */
 
-	if (_performance_counter_present)
-	{
-		// Convert milliseconds per move to performance counter units per move.
-		_update_ticks_per_cycle = millisecs * _freq / 1000;
-		// Initialize the counter.
-		QueryPerformanceCounter((LARGE_INTEGER*)&_start); //sets _start
-	}
-	return;
+    if (_performance_counter_present)
+    {
+        // Convert milliseconds per move to performance counter units per move.
+        _update_ticks_per_cycle = millisecs * _freq / 1000;
+        // Initialize the counter.
+        QueryPerformanceCounter((LARGE_INTEGER*)&_start); //sets _start
+    }
+    return;
 }
 
 void setTimerCycle(HWND hwnd, int &timer_handle, int timer_ID, int millisecs)
 { /* If this is succssful, timer_handle is non-zero.  I *think* that this value
 is in fact equal to timer_ID.  Never use 0 for a timer_ID or there could be
 be confusion. */
-		/*When MASTERTIMER is on, setTimerCycle changes the nature of the update_timer_handle
-		timer.  When MASTERTIMER is off, setTimerCycle instead changes the
-		update_ticks_per_cycle variable used in the PeekMessage loop. */
-	/*Now go ahead and set the timer anyway.  You actually need it if (a) the
-	peformer_counter_present is FALSE or if (b) you are using the setTimerCycle
-	for a timer you actually need, such as to drive a screensaver app. */
-	if (timer_handle)
-	{
-		KillTimer(hwnd, timer_handle);
-		timer_handle = 0;
-	}
-	if (!(timer_handle = SetTimer(hwnd, timer_ID, millisecs, NULL)))
-	{	
-		MessageBox( hwnd,
-			(LPSTR)"Unable to Create a Windows Timer.  Close Other Apps & Try Again!",
-			(LPSTR)"Resource Problem!",
-			MB_OK | MB_ICONEXCLAMATION );
-		SendMessage(hwnd, WM_DESTROY, 0, 0L);
-	}
-	return;
+        /*When MASTERTIMER is on, setTimerCycle changes the nature of the update_timer_handle
+        timer.  When MASTERTIMER is off, setTimerCycle instead changes the
+        update_ticks_per_cycle variable used in the PeekMessage loop. */
+    /*Now go ahead and set the timer anyway.  You actually need it if (a) the
+    peformer_counter_present is FALSE or if (b) you are using the setTimerCycle
+    for a timer you actually need, such as to drive a screensaver app. */
+    if (timer_handle)
+    {
+        KillTimer(hwnd, timer_handle);
+        timer_handle = 0;
+    }
+    if (!(timer_handle = SetTimer(hwnd, timer_ID, millisecs, NULL)))
+    {   
+        MessageBox( hwnd,
+            (LPSTR)"Unable to Create a Windows Timer.  Close Other Apps & Try Again!",
+            (LPSTR)"Resource Problem!",
+            MB_OK | MB_ICONEXCLAMATION );
+        SendMessage(hwnd, WM_DESTROY, 0, 0L);
+    }
+    return;
 }
 
 //=================THE PROFILE FUNCTIONS==============
 //Helper function used by writeIniSettings
 void writeProfileInt(LPSTR szSection, LPSTR szKey, int save_int)
 {
-	char buf[40];
-	wsprintf((LPSTR)buf,"%u", (UINT)save_int); //Read and write as UINT
-	WriteProfileString(szSection, szKey,(LPSTR)buf);
+    char buf[40];
+    wsprintf((LPSTR)buf,"%u", (UINT)save_int); //Read and write as UINT
+    WriteProfileString(szSection, szKey,(LPSTR)buf);
 }
 
 /* ------------------------------------------------------------------- 
@@ -89,16 +89,16 @@ void writeProfileInt(LPSTR szSection, LPSTR szKey, int save_int)
  ------------------------------------------------------------------- */
 void writeIniSettings(HWND hDlg)
 {
-	#define MAX_CHARS 32
-	char numberstring[MAX_CHARS];
+    #define MAX_CHARS 32
+    char numberstring[MAX_CHARS];
 
-	GetWindowText(GetDlgItem(hDlg, IDC_TIMER),
-		numberstring, MAX_CHARS);
-	int time = atoi(numberstring);
-	CLAMP(time, 5, 300);
-	randomize_timer_cycle = time * 1000;
-	writeProfileInt(szMyAppName, szCycleName, randomize_timer_cycle);
-	writeProfileInt(szMyAppName, szFlagsName, fRandFlags);
+    GetWindowText(GetDlgItem(hDlg, IDC_TIMER),
+        numberstring, MAX_CHARS);
+    int time = atoi(numberstring);
+    CLAMP(time, 5, 300);
+    randomize_timer_cycle = time * 1000;
+    writeProfileInt(szMyAppName, szCycleName, randomize_timer_cycle);
+    writeProfileInt(szMyAppName, szFlagsName, fRandFlags);
 }
 
 /* ----------------------------------------------------------------
@@ -109,9 +109,9 @@ void readIniSettings()
 /*The last argument to GetProfileInt is the default value.  GetProfileInt
 returns UINT.  I keep the szFlagsName and szCycleName at the top of the program,
 and use them in the configOK as well. */
-	fRandFlags = GetProfileInt(szMyAppName, szFlagsName, RF_START);
-	randomize_timer_cycle = (int)GetProfileInt(szMyAppName, szCycleName,
-		RANDOMIZE_TIMER_CYCLE_START);
+    fRandFlags = GetProfileInt(szMyAppName, szFlagsName, RF_START);
+    randomize_timer_cycle = (int)GetProfileInt(szMyAppName, szCycleName,
+        RANDOMIZE_TIMER_CYCLE_START);
 }
 
 /*

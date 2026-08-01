@@ -1,13 +1,13 @@
 /*******************************************************************************
-	FILE:				carule.hpp
-	PROJECT:			CAMCOS CAPOW!
-	ENVIRONMENT:		MS Visual C++ 5.0/MS Windows 95/NT
+    FILE:               carule.hpp
+    PROJECT:            CAMCOS CAPOW!
+    ENVIRONMENT:        MS Visual C++ 5.0/MS Windows 95/NT
 
 
-	FILE DESCRIPTION:	This file contains defintions and data to control
-						carule creation.
+    FILE DESCRIPTION:   This file contains defintions and data to control
+                        carule creation.
 
-	UPDATE LOG:			
+    UPDATE LOG:         
 
 *******************************************************************************/
 //====================INCLUDES===============
@@ -24,25 +24,25 @@
 #define L_I0 owner->wave_source_row[l].variable[0]
 #define C_I0 owner->wave_source_row[c].variable[0]
 #define R_I0 owner->wave_source_row[r].variable[0]
-#define NEW_C_I0	owner->wave_target_row[c].variable[0]
+#define NEW_C_I0    owner->wave_target_row[c].variable[0]
 
 #define PAST_C_I1 owner->wave_past_row[c].variable[1]
 #define L_I1 owner->wave_source_row[l].variable[1]
 #define C_I1 owner->wave_source_row[c].variable[1]
 #define R_I1 owner->wave_source_row[r].variable[1]
-#define NEW_C_I1	owner->wave_target_row[c].variable[1]
+#define NEW_C_I1    owner->wave_target_row[c].variable[1]
 
 #define PAST_C_I2 owner->wave_past_row[c].variable[2]
 #define L_I2 owner->wave_source_row[l].variable[2]
 #define C_I2 owner->wave_source_row[c].variable[2]
 #define R_I2 owner->wave_source_row[r].variable[2]
-#define NEW_C_I2	owner->wave_target_row[c].variable[2]
+#define NEW_C_I2    owner->wave_target_row[c].variable[2]
 
 #define PAST_C_I3 owner->wave_past_row[c].variable[3]
 #define L_I3 owner->wave_source_row[l].variable[3]
 #define C_I3 owner->wave_source_row[c].variable[3]
 #define R_I3 owner->wave_source_row[r].variable[3]
-#define NEW_C_I3	owner->wave_target_row[c].variable[3]
+#define NEW_C_I3    owner->wave_target_row[c].variable[3]
 
 #define PAST_C_V owner->wave_past_row[c].velocity
 #define L_V owner->wave_source_row[l].velocity
@@ -89,7 +89,7 @@ also these are only implemented in 1D rules */
 #define PLANE_SW_I0 owner->wave_source_plane[sw].variable[0]
 #define PLANE_S_I0 owner->wave_source_plane[s].variable[0]
 #define PLANE_SE_I0 owner->wave_source_plane[se].variable[0]
-	//---new---
+    //---new---
 #define PLANE_NEW_C_I0 owner->wave_target_plane[c].variable[0]
 #define PLANE_NEW_E_I0 owner->wave_target_plane[e].variable[0]
 #define PLANE_NEW_NE_I0 owner->wave_target_plane[ne].variable[0]
@@ -99,7 +99,7 @@ also these are only implemented in 1D rules */
 #define PLANE_NEW_SW_I0 owner->wave_target_plane[sw].variable[0]
 #define PLANE_NEW_S_I0 owner->wave_target_plane[s].variable[0]
 #define PLANE_NEW_SE_I0 owner->wave_target_plane[se].variable[0]
-	//---past---
+    //---past---
 #define PLANE_PAST_C_I0 owner->wave_past_plane[c].variable[0]
 #define PLANE_PAST_E_I0 owner->wave_past_plane[e].variable[0]
 #define PLANE_PAST_NE_I0 owner->wave_past_plane[ne].variable[0]
@@ -109,7 +109,7 @@ also these are only implemented in 1D rules */
 #define PLANE_PAST_SW_I0 owner->wave_past_plane[sw].variable[0]
 #define PLANE_PAST_S_I0 owner->wave_past_plane[s].variable[0]
 #define PLANE_PAST_SE_I0 owner->wave_past_plane[se].variable[0]
-	//combo
+    //combo
 /*Initially I left off the parenthesis around the definition of PLANE_FOUR_SUM,
 which had the effect that 0.25*PLANE_FOUR_SUM was not the right thing. Macros are
 dangerous. --RR, 2/17/97.*/
@@ -146,7 +146,7 @@ dangerous. --RR, 2/17/97.*/
 #define PLANE_PAST_SW_I1 owner->wave_past_plane[sw].variable[1]
 #define PLANE_PAST_S_I1 owner->wave_past_plane[s].variable[1]
 #define PLANE_PAST_SE_I1 owner->wave_past_plane[se].variable[1]
-	//------combinations
+    //------combinations
 /*Initially I left off the parenthesis around the definition of PLANE_FOUR_SUM,
 which had the effect that 0.25*PLANE_FOUR_SUM was not the right thing. Macros are
 dangerous. --RR, 2/17/97.*/
@@ -161,7 +161,7 @@ you need to increase PLANE_VARIABLE_COUNT in ca.hpp and rebuild CAPOW.EXE */
 //begin 32 bit DLL entry
 int WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID)
 {
-	return 1;
+    return 1;
 }
 //end 32 bit DLL entry
 

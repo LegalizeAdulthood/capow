@@ -15,9 +15,9 @@ anywhere else.  Always do #include types.h instead. */
 /* double gives you better accuracy, float gives you better speed.*/
 //#define DOUBLE
 #ifdef DOUBLE
-	typedef double Real;
+    typedef double Real;
 #else //not DOUBLE means float
-	typedef float Real;
+    typedef float Real;
 #endif //DOUBLE
 
 //================CONSTANTS=====
@@ -37,13 +37,13 @@ full cycle*/
 //================FUNCTION TYPES=====
 class CA; //Forward declaration for the FPCELLUPDATE typedef.
 //Microsoft Visual C++ case
-	#define DllExport __declspec( dllexport )
-	typedef DllExport int (*FPINT)(void); //For getting int values out of DLLs
-	typedef DllExport void (*FPUSERINITIALIZE)(CA *);
-	typedef DllExport void (*FPCELLUPDATE_1)(CA*, int);
-	typedef DllExport void (*FPCELLUPDATE_3)(CA*, int, int, int);
-	typedef DllExport void (*FPCELLUPDATE_5)(CA*, int, int, int, int, int);
-	typedef DllExport void (*FPCELLUPDATE_9)(CA*, int, int, int, int, int, int,
-		int, int, int);
+    #define DllExport __declspec( dllexport )
+    typedef DllExport int (*FPINT)(void); //For getting int values out of DLLs
+    typedef DllExport void (*FPUSERINITIALIZE)(CA *);
+    typedef DllExport void (*FPCELLUPDATE_1)(CA*, int);
+    typedef DllExport void (*FPCELLUPDATE_3)(CA*, int, int, int);
+    typedef DllExport void (*FPCELLUPDATE_5)(CA*, int, int, int, int, int);
+    typedef DllExport void (*FPCELLUPDATE_9)(CA*, int, int, int, int, int, int,
+        int, int, int);
 
 #endif //TYPES_H

@@ -10,7 +10,7 @@
 typedef struct tagPOPUPSTRING
      {
      HMENU hMenu ;
-	 UINT uiString ;
+     UINT uiString ;
      } POPUPSTRING ;
 
 #define MAX_MENUS 4
@@ -35,7 +35,7 @@ HWND InitStatusBar (HWND hwndParent)
      HMENU hMenuFile  = GetSubMenu (hMenu, 0) ;
      HMENU hMenuTools = GetSubMenu (hMenu, 4) ;
 
-	 popstr[0].hMenu    = 0 ;
+     popstr[0].hMenu    = 0 ;
      popstr[0].uiString = 0 ;
 
      popstr[1].hMenu    = hMenu ;
@@ -52,9 +52,9 @@ HWND InitStatusBar (HWND hwndParent)
                                   hwndParent,
                                   2) ;
 
-	 StatusBarMessage (hwndSB, SB_SETPARTS);
+     StatusBarMessage (hwndSB, SB_SETPARTS);
      
-	 return hwndSB ;
+     return hwndSB ;
      }
 
 //-------------------------------------------------------------------
@@ -93,29 +93,29 @@ HWND RebuildStatusBar (HWND hwndParent, WORD wFlag)
 
 void StatusBarMessage (HWND hwndSB, WORD wMsg)
 {
-	switch (wMsg)
+    switch (wMsg)
     {
-		case SB_SETPARTS:
-			{
-				int aWidths[NPARTS]; // -1 is default for a part
-			
-				//These give the right hand edges of the little boxes.
-				aWidths[0] = 70; //70
-				aWidths[1] = 300; //was 200, not wide enough
-				aWidths[2] = 400; //was 300, keep 100 more than aWidths[1].
+        case SB_SETPARTS:
+            {
+                int aWidths[NPARTS]; // -1 is default for a part
+            
+                //These give the right hand edges of the little boxes.
+                aWidths[0] = 70; //70
+                aWidths[1] = 300; //was 200, not wide enough
+                aWidths[2] = 400; //was 300, keep 100 more than aWidths[1].
                 Status_SetParts(hwndSB, NPARTS, aWidths);
             }
-			break ;
+            break ;
             
 
-		case SB_SIMPLE:
-			{
-				static BOOL bSimple = TRUE ;
-				Status_Simple (hwndSB, bSimple) ;
-				bSimple = (!bSimple) ;
-				break ;
+        case SB_SIMPLE:
+            {
+                static BOOL bSimple = TRUE ;
+                Status_Simple (hwndSB, bSimple) ;
+                bSimple = (!bSimple) ;
+                break ;
             }
-	} // End Switch
+    } // End Switch
 }
 
 //-------------------------------------------------------------------

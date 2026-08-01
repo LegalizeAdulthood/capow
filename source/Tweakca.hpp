@@ -7,21 +7,21 @@ these number names. To do this we would need a TweakParamArray _tweakparam
 object in the CA class.  Each TweakParam would have an _id field, that
 could be used in the CAlist::BumpTweakParam call like in analog.cpp.*/
 // also used in CAPOW.RC
-#define SPACE_STEP_TYPE 801				// analog param
+#define SPACE_STEP_TYPE 801             // analog param
 #define TIME_STEP_TYPE 802             // analog param
 #define MAX_INTENSITY_TYPE 803         // analog param
 #define MAX_VELOCITY_TYPE 804          // analog param
-#define HEAT_INC_TYPE	805            // analog param
-#define CHUNK_TYPE 806						// analog param
-#define NONLINEARITY1_TYPE 807			// analog param
-#define NONLINEARITY2_TYPE 808			// analog param
+#define HEAT_INC_TYPE   805            // analog param
+#define CHUNK_TYPE 806                      // analog param
+#define NONLINEARITY1_TYPE 807          // analog param
+#define NONLINEARITY2_TYPE 808          // analog param
 #define SPRING_TYPE 809                // electric param
 #define FRICTION_TYPE 810              // electric param
 #define DRIVER_AMP_TYPE 811            // electric param
 #define DRIVER_FREQ_TYPE 812           // electric param
 #define MASS_TYPE 813                  // electric param
 #define VARIANCE_TYPE 814              // digital param
-#define MAX_VALPERCENT_TYPE 815		//analog param
+#define MAX_VALPERCENT_TYPE 815     //analog param
 
 
 //------------- TWEAKPARAM STRING DEFINES ---------
@@ -110,11 +110,11 @@ could be used in the CAlist::BumpTweakParam call like in analog.cpp.*/
 #define NONLINEARITY2_VARIANCE (Real) 100
 // DRIVER_AMP: the range is [_max_intensity/4, 3*_max_intensity/4]
 #ifndef FIXED_FREQ
-	#define DRIVER_FREQ_MEAN     (Real) 3.0  // 1 to 5
-	#define DRIVER_FREQ_VARIANCE (Real) 2.0
+    #define DRIVER_FREQ_MEAN     (Real) 3.0  // 1 to 5
+    #define DRIVER_FREQ_VARIANCE (Real) 2.0
 #else // FIXED_FREQ
-	#define DRIVER_FREQ_MEAN     (Real) 1.0  // 1.0
-	#define DRIVER_FREQ_VARIANCE (Real) 0.0
+    #define DRIVER_FREQ_MEAN     (Real) 1.0  // 1.0
+    #define DRIVER_FREQ_VARIANCE (Real) 0.0
 #endif //FIXED_FREQ
 #define CHUNK_MEAN     (Real) 0.0 // fixed at 0.0
 #define CHUNK_VARIANCE (Real) 0.0
