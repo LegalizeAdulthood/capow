@@ -1,6 +1,6 @@
 #include "ca.hpp"
 #include "resource.h"
-#include "userpara.hpp"
+#include "Userpara.hpp"
 
 extern char *szMyAppName;
 extern HWND hDlgWorld, hDlgLookup, hDlgOpenGL, masterhwnd;

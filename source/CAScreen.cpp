@@ -63,12 +63,12 @@
 
 //INCLUDES=====================================
 //==============================================
-#include "types.h" //Includes <windows.h>, defines some types used by CAPOW
+#include "Types.h" //Includes <windows.h>, defines some types used by CAPOW
 #include <scrnsave.h>
 #include "resource.h" //resources shared with CAPOW
     //Includes needed for CAPOW.
 #include "ca.hpp"
-#include "bitmap.hpp"
+#include "Bitmap.hpp"
 #include "capowGL.hpp"
 
 //VARIABLES=======================================

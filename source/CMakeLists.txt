@@ -1,57 +1,52 @@
 add_library(CapowCore STATIC
-    About.cpp
-    Analog.cpp
     Autorand.cpp
-    Bitmap.cpp
-    ca.cpp
+    Bitmap.hpp Bitmap.cpp
+    ca.hpp ca.cpp
     Calist.cpp
     camore.cpp
-    Capow.cpp
-    Capow.hpp
-    CapowGL.cpp
+    CapowGL.hpp CapowGL.cpp
+    Carule.hpp
+    Dllmem.cpp
+    Fourier.cpp
+    Loadsav7.cpp
+    Loadsave.cpp
+    Palette.cpp
+    Random.h Random.cpp
+    resource.h
+    Seed.cpp
+    Smooth.cpp
+    Touch.cpp
+    Tweak.hpp Tweak.cpp
+    Tweakca.hpp
+    Types.h
+)
+target_folder(CapowCore "Libraries")
+
+add_library(CapowGui STATIC
+    About.cpp
+    Analog.cpp
+    Capow.hpp Capow.cpp
     Cell.cpp
     Color.cpp
-    configure.cpp
-    #Controlb.cpp
+    Comcthlp.h
+    Configure.cpp
     Cycle.cpp
     Digital.cpp
-    Dllmem.cpp
     Electric.cpp
     Exp.cpp
     FileSave.cpp
-    Fourier.cpp
     Gendlg.cpp
+    GUI.hpp
     Label.cpp
-    Loadsav7.cpp
-    Loadsave.cpp
     Opengldlg.cpp
-    Palette.cpp
-    Random.cpp
-    Seed.cpp
-    Smooth.cpp
-    status.cpp
-    toolbar.cpp
-    Touch.cpp
-    Tweak.cpp
-    Userpara.cpp
+    status.hpp status.cpp
+    toolbar.hpp toolbar.cpp
+    Userpara.hpp Userpara.cpp
     View.cpp
     World.cpp
-    Bitmap.hpp
-    ca.hpp
-    CapowGL.hpp
-    Carule.hpp
-    Comcthlp.h
-    GUI.hpp
-    Random.h
-    resource.h
-    status.hpp
-    Tweak.hpp
-    Tweakca.hpp
-    Types.h
-    Userpara.hpp
 )
-target_link_libraries(CapowCore PUBLIC Glu32.lib opengl32.lib ComCtl32.lib Lz32.lib Winmm.lib)
-target_folder(CapowCore "Libraries")
+target_link_libraries(CapowGui PUBLIC CapowCore)
+target_folder(CapowGui "Libraries")
 
 add_executable(Capow WIN32
     About.bmp
@@ -68,7 +63,7 @@ add_executable(Capow WIN32
     Capow32.rc
     WinMain.cpp
 )
-target_link_libraries(Capow PUBLIC CapowCore)
+target_link_libraries(Capow PUBLIC CapowGui CapowCore Glu32.lib opengl32.lib ComCtl32.lib Lz32.lib Winmm.lib)
 
 add_library(Carule SHARED
     Carule.cpp

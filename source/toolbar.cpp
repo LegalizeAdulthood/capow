@@ -1,6 +1,6 @@
-#include "types.h"
+#include "Types.h"
 #include <commctrl.h>
-#include "comcthlp.h"
+#include "Comcthlp.h"
 #include "GUI.hpp"
 #include "CA.hpp"
 #include "resource.h"

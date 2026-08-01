@@ -1,7 +1,7 @@
 /* This is header file for Rucker's randomize functions.  These
 randomizing functions are based on a cellular automata rule discovered
 by Stephen Wolfram and called Rule 30. */
-#include "types.h" //For definition of Real as float or double.
+#include "Types.h" //For definition of Real as float or double.
 
 extern void rseed(unsigned int); //Start the randomizer off in a specific state
 extern unsigned int Randomize(void); //Seed with the time in seconds

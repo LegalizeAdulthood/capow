@@ -11,9 +11,9 @@
 //
 // ***********************************************************************
 #include <stdio.h>
-#include "userpara.hpp"
+#include "Userpara.hpp"
 #include "ca.hpp"
-#include "tweakca.hpp"
+#include "Tweakca.hpp"
 #include <COMMCTRL.H>           // This following line must be here
                                 // compiling error
 extern char *szMyAppName;       // Program name

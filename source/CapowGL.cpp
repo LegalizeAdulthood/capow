@@ -12,7 +12,7 @@
 *******************************************************************************/
 //====================INCLUDES===============
 
-#include "capowgl.hpp"
+#include "CapowGL.hpp"
 #include <math.h>
 #include <string.h>
 #include <mmsystem.h>  //for timeGetTime()

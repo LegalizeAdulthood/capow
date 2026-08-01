@@ -1,9 +1,9 @@
 // ***********************************************************************
-// File:        userpara.hpp
+// File:        Userpara.hpp
 // PROJECT:     CAMCOS CAPOW
 // ENVIRONMENT: Visual C++ 4.0  Win32
 //
-// hpp file for userpara.hpp.
+// hpp file for userpara.cpp.
 //
 // Date: 4/25/97
 //
@@ -16,7 +16,7 @@
 #define USERPARA_HPP
 
 #include "types.h"
-#include "tweak.hpp"
+#include "Tweak.hpp"
 
 #define USERTEXTLENGTH      60 //2017 was 40. Wanted bigger font.
 #define USEREDITCODEBASE    (WM_USER + 1000)

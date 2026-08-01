@@ -1,5 +1,5 @@
 /*******************************************************************************
-    FILE:               carule.hpp
+    FILE:               Carule.hpp
     PROJECT:            CAMCOS CAPOW!
     ENVIRONMENT:        MS Visual C++ 5.0/MS Windows 95/NT
 

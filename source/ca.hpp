@@ -110,8 +110,8 @@ then the program hangs on startup.*/
 //=================INCLUDES==================================
 #include <fstream> //For iostream //changed to not have .h 2017
 #include <iomanip> // added 2017
-#include "bitmap.hpp" //For WindowBitmap class
-#include "tweak.hpp"   //For TweakParam class
+#include "Bitmap.hpp" //For WindowBitmap class
+#include "Tweak.hpp"   //For TweakParam class
 //============MACROS============================================
 #define MIN(x,y) ((x)<=(y))?(x):(y)
 /* We use CLAMP on Reals in the CA rules, also we use it on ints and

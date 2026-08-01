@@ -1,5 +1,5 @@
 /*******************************************************************************
-    FILE:               comcthlp.h.cpp
+    FILE:               comcthlp.h
     PROJECT:            CAMCOS CAPOW!
     ENVIRONMENT:        MS Visual C++ 5.0/MS Windows 95/NT
 

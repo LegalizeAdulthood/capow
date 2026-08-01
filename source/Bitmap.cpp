@@ -12,7 +12,7 @@
 *******************************************************************************/
 //====================INCLUDES===============
 
-#include "bitmap.hpp"  //includes types.h
+#include "Bitmap.hpp"  //includes types.h
 #include "ca.hpp"
 
 //====================DEBUG FLAGS ===============

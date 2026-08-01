@@ -1,5 +1,5 @@
 #include "ca.hpp" //Include this first, because it includes windows.
-#include "carule.hpp" //Include this second
+#include "Carule.hpp" //Include this second
 #include <math.h>
 /* 2017  To build, open Carule.sln with Visual Studio's Visual C++ 2015.  Make sure you are
 building the Release x96 version. Your target *.DLL file

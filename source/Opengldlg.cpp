@@ -1,6 +1,6 @@
 #include "ca.hpp"
 #include "resource.h"
-#include "capowgl.hpp"
+#include "CapowGL.hpp"
 
 extern HWND hDlgOpenGL, masterhwnd;
 extern char *szMyAppName;

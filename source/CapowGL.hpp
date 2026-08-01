@@ -16,7 +16,7 @@
 
 #include "types.h"
 #include "ca.hpp"
-#include "bitmap.hpp"
+#include "Bitmap.hpp"
 #include <GL/gl.h>
 #include <GL/glu.h>
 // #include <GL/glaux.h> 2017

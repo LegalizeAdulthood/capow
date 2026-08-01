@@ -1,6 +1,6 @@
 #include "ca.hpp"
 #include "resource.h"
-#include "tweakca.hpp"
+#include "Tweakca.hpp"
 
 #include <math.h> // for atof in the 16 bit version
 
@@ -93,7 +93,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
             break;
 
         case IDOK:
-            // see tweakca.hpp for the order of *_TYPE
+            // see Tweakca.hpp for the order of *_TYPE
             GetWindowText (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
             num = atof (tmpStr);
             if (focusflag)
