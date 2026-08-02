@@ -252,7 +252,6 @@ this in such a way that one term is likely to get most of the weight.*/
     }
 //Common cleanup
     generator_ptr->Seed();
-    //generatorlist.Seed();  //no seed function exists, yet //mike
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
 
@@ -314,7 +313,6 @@ the horz_count steps)*/
         }
         Resetfreq();
         generator_ptr->Seed();
-        //generatorlist.Seed(); //seed function not defined, yet //mike
     }
     else //dimension 2
     {
@@ -339,8 +337,6 @@ the horz_count steps)*/
                         _max_intensity.Val();
                 c++;
             }
-     // Resetfreq();
-  //        generator_ptr->Seed();
     }
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
@@ -517,7 +513,6 @@ void CA::Zeroseed()
             }
     }
     generator_ptr->Seed();
-    //generatorlist.Seed();  //no seed function defined, yet //mike
     generatorlist.Reset();
 }
 
@@ -574,7 +569,6 @@ void CA::Halfmaxseed()
             }
     }
     generator_ptr->Seed();
-    //generatorlist.Seed();  //no seed function defined, yet //mike
     generatorlist.Reset();
 }
 
@@ -619,7 +613,6 @@ void CA::BitmapSeed() //only works for 2-D CAs
     }
 
     generator_ptr->Seed();
-    //generatorlist.Seed();  //no seed function defined, yet //mike
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
 }
@@ -865,7 +858,6 @@ this in such a way that one term is likely to get most of the weight.*/
     } //end dimension 2
 //Common cleanup
     generator_ptr->Seed();
-    //generatorlist.Seed();  //no seed function exists, yet //mike
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
 
@@ -923,7 +915,6 @@ the horz_count steps)*/
         }
         Resetfreq();
         generator_ptr->Seed();
-        //generatorlist.Seed(); //seed function not defined, yet //mike
     }
     else //dimension 2
     {
@@ -948,8 +939,6 @@ the horz_count steps)*/
                     wave_source_plane[c].variable[k] = 0.0;
                 c++;
             }
-     // Resetfreq();
-  //        generator_ptr->Seed();
     }
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
@@ -1125,7 +1114,6 @@ void CA::Zeroseed()
             }
     }
     generator_ptr->Seed();
-    //generatorlist.Seed();  //no seed function defined, yet //mike
     generatorlist.Reset();
 }
 
@@ -1187,7 +1175,6 @@ void CA::Halfmaxseed()
             }
     }
     generator_ptr->Seed();
-    //generatorlist.Seed();  //no seed function defined, yet //mike
     generatorlist.Reset();
 }
 
@@ -1230,7 +1217,6 @@ void CA::BitmapSeed() //only works for 2-D CAs
     }
 
     generator_ptr->Seed();
-    //generatorlist.Seed();  //no seed function defined, yet //mike
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
 }

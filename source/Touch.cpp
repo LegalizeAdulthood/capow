@@ -44,12 +44,10 @@
 #include "ca.hpp"
 #include "Random.h" // random.h will be needed later for Rain effect
                           // so I'll just add it now.
-//#include "Graph3D.hpp"
 #include "CapowGL.hpp"
 
 // Defines and module globals
 
-//extern Graph3D* graph;
 extern CapowGL* capowgl;
 // Functions
 void CA::Touch_CA(int cx, int cy, int sender)
@@ -119,7 +117,6 @@ void CA::Touch_CA(int cx, int cy, int sender)
         } // closes for loop on i
         Resetfreq();
         generator_ptr->Seed();
-        //generatorlist.Seed();  //no seed function defined yet
     }
     else // 2-d Case
     {
@@ -265,8 +262,6 @@ void CAlist::LocateNewGenerator(int x, int y, int sender)   //mike 4/97  ,basica
         if (focus->dimension==1)
             focus->generatorlist.Add(x);
         else //2 dimensions
-//          if(graph->GraphType()==0)
-//          focus->generatorlist.Add((int)(CX_2D* x/graph->GraphRect().right),(int) (CY_2D*(y-33)/(graph->GraphRect().bottom-33)));
         if (capowgl->Type()==0)
             focus->generatorlist.Add((int)(CX_2D*x/focus->horz_count),(int)(CY_2D*(y-focus->miny)/focus->vert_count));
 

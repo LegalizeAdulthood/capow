@@ -301,7 +301,6 @@ void CA::Become_child_of(CA *mom, CA *dad)
     else
     {
 //---CA_wave
-        //_dt.SetVal((mom->_dt.Val() + dad->_dt.Val())/2.0);
         SetTweakParam (&_dt, (mom->_dt.Val() + dad->_dt.Val())/2.0);
         SetTweakParam(&_dx, (mom->_dx.Val() + dad->_dx.Val()) / 2.0);
         Adjust_acceleration_multiplier();
@@ -373,12 +372,6 @@ start to cut down on the computations.*/
         else
             entropy = sum / log((Real)nabeoptions);
 #endif //FAST_ENTROPY
-
-//              fitness = 1.0 - fabs(entropy - target_entropy);
-//              calist_ptr->Sortfitness(); /*update CAlist's bestinlist and
-//                      secondbestinlist indices*/
-//              if (fitness < HIGH_FITNESS)
-//                      calist_ptr->Evolve(*this);
 
     } //End of entropyflag case.
     Resetfreq();
@@ -564,7 +557,6 @@ void CA::Symmetrize()
             sourcei >>= statebits;
             mirrori |= cell;
         }
-//              assert(mirrori < nabeoptions);
         if (i < mirrori)
             lookup[mirrori] = lookup[i];
     }
@@ -576,8 +568,6 @@ void CA::Reverse(void)
 #ifndef NEWREV
     int i;
     unsigned char temp;
-//  Wavecell wavetemp;
-//  Wavecell2 wave2temp;
 
     if (type_ca == CA_REVERSIBLE)
         for (i = 0; i<horz_count; i++)
@@ -651,8 +641,6 @@ void CA::Settype(int newtype)
     int old_castyle = _castyle;
     int old_dimension = dimension;
 
-    //if (type_ca == newtype && type_ca != CA_USER)
-    //  return;
     type_ca = newtype;
     /*The weird usage in the switch cases is for doing member function pointers,
     and was explained to rucker by Prof. Horstmann */

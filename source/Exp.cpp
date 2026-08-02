@@ -11,7 +11,6 @@ extern class CAlist *calife_list;
 extern BOOL update_flag;
 extern void realLabel (HWND hwnd, int button, Real num);  // display Real only
 
-// void ShowGrid (HWND, int);
 void ShowParams (HWND);
 int  EqValue (int);
 void ShowRange (HWND, Real, Real, Real, Real, int, int);
@@ -64,7 +63,6 @@ static BOOL MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
                           otherwise the values get changed while you try to
                 type them in.*/
 
-//          oldsleepflag = calife_list->GetSleep();
             scaling = IDC_MULT_SCALE;
             CheckRadioButton(hDlg,IDC_MULT_SCALE,IDC_ADD_SCALE, scaling);
             update_flag = 1;  // needed for calling sc_update
@@ -90,7 +88,6 @@ static BOOL MyWnd_MOVE(HWND hDlg, int x, int y)
 #pragma argsused
 static BOOL MyWnd_DESTROY(HWND hDlg)
 {
-    //      calife_list->SetSleep(oldsleepflag);
             hDlgExp = 0;
             InvalidateRect (masterhwnd, NULL, FALSE);
    return TRUE;
@@ -461,7 +458,6 @@ void ShowParams (HWND hDlg)
 
             // Set horizontal parameters
             hCtrl = GetDlgItem (hDlg, IDC_HORZPARAM);
-            //     SendMessageA (hCtrl, CB_ADDSTRING, 0, (LPARAM)"No Param");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Lambda");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
@@ -487,7 +483,6 @@ void ShowParams (HWND hDlg)
 
             // Set horizontal parameters
             hCtrl = GetDlgItem (hDlg, IDC_HORZPARAM);
-            //        SendMessageA (hCtrl, CB_ADDSTRING, 0, (LPARAM)"No Param");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Space Step");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
@@ -518,7 +513,6 @@ void ShowParams (HWND hDlg)
 
             // Set horizontal parameters
             hCtrl = GetDlgItem (hDlg, IDC_HORZPARAM);
-            //        SendMessageA (hCtrl, CB_ADDSTRING, 0, (LPARAM)"No Param");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Space Step");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
@@ -548,7 +542,6 @@ void ShowParams (HWND hDlg)
 
             // Set horizontal parameters
             hCtrl = GetDlgItem (hDlg, IDC_HORZPARAM);
-            //     SendMessageA (hCtrl, CB_ADDSTRING, 0, (LPARAM)"No Param");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Space Step");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
@@ -583,7 +576,6 @@ void ShowParams (HWND hDlg)
 
             // Set horizontal parameters
             hCtrl = GetDlgItem (hDlg, IDC_HORZPARAM);
-            //        SendMessageA (hCtrl, CB_ADDSTRING, 0, (LPARAM)"No Param");
             SendMessage (hCtrl, CB_SETCURSEL, X_Index[cur_group], 0L);
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
@@ -599,7 +591,6 @@ void ShowParams (HWND hDlg)
             SendMessage (hCtrl, CB_SETCURSEL, X_Index[cur_group], 0L);
             break;
 
-//      case CA_OSCILLATOR_WAVE:
         case CA_DIVERSE_OSCILLATOR_WAVE:
         case ALT_CA_OSCILLATOR_WAVE:
         case ALT_CA_DIVERSE_OSCILLATOR_WAVE:
@@ -624,7 +615,6 @@ void ShowParams (HWND hDlg)
 
             // Set horizontal parameters
             hCtrl = GetDlgItem (hDlg, IDC_HORZPARAM);
-            //        SendMessageA (hCtrl, CB_ADDSTRING, 0, (LPARAM)"No Param");
             SendMessage (hCtrl, CB_SETCURSEL, X_Index[cur_group], 0L);
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
             SendMessageA(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Space Step");
@@ -803,8 +793,6 @@ void ShowRange (HWND hDlg, Real minx, Real maxx,
     {
         EnableWindow (GetDlgItem (hDlg, IDC_HORZMAX), TRUE);
         realLabel (hDlg, IDC_HORZMAX, maxx);
-        // wsprintfA (buf, "%.2f", maxx);
-        // SendMessageA (GetDlgItem (hDlg, IDC_HORZMAX), WM_SETTEXT, 0,   (LPARAM)buf);
     }
 
     //  vert values
@@ -815,8 +803,6 @@ void ShowRange (HWND hDlg, Real minx, Real maxx,
     {
         EnableWindow (GetDlgItem (hDlg, IDC_VERTMIN), TRUE);
         realLabel (hDlg, IDC_VERTMIN, miny);
-        // wsprintfA (buf, "%.2f", miny);
-        // SendMessageA (GetDlgItem (hDlg, IDC_VERTMIN), WM_SETTEXT, 0,   (LPARAM)buf);
     }
 
     strcpy (buf, "");
@@ -826,8 +812,6 @@ void ShowRange (HWND hDlg, Real minx, Real maxx,
     {
         EnableWindow (GetDlgItem (hDlg, IDC_VERTMAX), TRUE);
         realLabel (hDlg, IDC_VERTMAX, maxy);
-        // wsprintfA (buf, "%.2f", maxy);
-        // SendMessageA (GetDlgItem (hDlg, IDC_VERTMAX), WM_SETTEXT, 0,   (LPARAM)buf);
     }
 
     if (vparam == RAMP_NO_PARAM )

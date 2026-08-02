@@ -150,14 +150,6 @@ static BOOL MyWnd_CLOSE(HWND hDlg)
     return TRUE;
 }
 
-/*static BOOL MyWnd_MOVE(HWND hDlg, int x, int y)
-{
-    InvalidateRect(hDlg,NULL,FALSE);
-    UpdateWindow(hDlg);
-    return TRUE;
-}
-*/
-
 static void MyWnd_RBUTTONDOWN(HWND hDlg, BOOL fDoubleClick, int x, int y, UINT keyFlags)
 {
             DestroyWindow(hDlg);
@@ -173,8 +165,6 @@ BOOL CALLBACK SaveFileProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
     {
         case WM_INITDIALOG:
             return (BOOL) !HANDLE_WM_INITDIALOG(hDlg, wParam, lParam, MyWnd_INITDIALOG);
-//      case WM_MOVE:
-//          return (BOOL) !HANDLE_WM_MOVE(hDlg, wParam, lParam, MyWnd_MOVE);
         case WM_COMMAND:
             return (BOOL) !HANDLE_WM_COMMAND(hDlg, wParam, lParam, MyWnd_COMMAND);
         case WM_RBUTTONDOWN:

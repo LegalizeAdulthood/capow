@@ -271,7 +271,6 @@ public:
     void UpdateFly();
 
     void SetUpTorus();
-//  void SetUpGrid();
 
     bool CaptureToVRML();
     bool CaptureVRML();

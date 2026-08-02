@@ -38,7 +38,6 @@ HWND InitActionToolBar (HWND hwndParent) ;
 HWND InitDialogToolBar (HWND hwndParent) ;
 HWND RebuildToolBar (HWND hwndParent, WORD wFlag);
 void ToolBarMessage (HWND hwndTB, WORD wMsg) ;
-LRESULT ToolBarNotify (HWND hwnd, WPARAM wParam, LPARAM lParam) ;
 
 // Tooltip functions.
 BOOL InitToolTip (HWND hwndToolBar, HWND hwndComboBox) ;

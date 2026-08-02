@@ -37,7 +37,6 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 
     hInstance = (HINSTANCE) GetWindowLongPtr(hDlg, GWLP_HINSTANCE);
 
-    //  CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
     //  controlID_to_TweakID[0] depends on the type of ca
     controlID_to_TweakID[1] = FRICTION_TYPE;
     controlID_to_TweakID[2] = DRIVER_AMP_TYPE;

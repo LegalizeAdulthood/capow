@@ -75,10 +75,8 @@ static BOOL MyWnd_PAINT(HWND hDlg)
 {
     PAINTSTRUCT ps;
 
-    //BeginPaint(hDlg, &ps);
     PaintBlock(hCtrlBlock);
     FixDialogMarks(hDlg);
-    //EndPaint(hDlg, &ps);
     return TRUE;
 }
 
@@ -173,7 +171,6 @@ static BOOL MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
 
         case IDM_256:
             calife_list->Setnumcolor(256);
-            //focusflag = 0;
             InvalidateRect(hDlg, NULL, FALSE);
             calife_list->ResetAllGenerationCount();
             UpdateWindow(hDlg);
@@ -288,7 +285,6 @@ void PaintBlock (HWND hwnd)
     PAINTSTRUCT ps;
 
     hdc = BeginPaint(hwnd, &ps);
-//  hdc = GetDC(hwnd);  This doesn't work.
     if (calife_list->numcolor() == 256)
     {
         old_hpal = SelectPalette(hdc, calife_list->hpal(), 0);
@@ -310,7 +306,6 @@ void PaintBlock (HWND hwnd)
     }
     if (calife_list->numcolor() == 256)
         SelectPalette(hdc, old_hpal, 0);
-//  ReleaseDC(hwnd, hdc); You need a BeginPaint/EndPaint pair in here.
     EndPaint(hwnd, &ps);
 }
 

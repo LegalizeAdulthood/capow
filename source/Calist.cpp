@@ -14,7 +14,6 @@
 #include "ca.hpp"
 #include "resource.h"
 #include "Random.h"
-//#include "Graph3D.hpp"
 #include <math.h>
 #include "Userpara.hpp"
 #include "status.hpp"
@@ -23,7 +22,6 @@
 
 
 //====================EXTERNAL DATA===============
-//extern Graph3D* graph;
 extern char CA_STYLE_NAME[]; //Defined in CAPOW.CPP
 
 extern int  toolBarHeight;
@@ -98,14 +96,10 @@ CAlist::CAlist(HWND myhwnd, int maxcount)
     breedcycle_count = 0;
     evolveflag = START_EVOLVEFLAG;
     mutateflag = START_MUTATE_FLAG;
-//  scrollflag = START_SCROLL_FLAG;
     stripekillflag = START_STRIPEKILL_FLAG;
     stripeseedflag = START_STRIPESEED_FLAG;
     _hpal = 0;
 
-//  wireflag = START_WIRE_FLAG;  //NOte that wireflag and
-//  graphflag = START_GRAPH_FLAG;//graphflag are no longer used. But keep for
-        //file consistency, at least for now.  11/95.
     Setcolortable();
     // ---------- Fourier ----------
         tp_dowhich              = IDC_FOURIERALL;
@@ -131,16 +125,10 @@ CAlist::~CAlist()
 //This function is no longer used. Locate(void) is used instead.
 void CAlist::Locate(int dmaxx, int dmaxy)
 {
-//Don't do any Clear or Boxfocus in here, leave that to capow.cpp
-//  if (!zoomflag)
     if(!zoomviewflag)
         for (int i=0; i<count; i++)
-//          list[i]->Locate(i, dmaxx, dmaxy, CA_count_per_edge);
             list[i]->Locate(i, masterhwnd, CA_count_per_edge);
-            //Used to have masterhwnd here, but hwnd is a member
-            //with the same value, use that instead.
     else
-//      focus->Locate(0, dmaxx, dmaxy, 1);
         focus->Locate(0, hwnd, 1);
     blt_flag = 0;
 
@@ -432,21 +420,6 @@ void CAlist::Show(HDC hdc, const RECT &rcPaint)
 
             if (focus->viewmode== IDC_2D_VIEW)
                 capowgl->Draw(hdc, focus);
-
-
-        /*      if (focus->maxx_2D == focus->maxx &&
-                    focus->maxy_2D == focus->maxy)
-                    WBM->WBMBitBlt(hdc, focus->minx, focus->miny,
-                        focus->maxx_2D, focus->maxy_2D);
-                else
-                    StretchBlt(hdc,   //target hdc
-                        focus->minx, focus->miny,  //target corner
-                        focus->horz_count, focus->vert_count,//targ size
-                        WBM->GetHDC(),                 //source  hdc
-                        focus->minx, focus->miny,  //source corner
-                        focus->horz_count_2D, focus->vert_count_2D,//sc size
-                        SRCCOPY);
-        */
         } // end  zoomflag  case
     } //end Getdimension == 2 case
 }
@@ -565,9 +538,6 @@ void CAlist::Boxfocus(HDC hdc, COLORREF color)
 
 int CAlist::Setfocus(HDC hdc, CA *new_focus)
 {
-//  if (focus->Getdimension() == 2)
-//      capowgl->AdjustHeightFactor(focus);
-
     if (zoomflag)
         return 0;
     if (new_focus==focus)
@@ -650,9 +620,6 @@ int CAlist::Changecount(int icount)
     oldcount = count;
     count = icount;
     CA_count_per_edge = sqrt(count);
- //     assert (CA_count_per_edge*CA_count_per_edge == count);
-//      if ((CA_count_per_edge*CA_count_per_edge)<count)
-  //            CA_count_per_edge++;
     GetClientRect(hwnd, &rect); //Here is where I emulate WM_SIZE
     Locate(rect.right,rect.bottom - toolBarHeight);//for possible new CAs.
     if (count > oldcount)   // Expand field

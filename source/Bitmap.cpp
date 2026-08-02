@@ -113,15 +113,11 @@ void WindowBitmap::WBMWireBlt(HDC hdc, int left, int top, int right,
 HPALETTE WindowBitmap::WBMSelectPalette(HDC hdc, HPALETTE hPal)
 {
     HPALETTE oldhPal;
-//      HPALETTE oldWBMhPal;
-
-//  oldWBMhPal =
     SelectPalette(hdcWBM, hPal, 0);
     RealizePalette(hdcWBM);
     oldhPal = SelectPalette(hdc, hPal, 0); //The old palette, select it
         //back before you delete the hdc.
     RealizePalette(hdc);
-//  assert (oldhPal == oldWBMhPal);
     return oldhPal;
 }
 

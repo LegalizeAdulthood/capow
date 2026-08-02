@@ -42,7 +42,6 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
     hInstance = (HINSTANCE) GetWindowLongPtr(hDlg, GWLP_HINSTANCE);
 
     HWND hCntl;
-//          CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
             hCntl = GetDlgItem( hDlg, RADIUSSTATES_NEW );
             SendMessageA(hCntl, CB_ADDSTRING, CA1_2, (LPARAM) "Radius-1 States-2");
             SendMessageA(hCntl, CB_ADDSTRING, CA1_4, (LPARAM) "Radius-1 States-4");
@@ -343,7 +342,6 @@ void set_active_buttons( int castyle )
     switch( castyle)
     {   case CA_STANDARD:
         case CA_REVERSIBLE:
-            //active_buttons[ TARGET_LAMBDA_INC - BUTT_START ] = 1;
             active_buttons[ IDC_SPINLAMBDA - BUTT_START ] = 1;
             break;
 
@@ -359,16 +357,13 @@ void set_active_buttons( int castyle )
         case CA_DIVERSE_OSCILLATOR:
         case ALT_CA_DIVERSE_OSCILLATOR:
             active_buttons[ IDC_SPINDIVERSE - BUTT_START ] = 1;
-            //active_buttons[ VARIANCE_DEC - BUTT_START ] = 1;
             break;
 
         case CA_NETWORK:
         case CA_CUSTOM:
         case CA_CUSTOM_2D:
             active_buttons[ IDC_SPINLAMBDA - BUTT_START ] = 1;
-        //  active_buttons[ TARGET_LAMBDA_DEC - BUTT_START ] = 1;
             active_buttons[ IDC_SPINDIVERSE - BUTT_START ] = 1;
-//          active_buttons[ VARIANCE_DEC - BUTT_START ] = 1;
             break;
     } // switch castyle
 } // set_active_buttons */

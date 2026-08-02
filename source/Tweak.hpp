@@ -65,13 +65,6 @@ class TweakRange
         }
 };
 
-//#define _inc_lo _increment[0]
-//#define _inc_med _increment[1]
-//#define _inc_hi _increment[2]
-//#define _inc_super _increment[3]
-//#define _lo_to_med _transition[0]
-//#define _med_to_hi _transition[1]
-//#define _hi_to_super _transition[2]
 #define NO_ADJUST 0
 #define ADJUST_ACCELERATION 1
 #define ADJUST_VARIANCE 2
@@ -80,7 +73,6 @@ class CA;
 class TweakParam
 {
     private:
-//      typedef void (CA::*CAFunPtr)();
 
     protected:
         Real _val;  // [mean-variance, mean+variance]
@@ -171,9 +163,4 @@ class MultiplicativeTweakParam : public TweakParam
         MultiplicativeTweakParam& operator= (const MultiplicativeTweakParam& src);
 };
 
-/*CA
-{
-          ChangeTweakParam(TweakParam* tp, Real updown)
-*/
 #endif
-

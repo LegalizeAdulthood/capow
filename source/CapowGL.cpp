@@ -67,7 +67,6 @@ CapowGL::CapowGL(HWND hwnd)
     statsflag = DEFAULTSTATS;
     time = timeGetTime();
     SetUpTorus();
-//  SetUpGrid();
     flygo = true;
     showflypos = DEFAULTSHOWFLYPOS;
     flyEye[0] = 0.0f;
@@ -134,7 +133,6 @@ of the program.
 
     int nMyPixelFormatID;
     HDC hDC;
-    // HGLRC hRC; // l.andrews 11/3/01 this was hiding the member variable
 
     hDC = GetDC( hWnd );
     nMyPixelFormatID = ChoosePixelFormat( hDC, &pfd );
@@ -196,27 +194,17 @@ CapowGL->Size() in Capow.cpp, it seems to fix the problem.
     glLoadIdentity();
     if (threeDGlasses)
     {
-//      glDisable(GL_DEPTH_TEST);
-        //glEnable(GL_BLEND);
-
-//      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        //glBlendFunc(GL_ONE, GL_ONE);
         glPushMatrix();
         currentEyeColor = leftColor;
-//      glTranslatef(-interPupilDistance, 0.0f, 0.0f);
-//      glRotatef(5.0f, 0.0f, 1.0f, 0.0f);
         whichEye = LEFTEYE;
         glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
         DrawOpenGLScene();
         glPopMatrix();
         glClear(GL_DEPTH_BUFFER_BIT);
         currentEyeColor = rightColor;
-//      glTranslatef(interPupilDistance, 0.0f, 0.0f);
-//      glRotatef(-5.0f,0.0f, 1.0f, 0.0f);
         whichEye = RIGHTEYE;
         glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE);
         DrawOpenGLScene();
-        //glDisable(GL_BLEND);
         glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
     else
@@ -259,7 +247,6 @@ unitvectorizing, no longer does so now.
     //  buffers.
     //
 
-//    glLoadIdentity();   //Initialize the Modelview Matrix
     glScalef(spacing, spacing, spacing);  //see comment for DrawOpenGLScene()
 
     if (mousemode != 6) //not flying, so do the transformations to correctly position the ca
@@ -325,10 +312,7 @@ look at, and an Up vector.
             if ((!showgeneratorsflag && !showflypos)||threeDGlasses)
                 glDisable(GL_DEPTH_TEST);
             glDisable(GL_LIGHTING);
-//          if (threeDGlasses)
-//              glColor3fv(currentEyeColor);
-//          else
-                glColor3f(1.0f, 1.0f, 1.0f);
+            glColor3f(1.0f, 1.0f, 1.0f);
             glBegin(GL_POINTS);
             for (j = 0; j<CY_2D; j+=interval)
                 for(i = 0; i<CX_2D; i+=interval)
@@ -366,8 +350,6 @@ look at, and an Up vector.
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glEnable(GL_LINE_SMOOTH);
-//              glLineWidth(1.2f);
-//              glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
             }
             glColor3f(1.0f, 1.0f, 1.0f);
 
@@ -383,7 +365,6 @@ look at, and an Up vector.
                 glDisable(GL_BLEND);
                 glDisable(GL_LINE_SMOOTH);
                 glLineWidth(1.0f);
-//              glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
             }
             break;
 
@@ -551,7 +532,6 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                 glVertex3f((float)CX_2D-1, 0.0f, 0.0f);
                 glVertex3f(0.0f, 0.0f, 0.0f);
             glEnd();
-//          glEnable(GL_LIGHTING);
         }
 
         if (maxplaneflag)
@@ -569,7 +549,6 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                 glVertex3f(0.0f, 0.0f, 0.0f);
             glEnd();
                 glPopMatrix();
-//      glEnable(GL_LIGHTING);
         }
 
         //not really used now, since I couldn't find a practical use for it.
@@ -582,7 +561,6 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                     glVertex3f((float)pointerx,(float)(-pointery),(float)GraphHeight(pointerx,pointery));
                     glVertex3f((float)pointerx,(float)(-pointery),(float)graphfocus->_max_intensity.Val()*heightfactor);
             glEnd();
-//          glEnable(GL_LIGHTING);
         }
 
         if (antiAliased)
@@ -599,7 +577,6 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
             glColor3f(0.0f, 1.0f, 0.0f);
             glPushMatrix();
             glTranslatef(flyEye[0], flyEye[1], flyEye[2]);  //translate to the fly position
-            //auxSolidSphere(1.0f);  //draw a sphere //2017 Too much troubel to include GLAUX.LIB
             glBegin(GL_LINES);
                 glVertex3f(0.0f, 0.0f,0.0f);
                 glVertex3f(flyDir[0], flyDir[1], flyDir[2]);
@@ -621,7 +598,6 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
             {
                 glEnable(GL_BLEND);
                 glEnable(GL_LINE_SMOOTH);
-//              glLineWidth(1.0f);
             }
             for (int k=0; k<graphfocus->generatorlist.Count(); k++)
             {
@@ -629,7 +605,6 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                 i= graphfocus->generatorlist.Location(k)%CX_2D;
                 j= graphfocus->generatorlist.Location(k)/CX_2D;
                 glTranslatef(  i,-j,GraphHeight(i,j));
-                // auxSolidSphere(1.0f); //2017  Too much trouble to include GLAUX.LIB
                 glPopMatrix();
                 glBegin(GL_LINES);
                     glVertex3f(i, -j,(float)graphfocus->_max_intensity.Val()*heightfactor);
@@ -640,7 +615,6 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
             {
                 glDisable(GL_BLEND);
                 glDisable(GL_LINE_SMOOTH);
-//              glLineWidth(1.0f);
             }
 
         }
@@ -659,10 +633,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
             {
                 for(i = 0; i<CX_2D; i+=interval)
                 {
-//                  height = GraphHeight(i,j);
-//                  glVertex3f(slice[i][0]+slice[i][0]*section[j][0]*height,   slice[i][1] + slice[i][1]*section [j][0]*height , section[j][1]*height);
                     glVertex3f(slice[i][0]+slice[i][0]*section[j][0],   slice[i][1] + slice[i][1]*section [j][0] , section[j][1]);
-
                 }
             }
             glEnd();
@@ -678,8 +649,6 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                 glBegin(GL_LINE_STRIP);
                 for (j=0; j<CY_2D; j+= interval)
                 {
-//                  height = 1.0f + GraphHeight(i,j);
-//                  glVertex3f(slice[i][0]+slice[i][0]*section[j][0]*height,   slice[i][1] + slice[i][1]*section [j][0]*height , section[j][1]*height);
                     glVertex3f(slice[i][0]+slice[i][0]*section[j][0],   slice[i][1] + slice[i][1]*section [j][0] , section[j][1]);
                 }
                 glEnd();
@@ -1000,23 +969,6 @@ I'm only using one for capowgl
     GLfloat specular0[] = { .8f, .8f, .8f, 1.0f };
     GLfloat position0[] = { 0.0f, 0.0f, 1.0f, 0.0f };  //directional
 
-//These are just parameters for other lights, which seems unnecessary
-/*  GLfloat ambient1[] =  { 0.0f, 0.0f, 0.0f, 1.0f };
-    GLfloat diffuse1[] =  { 1.0f, 1.0f, 1.0f, 1.0f };
-    GLfloat specular1[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-    GLfloat position1[] = { 2.0f, 1.0f, -1.0f, 0.0f };
-
-    GLfloat ambient2[] =  { 0.0f, 0.0f, 0.0f, 1.0f };
-    GLfloat diffuse2[] =  { 0.0f, 0.0f, 1.0f, 1.0f };
-    GLfloat specular2[] = { 0.0f, 0.0f, 1.0f, 1.0f };
-    GLfloat position2[] = { -0.5f, -0.5f, -1.0f, 1.0f };
-
-    GLfloat ambient3[] =  { 0.0f, 0.0f, 0.0f, 1.0f };
-    GLfloat diffuse3[] =  { 1.0f, 1.0f, 1.0f, 1.0f };
-    GLfloat specular3[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    GLfloat position3[] = { 2.0f, 0.5f, 0.5f, 0.0f };
-*/
-
     if (lightsflag)
         ::glEnable( GL_LIGHTING );
     else
@@ -1026,26 +978,6 @@ I'm only using one for capowgl
     ::glLightfv(GL_LIGHT0, GL_POSITION, position0);
     ::glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse0);
     ::glLightfv(GL_LIGHT0, GL_SPECULAR, specular0);
-/*
-    //::glEnable(GL_LIGHT1);
-    ::glLightfv(GL_LIGHT1, GL_AMBIENT, ambient1);
-    ::glLightfv(GL_LIGHT1, GL_POSITION, position1);
-    ::glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse1);
-    ::glLightfv(GL_LIGHT1, GL_SPECULAR, specular1);
-
-    //::glEnable(GL_LIGHT2);
-    ::glLightfv(GL_LIGHT2, GL_AMBIENT, ambient2);
-    ::glLightfv(GL_LIGHT2, GL_POSITION, position2);
-    ::glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuse2);
-    ::glLightfv(GL_LIGHT2, GL_SPECULAR, specular2);
-
-    //::glEnable(GL_LIGHT3);
-    ::glLightfv(GL_LIGHT3, GL_AMBIENT, ambient3);
-    ::glLightfv(GL_LIGHT3, GL_POSITION, position3);
-    ::glLightfv(GL_LIGHT3, GL_DIFFUSE, diffuse3);
-    ::glLightfv(GL_LIGHT3, GL_SPECULAR, specular3);
- */
-
 }
 
 //called by PickMaterial()
@@ -1458,8 +1390,6 @@ void CapowGL::MouseMove(int x, int y, UINT flags)
                 { pointery = CY_2D-1;}
             break;
         case 4:
-//          if (ThreeDGlasses())
-//              break;
             z = oldzoom + (float) -(y-y1);
             if (z<MINZ)
                 z=MINZ;
@@ -1575,7 +1505,6 @@ void CapowGL::Reset()
     material =      DEFAULTMATERIAL;
 
 
-//  heightfactor =  DEFAULTHEIGHTFACTOR;
     spinflag =      DEFAULTSPIN;
     spindelta =     DEFAULTSPINDELTA;
     spinangle =     DEFAULTSPINANGLE;
@@ -1868,8 +1797,6 @@ GLenum error;
         int    i,j, i2 = 0;
         float* n;
         double fp = 1.5;
-//      char   s[] = "this is a string";
-//      char   c = '\n';
 
         stream = fopen( "capow.wrl", "w" );
         fprintf( stream, "#VRML V2.0 utf8\n\n");
@@ -2055,7 +1982,6 @@ void CapowGL::ThreeDGlasses(BOOL flag)
             break;
         default:
             Material(PEARL);
-//          SurfaceType(POLYLINES);
             break;
         }
 

@@ -365,8 +365,6 @@ void showcycleparams(HWND hDlg)
         SendMessage(GetDlgItem( hDlg, IDC_EVOLVE),
             CB_SETCURSEL, (WORD)calife_list->Getevolve(), 0);
 
-    //  Function moved to Cell.cpp
-    //  realLabel (hDlg,IDC_MUTATION,100.0 * calife_list->Getmutation());
     realLabel (hDlg, IDC_TARGET_ENTROPY, entropy);
     realLabel (hDlg, IDC_CURRENT_ENTROPY, calife_list->FocusCA()->Getentropy());
     realLabel (hDlg, IDC_FAILSTRIPE, calife_list->FocusCA()->Getfailstripe());

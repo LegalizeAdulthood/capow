@@ -106,7 +106,6 @@ LRESULT ToolBarNotify(HWND hwnd, int idForm, NMHDR  * pnmhdr)
                 ToolTip->lpszText = "Change CA Type";
                 break;
             case IDM_SWAP:
-             // ToolTip->lpszText = "Swap Toolbars"; // 2017 Drop the Action Toolbar
                 break;
              case IDM_HELP:
                 ToolTip->lpszText = "Help";
@@ -289,7 +288,6 @@ LRESULT CALLBACK toolbarProc(HWND hwndtoolbar, UINT message, WPARAM wParam,
     switch( message )
     {
         case WM_COMMAND:
-            //return (BOOL) !HANDLE_WM_COMMAND(hDlg,wParam,lParam,MyWnd_COMMAND);
             MessageBoxA ( masterhwnd, "D","D", MB_OK );
             break;
 
@@ -298,82 +296,6 @@ LRESULT CALLBACK toolbarProc(HWND hwndtoolbar, UINT message, WPARAM wParam,
 }
 
 //====================================================
-
-
-#if 0
-//-------------------------------------------------------------------
-void ToolBarMessage (HWND hwndTB, WORD wMsg)
-     {
-     switch (wMsg)
-          {
-          case IDM_TB_CHECK :
-               {
-               int nState = ToolBar_GetState (hwndTB, 1) ;
-               BOOL bCheck = (!(nState & TBSTATE_CHECKED)) ;
-               ToolBar_CheckButton (hwndTB, 1, bCheck ) ;
-               break ;
-               }
-
-          case IDM_TB_ENABLE :
-               {
-               int nState = ToolBar_GetState (hwndTB, 2) ;
-               BOOL bEnabled = (!(nState & TBSTATE_ENABLED)) ;
-               ToolBar_EnableButton (hwndTB, 2, bEnabled) ;
-               break ;
-               }
-
-          case IDM_TB_HIDE :
-               {
-               int nState = ToolBar_GetState (hwndTB, 3) ;
-               BOOL bShow = (!(nState & TBSTATE_HIDDEN)) ;
-               ToolBar_HideButton (hwndTB, 3, bShow) ;
-               break ;
-               }
-
-          case IDM_TB_INDETERMINATE :
-               {
-               int nState = ToolBar_GetState (hwndTB, 4) ;
-               BOOL bInd = (!(nState & TBSTATE_INDETERMINATE)) ;
-               ToolBar_Indeterminate (hwndTB, 4, bInd) ;
-               break ;
-               }
-
-          case IDM_TB_PRESS :
-               {
-               int nState = ToolBar_GetState (hwndTB, 5) ;
-               BOOL bPress = (!(nState & TBSTATE_PRESSED)) ;
-               ToolBar_PressButton (hwndTB, 5, bPress) ;
-               break ;
-               }
-
-          case IDM_TB_BUTTONCOUNT :
-               {
-               int nButtons = ToolBar_ButtonCount (hwndTB) ;
-               char ach[80] ;
-               wsprintfA (ach, "Button Count = %d", nButtons) ;
-               MessageBoxA (GetParent (hwndTB), ach,
-                           "TB_BUTTONCOUNT", MB_OK) ;
-               break ;
-               }
-
-          case IDM_TB_GETROWS :
-               {
-               int nRows = ToolBar_GetRows (hwndTB) ;
-               char ach[80] ;
-               wsprintfA (ach, "Row Count = %d", nRows) ;
-               MessageBoxA (GetParent (hwndTB), ach,
-                           "TB_GETROWS", MB_OK) ;
-               break ;
-               }
-          case IDM_TB_CUSTOMIZE :
-               // ToolBar_Customize (hwndTB) ;
-               SendMessage (hwndTB, TB_CUSTOMIZE, (LPARAM) &tbb[25], 5) ;
-               break ;
-          }
-     }
-
-
-#endif
 
 
 HWND InitActionToolBar (HWND hwndParent )

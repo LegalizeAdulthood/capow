@@ -14,22 +14,15 @@ extern void realLabel (HWND, int, Real);
 
 
 unsigned char drop;
-// int  oldtype;  //RR 2007 Don't use it.
 
 void ShowOpenGLParams(HWND hDlg);
-
-//static HWND hCtrlBlock;
-//static void PaintBlock(HWND hCntrlBlock);
 
 //------------------------ Message Processing -----------------------//
 // Message Cracker put in by Chi Pan Lao at 9/10/96
 
 static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
-
-
     HWND hCntl;
-//  oldtype = 0; //RR 2007 don't use it
 
     hCntl = GetDlgItem(hDlg, IDC_OPENGL_GRAPHTYPES);
     SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "2D Color");
@@ -78,9 +71,6 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Low");
 
     ShowOpenGLParams( hDlg);
-    //hCtrlBlock = GetDlgItem(hDlg, IDD_PROGICON);
-//  InvalidateRect(hDlg, NULL, FALSE);
-    //UpdateWindow(hDlg);
     return TRUE;
 }
 
@@ -88,12 +78,9 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 {
     int comboint;
     HDC testhdc;
-//  if (!zoomviewflag)
-//      return;
     switch (id)
     {
     case SC_UPDATE:
-//      ShowOpenGLParams(hDlg);
         InvalidateRect(hDlgOpenGL, NULL, TRUE);
         break;
 
@@ -179,20 +166,6 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
     case IDC_OPENGL_FLAT:
         break;
     case IDC_OPENGL_FLIP_TYPE:  //to let clicking on the bitmap be a switch
-        /* Was like this.  the three types are FLATCOLOR, SHEET, TORUS defined as 0, 1, 2.
-        I changed this code so Flip works on FLATCOLOR. */
-        /*===============
-        if (oldtype == 0)  //flat
-        {
-            oldtype  = capowgl->Type();
-            capowgl->Type(0);
-        }
-        else
-        {
-            capowgl->Type(oldtype);
-            oldtype = 0;
-        }
-        ==================*/
         if (capowgl->Type() == FLATCOLOR)  //flat
             capowgl->Type(SHEET);
         else // capowgl->Type() is SHEET or TORUS
@@ -229,30 +202,15 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
         break;
     case IDC_OPENGL_PAUSE:
         SendMessage(masterhwnd, WM_COMMAND, IDM_PAUSE, 0);
-        /*this has the effect of calling
-            calife_list->ToggleSleep();
-            capowgl->FocusIsActive(calife_list->GetSleep());
-        */
         ShowOpenGLParams(hDlg);
         break;
     case IDC_OPENGL_GLSLEEP: //Rudy added this 12/2/97
         calife_list->ToggleGlSleep();
-/*
-        if (calife_list->GetGlSleep()) //gl_sleep on
-            calife_list->SetGlSleep(0); //turn it off
-        else //gl_sleep off
-            calife_list->SetGlSleep(1); //TRY to turn it on (you can't if sleep is off)
-*/
         ShowOpenGLParams(hDlg);
         break;
     case IDC_OPENGL_TO_VRML:
-//      capowgl->CaptureToVRML();  //this one doesn't work
         capowgl->CaptureVRML();
         break;
-//      case IDOK:
-//      case IDCANCEL:
-//      case IDIGNORE:
-        EndDialog(hDlg, 0);
     }
 }
 
@@ -262,7 +220,6 @@ static BOOL MyWnd_PAINT(HWND hDlg)
     HWND hCtrlBlock;
     HDC hdc;
     RECT sourcerect, targetrect;
-    //PaintBlock(hCtrlBlock);
     if (WBM)
     {
         //if zoomed on 2-D focus
@@ -277,8 +234,6 @@ static BOOL MyWnd_PAINT(HWND hDlg)
             //but it doesn't work.
             StretchBlt(hdc, 0,0, targetrect.left-targetrect.right, targetrect.bottom-targetrect.top,
                 WBM->GetHDC(),sourcerect.left, sourcerect.top, sourcerect.left-sourcerect.right, sourcerect.bottom-sourcerect.top, SRCCOPY);
-        //  BitBlt(hdc, 0,0, sourcerect.left-sourcerect.right, sourcerect.bottom-sourcerect.top,
-        //      WBM->GetHDC(), sourcerect.left, sourcerect.top, SRCCOPY);
             ReleaseDC(hCtrlBlock, hdc);
         }
     }
@@ -350,11 +305,6 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
 
 static void MyWnd_PARENTNOTIFY(HWND hDlg, UINT fwEvent, HWND lValue, UINT idChild)
 {
-//WM_PARENTNOTIFY
-//fwEvent = LOWORD(wParam);  // event flags
-//idChild = HIWORD(wParam);  // identifier of child window
-//lValue = lParam;           // child handle, or cursor coordinates
-
 }
 
 BOOL CALLBACK OpenGLProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -397,8 +347,6 @@ void ShowOpenGLParams(HWND hDlg)
         SendMessage(GetDlgItem( hDlg, IDC_OPENGL_RESOLUTION),
             CB_SETCURSEL, (WORD)capowgl->Resolution(), 0);
 
-//  CheckRadioButton( hDlg, IDC_OPENGL_MOUSE_CA, IDC_OPENGL_MOUSE_FLY,
-//    IDC_OPENGL_MOUSE_CA + capowgl->MouseMode() );
     SendMessage(GetDlgItem(hDlg,IDC_OPENGL_ORIENT), BM_SETSTATE, capowgl->MouseMode()==0, 0);
     SendMessage(GetDlgItem(hDlg,IDC_OPENGL_HEIGHT), BM_SETSTATE, capowgl->MouseMode()==5, 0);
     SendMessage(GetDlgItem(hDlg,IDC_OPENGL_ZOOM), BM_SETSTATE, capowgl->MouseMode()==4, 0);
@@ -433,7 +381,6 @@ void ShowOpenGLParams(HWND hDlg)
     EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_FLY_SHOW), GL_active);
     EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_FLIP_TYPE),calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW);
     EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_RESET),GL_active);
-//  EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_PAUSE),GL_active);
 
     EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_ORIENT),GL_active);
     EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_HEIGHT),GL_active);

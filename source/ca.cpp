@@ -17,14 +17,11 @@
 //#include <vector.h> already in ca.hpp
 
 //====================EXTERNAL DATA===============
-//extern int  toolBarHeight;
 extern BOOL toolbarON;
 extern BOOL statusON;
 extern HWND masterhwnd;
 extern int statusBarHeight;
 extern int toolBarHeight;
-//extern class CAlist *calife_list;
-//extern BOOL zoomviewflag;
 
 
 void AddUserParam(CA* owner, LPSTR label,  Real value)
@@ -32,7 +29,6 @@ void AddUserParam(CA* owner, LPSTR label,  Real value)
     TweakRange range(0.0);
     AdditiveTweakParam *param = new AdditiveTweakParam(0.0, value, 0.0,
         1000.0, label, FALSE, range);
-//  param->SetVal(value);
     owner->userParamAdd.push_back(param);
 }
 
@@ -115,12 +111,8 @@ CA::CA(CAlist *mylist)
    type_ca = 0;    // l.andrews 11/2/01 since it will be used by Gettype()
                    // before any other initialization
     SetColors();
-//  InitSeed();    // Set all cells in all rows to zero
-//Don't need this anymore as the Cell constructors do that.
     /*Set this before you do any table settings */
     lambda = START_LAMBDA;
-//  oldradius = START_RADIUS;
-//  oldstates = START_STATES;
     nabeoptions = 0;
     cellcount = 0;
    dimension = 0; // l.andrews 11/2/01 another attempt to set dimension
@@ -135,7 +127,7 @@ CA::CA(CAlist *mylist)
     viewmode = START_VIEWMODE;//like IDC_SPLIT_VIEW
     showmode = START_SHOWMODE; //like BOTH_VIEW or ODD_VIEW
     showvelocity = START_SHOWVELOCITY;
-    _wavespeed = 1.0; //0.5; //used by Alt??? wave methods.
+    _wavespeed = 1.0; // used by Alt??? wave methods.
     _dx_lock = TRUE;
     time = 0.0;
     _phase = Randomsignreal()*2.0*PI;
@@ -409,7 +401,6 @@ void CA::Lambdalookup()
         RandomizeTweakParam(&_max_intensity, MAX_INTENSITY_MEAN, MAX_INTENSITY_VARIANCE);
         RandomizeTweakParam(&_driver_multiplier, _max_intensity.Val()/2, _max_intensity.Val()/4);
         RandomizeTweakParam(&_max_velocity, MAX_VELOCITY_MEAN, MAX_VELOCITY_VARIANCE);
-//      Adjust_acceleration_multiplier();
     Resetfreq();
     Computeactual_lambda();
     if (calist_ptr->FocusCA() == this)
@@ -842,11 +833,6 @@ void CA::Show(HDC hdc)
                 //DRAW GENERATORS
                 for (i=0; i <generatorlist.Count(); i++)
                 {
-                /*  WBM->WBMOnlyPutPixel(minx + generatorlist.Location(i),
-                    maxy - (int)(((split_vert_count)-2) *
-                    ((float)(colorindex_target_row[generatorlist.Location(i)])/ (MAX_COLOR-1))),
-                    RGB(255, 0, 0));
-                */
                     if (generatorlist.Location(i)<horz_count)
                     {
                         x = minx + generatorlist.Location(i);
@@ -870,11 +856,6 @@ void CA::Show(HDC hdc)
 
                 for (i=0; i <generatorlist.Count(); i++)
                 {
-                /*  WBM->WBMOnlyPutPixel(minx + generatorlist.Location(i),
-                    maxy - (int)(((split_vert_count)-2) *
-                    ((float)(colorindex_target_row[generatorlist.Location(i)])/ (MAX_COLOR-1))),
-                    RGB(255, 0, 0));
-                */
                     if (generatorlist.Location(i)<horz_count)
                     {
                         x = minx + generatorlist.Location(i);
@@ -1170,14 +1151,6 @@ after the rows are swapped just below.*/
 // 2017 When I choose View | Show Velocity, the velocity is so close to 0 that I can't see much
 // Possibly I should multiply the velocity on the right by AMPLIFY_VEL_COLOR from ca.hpp, which might be, say, 80.0
 
-//1990s. I am getting a lot of CRASH coming in on this  line down below
-//at the end of WaveUpdateStep:
-//      COLORREF_target_row[i] = colortable[colorindex_target_row[i]];
-//colortable is of length MAX_COLOR.
-//colorindex_target_row[i] is out of range.  In fact, when it crashes,
-//it triggers this assert exit:
-//      assert(colorindex_target_row[i] < MAX_COLOR);
-//Therefore I'll clamp it!
         POSITIVECLAMP(colorindex_target_row[i], (unsigned short)(MAX_COLOR-1));
 
         if (entropyflag)

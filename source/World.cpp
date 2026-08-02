@@ -28,8 +28,6 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     HWND hCntl;
     int boxindex = 0; // l.andrews 11/3/01 just so it has a value
 
-//  CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
-
     // Set CA type Combo Box
     hCntl = GetDlgItem( hDlg, IDC_CATYPE_WORLD);
 
@@ -43,9 +41,6 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     boxindex_to_type[boxindex] = CA_HEATWAVE2;
     boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Wave Equation");
     boxindex_to_type[boxindex] = ALT_CA_WAVE;
-    /*  boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
-            (LPARAM)"Viscous Wave");
-        boxindex_to_type[boxindex] = CA_WAVE; */
     userboxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "User Rule (*.DLL)");
     boxindex_to_type[userboxindex] = CA_USER;
     boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Big Nabe Wave");
@@ -58,32 +53,12 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     boxindex_to_type[boxindex] = ALT_CA_OSCILLATOR_WAVE;
     boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Diverse Wave Osc");
     boxindex_to_type[boxindex] = ALT_CA_DIVERSE_OSCILLATOR_WAVE;
-    /*  boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
-            (LPARAM)"Wave Osc");
-        boxindex_to_type[boxindex] = CA_OSCILLATOR_WAVE;
-        boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
-            (LPARAM)"Diverse Wave Osc");
-        boxindex_to_type[boxindex] = CA_DIVERSE_OSCILLATOR_WAVE;
-    */
     boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Quadratic Wave");
     boxindex_to_type[boxindex] = ALT_CA_ULAM_WAVE;
     boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Cubic Wave");
     boxindex_to_type[boxindex] = CA_CUBIC_ULAM_WAVE;
-    /*  boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
-            (LPARAM)"Viscous FPU");
-        boxindex_to_type[boxindex] = CA_ULAM_WAVE;*/
     boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Boiling Wave");
     boxindex_to_type[boxindex] = CA_AUTO_ULAM_WAVE;
-    /*  boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
-            (LPARAM)"Alt Wave 2");
-        boxindex_to_type[boxindex] = ALT_CA_WAVE2;
-        boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
-            (LPARAM)"Alt Oscillators");
-        boxindex_to_type[boxindex] = ALT_CA_OSCILLATOR;
-        boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
-            (LPARAM)"Alt Diverse Osc");
-        boxindex_to_type[boxindex] = ALT_CA_DIVERSE_OSCILLATOR;
-    */
     boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "2D Wave");
     boxindex_to_type[boxindex] = CA_WAVE_2D;
     boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "2D Heat");
@@ -111,7 +86,6 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
             break;
 
         case SC_UPDATE:
-//          CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
             showparams(hDlg);
             break;
 
@@ -455,7 +429,6 @@ static void showparams(HWND hDlg)
 //But we set ACC_??? on the basis of a flag in t//focus/all
 
     CheckRadioButton(hDlg,RADIO_ALL,RADIO_FOCUS,RADIO_ALL+focusflag);
- // setworldtates (currcatype);
 
 // CA type combo box
     if (!SendMessage( GetDlgItem( hDlg, IDC_CATYPE_WORLD), CB_GETDROPPEDSTATE, 0, 0L))

@@ -90,7 +90,6 @@ char *szMyAppName = "CAPOW";
 /* These next two externals are defined in SCRNSAVE.LIB. I only use the
 hMainInstance, so comment out the hMainWindow.  */
 extern HINSTANCE  hMainInstance;
-//extern HWND  hMainWindow; //I keep my own HWND mainwind which I set in WM_CREATE.
     //=====MIXED SCREENSAVE AND EXECUTABLE FLAG====================
 /* Here is a flag I use in CONFIGURE.CPP to decide whether that dialog's code
 is for the dialog of the *.EXE or for the initializer of the *.SCR */
@@ -211,7 +210,7 @@ LRESULT FAR PASCAL ScreenSaverProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
             readIniSettings();
             Randomize();  // Seed the randomizer
             hInst = hMainInstance; //Used in capow dialog files as global main HINSTANCE
-            masterhwnd = hwnd; // masterhwnd = hMainWindow; doesn't work.
+            masterhwnd = hwnd;
             //masterhwnd is used in capow dialog files as global main HWND
             WBM         = new WindowBitmap(hwnd);
             capowgl = new CapowGL(hwnd);
@@ -307,7 +306,7 @@ LRESULT FAR PASCAL ScreenSaverProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
             if (randomize_timer_handle)
                 KillTimer(hwnd, randomize_timer_handle);
             delete WBM;// Free bitmap
-            delete capowgl;//delete graph;
+            delete capowgl;
             delete calife_list;//Calls dll_list destructor.  Important to call FreeLibrary on DLLS.
             calife_list = NULL; //So any remaining WM_TIMER knows its over.
             PostQuitMessage (0);

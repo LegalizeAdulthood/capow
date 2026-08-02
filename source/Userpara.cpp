@@ -586,7 +586,6 @@ static LRESULT CALLBACK EditProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                 if (wParam == VK_TAB)
                 {   // Set focus to next edit control
                     if (n == lastVisible)
-                        // SetFocus(userAddHButton[0]);
                         SetFocus(randomButton);
                     else SetFocus(userAddHEdit[(n+1) % userAddHEdit.size()]);
                 }

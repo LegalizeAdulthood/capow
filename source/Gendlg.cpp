@@ -153,16 +153,11 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
             switch(LOWORD(codeNotify))
             {
                 case SB_LINEUP:
-
-
                     edit_id = 0;
-                    //showparams(hDlg);
                     break;
 
                 case SB_LINEDOWN:
-
                     edit_id = 0;
-                    //showparams(hDlg);
             }
             break;
 
@@ -202,7 +197,6 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 
 static BOOL MyWnd_PAINT(HWND hDlg)
 {
-    //PaintBlock(hCtrlBlock);
     showparams(hDlg);
     return TRUE;
 }
@@ -275,7 +269,6 @@ BOOL HandleUpDownControlGenerators(HWND hDlg, UINT message, WPARAM wParam, LPARA
     if (pnmud->hdr.code != UDN_DELTAPOS)    // if no change then return
         return FALSE;
 
-    //focusGen = calife_list->FocusCA()->generatorlist.Count() - 1;
     switch ( pnmud->hdr.idFrom )
     {
 
@@ -283,7 +276,6 @@ BOOL HandleUpDownControlGenerators(HWND hDlg, UINT message, WPARAM wParam, LPARA
             if ( pnmud->iDelta > 0 )
             {
                 value = calife_list->FocusCA()->generatorlist.GetOmega(focusGen);
-//              calife_list->FocusCA()->generatorlist.SetOmega(focusGen, (value - 0.1));
                 calife_list->FocusCA()->generatorlist.SetSmoothOmega(focusGen, (value - 0.1));
 
                 showparams(hDlg);

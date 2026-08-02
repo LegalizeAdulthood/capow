@@ -4,7 +4,6 @@
 
 void label(HWND, int, char *, int);
 void ulabel( HWND hwnd, int button, char *, unsigned int );
-//void dlabel( HWND hwnd, int button, char *, double);
 void numlabel( HWND , int , int );
 
 void textLabel (HWND hwnd, int button, char*);  // display text only
@@ -162,7 +161,6 @@ void label( HWND hwnd, int button, char title[10], int d )
 {
     char labeltext[20], numberstring[10];
 
-//  itoa( (int)d, numberstring, (int)10);
     wsprintfA (numberstring, "%d", d);
     wsprintfA( (LPSTR)labeltext, "%s = %s",
         (LPSTR)title, (LPSTR)numberstring );
@@ -175,66 +173,16 @@ void ulabel( HWND hwnd, int button, char title[10], unsigned int d )
     long ld;
 
     ld = d;
-//  ltoa( ld, numberstring, (int)10);
     wsprintfA (numberstring, "%ld", ld);
     wsprintfA( (LPSTR)labeltext, "%s = %s",
         (LPSTR)title, (LPSTR)numberstring );
     SetWindowTextA( GetDlgItem( hwnd, button ), (LPSTR)labeltext );
 }
-/*
-void dlabel(HWND hwnd, int button, char title[10], double d)
-{
-    char sign=0, labeltext[21], numberstring[10], decimalstring[10];
-    long ld,ldd;
 
-    if (d < 0.0)
-    {
-        sign = '-';
-        d *= -1.0;
-    }
-    ld = d; // Decimal part of d
-    d -= ld;    d *= 1000;
-    ldd = d;    // Fractional part of d
-    d -= ldd; if (d >= .5) ++ldd;   // Round up
-    if (ldd > 999) { ldd -= 1000; ++ld;}    // Round up > .99, add to decimal
-    if (ldd < 0) ldd *= -1; // Don't show the decimal part as negative!
-
-//  ltoa(ld, numberstring, (int)10);
-//  ltoa(ldd, decimalstring, (int)10);
-    wsprintfA (numberstring, "%ld", ld);
-    wsprintfA (decimalstring, "%ld", ldd);
-
-// don't forget the 0!
-    if (!sign)
-    {  if (ldd < 10 && ldd != 0)
-            wsprintfA((LPSTR) labeltext, "%s %s.00%s",
-                (LPSTR)title, (LPSTR)numberstring, (LPSTR)decimalstring);
-        else if (ldd < 100 && ldd != 0)
-            wsprintfA((LPSTR) labeltext, "%s %s.0%s",
-                (LPSTR)title, (LPSTR)numberstring, (LPSTR)decimalstring);
-        else
-            wsprintfA((LPSTR) labeltext, "%s %s.%s",
-                (LPSTR)title, (LPSTR)numberstring, (LPSTR)decimalstring);
-    }
-    else //negative number
-    {  if (ldd < 10 && ldd != 0)
-            wsprintfA((LPSTR) labeltext, "%s -%s.00%s",
-                (LPSTR)title, (LPSTR)numberstring, (LPSTR)decimalstring);
-        else if (ldd < 100 && ldd != 0)
-            wsprintfA((LPSTR) labeltext, "%s -%s.0%s",
-                (LPSTR)title, (LPSTR)numberstring, (LPSTR)decimalstring);
-        else
-            wsprintfA((LPSTR) labeltext, "%s -%s.%s",
-                (LPSTR)title, (LPSTR)numberstring, (LPSTR)decimalstring);
-    }
-    SetWindowTextA(GetDlgItem(hwnd, button), (LPSTR)labeltext);
-}
-*/
 void numlabel( HWND hwnd, int button, int d )
 {
     char numberstring[10];
 
-    //itoa( (int)d, numberstring, (int)10);
     wsprintfA(numberstring, "%d", d);
     SetWindowTextA( GetDlgItem( hwnd, button ), (LPSTR)numberstring );
 }

@@ -24,7 +24,6 @@ real numbers doesn't work anyway.*/
 and parameter values.*/
 
 BOOL compress_flag = FALSE;
-// BOOL compress_flag = TRUE;
 /*If this is TRUE, we use binary file io, if FALSE we use ASCII file io.
 This does not seem to appreciably affect the file size, and the "binary"
 file still seem to have ASCII code in them. Is there a way to force a pure
@@ -419,7 +418,6 @@ BOOL Version_7_Load_Individual(ifstream& ifs, CA* target)
         case CA_HEATWAVE2:
         case CA_WAVE2:
         case CA_OSCILLATOR:
-//      case CA_OSCILLATOR_WAVE:
         case CA_DIVERSE_OSCILLATOR:
         case CA_DIVERSE_OSCILLATOR_WAVE:
         case CA_ULAM_WAVE:
@@ -540,14 +538,10 @@ void CAlist::Load_Individual7(char* filename, CA *target)
     /* If we load a new file, we may want to start breed cycle all over to
     give the new ca a fighting chance */
     if (breedflag)
- /*             if (MessageBoxA( hwnd,
-            (LPSTR)"Reset Breedcycle counter and all scores?",
-            (LPSTR)"",
-            MB_YESNO | MB_ICONEXCLAMATION ) == IDYES)   */
-        {
-            Resetscores();
-            breedcycle_count = 0;
-        }
+    {
+        Resetscores();
+        breedcycle_count = 0;
+    }
 }
 
 BOOL CAlist::Loadall7(char* filename, BOOL startup)
@@ -610,10 +604,6 @@ BOOL CAlist::Loadall7(char* filename, BOOL startup)
         oldGetFrom(ifs, list[i]); //load fp_error.cas, and trace the 9th time F7
     }
 
-    // "\n Zoom flag is %"
-    //      ifs.get();  // read off eoln
-    //      ifs >> dummybuf >> dummybuf >> dummybuf >>  uiread;
-     //     zoomflag = (BOOL) uiread;
     // "\n Mutation strength is %"
     ifs.get();  // read off eoln
     ifs >> dummybuf >> dummybuf >> dummybuf >> mutation_strength;
@@ -645,24 +635,17 @@ BOOL CAlist::Loadall7(char* filename, BOOL startup)
     ifs >> dummybuf >> dummybuf >> dummybuf >> uiread; //viewmode;
     // "\n Show velocity is %"
     ifs.get();  // read off eoln
-    //a workaround here because showvelocity was moved from CAlist to CA
-//  int dummyshowvelocity;
- // ifs >> dummybuf >> dummybuf >> dummybuf >> dummyshowvelocity;
-//  Setshowvelocity(dummyshowvelocity, 0); //0 means set as if with
     //no focus flag, means set all.  This still part of the workaround.
     //showveloicty should really be handled in CA load and save.
     // "\n Graph flag is %"
     ifs.get();  // read off eoln
     ifs >> dummybuf >> dummybuf >> dummybuf >> uiread;
- // graphflag = (BOOL) uiread;
     // "\n Wire flag is %"
     ifs.get();  // read off eoln
     ifs >> dummybuf >> dummybuf >> dummybuf >> uiread;
-//  wireflag = (BOOL) uiread;
     // "\n Scroll flag is %"
     ifs.get();  // read off eoln
     ifs >> dummybuf >> dummybuf >> dummybuf >> uiread;
-//  scrollflag = (BOOL) uiread;
     // "\n Stripekill flag is %"
     ifs.get();  // read off eoln
     ifs >> dummybuf >> dummybuf >> dummybuf >> uiread;
@@ -706,14 +689,10 @@ BOOL CAlist::Loadall7(char* filename, BOOL startup)
     /* If we load a new file, we may want to start breed cycle all over to
         give the new ca a fighting chance */
     if (breedflag)
-    /*              if (MessageBoxA( hwnd,
-            (LPSTR)"Reset Breedcycle counter and all scores?",
-            (LPSTR)"",
-            MB_YESNO | MB_ICONEXCLAMATION ) == IDYES)  */
-        {
-            Resetscores();
-            breedcycle_count = 0;
-        }
+    {
+        Resetscores();
+        breedcycle_count = 0;
+    }
    if (load_save_cells_flag)
     {
 /* Before you resize, set the _justloadedcells flags to TRUE again
@@ -724,10 +703,6 @@ for the second call to Locate (a first one took place in ift >> list[i]) */
     }
     /* trigger a window resizing event to
     clear and redraw the display*/
-//I don't think I need this next thing, because SetWindowPos above generates a
-//WM_SIZE
-//  if (!startup)
-//     SendMessage(hwnd, WM_SIZE, NULL, 0L);
     return TRUE;
 }
 
@@ -1560,7 +1535,6 @@ void Version_6_Load_Individual(ifstream& ifs, CA* target)
     ifs >> dummybuf;
    ifs >> dummybuf;
    ifs >> dummybuf;
-//   uiread = ifs.precision();
    ifs >> tempReal;
    /* Was Crashing right here in 32 bit, the first time we try and read a
    real number with >> .  I'm finding that tempReal

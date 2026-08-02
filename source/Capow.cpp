@@ -1,9 +1,6 @@
 /************************************************************************
     FILE:               capow.cpp
     PROJECT:            CAMCOS CAPOW!
-    ENVIRONMENT:    Borland C++ 4.0/MS Windows 3.1
-
-
 */
 
 //***********************************************************************/
@@ -110,8 +107,7 @@ BOOL  update_flag          = FALSE; // Updates params, cycle, lookup dialog boxe
 BOOL  load_save_cells_flag = FALSE;
 BOOL  statusON             = TRUE;  // status bar is on
 BOOL  toolbarON            = TRUE;  // toolbar is on  Now this is used to hold
-    //ActionToolbar or DialogToolbar, I think, rudy 12/6/97.
-//BOOL  pauseflag            = FALSE;
+    //ActionToolbar or DialogToolbar.
 BOOL  windowIsMinimized     = FALSE;
 BOOL  inloadsave = FALSE;
 BOOL randomizenow = FALSE;
@@ -123,10 +119,6 @@ BOOL ActionToolbar         = 0;   // 0 means off   1 means on
 BOOL DialogToolbar        = 1;   // o means off 1 means on
     char CA_STYLE_NAME[256]; //Used in several places to get the current rule name.
 int filterflag = 1; //1 means start with .ca in the open file dialog box.
-//BOOL screensaver = FALSE;
- /* We use this because we are sharing a dialog with the
-screensaver version and we use screensaver as a switch which we define as TRUE
-in CAScreen.cpp */
 
 int update_timer_handle = 0; //This will actually be equal to UPDATE_TIMER_ID.
 #define UPDATE_TIMER_OPTIONS_COUNT 5 //These are veryslow, slow, medium, fast, fastest
@@ -228,14 +220,6 @@ extern HWND RebuildToolBar (HWND hwndParent, WORD wFlag);
 //Keep this in Autorand.cpp so that the capow.scr project can use it too.
 extern void setTimerCycle(HWND hwnd, int &timer_handle, int timer_ID, int millisecs);
 extern void setPerformanceTimerCycle(int millisecs);
-//These are in Configure.cpp
-/*extern void GetIniEntries(void);
-extern void GetIniSettings(void);
-extern void WriteProfileInt(LPSTR key, LPSTR tag, int i);
-extern void ConfigInitProc(HWND);
-extern void ConfigOKProc(HWND);
-extern void LocalHelpProc(HWND, WPARAM);
-*/
 
 
 
@@ -378,9 +362,7 @@ int WINAPI CapowWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 }
 
 //====================MESSAGE CRACKERS ===============
-/* As a left-over of the port from 16 bit to 32 bit (and as prepartion for the port
-to MFC!) we process our messages with message handling functions (formerly called
-message-cracker functions).  The message handlers we use are, in this order:
+/* The message handlers we use are, in this order:
 MyWnd_CREATE
 MyWnd_PAINT
 MyWnd_SIZE
@@ -422,35 +404,6 @@ BOOL MyWnd_CREATE(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hSeedMenu   = GetSubMenu ( hSeedMenu, 0 );
 
 
-//=============== Process Command Line =====================
-
-    // If Command Line Contains a *.CA  File Load_Individual()
-    // If Command Line Contains a *.CAS File Loadall()
-    // If Command Line Contains Nothing Randomize
-#ifndef VCC6
-/*When you build the DEBUG version with Visual C++ Version 6,
-it crashes in CheckExtension.  So I #defined VCC6 in CA.HPP and am using it
-here to #ifdef out the code VCC 6 doesn't like.  RR 2/17/99.*/
-    GrabExtension ( WinArgv[0], Extension );
-    if ( CheckExtension ( Extension, "CA" ) )
-    {
-        calife_list->Load_Individual(WinArgv[0], calife_list->FocusCA());
-        update_flag = TRUE;
-    //mike 11-1-97: commented out because WM_SIZE messages should
-    //only be sent when the window is resized.
-    //      SendMessage(hwnd, WM_SIZE, 0, 0L);
-        calife_list->Locate();
-        SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L);
-
-    }
-    else
-        if ( CheckExtension ( Extension, "CAS" ) )
-            if (calife_list->Loadall(WinArgv[0],TRUE) )
-            {
-                if (calife_list->Get_justloadedcells())
-                    not_seeded_yet_flag = 0; //Don't Seed it in WM_SIZE
-            }
-#endif //VCC6.  End of the #ifdef-ed out code.
 //=============== Loading Previously Saved Experiment =====================
 
 #ifdef LOAD_ACTIVE_CAS
@@ -477,14 +430,11 @@ here to #ifdef out the code VCC 6 doesn't like.  RR 2/17/99.*/
     hwndDialogToolbar   = InitDialogToolBar   ( hwnd );  // Loads Tool Bar
     if (toolbarON)
         ShowWindow (hwndDialogToolbar, SW_SHOW);
-            //ShowWindow (hwndActionToolbar, SW_SHOW);
 
     setPerformanceTimerCycle(update_millisecs_per_cycle);
-//  focusflag = ALL;
-//  SendMessage(hDlgOpenGL, WM_PAINT, 0,0);
     calife_list->FocusCA()->GetCAStyleName ( CA_STYLE_NAME );
     Status_SetText(hwndStatusBar, 1, 0, CA_STYLE_NAME );
-//put hwndActionToolbar here if you'd rather start with that, Rudy 12/6/97
+//put hwndActionToolbar here if you'd rather start with that
     if ( !hwndStatusBar | !hwndActionToolbar | !hwndDialogToolbar )
         return FALSE;
     return TRUE;
@@ -526,37 +476,6 @@ static void MyWnd_SIZE(HWND hwnd, UINT state, int cx, int cy)
     if (windowIsMinimized)
         return;
 
-/* mike 11-1-97: commented this code out, and used windowIsMinimized
-to fix some of the pausing functionality and window minimization
-handling.  Windows sends a WM_SIZE message AFTER a window has been
-resized, minimized, maximized or restored.  Practically speaking,
-resizing a window shouldn't cause a paused CA to unpause.  However,
-this was happening, and it was evident for 2-D CAs,
-whose cell dimensions are independent of the size of the window.
-For 1-D CAs, resizing the window will change their cell dimensions,
-and thus make invalid the WBM image, but still, it doesn't relate
-at all to pausing.  The flag windowIsMinimized is obvious in its
-purpose, but Cellmain uses it to determine whether to process or not.
-Also, even though a CA is paused, Capow can still be processing,
-for example when manipulating the 3D view of a paused 2D CA.  But
-when windowIsMinimized is TRUE, no processing occurs.
-
-
-// Put CA's to Sleep if Window is Minimized
-// Wake Up CA's if Window is Restored
-
-    if (!pauseflag && calife_list->GetSleep() && state == SIZE_RESTORED )
-        calife_list->SetSleep(WAKE_UP);
-
-    //if (calife_list->GetSleep() && state == SIZE_MAXIMIZED )
-    //  calife_list->SetSleep(WAKE_UP);
-
-    if (!pauseflag && state == SIZE_MAXIMIZED )
-        calife_list->SetSleep(WAKE_UP);
-
-    //if (state==SIZE_MAXIMIZED)
-    //  calife_list->SetSleep(WAKE_UP);
-*/
     GetClientRect(hwnd, &rect);
 
 
@@ -612,23 +531,12 @@ when windowIsMinimized is TRUE, no processing occurs.
 
 // Adjust status bar size.
     if (hwndStatusBar)
-//  if (IsWindowVisible (hwndStatusBar))
     {
         GetWindowRect (hwndStatusBar, &rWindow) ;
         statusBarHeight = rWindow.bottom - rWindow.top ;
         MoveWindow (hwndStatusBar, 0, cy - statusBarHeight,
                                               cx, statusBarHeight, TRUE) ;
     }
-//commented out because statusbarheight is never really 0, but rather
-//the status bar is either visible or not visible.  mike 10/27
-//use statusON to find out if its visibility
-/*    else
-    {
-        statusBarHeight = 0 ;
-    }
-*/
-//InvalidateRect(hwndActionToolbar, NULL, FALSE);
-//InvalidateRect(hwndActionToolbar, NULL, FALSE);
 
         SendMessage(hwndActionToolbar, WM_SIZE, state, MAKELONG(cx, cy));
         SendMessage(hwndDialogToolbar, WM_SIZE, state, MAKELONG(cx, cy));
@@ -660,29 +568,16 @@ static void TrackToolbarButtonMenu(HWND window, HWND toolbar, int buttonId, HMEN
 static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     //((fn)((hwnd), (int)(wParam), (HWND)LOWORD(lParam), (UINT)HIWORD(lParam)), 0L)
-
     HDC  hdc;
     HDC  hdc_clip;   // Device Handle to Clipboard
     RECT rect;
     RECT CaptureRect; // Rect to Capture Screen
     RECT r;
-//  short focusflag=1;
     char buffer[20];
-//Begin commdlg stuff=====================
-//MessageBox ( masterhwnd, "HELLO", "HELL", MB_OK );
-
     char szFileName[MAXFILENAME];
     char szFileTitle[MAXFILENAME];
     OPENFILENAMEA ofn;
-
-    //CA and CAS file load save
-/*  char szFilterSpecCA [128] =
-        "CA Files (*.CA)\0All Files (*.*)\0*.*\0";
-    char szFilterSpecCAS [128] =
-        "Experiment Files (*.CAS)\0All Files (*.*)\0*.*\0";*/
-
     char szFilter [128] =
-    //  "CA Files (*.CA)\0*.CA\0Experiment File (*.CAs)\0*.CAs\0User Rules (*.dll)\0*.dll\0 All Files (*.*)\0*.*\0";
         "Experiment File (*.CAs)\0*.CAs\0CA Files (*.CA)\0*.CA\0User Rules (*.dll)\0*.dll\0 All Files (*.*)\0*.*\0";
 //End commdlg stuff=======================
 
@@ -824,7 +719,6 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             ofn.lpstrDefExt   = "CAS";
             inloadsave = TRUE; //Don't do updates while you're in here
             if( GetOpenFileNameA((LPOPENFILENAMEA)&ofn) ){
-            //  char* str1 = strstr(ofn.lpstrFileTitle, ".");
                 char* str2 = strupr(ofn.lpstrFileTitle);
                 SetCursor(LoadCursor(NULL, IDC_WAIT)); // Wait, I'm working!
 
@@ -865,12 +759,6 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
         case IDM_RANDOMIZE:                         // Randomize the CAs
             calife_list->Randomize();
-/* Rudy 11/10/97, I don't think I need to clear because Randomize calls SetView for each
-CA, which does a wbm->ClearSection, which erases that CA's area and doesn't hurt the
-grid or the bars. */
-    //      SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L);
-// mike 11-1-97: don't need this line
-//          SendMessage(hwnd, WM_SIZE, 0, 0L);// to give us our status bar back
             break;
         case ID_VERYSLOW:
         case ID_SLOW:
@@ -893,8 +781,6 @@ grid or the bars. */
             break;
 
         case IDM_PAUSE:                             // Puts all CAs to Sleep
-// mike 11-1-97: don't need pauseflag, but just use ToggleSleep()
-//          pauseflag = (!pauseflag);
             Status_GetText(hwndStatusBar, 0, buffer);
             if ( !strcmp ( buffer , "Ready" ) )
                 Status_SetText(hwndStatusBar, 0, 0,"Paused");
@@ -911,14 +797,10 @@ grid or the bars. */
             //clear the bitmap
             WBM->ClearSection(rect.left, rect.top, rect.right, rect.bottom);
 
-//mike11-1-97 draw to the bitmap, rather than to the window.
+// draw to the bitmap, rather than to the window.
             calife_list->Boxfocus(WBM->GetHDC(),RGB(255,255,255));
             calife_list->DrawDivider(WBM->GetHDC());
-/*          hdc = GetDC(hwnd);
-                calife_list->Boxfocus(hdc,RGB(255,255,255));
-                calife_list->DrawDivider(hdc);
-            ReleaseDC(hwnd,hdc);
-*/          calife_list->ResetAllGenerationCount();
+            calife_list->ResetAllGenerationCount();
             InvalidateRect(hwnd, NULL, FALSE);
             break;
 
@@ -955,28 +837,8 @@ grid or the bars. */
                 statusON = !IsWindowVisible(hwndStatusBar);  //flip value
                 ShowWindow(hwndStatusBar, (statusON)? SW_SHOW:SW_HIDE);
             }
-/* mike 11-1-97: the previous statement does what has been
-commented out here. But statusBarHeight doesn't need to
-change in value, as it had been doing. Rather we just need
-to toggle the window's visibility with ShowWindow.
-            if (hwndStatusBar && IsWindowVisible (hwndStatusBar))
-            {
-                ShowWindow (hwndStatusBar, SW_HIDE) ;
-                statusON = FALSE;
-                statusBarHeight = 0;
 
-            }
-             else
-             {
-                ShowWindow (hwndStatusBar, SW_SHOW) ;
-                statusON= TRUE;
-                statusBarHeight = STATUSBARHEIGHT;
-              }
-*/
             // Resize other windows.
-//          GetClientRect (masterhwnd, &r) ;
-//          PostMessage (masterhwnd, WM_SIZE, 0,MAKELPARAM (r.right, r.bottom)) ;
-
             calife_list->Locate();
             InvalidateRect(masterhwnd, NULL, FALSE);
             WBM->Clear(masterhwnd, RGB(0,0,0));
@@ -1006,86 +868,6 @@ to toggle the window's visibility with ShowWindow.
             InvalidateRect(masterhwnd, NULL, FALSE);
             break;
             // Both Dialogs are off.
-/*mike 11-1-97: the preceding lines do what has been commented out
-here. But also, toolBarHeight doesn't need to change value, as
-it had been doing. I just use show toolBarON and ShowWindow() to
-toggle the appropriate toolbar's visiblility.
-            if ( DialogToolbar == 0 && ActionToolbar == 0 )
-            {
-                if ( id == IDM_OLDTOOLBAR )
-                {
-                    ActionToolbar = 0;
-                    DialogToolbar = 1;
-                    WhichToolBar = 0;
-                    toolbarON = TRUE;
-//                  toolBarHeight = TOOLBARHEIGHT;
-                    ShowWindow (hwndDialogToolbar, SW_SHOW) ;
-                        else  // IDM_NEWTOOLBAR
-                {
-                    ActionToolbar = 1;
-                    DialogToolbar = 0;
-                    WhichToolBar = 1;
-                    toolbarON = TRUE;
-//                  toolBarHeight = TOOLBARHEIGHT;
-                    ShowWindow (hwndActionToolbar, SW_SHOW) ;
-                }
-        //  break;
-            }
-            else
-                // Action Toolbar is on Dialog is not
-                if ( DialogToolbar == 0 && ActionToolbar == 1 )
-                {
-                    if ( id == IDM_NEWTOOLBAR )
-                    {
-                        ActionToolbar = DialogToolbar = 0;
-                        ShowWindow (hwndActionToolbar, SW_HIDE) ;
-                        toolbarON = FALSE;
-//                      toolBarHeight = 0;
-                    }
-                    else  // old toolbar clicked.
-                    {
-                        WhichToolBar = 0;
-                        DialogToolbar = 1;
-                        ActionToolbar = 0;
-//                      toolBarHeight = TOOLBARHEIGHT;
-                        toolbarON = TRUE;
-                        ShowWindow (hwndActionToolbar, SW_HIDE) ;
-                        ShowWindow (hwndDialogToolbar, SW_SHOW) ;
-                    }
-                    //break;
-                }  // End else if Dialog == 0 action == 1
-            // old toolbar on, new one off
-                else
-                    if ( DialogToolbar == 1 && ActionToolbar == 0 )
-                    {
-                        if ( id == IDM_OLDTOOLBAR ) // turn all off
-                        {
-                            ActionToolbar = DialogToolbar = 0;
-                            ShowWindow (hwndDialogToolbar, SW_HIDE) ;
-                            toolbarON = FALSE;
-//                          toolBarHeight = 0;
-                        }
-                        else // New toolbar clicked
-                        {
-                            WhichToolBar = 1;
-                            DialogToolbar = 0;
-                            ActionToolbar = 1;
-                            toolbarON = TRUE;
-//                          toolBarHeight = TOOLBARHEIGHT;
-                            ShowWindow (hwndDialogToolbar, SW_HIDE) ;
-                            ShowWindow (hwndActionToolbar, SW_SHOW) ;
-                        }
-                    //reak;
-                    }  // end of if dialog == 1 action == 0
-
-                // Resize other windows.
-//               GetClientRect (masterhwnd, &r) ;
-//               PostMessage (masterhwnd, WM_SIZE, 0,MAKELPARAM (r.right, r.bottom)) ;
-*/
-
-InvalidateRect(masterhwnd, NULL, FALSE);
-                    capowgl->Size(hwnd);
-                 break;
 
 // END VIEW MENU====================================
 // START CONTROLS MENU and DIALOG CONTROLS =========
@@ -1433,8 +1215,6 @@ InvalidateRect(masterhwnd, NULL, FALSE);
 
         case IDM_CHANGEALL:
             focusflag = 1;
-//          ToolBar_CheckButton(hwndToolbar, IDM_CHANGEALL, TRUE    );
-//          ToolBar_CheckButton(hwndToolbar, IDM_CHANGEFOCUS, FALSE );
             ToolBar_ChangeBitmap(hwndActionToolbar, IDM_CHANGEALL, BUT_CHANGEFOCUSLARGE);
             ToolBar_SetCmdID(hwndActionToolbar, CHANGEALLFOCUS_BUTTON, IDM_CHANGEFOCUS);
             update_flag = 1; //Have to update the focus/all radio button in the dialogs.
@@ -1442,8 +1222,6 @@ InvalidateRect(masterhwnd, NULL, FALSE);
 
         case IDM_CHANGEFOCUS:
             focusflag = 0;
-            //ToolBar_CheckButton(hwndToolbar, IDM_CHANGEALL, FALSE    );
-            //ToolBar_CheckButton(hwndToolbar, IDM_CHANGEFOCUS, TRUE );
             ToolBar_ChangeBitmap(hwndActionToolbar, IDM_CHANGEFOCUS, BUT_CHANGEALLLARGE);
             ToolBar_SetCmdID(hwndActionToolbar, CHANGEALLFOCUS_BUTTON, IDM_CHANGEALL);
             update_flag = 1; //Have to update the focus/all radio button in the dialogs.
@@ -1466,14 +1244,6 @@ InvalidateRect(masterhwnd, NULL, FALSE);
 // START HELP MENU====================================
 
         case IDM_HELP:                              // Calls Help
-            //WinHelpA(hwnd, "capow.hlp", HELP_FINDER, 0); //Old Way
-           /* As of 12/31/2007, Windows Vista has made HLP files obsolete, so I switched to CHM,
-            or HTMLHelp.  For the converstion for using HTMLHelp with Visual Studio 6.0, see Rudy
-            Rucker, SOFTWARE ENGINEERING AND COMPUTER GAMES,(Addison Wesley 2003) Chap 21. */
-
-            //HtmlHelp(hwnd, "Capow.chm", HH_DISPLAY_TOPIC, 0);  //2017 got a newer htmlhelp.lib. And it's listed in the Link list.
-                //As of 2017 the htmlhelp.lib throws a inker exception relating to SAFESEH so I turned off that link flag there.
-
                 ShellExecuteA(0, 0, "http://www.rudyrucker.com/capow/capowhelp.htm", 0, 0, SW_SHOW); //BEST solution, found in 2017.  Keep the help file online
                     //and let the users go read it online.  Easy to update this way.  ShellExecute does the job!
 
@@ -1569,16 +1339,10 @@ line being:             capowgl->Size(hwnd);//mike
 it was called too early, before the window was created. So after moving that
 function, the problem seems fixed.  As a test, I've commented out the old fix*/
 
-/*                  GetClientRect(hwnd, &rect);
-                    SendMessage(hwnd, WM_SIZE, SIZE_RESTORED,
-                        MAKELONG(rect.right, rect.bottom));// to wake up OpenGL
-*/
                     capowgl->AdjustHeightFactor(calife_list->FocusCA());
                 if( hDlgOpenGL )
-//                  SendMessage( hDlgOpenGL, WM_INITDIALOG, 0, 0L );
                     InvalidateRect(hDlgOpenGL, NULL, TRUE);
 
-                //ted
                 if( hDlgGenerators )  // Initialize list box
                     SendMessage( hDlgGenerators, WM_INITDIALOG, 0, 0L );
 
@@ -1589,8 +1353,6 @@ function, the problem seems fixed.  As a test, I've commented out the old fix*/
                     update_flag = TRUE; //Maybe changing focus
 
                     zoomviewflag = FALSE;
-                //  calife_list->Locate();
-                //  recreateUserDialog();
 /* If I have about six user parameters then when I shift focus to something with
 one user parameter and then come back to the six guy not all six are showing
 if I only do recreateUserDialog(), but the following works: */
@@ -1600,10 +1362,6 @@ if I only do recreateUserDialog(), but the following works: */
                         hUserDialog = 0;
                         SendMessage(hwnd, WM_COMMAND, IDM_USERDIALOG, 0L);
                     }
-//This next line erases the 1D CAs when shifting focus, which is ugly, so
-//we took this line out.
-//                  SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L);
-
                 }
             }
             else
@@ -1620,7 +1378,6 @@ if I only do recreateUserDialog(), but the following works: */
     a CA other that the focus, it changes focus to the one you clicked on
     and copy mutates that CA to all others. */
         case CUR_ZAP:
-            //break;  // this was here I didn't understand it so I left it
             if (calife_list->Setfocus(hdc, calife_list->Getfocus(x, y)) != 1)
             {   // focus changed
                 recreateUserDialog();
@@ -1655,8 +1412,6 @@ if I only do recreateUserDialog(), but the following works: */
     }  // End Switch ( cursor Mode )
 
     ReleaseDC(hwnd, hdc);
-//  SendMessage(hDlgOpenGL, WM_PAINT, 0,0);
-
 }
 
 /*********************************************************/
@@ -1672,15 +1427,11 @@ static void MyWnd_RBUTTONDOWN(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
         case CUR_GENERATOR:
             if (calife_list->Zoom(0))
             {
-//              SendMessage(hwnd, WM_SIZE, 0, 0L);
-
                 zoomviewflag = FALSE;
                 calife_list->Locate();
                 SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L);
-//              WBM->Clear(masterhwnd, RGB(0,0,0));
 
                 if( hDlgOpenGL )
-//                  SendMessage( hDlgOpenGL, WM_INITDIALOG, 0, 0L );
                     InvalidateRect(hDlgOpenGL, NULL, TRUE);
             }
             break;
@@ -1817,7 +1568,6 @@ static void MyWnd_CLOSE(HWND hwnd)   //((fn)(hwnd), 0L)
 
         // Free bitmap
         delete WBM;
-        //delete graph;
         delete capowgl;
         delete calife_list;
         calife_list = NULL; //This way you can avoid update after it's gone.
@@ -2013,17 +1763,7 @@ static void MyWnd_TIMER(HWND hwnd, UINT timerid)
         }
 #endif //MASTERTIMER
      if (timerid == RANDOMIZE_TIMER_ID)
-/* Rudy 12/5/97.  I used to just do this line here:
-                calife_list->Randomize(fRandFlags);
-But I don't want to keep randomizing even when the CA is paused for one reason
-or another.  The code at the start of Cellmain tracks if the CA is paused.
-So we'll use this check and just set a flag here */
         randomizenow = TRUE;
-/* Rudy 11/10, I don't think I need to clear because Randomize calls SetView for each
-CA, which does a wbm->ClearSection, which erases that CA's area and doesn't hurt the
-grid or the bars. */
-//          SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L); //Don't need
-
 }
 
 
@@ -2038,8 +1778,6 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     switch (message)
     {
-//Modified code by Chi Pan Lao at 9/9/96 by using the windowsx.h Marco
-
         HANDLE_MSG(hwnd,WM_CREATE, MyWnd_CREATE);
         HANDLE_MSG(hwnd,WM_PAINT, MyWnd_PAINT);
         HANDLE_MSG(hwnd,WM_SIZE,MyWnd_SIZE);
@@ -2225,4 +1963,3 @@ void GrabExtension ( LPSTR lpszCmdParam, char Extension[] )
     }
     return;
 }
-

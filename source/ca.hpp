@@ -546,7 +546,6 @@ params are AUTOSET by some method, and which are to be set by LOADSAVE
 values which you can read and write to files.*/
 class CA
 {
-//  friend class Graph3D;
     friend class CapowGL;
     friend class CAlist;
     friend class Generator;

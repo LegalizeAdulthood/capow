@@ -588,8 +588,6 @@ void CA::Fourier_init(void)
     numofterm       = 4;
     rel_test_point = 0.65791; //Don't want 0.5 as this is often stationary
         //in the case where you are seeding with sinewaves.
-    //Reset_fourier_array();
-    //Reset_tp_array(); Reset_tp_all();
     Reset_tp_all();
     if( hDlgFourier )
         SendMessage( hDlgFourier, WM_INITDIALOG, 0, 0L );

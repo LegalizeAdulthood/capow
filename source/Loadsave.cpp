@@ -24,8 +24,6 @@
 #include <process.h>
 #include <ERRNO.H>
 #include "Userpara.hpp"
-/* 2017.  Lots of problems rebuilding with VC ver 15.  Removed all  ios::nocreate flags. Removed .h from iomanip.
-*/
 
 // #define DEBUG                    /* For debugging only                    */
 
@@ -285,7 +283,6 @@ ofstream& outWrite(ofstream& ofs, char *msg, Wavecell *val, int total)
         {
             ofs.write((char *) &(val[count].state), sizeof(val[count].state));
             outWrite(ofs, "Variable", val[count].variable, VARIABLE_COUNT);
-//          ofs.write((char *) &(val[count].intensity), sizeof(val[count].intensity));
             ofs.write((char *) &(val[count].velocity), sizeof(val[count].velocity));
             int totalSub = CELL_PARAM_COUNT;
             char cst[80];
@@ -320,16 +317,6 @@ ofstream& outWrite(ofstream& ofs, char *msg, Wavecell2 *val, int total)
         {
             //variable[k] VARIABLE_COUNT
             outWrite(ofs, "Variable", val[count].variable, PLANE_VARIABLE_COUNT);
-//          ofs.write((char *) &(val[count].intensity), sizeof(val[count].intensity));
-//          ofs.write((char *) &(val[count].intensity2), sizeof(val[count].intensity2));
-
-//          int totalSub = PLANE_CELL_PARAM_COUNT;
-//          ofs.write((char *)&totalSub, sizeof(totalSub));
-//          ofs.write((char *) &(val[count].param[0]), sizeof(Real) * totalSub);
-//          char cst[80];
-//          sprintf(cst, "%5d:", cst);
-//          cst[5] = 0; // make sure its length is five
-//          outWrite(ofs, cst, &(val[count].param[0]), totalSub);
         }
     }
     else
@@ -407,8 +394,6 @@ BOOL outBinary(ofstream& ofs, CA* target)
     if (target->type_ca == CA_USER)
     {
         outWrite(ofs, "User Rule Name: ", target->_userrulename);
-//      outWrite(ofs, "User CA Style: ", target->_usercastyle);
-//      outWrite(ofs, "User CA Nabe Size: ", target->_usernabesize);
         outWrite(ofs, "User Parameter: ", &target->userParamAdd);
     }
 
@@ -416,7 +401,6 @@ BOOL outBinary(ofstream& ofs, CA* target)
     outWrite(ofs, "States: ", target->states);
     if (target->type_ca < CA_WAVE)
     {
-//      outWrite(ofs, "Nabe Size: ", target->nabeoptions);
         outWrite(ofs, "Nabe Options (LooKUp Size): ", target->lookup, target->nabeoptions);
     }
 
@@ -483,7 +467,6 @@ BOOL outBinary(ofstream& ofs, CA* target)
         case CA_WAVE:
         case CA_WAVE2:
         case CA_OSCILLATOR:
- //     case CA_OSCILLATOR_WAVE:
         case CA_DIVERSE_OSCILLATOR:
         case CA_DIVERSE_OSCILLATOR_WAVE:
         case CA_ULAM_WAVE:
@@ -908,7 +891,6 @@ ifstream& inWrite(ifstream& ifs, char *msg, Wavecell *val, int& total)
             ifs.read((char *) &(val[count].state), sizeof(val[count].state));
             temp = VARIABLE_COUNT;
             inWrite(ifs, "Variable", val[count].variable, temp);
-//          ifs.read((char *) &(val[count].intensity), sizeof(val[count].intensity));
             ifs.read((char *) &(val[count].velocity), sizeof(val[count].velocity));
 
             int totalSub = CELL_PARAM_COUNT;
@@ -1027,7 +1009,6 @@ ifstream& inWrite(ifstream& ifs, char *msg, COLORREF *val, int& total)
         ifs >> readTotal;
         for(int count=0; count < readTotal; count++)
         {
-            // Real temp;
             COLORREF temp;
             ifs >> temp;
             if (count < total)
@@ -1503,8 +1484,6 @@ void CAlist::Saveall(char *filename, BOOL auto_overwrite)
     outWrite(ofs, "Evolve Flag: ", evolveflag);
     outWrite(ofs, "View Mode: ", (int)IDC_SPLIT_VIEW);
 
-    // Next line is a workaround, as showvelocity was moved from CAlist to CA.
-//  outWrite(ofs, "Show velocity: ", Getshowvelocity());
     outWrite(ofs, "Graph flag: ", 0); //(unsigned int) graphflag;
     outWrite(ofs, "Wire flag: ", 0); //(unsigned int) wireflag;
     outWrite(ofs, "Scroll flag: ", 0); //(unsigned int) scrollflag
@@ -1723,7 +1702,6 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
                 return FALSE;
         }
         // File is compressed, decompress it
-//      strcat(filename, "~"); This doesn't always work!
         filename[strlen(filename)-1] = '~'; //Do it by hand
         INT newCompressFileHandler = LZOpenFile(filename, &fileStruct, OF_CREATE | OF_WRITE);
         result = LZCopy(compressFileHandler, newCompressFileHandler);
@@ -1811,7 +1789,6 @@ BOOL CAlist::Loadall_Individual(char* filename)// Load all CA with same *.CA
 
             list[i]->Settype(focus->Gettype());
             list[i]->CopyCA(focus);
-//          list[i]->Mutate(mutation_strength);
         }
     return TRUE;
 }
@@ -1904,7 +1881,6 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
         }
 
         // File is compressed, decompress it
-//      strcat(filename, "~"); Doesn't always work.
         filename[strlen(filename)-1] = '~'; //Do it by hand
         INT newCompressFileHandler = LZOpenFile(filename, &fileStruct, OF_CREATE | OF_WRITE);
         result = LZCopy(compressFileHandler, newCompressFileHandler);
@@ -1990,7 +1966,6 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
     int temp;
     inWrite(ifs, "View Mode: ", temp);
 
-//  inWrite(ifs, "Show velocity: ", temp);
     inWrite(ifs, "Graph flag: ", temp); //(unsigned int) graphflag;
     inWrite(ifs, "Wire flag: ", temp); //(unsigned int) wireflag;
     inWrite(ifs, "Scroll flag: ", temp); //(unsigned int) scrollflag

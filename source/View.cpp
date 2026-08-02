@@ -20,7 +20,6 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 {
     HINSTANCE hInstance;
 
-//  CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
     hInstance = (HINSTANCE) GetWindowLongPtr(hDlg, GWLP_HINSTANCE);
     showparams( hDlg );
     return 0;
@@ -79,13 +78,6 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
                         calife_list->
                         Setviewmode( (id - RADIO_DOWN_VIEW) +
                          IDC_DOWN_VIEW );
-//the following line is bad bad bad for capowgl! It fools capowgl into thinking
-//the window size is 0, so it causes the 3d view to appear to freeze.
-//To prove my point, uncomment the line, go look at a 2D wave in 3D, then
-//select a view, like Split View from the toolbar menu.  It should 'freeze'.
-//Commenting the SendMessage() fixes this bug.
-//The status bar visibility is handled differently now.   mike 11/18/97
-//                  SendMessage(masterhwnd, WM_SIZE, 0, 0L);// to give us our status bar back
                     calife_list->SyncRows();
                     showparams( hDlg );
                     break;
