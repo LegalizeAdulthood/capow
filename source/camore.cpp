@@ -204,7 +204,7 @@ void CA::CopyCA(CA *goodCA)
             userParamAdd[count]->SetMin(min); //2017 in the 2007 build we weren't copying the range.
             userParamAdd[count]->SetMax(max);
         }
-        lstrcpy(_userrulename, goodCA->_userrulename); //So install the file name,
+        lstrcpyA(_userrulename, goodCA->_userrulename); //So install the file name,
         type_ca = CA_USER;
     }
 }

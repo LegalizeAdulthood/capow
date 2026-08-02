@@ -65,9 +65,9 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 
             // Set EVOLVE type Combo Box
             hCntl = GetDlgItem( hDlg, IDC_EVOLVE);
-            SendMessage(hCntl, CB_ADDSTRING, CA_ZAP, (LPARAM) "Zap");
-            SendMessage(hCntl, CB_ADDSTRING, CA_CLONE, (LPARAM) "Clone");
-            SendMessage(hCntl, CB_ADDSTRING, CA_SEX, (LPARAM) "Breed");
+            SendMessageA(hCntl, CB_ADDSTRING, CA_ZAP, (LPARAM) "Zap");
+            SendMessageA(hCntl, CB_ADDSTRING, CA_CLONE, (LPARAM) "Clone");
+            SendMessageA(hCntl, CB_ADDSTRING, CA_SEX, (LPARAM) "Breed");
 
             showcycleparams(hDlg);
 
@@ -84,10 +84,10 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
     char buf[32];
 
             GetWindowRect(hDlg, &rect);
-            wsprintf((LPSTR)buf,"%i",rect.left);
-            WriteProfileString((LPSTR)szMyAppName,(LPSTR)"CYCLEX",(LPSTR)buf);
-            wsprintf((LPSTR)buf,"%i",rect.top);
-            WriteProfileString((LPSTR)szMyAppName,(LPSTR)"CYCLEY",(LPSTR)buf);
+            wsprintfA((LPSTR)buf,"%i",rect.left);
+            WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"CYCLEX",(LPSTR)buf);
+            wsprintfA((LPSTR)buf,"%i",rect.top);
+            WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"CYCLEY",(LPSTR)buf);
 
 }
 

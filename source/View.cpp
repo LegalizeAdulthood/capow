@@ -130,10 +130,10 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
     char buf[32];
 
     GetWindowRect(hDlg, &rect);
-    wsprintf((LPSTR)buf,"%i",rect.left);
-    WriteProfileString((LPSTR)szMyAppName,(LPSTR)"VIEWX",(LPSTR)buf);
-    wsprintf((LPSTR)buf,"%i",rect.top);
-    WriteProfileString((LPSTR)szMyAppName,(LPSTR)"VIEWY",(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%i",rect.left);
+    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"VIEWX",(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%i",rect.top);
+    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"VIEWY",(LPSTR)buf);
 
 }
 

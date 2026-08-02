@@ -591,12 +591,12 @@ void CA::BitmapSeed() //only works for 2-D CAs
     {
         hBitmap = LoadBitmap(hInst, "SEEDBITMAP");
         if (hBitmap==NULL)
-            MessageBox(masterhwnd, "SeedBitmap(): hBitmap==NULL", "error", MB_OK);
+            MessageBoxA(masterhwnd, "SeedBitmap(): hBitmap==NULL", "error", MB_OK);
         else
         {
             hdcMem = CreateCompatibleDC(NULL);
             if (hdcMem==NULL)
-                MessageBox(masterhwnd, "SeedBitmap(): hdcMem==NULL", "error", MB_OK);
+                MessageBoxA(masterhwnd, "SeedBitmap(): hdcMem==NULL", "error", MB_OK);
             oldhBitmap = (HBITMAP)SelectObject(hdcMem, hBitmap);
 
             Zeroseed();  //set cells to zero.
@@ -1204,12 +1204,12 @@ void CA::BitmapSeed() //only works for 2-D CAs
     {
         hBitmap = LoadBitmap(hInst, "SEEDBITMAP");
         if (hBitmap==NULL)
-            MessageBox(masterhwnd, "SeedBitmap(): hBitmap==NULL", "error", MB_OK);
+            MessageBoxA(masterhwnd, "SeedBitmap(): hBitmap==NULL", "error", MB_OK);
         else
         {
             hdcMem = CreateCompatibleDC(NULL);
             if (hdcMem==NULL)
-                MessageBox(masterhwnd, "SeedBitmap(): hdcMem==NULL", "error", MB_OK);
+                MessageBoxA(masterhwnd, "SeedBitmap(): hdcMem==NULL", "error", MB_OK);
             oldhBitmap = (HBITMAP)SelectObject(hdcMem, hBitmap);
 
             Zeroseed();  //set cells to zero.

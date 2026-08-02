@@ -84,8 +84,8 @@ LRESULT ToolBarNotify(HWND hwnd, int idForm, NMHDR  * pnmhdr)
 {
     switch(pnmhdr->code)
     {
-    case TTN_NEEDTEXT:
-        LPTOOLTIPTEXT ToolTip = LPTOOLTIPTEXT(pnmhdr);
+    case TTN_NEEDTEXTA:
+        LPTOOLTIPTEXTA ToolTip = LPTOOLTIPTEXTA(pnmhdr);
          switch(idForm)
          {
          case IDM_GENERATORS:
@@ -199,7 +199,7 @@ HWND InitToolBar (HWND hwndParent )
         newTBSection2= &CursorSection[0];
         newTBSection3= &ChangeSection[0];
 
-        hwndTB = CreateWindow (TOOLBARCLASSNAME, NULL, dwToolBarStyles,
+        hwndTB = CreateWindowA (TOOLBARCLASSNAMEA, NULL, dwToolBarStyles,
                   0,0,0,0, hwndParent, (HMENU) 1, hInst, 0 );
         ToolBar_ButtonStructSize(hwndTB);
 
@@ -291,11 +291,11 @@ LRESULT CALLBACK toolbarProc(HWND hwndtoolbar, UINT message, WPARAM wParam,
     {
         case WM_COMMAND:
             //return (BOOL) !HANDLE_WM_COMMAND(hDlg,wParam,lParam,MyWnd_COMMAND);
-            MessageBox ( masterhwnd, "D","D", MB_OK );
+            MessageBoxA ( masterhwnd, "D","D", MB_OK );
             break;
 
     }
-    return DefWindowProc (hwndtoolbar, message, wParam, lParam) ;
+    return DefWindowProcA (hwndtoolbar, message, wParam, lParam) ;
 }
 
 //====================================================
@@ -351,8 +351,8 @@ void ToolBarMessage (HWND hwndTB, WORD wMsg)
                {
                int nButtons = ToolBar_ButtonCount (hwndTB) ;
                char ach[80] ;
-               wsprintf (ach, "Button Count = %d", nButtons) ;
-               MessageBox (GetParent (hwndTB), ach,
+               wsprintfA (ach, "Button Count = %d", nButtons) ;
+               MessageBoxA (GetParent (hwndTB), ach,
                            "TB_BUTTONCOUNT", MB_OK) ;
                break ;
                }
@@ -361,8 +361,8 @@ void ToolBarMessage (HWND hwndTB, WORD wMsg)
                {
                int nRows = ToolBar_GetRows (hwndTB) ;
                char ach[80] ;
-               wsprintf (ach, "Row Count = %d", nRows) ;
-               MessageBox (GetParent (hwndTB), ach,
+               wsprintfA (ach, "Row Count = %d", nRows) ;
+               MessageBoxA (GetParent (hwndTB), ach,
                            "TB_GETROWS", MB_OK) ;
                break ;
                }
@@ -389,7 +389,7 @@ HWND InitActionToolBar (HWND hwndParent )
         newTBSection2= &CursorSection[0];
         newTBSection3= &ChangeSection[0];
 
-        hwndTB = CreateWindow (TOOLBARCLASSNAME, NULL, dwToolBarStyles,
+        hwndTB = CreateWindowA (TOOLBARCLASSNAMEA, NULL, dwToolBarStyles,
                   0,0,200,TOOLBARHEIGHT, hwndParent, (HMENU) 1, hInst, 0 );
         ToolBar_ButtonStructSize(hwndTB);
 

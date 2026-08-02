@@ -88,7 +88,7 @@ BOOL checkError(ios& s, char *msg)
     {
         s.clear();
         if (strlen(msg) != 0)
-            MessageBox(masterhwnd, msg, "FILE ERROR", MB_APPLMODAL | MB_OK |
+            MessageBoxA(masterhwnd, msg, "FILE ERROR", MB_APPLMODAL | MB_OK |
                    MB_ICONEXCLAMATION);
         errOccurred = TRUE;
         return TRUE;
@@ -1115,7 +1115,7 @@ BOOL findUserDLL(char *pathFileName)
     // try in the current directory
     char curDirectory[256];
     char testFileName[256];
-    GetCurrentDirectory(256, curDirectory);
+    GetCurrentDirectoryA(256, curDirectory);
     strcpy(testFileName, curDirectory);
     strcat(testFileName, "\\");
     strcat(testFileName, fileName);
@@ -1165,9 +1165,9 @@ BOOL findUserDLL(char *pathFileName)
     ifs.close();
     // Let user select
     char szFileTitle[MAXFILENAME];
-    OPENFILENAME ofn;
+    OPENFILENAMEA ofn;
     char szFilterSpecDLL [128] = "DLL Files (*.DLL)\0";
-    ofn.lStructSize       = sizeof(OPENFILENAME);
+    ofn.lStructSize       = sizeof(OPENFILENAMEA);
     ofn.hwndOwner         = masterhwnd;
     ofn.lpstrFilter       = szFilterSpecDLL;
     ofn.lpstrCustomFilter = NULL;
@@ -1183,7 +1183,7 @@ BOOL findUserDLL(char *pathFileName)
     ofn.lpstrTitle        = title;
     ofn.lpstrDefExt       = "DLL";
     ofn.Flags             = OFN_PATHMUSTEXIST;
-    if(GetOpenFileName((LPOPENFILENAME)&ofn) )
+    if(GetOpenFileNameA((LPOPENFILENAMEA)&ofn) )
     {
         strcpy(pathFileName, ofn.lpstrFile);
         return TRUE;
@@ -1537,7 +1537,7 @@ void compressTheFile(char *pathFileName)
     char realFileName[256];
     char curDirectory[256];
 
-    GetCurrentDirectory(256, curDirectory);
+    GetCurrentDirectoryA(256, curDirectory);
     // 2017 The code didn't complie with the following two lines, which seem to be an incorrectly written for loop and non-shareable post variable.
 
     /* for(int post = strlen(pathFileName);
@@ -1559,17 +1559,17 @@ void compressTheFile(char *pathFileName)
         path[post] = 0;
         strcpy(fileName, pathFileName+post+1);
     }
-    SetCurrentDirectory(path);
+    SetCurrentDirectoryA(path);
 
     strcpy(tempFileName, fileName);
     tempFileName[strlen(tempFileName)-1] = '~';
-    DeleteFile(tempFileName);   // Remove old temp file if exist
-    if (!MoveFile(fileName, tempFileName))
+    DeleteFileA(tempFileName);   // Remove old temp file if exist
+    if (!MoveFileA(fileName, tempFileName))
     {
-        MessageBox(masterhwnd,
+        MessageBoxA(masterhwnd,
             (LPSTR) "Saved as non-compress mode",
             (LPSTR)"File Error", MB_OK);
-        SetCurrentDirectory(curDirectory);
+        SetCurrentDirectoryA(curDirectory);
         return;
     }
 
@@ -1582,25 +1582,25 @@ void compressTheFile(char *pathFileName)
                        tempFileName, fileName, NULL);
     if (res == -1)
     {   // Fail to compress
-        if (MoveFile(tempFileName, fileName))
+        if (MoveFileA(tempFileName, fileName))
         {
             if (errno == ENOENT)
-                MessageBox(masterhwnd,
+                MessageBoxA(masterhwnd,
                        (LPSTR) "Saved as non-compress mode\nCompress.exe not found",
                        (LPSTR)"File Error", MB_OK);
-            else MessageBox(masterhwnd,
+            else MessageBoxA(masterhwnd,
                        (LPSTR) "Saved as non-compress mode",
                        (LPSTR)"File Error", MB_OK);
-            SetCurrentDirectory(curDirectory);
+            SetCurrentDirectoryA(curDirectory);
             return;
         }
         else
         {
             if (errno == ENOENT)
-                MessageBox(masterhwnd,
+                MessageBoxA(masterhwnd,
                     (LPSTR) "Compress.exe not found",
                     (LPSTR)"File Error - Compress.exe not found", MB_OK);
-            else MessageBox(masterhwnd,
+            else MessageBoxA(masterhwnd,
                     (LPSTR) "Unable to rename file",
                     (LPSTR)"File Error", MB_OK);
 
@@ -1614,25 +1614,25 @@ void compressTheFile(char *pathFileName)
         {
             ifs.clear();
             // Fail to compress
-            if (MoveFile(tempFileName, fileName))
+            if (MoveFileA(tempFileName, fileName))
             {
                 if (errno == ENOENT)
-                    MessageBox(masterhwnd,
+                    MessageBoxA(masterhwnd,
                            (LPSTR) "Saved as non-compress mode\nCompress.exe not found",
                            (LPSTR)"File Error", MB_OK);
-                else MessageBox(masterhwnd,
+                else MessageBoxA(masterhwnd,
                            (LPSTR) "Saved as non-compress mode",
                            (LPSTR)"File Error", MB_OK);
-                SetCurrentDirectory(curDirectory);
+                SetCurrentDirectoryA(curDirectory);
                 return;
             }
             else
             {
                 if (errno == ENOENT)
-                    MessageBox(masterhwnd,
+                    MessageBoxA(masterhwnd,
                         (LPSTR) "Compress.exe not found",
                         (LPSTR)"File Error - Compress.exe not found", MB_OK);
-                else MessageBox(masterhwnd,
+                else MessageBoxA(masterhwnd,
                         (LPSTR) "Unable to rename file",
                         (LPSTR)"File Error", MB_OK);
 
@@ -1640,8 +1640,8 @@ void compressTheFile(char *pathFileName)
         }
         else ifs.close();
     }
-    DeleteFile(tempFileName);
-    SetCurrentDirectory(curDirectory);
+    DeleteFileA(tempFileName);
+    SetCurrentDirectoryA(curDirectory);
 }
 
 //----------------------------------------------------------------------
@@ -1682,7 +1682,7 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
         {
             case LZERROR_GLOBALLOC:
             case LZERROR_BADINHANDLE:
-                MessageBox(masterhwnd, (LPSTR) "Invalid file",
+                MessageBoxA(masterhwnd, (LPSTR) "Invalid file",
                            (LPSTR)"File Error", MB_OK);
                 return FALSE;
         }
@@ -1697,14 +1697,14 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
             case LZERROR_READ:
             case LZERROR_WRITE:
                 LZClose(compressFileHandler);
-                MessageBox(masterhwnd, (LPSTR) "Unable to read file",
+                MessageBoxA(masterhwnd, (LPSTR) "Unable to read file",
                            (LPSTR)"File Error", MB_OK);
                 return FALSE;
         }
         if (result != 2)
         {
             LZClose(compressFileHandler);
-            MessageBox(masterhwnd, (LPSTR) "Unable to read file",
+            MessageBoxA(masterhwnd, (LPSTR) "Unable to read file",
                        (LPSTR)"File Error", MB_OK);
             return FALSE;
         }
@@ -1712,7 +1712,7 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
         if (strcmp(fileType, FILETYPE) != 0)
         {   LZClose(compressFileHandler);
             // May be previous version format, so prompt for trial
-            if (MessageBox(masterhwnd,
+            if (MessageBoxA(masterhwnd,
                        (LPSTR) "Invalid file type\nIt may be a previous release, do you want to try open it?",
                        (LPSTR)"File Error", MB_YESNOCANCEL | MB_ICONEXCLAMATION ) == IDYES)
             {
@@ -1736,7 +1736,7 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
             case LZERROR_GLOBALLOC:
             case LZERROR_GLOBLOCK:
             case LZERROR_READ:
-                MessageBox(masterhwnd, (LPSTR)"Unable to create temporary file",
+                MessageBoxA(masterhwnd, (LPSTR)"Unable to create temporary file",
                     (LPSTR)"File Error", MB_OK);
                 return FALSE;
         }
@@ -1761,7 +1761,7 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
         if (strcmp(fileType, FILETYPE) != 0)
         {
             ifs.close();
-            MessageBox(masterhwnd, (LPSTR) "Invalid file type",
+            MessageBoxA(masterhwnd, (LPSTR) "Invalid file type",
                            (LPSTR)"File Error", MB_OK);
             return FALSE;
         }
@@ -1770,7 +1770,7 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
     inWrite(ifs, "Number of CA: ", filecount);
     if (filecount != 1)
     {
-        MessageBox(masterhwnd, (LPSTR) "Invalid file format",
+        MessageBoxA(masterhwnd, (LPSTR) "Invalid file format",
                    (LPSTR)"File Error", MB_OK | MB_ICONEXCLAMATION );
         ifs.close();
         return FALSE;
@@ -1786,7 +1786,7 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
         // If we load a new file, start breed cycle all over to
         // give the new CA a fighting chance
         if (breedflag)
-    //      if (MessageBox(hwnd,
+    //      if (MessageBoxA(hwnd,
     //                     (LPSTR)"Reset Breedcycle counter and all scores?",
     //                     (LPSTR)"", MB_YESNO | MB_ICONEXCLAMATION ) == IDYES)
             {
@@ -1836,9 +1836,9 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
     {
         strcat(msg, filename);
         if (!strcmp(filename, "ACTIVE.CAS"))
-            MessageBox(masterhwnd, (LPSTR)"Using Default Parameters",
+            MessageBoxA(masterhwnd, (LPSTR)"Using Default Parameters",
                        (LPSTR)"No ACTIVE.CAS File", MB_OK | MB_ICONEXCLAMATION );
-        else MessageBox(masterhwnd, (LPSTR) msg,
+        else MessageBoxA(masterhwnd, (LPSTR) msg,
                 (LPSTR)"File Error", MB_OK | MB_ICONEXCLAMATION );
         ifs.close();
 //BUG When I am trying to read callwave.cas I jump from 70 lines down below up to
@@ -1864,7 +1864,7 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
         {
             case LZERROR_GLOBALLOC:
             case LZERROR_BADINHANDLE:
-                MessageBox(masterhwnd, (LPSTR) "Invalid file",
+                MessageBoxA(masterhwnd, (LPSTR) "Invalid file",
                            (LPSTR)"File Error", MB_OK);
                 return FALSE;
         }
@@ -1879,14 +1879,14 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
             case LZERROR_READ:
             case LZERROR_WRITE:
                 LZClose(compressFileHandler);
-                MessageBox(masterhwnd, (LPSTR) "Unable to read file",
+                MessageBoxA(masterhwnd, (LPSTR) "Unable to read file",
                            (LPSTR)"File Error", MB_OK);
                 return FALSE;
         }
         if (result != 2)
         {
             LZClose(compressFileHandler);
-            MessageBox(masterhwnd, (LPSTR) "Unable to read file",
+            MessageBoxA(masterhwnd, (LPSTR) "Unable to read file",
                        (LPSTR)"File Error", MB_OK);
             return FALSE;
         }
@@ -1894,7 +1894,7 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
         if (strcmp(fileType, FILETYPE) != 0)
         {   LZClose(compressFileHandler);
             // May be previous version format, so prompt for trial
-            if (MessageBox(masterhwnd,
+            if (MessageBoxA(masterhwnd,
                        (LPSTR) "Invalid file type\nIt may be a previous release, do you want to try open it?",
                        (LPSTR)"File Error", MB_YESNOCANCEL | MB_ICONEXCLAMATION ) == IDYES)
             {
@@ -1919,7 +1919,7 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
             case LZERROR_GLOBALLOC:
             case LZERROR_GLOBLOCK:
             case LZERROR_READ:
-                MessageBox(masterhwnd, (LPSTR)"Unable to create temporary file",
+                MessageBoxA(masterhwnd, (LPSTR)"Unable to create temporary file",
                     (LPSTR)"File Error", MB_OK);
                 return FALSE;
         }
@@ -1944,7 +1944,7 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
         if (strcmp(fileType, FILETYPE) != 0)
         {
             ifs.close();
-            MessageBox(masterhwnd, (LPSTR) "Invalid file type",
+            MessageBoxA(masterhwnd, (LPSTR) "Invalid file type",
                            (LPSTR)"File Error", MB_OK);
             return FALSE;
         }
@@ -1953,14 +1953,14 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
     inWrite(ifs, "Number of CA: ", filecount);
     if (filecount == 0)
     {   // load an empty *.CAS file
-        MessageBox(masterhwnd, (LPSTR)"Invalid file format", (LPSTR)"File Error",
+        MessageBoxA(masterhwnd, (LPSTR)"Invalid file format", (LPSTR)"File Error",
                    MB_OK | MB_ICONEXCLAMATION );
         ifs.close();
         return FALSE;
     }
     else if (filecount > MAX_CAS)
     {   // More CA in file than program can handle
-        MessageBox(masterhwnd, (LPSTR)"Invalid file format, possible wrong version",
+        MessageBoxA(masterhwnd, (LPSTR)"Invalid file format, possible wrong version",
                    (LPSTR)"File Error", MB_OK | MB_ICONEXCLAMATION );
         ifs.close();
         return FALSE;
@@ -2018,7 +2018,7 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
     if(!(SetWindowPos(hwnd,  HWND_NOTOPMOST, scr.left, scr.top,
           (scr.right - scr.left),(scr.bottom - scr.top), SWP_NOMOVE)))
     {
-        MessageBox(hwnd, (LPSTR)"Resizing window",
+        MessageBoxA(hwnd, (LPSTR)"Resizing window",
             (LPSTR)"Unable to resize windows", MB_OK | MB_ICONEXCLAMATION );
     }
     blt_flag = 0; //This prevents the ugly lip at bottom of scrolling CAs.
@@ -2052,7 +2052,7 @@ and this gets rid of the bug! Rudy 5/21/97.  We also do this in WM_LBUTTONDOWN*/
 
     // Start breed cycle all over to give the new ca a fighting chance
     if (breedflag)
-//      if (MessageBox( hwnd,
+//      if (MessageBoxA( hwnd,
 //                  (LPSTR)"",
 //                  (LPSTR)"Reset Breedcycle counter and all scores?",
 //                  MB_YESNO | MB_ICONEXCLAMATION ) == IDYES)  */

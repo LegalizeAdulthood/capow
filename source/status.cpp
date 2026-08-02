@@ -47,7 +47,7 @@ HWND InitStatusBar (HWND hwndParent)
      popstr[3].hMenu    = hMenuTools;
      popstr[3].uiString = IDS_TOOLS_MENU;
 
-     hwndSB = CreateStatusWindow (dwStatusBarStyles,
+     hwndSB = CreateStatusWindowA (dwStatusBarStyles,
                                   "Ready",
                                   hwndParent,
                                   2) ;

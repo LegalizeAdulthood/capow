@@ -140,7 +140,7 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 
             case IDOK: //You get this when you press ENTER.
                     // see Tweakca.hpp for the order of *_TYPE
-                GetWindowText (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
+                GetWindowTextA (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
                 num = atof(tmpStr);
                 if (focusflag)
                     calife_list->FocusCA()->SetTweakParam(
@@ -268,7 +268,7 @@ void showparams( HWND hDlg )
 {
     /* Because we are using an edit text box, care needs to be taken
         to prevent an  endless regress of showparams calling showparams which
-        calls showparams, etc.  The SetWindowText call used inside textLabel
+        calls showparams, etc.  The SetWindowTextA call used inside textLabel
         and realLabel to show the current value of an edit params  generates
         a call to WM_COMMAND with a *_TYPE identifier of the edit box in wParam,
         and this sets edit_id to *_TYPE and sends a call to showparams() at the
@@ -310,7 +310,7 @@ void showparams( HWND hDlg )
         realLabel (hDlg, i + ID_DIFFERENCE, calife_list->FocusCA()->GetTweakParam(
             controlID_to_TweakID[i-SPACE_STEP_NEW])->Val());
     }
-    edit_id = 0;  //This undoes the unwanted setting of edit_id by SetWindowText.
+    edit_id = 0;  //This undoes the unwanted setting of edit_id by SetWindowTextA.
 
 } // showparams */
 

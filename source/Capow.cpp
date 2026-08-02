@@ -649,7 +649,7 @@ int WINAPI CapowWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     HACCEL hAccel;
     MSG msg;
-    WNDCLASS wndclass;
+    WNDCLASSA wndclass;
     strcpy ( commandline, lpszCmdParam );
     ParseCommandLine ( commandline, WinArgv ); // ~ Copies Command line to a global char array
     if (!hPrevInstance)
@@ -659,42 +659,42 @@ int WINAPI CapowWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
         wndclass.cbClsExtra = 0;
         wndclass.cbWndExtra = 0;
         wndclass.hInstance = hInstance;
-        wndclass.hIcon = LoadIcon( hInstance, szMyAppName );
+        wndclass.hIcon = LoadIconA( hInstance, szMyAppName );
         wndclass.hCursor = LoadCursor( NULL, IDC_ARROW );
         wndclass.hbrBackground = (HBRUSH)GetStockObject( BLACK_BRUSH );
         wndclass.lpszMenuName = szMyAppName;
         wndclass.lpszClassName = szMyAppName;
 
-        RegisterClass (&wndclass);
+        RegisterClassA (&wndclass);
 
         wndclass.style = CS_HREDRAW | CS_VREDRAW  | CS_DBLCLKS;
         wndclass.lpfnWndProc = userDialogProc;
         wndclass.cbClsExtra = 0;
         wndclass.cbWndExtra = 0;
         wndclass.hInstance = hInstance;
-        wndclass.hIcon = LoadIcon( hInstance, szMyAppName );
+        wndclass.hIcon = LoadIconA( hInstance, szMyAppName );
         wndclass.hCursor = LoadCursor( NULL, IDC_ARROW );
         wndclass.hbrBackground = (HBRUSH)GetStockObject( LTGRAY_BRUSH );
         wndclass.lpszMenuName = userDialogName;
         wndclass.lpszClassName = userDialogName;
 
-        RegisterClass (&wndclass);
+        RegisterClassA (&wndclass);
 
     }
 
     hInst = hInstance;  // Make Copy of program instance
 
-    lstrcat(caption, typecaption);
-    lstrcat(caption, versioncaption);
-    lstrcat(caption, datecaption);
-    lstrcat(caption, standardcaption);
-    GetCurrentDirectory(256, capowDirectory);
-    WriteProfileString(szMyAppName, "Directory", capowDirectory);
+    lstrcatA(caption, typecaption);
+    lstrcatA(caption, versioncaption);
+    lstrcatA(caption, datecaption);
+    lstrcatA(caption, standardcaption);
+    GetCurrentDirectoryA(256, capowDirectory);
+    WriteProfileStringA(szMyAppName, "Directory", capowDirectory);
     strcpy(szScreenSaverFileName, capowDirectory);
     strcat(szScreenSaverFileName, "\\Files To Open\\");
     strcat(szScreenSaverFileName, szScreenSaverFileShortName);
 
-    masterhwnd = CreateWindow(szMyAppName,      // window class name
+    masterhwnd = CreateWindowA(szMyAppName,      // window class name
          caption,
             WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN|WS_CLIPSIBLINGS,        // window style
                                     //CLIPCHILDREN and CLIPSIBLINGS are for the sake of opengl
@@ -713,36 +713,36 @@ int WINAPI CapowWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
     ShowWindow(masterhwnd, nCmdShow);
     UpdateWindow(masterhwnd);
 
-    hAccel = LoadAccelerators ( hInstance, "Capow_Accelerators" );
+    hAccel = LoadAcceleratorsA ( hInstance, "Capow_Accelerators" );
 
 
     while (TRUE) //Keep it growing.  See Petzold's RANDRECT example.
     {
-        if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+        if ( PeekMessageA( &msg, NULL, 0, 0, PM_REMOVE ) )
         {
             if (!(
-                    (hDlgColor && IsDialogMessage(hDlgColor, &msg)) ||
-                    (hDlgCycle && IsDialogMessage(hDlgCycle, &msg)) ||
-                    (hDlgExp && IsDialogMessage(hDlgExp, &msg)) ||
-                    (hDlgAnalog && IsDialogMessage( hDlgAnalog, &msg)) ||
-                    (hDlgElectric && IsDialogMessage( hDlgElectric, &msg)) ||
-                    (hDlgDigital && IsDialogMessage( hDlgDigital, &msg)) ||
-                    (hDlgView && IsDialogMessage( hDlgView, &msg)) ||
-                    (hDlgWorld && IsDialogMessage( hDlgWorld, &msg)) ||
-                    (hDlgConfigure && IsDialogMessage( hDlgConfigure, &msg)) ||
-                    (hDlgCell && IsDialogMessage( hDlgCell, &msg )) ||
-                    (hDlgFourier && IsDialogMessage(hDlgFourier, &msg)) ||
-                    (hDlgGenerators && IsDialogMessage(hDlgGenerators, &msg)) ||
-                    (hDlgOpenGL && IsDialogMessage(hDlgOpenGL, &msg))
+                    (hDlgColor && IsDialogMessageA(hDlgColor, &msg)) ||
+                    (hDlgCycle && IsDialogMessageA(hDlgCycle, &msg)) ||
+                    (hDlgExp && IsDialogMessageA(hDlgExp, &msg)) ||
+                    (hDlgAnalog && IsDialogMessageA( hDlgAnalog, &msg)) ||
+                    (hDlgElectric && IsDialogMessageA( hDlgElectric, &msg)) ||
+                    (hDlgDigital && IsDialogMessageA( hDlgDigital, &msg)) ||
+                    (hDlgView && IsDialogMessageA( hDlgView, &msg)) ||
+                    (hDlgWorld && IsDialogMessageA( hDlgWorld, &msg)) ||
+                    (hDlgConfigure && IsDialogMessageA( hDlgConfigure, &msg)) ||
+                    (hDlgCell && IsDialogMessageA( hDlgCell, &msg )) ||
+                    (hDlgFourier && IsDialogMessageA(hDlgFourier, &msg)) ||
+                    (hDlgGenerators && IsDialogMessageA(hDlgGenerators, &msg)) ||
+                    (hDlgOpenGL && IsDialogMessageA(hDlgOpenGL, &msg))
                 ) )
                 {
                     if (msg.message == WM_QUIT)
                         break;
 
-                    if ( !TranslateAccelerator ( masterhwnd, hAccel, &msg ) )
+                    if ( !TranslateAcceleratorA ( masterhwnd, hAccel, &msg ) )
                     {
                         TranslateMessage(&msg);
-                        DispatchMessage(&msg);
+                        DispatchMessageA(&msg);
                     }
                 }
         }
@@ -815,9 +815,9 @@ BOOL MyWnd_CREATE(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     calife_list = new CAlist(hwnd, MAX_CAS); //Calls CA:Allocate for members
     calife_list->SetWindowBitmap(WBM); //Registers
 
-    hViewMenu   = LoadMenu ( hInst, "ViewPopMenu" );
-    hCATypeMenu = LoadMenu ( hInst, "CATYPEPOPMENU" );
-    hSeedMenu   = LoadMenu ( hInst, "SEEDPOPMENU" );
+    hViewMenu   = LoadMenuA ( hInst, "ViewPopMenu" );
+    hCATypeMenu = LoadMenuA ( hInst, "CATYPEPOPMENU" );
+    hSeedMenu   = LoadMenuA ( hInst, "SEEDPOPMENU" );
     hViewMenu   = GetSubMenu ( hViewMenu, 0 );
     hCATypeMenu = GetSubMenu ( hCATypeMenu, 0 );
     hSeedMenu   = GetSubMenu ( hSeedMenu, 0 );
@@ -864,7 +864,7 @@ here to #ifdef out the code VCC 6 doesn't like.  RR 2/17/99.*/
         else
             not_seeded_yet_flag = 1; // seed in   WM_SIZE
 
-        MessageBox( hwnd,
+        MessageBoxA( hwnd,
                     (LPSTR)"(If you ever crash, delete ACTIVE.CAS.)",
                     (LPSTR)"Good! ACTIVE.CAS Has Loaded Successfully.",
                     MB_OK | MB_ICONEXCLAMATION );
@@ -1064,7 +1064,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
     char szFileName[MAXFILENAME];
     char szFileTitle[MAXFILENAME];
-    OPENFILENAME ofn;
+    OPENFILENAMEA ofn;
 
     //CA and CAS file load save
 /*  char szFilterSpecCA [128] =
@@ -1204,13 +1204,13 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
         case IDM_FILE_SAVE:   //Opens Modal Save Dialog
             inloadsave = TRUE;   //Stop running while you get ready to save
-            DialogBox(hInst, "SAVE", hwnd, (DLGPROC)SaveFileProc);
+            DialogBoxA(hInst, "SAVE", hwnd, (DLGPROC)SaveFileProc);
             inloadsave = FALSE;  //Go back
             break;
 
         case IDM_OPEN:
-            // fill in non-variant fields of OPENFILENAME struct.
-            ofn.lStructSize       = sizeof(OPENFILENAME);
+            // fill in non-variant fields of OPENFILENAMEA struct.
+            ofn.lStructSize       = sizeof(OPENFILENAMEA);
             ofn.hwndOwner         = hwnd;
             ofn.lpstrCustomFilter = NULL;
             ofn.nMaxCustFilter    = 0;
@@ -1230,7 +1230,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             ofn.lpstrFilter = szFilter;
             ofn.lpstrDefExt   = "CAS";  //RR 2007.  Was CA.
             inloadsave = TRUE; //Don't do updates while you're in here
-            if( GetOpenFileName((LPOPENFILENAME)&ofn) ){
+            if( GetOpenFileNameA((LPOPENFILENAMEA)&ofn) ){
             //  char* str1 = strstr(ofn.lpstrFileTitle, ".");
                 char* str2 = strupr(ofn.lpstrFileTitle);
                 SetCursor(LoadCursor(NULL, IDC_WAIT)); // Wait, I'm working!
@@ -1261,7 +1261,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
                 }
                 else
                 {
-                    MessageBox(hwnd, "Please select again", "Invalid Format", MB_OK);
+                    MessageBoxA(hwnd, "Please select again", "Invalid Format", MB_OK);
                     SendMessage(hwnd, WM_COMMAND, IDM_OPEN, 0);
                 }
             SetCursor(LoadCursor(NULL, IDC_ARROW)); //I'm done!
@@ -1500,13 +1500,13 @@ InvalidateRect(masterhwnd, NULL, FALSE);
         case IDM_WORLD:         // Open World Dialog
             if( !hDlgWorld )
             {
-                hDlgWorld = CreateDialog( hInst, (LPCTSTR)"WORLD", hwnd,
+                hDlgWorld = CreateDialogA( hInst, (LPCSTR)"WORLD", hwnd,
                                              (DLGPROC)WorldProc);
                 GetWindowRect( hDlgWorld, &rect );
                 rect.bottom -= rect.top;
                 rect.right  -= rect.left;
-                rect.left = (int)GetProfileInt( (LPSTR)szMyAppName, (LPSTR)"WORLDX", 100 );
-                rect.top  = (int)GetProfileInt( (LPSTR)szMyAppName, (LPSTR)"WORLDY", 100 );
+                rect.left = (int)GetProfileIntA( (LPSTR)szMyAppName, (LPSTR)"WORLDX", 100 );
+                rect.top  = (int)GetProfileIntA( (LPSTR)szMyAppName, (LPSTR)"WORLDY", 100 );
                 if( GetSystemMetrics(SM_CXSCREEN) < rect.left-10 ) rect.left = 25;
                 if( GetSystemMetrics(SM_CYSCREEN) < rect.top -10 ) rect.top = 25;
                 MoveWindow( hDlgWorld, rect.left, rect.top, rect.right, rect.bottom,
@@ -1521,13 +1521,13 @@ InvalidateRect(masterhwnd, NULL, FALSE);
         case IDM_CONFIGURE:         // ScreenSaver settings Dialog
             if( !hDlgConfigure )
             {
-                hDlgConfigure = CreateDialog( hInst, (LPCTSTR)"CONFIGURE", hwnd,
+                hDlgConfigure = CreateDialogA( hInst, (LPCSTR)"CONFIGURE", hwnd,
                                              (DLGPROC)ConfigureProc);
                 GetWindowRect( hDlgConfigure, &rect );
                 rect.bottom -= rect.top;
                 rect.right  -= rect.left;
-                rect.left = (int)GetProfileInt( (LPSTR)szMyAppName, (LPSTR)"CONFIGUREX", 100 );
-                rect.top  = (int)GetProfileInt( (LPSTR)szMyAppName, (LPSTR)"CONFIGUREY", 100 );
+                rect.left = (int)GetProfileIntA( (LPSTR)szMyAppName, (LPSTR)"CONFIGUREX", 100 );
+                rect.top  = (int)GetProfileIntA( (LPSTR)szMyAppName, (LPSTR)"CONFIGUREY", 100 );
                 if( GetSystemMetrics(SM_CXSCREEN) < rect.left-10 ) rect.left = 25;
                 if( GetSystemMetrics(SM_CYSCREEN) < rect.top -10 ) rect.top = 25;
                 MoveWindow( hDlgConfigure, rect.left, rect.top, rect.right, rect.bottom,
@@ -1543,13 +1543,13 @@ InvalidateRect(masterhwnd, NULL, FALSE);
         case IDM_COLOR:         // Open Color Dialog
             if (!hDlgColor)
             {
-                hDlgColor = CreateDialog (hInst, (LPSTR)"COLOR", hwnd,
+                hDlgColor = CreateDialogA (hInst, (LPSTR)"COLOR", hwnd,
                                          (DLGPROC)ColorProc);
                 GetWindowRect(hDlgColor, &rect);
                 rect.bottom-=rect.top;
                 rect.right-=rect.left;
-                rect.left = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"COLORX",100);
-                rect.top = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"COLORY",100);
+                rect.left = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"COLORX",100);
+                rect.top = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"COLORY",100);
                 if (GetSystemMetrics(SM_CXSCREEN)<rect.left-10)
                     rect.left=25;
                 if (GetSystemMetrics(SM_CYSCREEN)<rect.top-10)
@@ -1566,13 +1566,13 @@ InvalidateRect(masterhwnd, NULL, FALSE);
 
         case IDM_VIEW:          // Open View Dialog
             if(!hDlgView)
-            {   hDlgView = CreateDialog( hInst, (LPSTR)"VIEW", hwnd,
+            {   hDlgView = CreateDialogA( hInst, (LPSTR)"VIEW", hwnd,
                                (DLGPROC)ViewProc );
                 GetWindowRect( hDlgView, &rect );
                 rect.bottom -= rect.top;
                 rect.right  -= rect.left;
-                rect.left = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"VIEWX",100);
-                rect.top  = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"VIEWY",100);
+                rect.left = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"VIEWX",100);
+                rect.top  = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"VIEWY",100);
                 if (GetSystemMetrics(SM_CXSCREEN) < rect.left-10) rect.left = 25;
                 if (GetSystemMetrics(SM_CYSCREEN) < rect.top -10) rect.top = 25;
                 MoveWindow(hDlgView, rect.left, rect.top, rect.right, rect.bottom, FALSE);
@@ -1585,13 +1585,13 @@ InvalidateRect(masterhwnd, NULL, FALSE);
         case IDM_DIGITAL:           // Open Digital Dialog
             if( !hDlgDigital )
             {
-                hDlgDigital = CreateDialog( hInst, (LPSTR)"DIGITAL", hwnd,
+                hDlgDigital = CreateDialogA( hInst, (LPSTR)"DIGITAL", hwnd,
                                               (DLGPROC)DigitalProc );
                 GetWindowRect( hDlgDigital, &rect );
                 rect.bottom -= rect.top;
                 rect.right  -= rect.left;
-                rect.left = (int)GetProfileInt( (LPSTR)szMyAppName, (LPSTR)"DIGITALX", 100 );
-                rect.top  = (int)GetProfileInt( (LPSTR)szMyAppName, (LPSTR)"DIGITALY", 100 );
+                rect.left = (int)GetProfileIntA( (LPSTR)szMyAppName, (LPSTR)"DIGITALX", 100 );
+                rect.top  = (int)GetProfileIntA( (LPSTR)szMyAppName, (LPSTR)"DIGITALY", 100 );
                 if( GetSystemMetrics(SM_CXSCREEN) < rect.left-10 ) rect.left = 25;
                 if( GetSystemMetrics(SM_CYSCREEN) < rect.top -10 ) rect.top = 25;
                 MoveWindow( hDlgDigital, rect.left, rect.top, rect.right, rect.bottom,
@@ -1606,13 +1606,13 @@ InvalidateRect(masterhwnd, NULL, FALSE);
         case IDM_ANALOG:            // Open Analog Dialog
             if( !hDlgAnalog )
             {
-                hDlgAnalog = CreateDialog( hInst, (LPSTR)"ANALOG", hwnd,
+                hDlgAnalog = CreateDialogA( hInst, (LPSTR)"ANALOG", hwnd,
                                          (DLGPROC)AnalogProc );
                 GetWindowRect( hDlgAnalog, &rect );
                 rect.bottom -= rect.top;
                 rect.right  -= rect.left;
-                rect.left = (int)GetProfileInt( (LPSTR)szMyAppName, (LPSTR)"ANALOGX", 100 );
-                rect.top  = (int)GetProfileInt( (LPSTR)szMyAppName, (LPSTR)"ANALOGY", 100 );
+                rect.left = (int)GetProfileIntA( (LPSTR)szMyAppName, (LPSTR)"ANALOGX", 100 );
+                rect.top  = (int)GetProfileIntA( (LPSTR)szMyAppName, (LPSTR)"ANALOGY", 100 );
                 if( GetSystemMetrics(SM_CXSCREEN) < rect.left-10 ) rect.left = 25;
                 if( GetSystemMetrics(SM_CYSCREEN) < rect.top -10 ) rect.top = 25;
                 MoveWindow( hDlgAnalog, rect.left, rect.top, rect.right, rect.bottom,
@@ -1626,13 +1626,13 @@ InvalidateRect(masterhwnd, NULL, FALSE);
         case IDM_ELECTRIC:          // Opens Electric Dialog
             if( !hDlgElectric )
             {
-                hDlgElectric = CreateDialog( hInst, (LPSTR)"ELECTRIC", hwnd,
+                hDlgElectric = CreateDialogA( hInst, (LPSTR)"ELECTRIC", hwnd,
                                            (DLGPROC)ElectricProc );
                 GetWindowRect( hDlgElectric, &rect );
                 rect.bottom -= rect.top;
                 rect.right  -= rect.left;
-                rect.left = (int)GetProfileInt( (LPSTR)szMyAppName, (LPSTR)"ELECTRICX", 100 );
-                rect.top  = (int)GetProfileInt( (LPSTR)szMyAppName, (LPSTR)"ELECTRICY", 100 );
+                rect.left = (int)GetProfileIntA( (LPSTR)szMyAppName, (LPSTR)"ELECTRICX", 100 );
+                rect.top  = (int)GetProfileIntA( (LPSTR)szMyAppName, (LPSTR)"ELECTRICY", 100 );
                 if( GetSystemMetrics(SM_CXSCREEN) < rect.left-10 ) rect.left = 25;
                 if( GetSystemMetrics(SM_CYSCREEN) < rect.top -10 ) rect.top = 25;
                 MoveWindow( hDlgElectric, rect.left, rect.top, rect.right, rect.bottom,
@@ -1646,14 +1646,14 @@ InvalidateRect(masterhwnd, NULL, FALSE);
         case IDM_FOURIER:           // Opens the Fourier Dialog
             if (!hDlgFourier)
             {
-                hDlgFourier = CreateDialog (hInst, (LPSTR)"FOURIER", hwnd,
+                hDlgFourier = CreateDialogA (hInst, (LPSTR)"FOURIER", hwnd,
                                            (DLGPROC)FourierProc);
                 GetWindowRect(hDlgFourier, &rect);
                 rect.bottom -=rect.top;
                 rect.right  -=rect.left;
-                rect.left    = (int)GetProfileInt((LPSTR)szMyAppName,
+                rect.left    = (int)GetProfileIntA((LPSTR)szMyAppName,
                                      (LPSTR)"FOURIERX",100);
-                rect.top     = (int)GetProfileInt((LPSTR)szMyAppName,
+                rect.top     = (int)GetProfileIntA((LPSTR)szMyAppName,
                                          (LPSTR)"FOURIERY",100);
                 if (GetSystemMetrics(SM_CXSCREEN)<rect.left-10)
                     rect.left=25;
@@ -1676,13 +1676,13 @@ InvalidateRect(masterhwnd, NULL, FALSE);
         case IDM_CYCLE:
             if (!hDlgCycle)
             {
-                hDlgCycle = CreateDialog (hInst, (LPSTR)"CYCLE", hwnd,
+                hDlgCycle = CreateDialogA (hInst, (LPSTR)"CYCLE", hwnd,
                                          (DLGPROC)CycleProc);
                 GetWindowRect(hDlgCycle, &rect);
                 rect.bottom-=rect.top;
                 rect.right-=rect.left;
-                rect.left = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"CYCLEX",100);
-                rect.top = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"CYCLEY",100);
+                rect.left = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"CYCLEX",100);
+                rect.top = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"CYCLEY",100);
                 if (GetSystemMetrics(SM_CXSCREEN)<rect.left-10)
                     rect.left=25;
                 if (GetSystemMetrics(SM_CYSCREEN)<rect.top-10)
@@ -1697,13 +1697,13 @@ InvalidateRect(masterhwnd, NULL, FALSE);
         case IDM_EXP:
             if (!hDlgExp)
             {
-                hDlgExp = CreateDialog (
+                hDlgExp = CreateDialogA (
                 hInst, (LPSTR)"EXPERIMENT", hwnd, (DLGPROC)ExpProc);
                 GetWindowRect(hDlgExp, &rect);
                 rect.bottom-=rect.top;
                 rect.right-=rect.left;
-                rect.left = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"EXPERIMENTX",100);
-                rect.top = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"EXPERIMENTY",100);
+                rect.left = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"EXPERIMENTX",100);
+                rect.top = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"EXPERIMENTY",100);
                 if (GetSystemMetrics(SM_CXSCREEN)<rect.left-10)
                     rect.left=25;
                 if (GetSystemMetrics(SM_CYSCREEN)<rect.top-10)
@@ -1722,13 +1722,13 @@ InvalidateRect(masterhwnd, NULL, FALSE);
         case IDM_CELL:
             if(!hDlgCell)
             {
-                hDlgCell = CreateDialog( hInst, (LPSTR)"CELL", hwnd,
+                hDlgCell = CreateDialogA( hInst, (LPSTR)"CELL", hwnd,
                                            (DLGPROC)CellProc );
                 GetWindowRect( hDlgCell, &rect );
                 rect.bottom -= rect.top;
                 rect.right  -= rect.left;
-                rect.left = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"CELLX",100);
-                rect.top  = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"CELLY",100);
+                rect.left = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"CELLX",100);
+                rect.top  = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"CELLY",100);
                 if (GetSystemMetrics(SM_CXSCREEN) < rect.left-10) rect.left = 25;
                 if (GetSystemMetrics(SM_CYSCREEN) < rect.top -10) rect.top = 25;
                 MoveWindow(hDlgCell, rect.left, rect.top, rect.right, rect.bottom, FALSE);
@@ -1873,7 +1873,7 @@ InvalidateRect(masterhwnd, NULL, FALSE);
 // START HELP MENU====================================
 
         case IDM_HELP:                              // Calls Help
-            //WinHelp(hwnd, "capow.hlp", HELP_FINDER, 0); //Old Way
+            //WinHelpA(hwnd, "capow.hlp", HELP_FINDER, 0); //Old Way
            /* As of 12/31/2007, Windows Vista has made HLP files obsolete, so I switched to CHM,
             or HTMLHelp.  For the converstion for using HTMLHelp with Visual Studio 6.0, see Rudy
             Rucker, SOFTWARE ENGINEERING AND COMPUTER GAMES,(Addison Wesley 2003) Chap 21. */
@@ -1881,24 +1881,24 @@ InvalidateRect(masterhwnd, NULL, FALSE);
             //HtmlHelp(hwnd, "Capow.chm", HH_DISPLAY_TOPIC, 0);  //2017 got a newer htmlhelp.lib. And it's listed in the Link list.
                 //As of 2017 the htmlhelp.lib throws a inker exception relating to SAFESEH so I turned off that link flag there.
 
-                ShellExecute(0, 0, "http://www.rudyrucker.com/capow/capowhelp.htm", 0, 0, SW_SHOW); //BEST solution, found in 2017.  Keep the help file online
+                ShellExecuteA(0, 0, "http://www.rudyrucker.com/capow/capowhelp.htm", 0, 0, SW_SHOW); //BEST solution, found in 2017.  Keep the help file online
                     //and let the users go read it online.  Easy to update this way.  ShellExecute does the job!
 
                 break;
 
         case IDM_ABOUT:         // Opens About Dialog
-                DialogBox(hInst, "ABOUT", hwnd, (DLGPROC)AboutProc);
+                DialogBoxA(hInst, "ABOUT", hwnd, (DLGPROC)AboutProc);
                 break;
         case IDM_GENERATORS:
             if(!hDlgGenerators)
             {
-                hDlgGenerators = CreateDialog( hInst, (LPSTR)"GENERATORS", hwnd,
+                hDlgGenerators = CreateDialogA( hInst, (LPSTR)"GENERATORS", hwnd,
                                            (DLGPROC)GeneratorsProc );
                 GetWindowRect( hDlgGenerators, &rect );
                 rect.bottom -= rect.top;
                 rect.right  -= rect.left;
-                rect.left = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"GENERATORSX",100);
-                rect.top  = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"GENERATORSY",100);
+                rect.left = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"GENERATORSX",100);
+                rect.top  = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"GENERATORSY",100);
                 if (GetSystemMetrics(SM_CXSCREEN) < rect.left-10) rect.left = 25;
                 if (GetSystemMetrics(SM_CYSCREEN) < rect.top -10) rect.top = 25;
                 MoveWindow(hDlgGenerators, rect.left, rect.top, rect.right, rect.bottom, FALSE);
@@ -1910,13 +1910,13 @@ InvalidateRect(masterhwnd, NULL, FALSE);
         case IDM_OPENGL:
             if(!hDlgOpenGL)
             {
-                hDlgOpenGL = CreateDialog( hInst, (LPSTR)"OPENGL", hwnd,
+                hDlgOpenGL = CreateDialogA( hInst, (LPSTR)"OPENGL", hwnd,
                                            (DLGPROC)OpenGLProc);
                 GetWindowRect( hDlgOpenGL, &rect );
                 rect.bottom -= rect.top;
                 rect.right  -= rect.left;
-                rect.left = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"OPENGLX",100);
-                rect.top  = (int)GetProfileInt((LPSTR)szMyAppName,(LPSTR)"OPENGLY",100);
+                rect.left = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"OPENGLX",100);
+                rect.top  = (int)GetProfileIntA((LPSTR)szMyAppName,(LPSTR)"OPENGLY",100);
                 if (GetSystemMetrics(SM_CXSCREEN) < rect.left-10) rect.left = 25;
                 if (GetSystemMetrics(SM_CYSCREEN) < rect.top -10) rect.top = 25;
                 MoveWindow(hDlgOpenGL, rect.left, rect.top, rect.right, rect.bottom, FALSE);
@@ -2114,7 +2114,7 @@ static void MyWnd_RBUTTONDOWN(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
 static void MyWnd_CLOSE(HWND hwnd)   //((fn)(hwnd), 0L)
 {
 #ifdef QUERY_ON_CLOSE
-    switch ( MessageBox( hwnd, (LPSTR)"Save Current Experiment?",
+    switch ( MessageBoxA( hwnd, (LPSTR)"Save Current Experiment?",
                        (LPSTR)"Ready To Exit CAPOW!", MB_YESNOCANCEL ) )
     {
         case IDCANCEL:
@@ -2464,7 +2464,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(hwnd, WM_INITMENUPOPUP,MyWnd_INITMENUPOPUP); //Andrew 9/97
         HANDLE_MSG(hwnd, WM_TIMER, MyWnd_TIMER);
     }
-    return DefWindowProc (hwnd, message, wParam, lParam) ;
+    return DefWindowProcA (hwnd, message, wParam, lParam) ;
 }
 //=======================================================================
 //=======================================================================

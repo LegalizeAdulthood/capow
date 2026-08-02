@@ -40,9 +40,9 @@ int Config_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 //First of all, read fRandFlags and randomize_timer_cycle out of WIN.INI profile.
     readIniSettings();
     sprintf (szBuffer, "%d", (randomize_timer_cycle / 1000));
-/* Don't do a SetDlgItemText in showparams because it generates WM_COMMAND
+/* Don't do a SetDlgItemTextA in showparams because it generates WM_COMMAND
 messages that can lead to endless regress */
-    SetDlgItemText(hDlg, IDC_TIMER, (LPSTR)szBuffer);
+    SetDlgItemTextA(hDlg, IDC_TIMER, (LPSTR)szBuffer);
     showparams(hDlg);
     return 0; //if successful
 }
@@ -83,14 +83,14 @@ the screensaver version of the dialog, that gets processed differently */
     Right, then you never get the Enter, as you will keep scrolling!
     Rudy, 12/3/97.  If I had more than one edit control it would be simplest
     to just update  them all or I could switch on edit_id.*/
-            GetWindowText(GetDlgItem(hDlg, IDC_TIMER),
+            GetWindowTextA(GetDlgItem(hDlg, IDC_TIMER),
                 numberstring, MAX_CHARS);
             time = atoi(numberstring);
             CLAMP(time, 5, 300);
             old_randomize_timer_cycle = randomize_timer_cycle;
             randomize_timer_cycle = time * 1000;
             sprintf (szBuffer, "%d", (randomize_timer_cycle / 1000));
-            SetDlgItemText(hDlg, IDC_TIMER, (LPSTR)szBuffer);
+            SetDlgItemTextA(hDlg, IDC_TIMER, (LPSTR)szBuffer);
             setTimerCycle(masterhwnd, randomize_timer_handle, RANDOMIZE_TIMER_ID,
                 randomize_timer_cycle);
 /* If you made the time shorter, hit it with a randomize right now, but if you
@@ -255,10 +255,10 @@ static void Config_MOVE(HWND hDlg,int x, int y)
     char buf[32];
 
     GetWindowRect(hDlg, &rect);
-    wsprintf((LPSTR)buf,"%i",rect.left);
-    WriteProfileString((LPSTR)szMyAppName,(LPSTR)"CONFIGUREX",(LPSTR)buf);
-    wsprintf((LPSTR)buf,"%i",rect.top);
-    WriteProfileString((LPSTR)szMyAppName,(LPSTR)"CONFIGUREY",(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%i",rect.left);
+    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"CONFIGUREX",(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%i",rect.top);
+    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"CONFIGUREY",(LPSTR)buf);
 
 }
 

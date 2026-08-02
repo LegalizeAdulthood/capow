@@ -66,7 +66,7 @@ be confusion. */
     }
     if (!(timer_handle = SetTimer(hwnd, timer_ID, millisecs, NULL)))
     {
-        MessageBox( hwnd,
+        MessageBoxA( hwnd,
             (LPSTR)"Unable to Create a Windows Timer.  Close Other Apps & Try Again!",
             (LPSTR)"Resource Problem!",
             MB_OK | MB_ICONEXCLAMATION );
@@ -80,8 +80,8 @@ be confusion. */
 void writeProfileInt(LPSTR szSection, LPSTR szKey, int save_int)
 {
     char buf[40];
-    wsprintf((LPSTR)buf,"%u", (UINT)save_int); //Read and write as UINT
-    WriteProfileString(szSection, szKey,(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%u", (UINT)save_int); //Read and write as UINT
+    WriteProfileStringA(szSection, szKey,(LPSTR)buf);
 }
 
 /* -------------------------------------------------------------------
@@ -92,7 +92,7 @@ void writeIniSettings(HWND hDlg)
     #define MAX_CHARS 32
     char numberstring[MAX_CHARS];
 
-    GetWindowText(GetDlgItem(hDlg, IDC_TIMER),
+    GetWindowTextA(GetDlgItem(hDlg, IDC_TIMER),
         numberstring, MAX_CHARS);
     int time = atoi(numberstring);
     CLAMP(time, 5, 300);
@@ -106,11 +106,11 @@ void writeIniSettings(HWND hDlg)
  ------------------------------------------------------------------- */
 void readIniSettings()
 {
-/*The last argument to GetProfileInt is the default value.  GetProfileInt
+/*The last argument to GetProfileIntA is the default value.  GetProfileIntA
 returns UINT.  I keep the szFlagsName and szCycleName at the top of the program,
 and use them in the configOK as well. */
-    fRandFlags = GetProfileInt(szMyAppName, szFlagsName, RF_START);
-    randomize_timer_cycle = (int)GetProfileInt(szMyAppName, szCycleName,
+    fRandFlags = GetProfileIntA(szMyAppName, szFlagsName, RF_START);
+    randomize_timer_cycle = (int)GetProfileIntA(szMyAppName, szCycleName,
         RANDOMIZE_TIMER_CYCLE_START);
 }
 
@@ -128,7 +128,7 @@ MSG     msg;
 // Get ticks-per-second of the performance counter.
 //   Note the necessary typecast to a LARGE_INTEGER structure
 if (!QueryPerformanceFrequency((LARGE_INTEGER*)&freq))
-  return -1;  // error – hardware doesn't support performance counter
+  return -1;  // error : hardware doesn't support performance counter
 
 // Convert milliseconds per move to performance counter units per move.
 update_ticks_per_cycle = UPDATE_TICKS_MS * freq / 1000;
@@ -141,7 +141,7 @@ QueryPerformanceCounter((LARGE_INTEGER*)&start);
   // the main message loop begins here -- while (GetMessage(&msg, NULL, 0, 0))
     {
     TranslateMessage(&msg);
-    DispatchMessage(&msg);
+    DispatchMessageA(&msg);
     QueryPerformanceCounter((LARGE_INTEGER*)&end);
   // The inner loop ensures that the world gets updated more than
   //   once if need be.

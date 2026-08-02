@@ -51,7 +51,7 @@ WindowBitmap::WindowBitmap(HWND hwnd) //constructor
     hBitmapWBM = CreateCompatibleBitmap(hdc, WBM_CX, WBM_CY);
     if (!hBitmapWBM)
     {
-        MessageBox( hwnd,
+        MessageBoxA( hwnd,
             (LPSTR)"Failure in Bitmap Allocation!",
             (LPSTR)"Memory Problems!",
             MB_OK | MB_ICONEXCLAMATION );

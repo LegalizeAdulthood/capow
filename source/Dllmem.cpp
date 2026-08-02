@@ -9,15 +9,15 @@ static BOOL _set_temp_user_rule_file_name(HWND hwnd)
 //This is a helper function, not a member of any class, use to get a file name.
 //Begin commdlg parameters=========================
     char szFileTitle[MAXFILENAME];
-    OPENFILENAME ofn;
+    OPENFILENAMEA ofn;
 //Specific DLL file load save parameters
     char szFilterSpecDLL [128] =
         "DLL Files (*.DLL)\0All Files (*.*)\0*.*\0";
         /* file type filters */
 //End commdlg stuff=================================
-    lstrcpy(temp_user_rule_file_name,"*.DLL");
-    // fill in non-variant fields of OPENFILENAME struct.
-    ofn.lStructSize       = sizeof(OPENFILENAME);
+    lstrcpyA(temp_user_rule_file_name,"*.DLL");
+    // fill in non-variant fields of OPENFILENAMEA struct.
+    ofn.lStructSize       = sizeof(OPENFILENAMEA);
     ofn.hwndOwner     = hwnd;
     ofn.lpstrFilter   = szFilterSpecDLL;
     ofn.lpstrCustomFilter = NULL;
@@ -31,12 +31,12 @@ static BOOL _set_temp_user_rule_file_name(HWND hwnd)
     ofn.lpstrTitle        = NULL;
     ofn.lpstrDefExt       = "DLL";
     ofn.Flags             = 0;
-    if( GetOpenFileName((LPOPENFILENAME)&ofn) )
+    if( GetOpenFileNameA((LPOPENFILENAMEA)&ofn) )
         //A valid filename is now in temp_user_rule_file_name
         return TRUE;
     else
     { //No such file.  Put a blank in temp_user_rule_file_name.
-        lstrcpy(temp_user_rule_file_name,"");
+        lstrcpyA(temp_user_rule_file_name,"");
         return FALSE;
     }
 }
@@ -93,13 +93,13 @@ BOOL CA::GetUserRulePtr(HWND hwnd, char *DLLname)
     undo the changes it made to _DLLhandle, and the six _lpfnUSER* function
     pointers. If TRUE you need to do a FreeLibrary on the old _DLLhandle,
     if it was non-NULL.*/
-    _DLLhandle = LoadLibrary(DLLname);
+    _DLLhandle = LoadLibraryA(DLLname);
 /* If you have already loaded this library before, then this increases
 the library's "reference count".  You eventually need to call FreeLibrary
 once for each time that you call LoadLibary. */
-    if (_DLLhandle == NULL) // LoadLibrary failed
+    if (_DLLhandle == NULL) // LoadLibraryA failed
     {
-        MessageBox( hwnd,
+        MessageBoxA( hwnd,
             (LPSTR)"Unable to Load DLL Library!",
             DLLname,
             MB_OK | MB_ICONEXCLAMATION );
@@ -116,7 +116,7 @@ once for each time that you call LoadLibary. */
     FPUSERINITIALIZE _lpfnUSERINITIALIZE = (FPUSERINITIALIZE)GetProcAddress(_DLLhandle, "USERINITIALIZE");
     if (_lpfnUSERINITIALIZE == NULL) //it failed
     {
-        MessageBox(hwnd, (LPSTR)"Unable to Get USERINITIALIZE Procedure!",
+        MessageBoxA(hwnd, (LPSTR)"Unable to Get USERINITIALIZE Procedure!",
             DLLname, MB_OK | MB_ICONEXCLAMATION );
         FreeLibrary(_DLLhandle);
         return FALSE;
@@ -134,7 +134,7 @@ once for each time that you call LoadLibary. */
                 "USERRULE_1");
             if (_lpfnUSERRULE_1 == NULL) //it failed
             {
-                MessageBox(hwnd, (LPSTR)"Unable to Get USERRULE_1 Procedure!",
+                MessageBoxA(hwnd, (LPSTR)"Unable to Get USERRULE_1 Procedure!",
                     DLLname, MB_OK | MB_ICONEXCLAMATION );
                 FreeLibrary(_DLLhandle);
                 return FALSE;
@@ -145,7 +145,7 @@ once for each time that you call LoadLibary. */
                 "USERRULE_3");
             if (_lpfnUSERRULE_3 == NULL) //it failed
             {
-                MessageBox(hwnd, (LPSTR)"Unable to Get USERRULE_3 Procedure!",
+                MessageBoxA(hwnd, (LPSTR)"Unable to Get USERRULE_3 Procedure!",
                     DLLname, MB_OK | MB_ICONEXCLAMATION );
                 FreeLibrary(_DLLhandle);
                 return FALSE;
@@ -156,7 +156,7 @@ once for each time that you call LoadLibary. */
                 "USERRULE_5");
             if (_lpfnUSERRULE_5 == NULL) //it failed
             {
-                MessageBox(hwnd, (LPSTR)"Unable to Get USERRULE_5 Procedure!",
+                MessageBoxA(hwnd, (LPSTR)"Unable to Get USERRULE_5 Procedure!",
                     DLLname, MB_OK | MB_ICONEXCLAMATION );
                 FreeLibrary(_DLLhandle);
                 return FALSE;
@@ -167,7 +167,7 @@ once for each time that you call LoadLibary. */
                 "USERRULE_9");
             if (_lpfnUSERRULE_9 == NULL) //it failed
             {
-                MessageBox(hwnd, (LPSTR)"Unable to Get USERRULE_9 Procedure!",
+                MessageBoxA(hwnd, (LPSTR)"Unable to Get USERRULE_9 Procedure!",
                     DLLname, MB_OK | MB_ICONEXCLAMATION );
                 FreeLibrary(_DLLhandle);
                 return FALSE;
@@ -175,7 +175,7 @@ once for each time that you call LoadLibary. */
             break;
     }
 //If you get to here, then everything worked!
-    lstrcpy(_userrulename, DLLname); //So install the file name,
+    lstrcpyA(_userrulename, DLLname); //So install the file name,
     type_ca = CA_USER;
     return TRUE; //And tell the world you're happy!
 }

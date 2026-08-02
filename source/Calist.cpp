@@ -79,7 +79,7 @@ CAlist::CAlist(HWND myhwnd, int maxcount)
         list[i] = new CA(this);
         if (!list[i])
         {
-            MessageBox(hwnd,
+            MessageBoxA(hwnd,
                 (LPSTR)"Failure in CA Allocation!",
                 (LPSTR)"Memory Problems!",
                 MB_OK | MB_ICONEXCLAMATION );

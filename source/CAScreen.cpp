@@ -30,7 +30,7 @@
     * The running of the initialziation dialog and the screensaver are distinct.
         The only way to save info from the dialog is into a profile string (easy)
         or into the Windows Registry using HKEY_USERS, RegSetValueEx, RegEnumValue,
-        and RegQueryValue (don't know how to do yet, it looks gnarly.)  And you
+        and RegQueryValueA (don't know how to do yet, it looks gnarly.)  And you
         load the info out of the profile string at start of dialog or screensaver.
     * Use a WM_TIMER message to keep the screensaver running.  Don't worry, by the
         way, about too many WM_TIMER messages, as only one from a given timer is
@@ -227,7 +227,7 @@ LRESULT FAR PASCAL ScreenSaverProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
             //so the calist constructor does the randomize.
             SendMessage(hwnd, WM_TIMER, RANDOMIZE_TIMER_ID, 0);
             calife_list->initizlize_blt_lines(2); //Make it look a little faster.
-            GetProfileString(szMyAppName, "Directory", ".//", capowDirectory,
+            GetProfileStringA(szMyAppName, "Directory", ".//", capowDirectory,
                 256);
             strcpy(szScreenSaverFileName, capowDirectory);
             strcat(szScreenSaverFileName, "\\Files To Open\\");
@@ -361,14 +361,14 @@ that is in the modeless EXE dialog, so I put that code into the writeIniSettings
                 case IDOK:
                     writeIniSettings(hDlg);
                     if (bHelpActive)
-                        WinHelp(hDlg, "\\Capow98\\Capow.hlp", HELP_QUIT, 0);
+                        WinHelpA(hDlg, "\\Capow98\\Capow.hlp", HELP_QUIT, 0);
                     EndDialog(hDlg, TRUE);
                     return TRUE;
                 case ID_CANCEL:
                     SendMessage(hDlg, WM_CLOSE, 0, 0);
                     return TRUE;
                 case ID_LOCALHELP:
-                    bHelpActive = WinHelp(hDlg, "\\Capow98\\Capow.hlp", HELP_FINDER, 0);
+                    bHelpActive = WinHelpA(hDlg, "\\Capow98\\Capow.hlp", HELP_FINDER, 0);
                     return TRUE;
 /* Our trick here is to use an autorandomize dialog box from our *.EXE to
 process most of the messages.  Our shared dialog code is in CONFIG.CPP.
@@ -384,7 +384,7 @@ handling and regualar EXE dialog handling. */
             return FALSE;
         case WM_CLOSE:
             if (bHelpActive)
-                WinHelp(hDlg, "\\Capow98\\Capow.hlp", HELP_QUIT, 0);
+                WinHelpA(hDlg, "\\Capow98\\Capow.hlp", HELP_QUIT, 0);
             EndDialog(hDlg, TRUE);
             return TRUE;
         default:

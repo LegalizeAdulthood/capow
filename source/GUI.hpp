@@ -43,7 +43,7 @@ LRESULT ToolBarNotify (HWND hwnd, WPARAM wParam, LPARAM lParam) ;
 // Tooltip functions.
 BOOL InitToolTip (HWND hwndToolBar, HWND hwndComboBox) ;
 BOOL RelayToolTipMessage (LPMSG pMsg) ;
-void CopyToolTipText (LPTOOLTIPTEXT lpttt) ;
+void CopyToolTipText (LPTOOLTIPTEXTA lpttt) ;
 
 // Status bar functions.
 HWND InitStatusBar (HWND hwndParent) ;

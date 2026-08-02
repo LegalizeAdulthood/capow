@@ -175,7 +175,7 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
                     break;
 
                 case IDC_GENERATORS_OMEGA:
-                    GetWindowText (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
+                    GetWindowTextA (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
                     num = atof(tmpStr);
                     calife_list->FocusCA()->generatorlist.SetOmega(focusGen, num);
                     edit_id = 0;
@@ -183,7 +183,7 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
                     break;
 
                 case IDC_GENERATORS_AMP:
-                    GetWindowText (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
+                    GetWindowTextA (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
                     num = atof(tmpStr);
                     calife_list->FocusCA()->generatorlist.SetAmplitude(focusGen, num);
                     edit_id = 0;
@@ -231,10 +231,10 @@ static void MyWnd_MOVE(HWND hDlg, int x, int y)
     //((fn)((hDlg), (int)LOWORD(lParam), (int)HIWORD(lParam)), 0L)
 
             GetWindowRect(hDlg, &rect);
-            wsprintf((LPSTR)buf,"%i",rect.left);
-            WriteProfileString((LPSTR)szMyAppName,(LPSTR)"GENERATORSX",(LPSTR)buf);
-            wsprintf((LPSTR)buf,"%i",rect.top);
-            WriteProfileString((LPSTR)szMyAppName,(LPSTR)"GENERATORSY",(LPSTR)buf);
+            wsprintfA((LPSTR)buf,"%i",rect.left);
+            WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"GENERATORSX",(LPSTR)buf);
+            wsprintfA((LPSTR)buf,"%i",rect.top);
+            WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"GENERATORSY",(LPSTR)buf);
 
     showparams(hDlg);
 }
@@ -341,9 +341,9 @@ void showparams(HWND hDlg)
         {
             _ltoa(calife_list->FocusCA()->generatorlist.Location_x(i)  ,buffer1, 10);
             _ltoa(calife_list->FocusCA()->generatorlist.Location_y(i)  ,buffer2, 10);
-            wsprintf((LPSTR) buffer, "%2s %4s %2s",(LPSTR)buffer1, (LPSTR)"    ", (LPSTR)buffer2);
+            wsprintfA((LPSTR) buffer, "%2s %4s %2s",(LPSTR)buffer1, (LPSTR)"    ", (LPSTR)buffer2);
         }
-        SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_ADDSTRING, 0, (LPARAM) (LPSTR) buffer);
+        SendMessageA(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_ADDSTRING, 0, (LPARAM) (LPSTR) buffer);
         SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_SETITEMDATA, i, (LPARAM) i);
         SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_SETCURSEL, focusGen, 0L); //highlights list box sellection
     }
@@ -355,17 +355,17 @@ void showparams(HWND hDlg)
         realLabel (hDlg, IDC_GENERATORS_OMEGA, value);
         realLabel (hDlg, IDC_GENERATORS_AMP, calife_list->FocusCA()->generatorlist.GetAmplitude(focusGen));
         SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_SETITEMDATA, focusGen, (LPARAM) focusGen);
-        SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_GETTEXT,(WPARAM)(focusGen),(LPARAM)(LPCTSTR)szIndex);
-        SetDlgItemText(hDlg, IDC_GENERATORS_INDEX, (LPSTR)szIndex);
+        SendMessageA(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_GETTEXT,(WPARAM)(focusGen),(LPARAM)(LPCSTR)szIndex);
+        SetDlgItemTextA(hDlg, IDC_GENERATORS_INDEX, (LPSTR)szIndex);
     }
     else
     {
         realLabel (hDlg, IDC_GENERATORS_OMEGA, 0.0);
         realLabel (hDlg, IDC_GENERATORS_AMP, 0.0);
-        SetDlgItemText(hDlg, IDC_GENERATORS_INDEX, " ");
+        SetDlgItemTextA(hDlg, IDC_GENERATORS_INDEX, " ");
     }
 
-    edit_id = 0;  //This undoes the unwanted setting of edit_id by SetWindowText.
+    edit_id = 0;  //This undoes the unwanted setting of edit_id by SetWindowTextA.
 }
 
 

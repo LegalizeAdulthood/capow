@@ -148,7 +148,7 @@ of the program.
     // or OpenGl isn't installed on this machine
     if (nMyPixelFormatID==0)
     {
-        MessageBox(hWnd, "ChoosePixelFormat() failed!", "OpenGL error", MB_OK);
+        MessageBoxA(hWnd, "ChoosePixelFormat() failed!", "OpenGL error", MB_OK);
     }
 
     SetPixelFormat( hDC, nMyPixelFormatID, &pfd );
@@ -1655,23 +1655,23 @@ void CapowGL::DrawStats(HDC hdc)
         y+=toolBarHeight;
 
     strcpy(buffer, "test123");
-    TextOut(hdc, x, y, buffer, strlen(buffer));
+    TextOutA(hdc, x, y, buffer, strlen(buffer));
 
     //show the width and height of viewport
     y+= lineheight;
     _itoa (tempwidth, buffer, 10);
-    TextOut(hdc, x,y, buffer, strlen(buffer));
+    TextOutA(hdc, x,y, buffer, strlen(buffer));
     y+= lineheight;
     _itoa (tempheight, buffer, 10);
-    TextOut(hdc, x,y, buffer, strlen(buffer));
+    TextOutA(hdc, x,y, buffer, strlen(buffer));
 
     y+= lineheight;
     _itoa(cellx, buffer, 10);
-    TextOut(hdc, x,y, buffer, strlen(buffer));
+    TextOutA(hdc, x,y, buffer, strlen(buffer));
 
     y+= lineheight;
     _itoa (celly, buffer, 10);
-    TextOut(hdc, x,y, buffer, strlen(buffer));
+    TextOutA(hdc, x,y, buffer, strlen(buffer));
 
     //Show the framerate
     y+= lineheight;
@@ -1689,11 +1689,11 @@ void CapowGL::DrawStats(HDC hdc)
             oldrenderperiod = renderperiod;
         }
         _gcvt((1000.0f/oldperiod), 4, buffer);
-        TextOut(hdc, x,y,buffer, strlen(buffer));
+        TextOutA(hdc, x,y,buffer, strlen(buffer));
 
         y+= lineheight; //show the percent of time spent rendering
         _gcvt(oldrenderperiod/oldperiod, 4, buffer);
-        TextOut(hdc, x,y, buffer, strlen(buffer));
+        TextOutA(hdc, x,y, buffer, strlen(buffer));
     }
 }
 
@@ -1819,11 +1819,11 @@ bool CapowGL::CaptureToVRML()
 {
     char filename[_MAX_PATH];
     char titlename[_MAX_FNAME+_MAX_EXT];
-    OPENFILENAME ofn;
+    OPENFILENAMEA ofn;
 
     char *szFilter[] = {"VRML files (*.wrl)", "*.wrl",""};
 
-    ofn.lStructSize     = sizeof (OPENFILENAME);
+    ofn.lStructSize     = sizeof (OPENFILENAMEA);
     ofn.hwndOwner       = masterhwnd;
     ofn.hInstance       = NULL;
     ofn.lpstrFilter     = szFilter[0];
@@ -1844,7 +1844,7 @@ bool CapowGL::CaptureToVRML()
     ofn.lpfnHook        = NULL;
     ofn.lpTemplateName  = NULL;
 
-    if (GetOpenFileName (&ofn))
+    if (GetOpenFileNameA (&ofn))
     {
 
     }

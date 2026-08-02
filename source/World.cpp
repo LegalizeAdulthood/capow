@@ -33,60 +33,60 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     // Set CA type Combo Box
     hCntl = GetDlgItem( hDlg, IDC_CATYPE_WORLD);
 
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, CA_STANDARD, (LPARAM) "Standard");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, CA_STANDARD, (LPARAM) "Standard");
     boxindex_to_type[boxindex] = CA_STANDARD;
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Reversible");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Reversible");
     boxindex_to_type[boxindex] = CA_REVERSIBLE;
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Driven Heat");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Driven Heat");
     boxindex_to_type[boxindex] = CA_HEATWAVE;
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Big Nabe Heat");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Big Nabe Heat");
     boxindex_to_type[boxindex] = CA_HEATWAVE2;
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Wave Equation");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Wave Equation");
     boxindex_to_type[boxindex] = ALT_CA_WAVE;
-    /*  boxindex = (int)SendMessage( hCntl, CB_ADDSTRING, 0,
+    /*  boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
             (LPARAM)"Viscous Wave");
         boxindex_to_type[boxindex] = CA_WAVE; */
-    userboxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "User Rule (*.DLL)");
+    userboxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "User Rule (*.DLL)");
     boxindex_to_type[userboxindex] = CA_USER;
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Big Nabe Wave");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Big Nabe Wave");
     boxindex_to_type[boxindex] = CA_WAVE2;
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Oscillators");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Oscillators");
     boxindex_to_type[boxindex] = CA_OSCILLATOR;
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Diverse Osc");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Diverse Osc");
     boxindex_to_type[boxindex] = CA_DIVERSE_OSCILLATOR;
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Wave Osc");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Wave Osc");
     boxindex_to_type[boxindex] = ALT_CA_OSCILLATOR_WAVE;
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Diverse Wave Osc");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Diverse Wave Osc");
     boxindex_to_type[boxindex] = ALT_CA_DIVERSE_OSCILLATOR_WAVE;
-    /*  boxindex = (int)SendMessage( hCntl, CB_ADDSTRING, 0,
+    /*  boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
             (LPARAM)"Wave Osc");
         boxindex_to_type[boxindex] = CA_OSCILLATOR_WAVE;
-        boxindex = (int)SendMessage( hCntl, CB_ADDSTRING, 0,
+        boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
             (LPARAM)"Diverse Wave Osc");
         boxindex_to_type[boxindex] = CA_DIVERSE_OSCILLATOR_WAVE;
     */
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Quadratic Wave");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Quadratic Wave");
     boxindex_to_type[boxindex] = ALT_CA_ULAM_WAVE;
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Cubic Wave");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Cubic Wave");
     boxindex_to_type[boxindex] = CA_CUBIC_ULAM_WAVE;
-    /*  boxindex = (int)SendMessage( hCntl, CB_ADDSTRING, 0,
+    /*  boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
             (LPARAM)"Viscous FPU");
         boxindex_to_type[boxindex] = CA_ULAM_WAVE;*/
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Boiling Wave");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Boiling Wave");
     boxindex_to_type[boxindex] = CA_AUTO_ULAM_WAVE;
-    /*  boxindex = (int)SendMessage( hCntl, CB_ADDSTRING, 0,
+    /*  boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
             (LPARAM)"Alt Wave 2");
         boxindex_to_type[boxindex] = ALT_CA_WAVE2;
-        boxindex = (int)SendMessage( hCntl, CB_ADDSTRING, 0,
+        boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
             (LPARAM)"Alt Oscillators");
         boxindex_to_type[boxindex] = ALT_CA_OSCILLATOR;
-        boxindex = (int)SendMessage( hCntl, CB_ADDSTRING, 0,
+        boxindex = (int)SendMessageA( hCntl, CB_ADDSTRING, 0,
             (LPARAM)"Alt Diverse Osc");
         boxindex_to_type[boxindex] = ALT_CA_DIVERSE_OSCILLATOR;
     */
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "2D Wave");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "2D Wave");
     boxindex_to_type[boxindex] = CA_WAVE_2D;
-    boxindex = (int) SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "2D Heat");
+    boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "2D Heat");
     boxindex_to_type[boxindex] = CA_HEAT_2D;
 //JY ------- 10/12
     showparams(hDlg);
@@ -386,10 +386,10 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
     char buf[32];
 
     GetWindowRect(hDlg, &rect);
-    wsprintf((LPSTR)buf,"%i",rect.left);
-    WriteProfileString((LPSTR)szMyAppName,(LPSTR)"WORLDX",(LPSTR)buf);
-    wsprintf((LPSTR)buf,"%i",rect.top);
-    WriteProfileString((LPSTR)szMyAppName,(LPSTR)"WORLDY",(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%i",rect.left);
+    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"WORLDX",(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%i",rect.top);
+    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"WORLDY",(LPSTR)buf);
 
 }
 

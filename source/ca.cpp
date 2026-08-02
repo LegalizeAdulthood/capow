@@ -170,7 +170,7 @@ CA::CA(CAlist *mylist)
     _usernabesize = 3; //means use a three argument 1D update rule.
     _usercastyle = CA_WAVE_2D; // means that if you ever have _user_nabesize
         //set for 5 args, do as a 2D rule.
-    lstrcpy(_userrulename, "");
+    lstrcpyA(_userrulename, "");
 
     //======== Bang-Nguyen ========
          Fourier_init();
@@ -196,7 +196,7 @@ void CA::Allocate()
     lookup = (unsigned char  *)(new char[MAXNABEOPTIONS]);
     if (!lookup)
     {
-        MessageBox( hwnd,
+        MessageBoxA( hwnd,
             (LPSTR)"Failure in Lookup Allocation!",
             (LPSTR)"Memory Problems!",
             MB_OK | MB_ICONEXCLAMATION );
@@ -206,7 +206,7 @@ void CA::Allocate()
     freqlookup = (unsigned short  *)(new int[MAXNABEOPTIONS]);
     if (!freqlookup)
     {
-        MessageBox( hwnd,
+        MessageBoxA( hwnd,
             (LPSTR)"Failure in Freqlookup Allocation!",
             (LPSTR)"Memory Problems!",
             MB_OK | MB_ICONEXCLAMATION );
@@ -220,7 +220,7 @@ void CA::Allocate()
       for ( int j=0; j<_max_horz_count; ++j ) rowbuffer[i][j] = '\0';  // l.andrews 11/3/01
         if (!rowbuffer[i])
         {
-            MessageBox( hwnd,
+            MessageBoxA( hwnd,
                 (LPSTR)"Failure in Rowbuffer Allocation!",
                 (LPSTR)"Memory Problems!",
                     MB_OK | MB_ICONEXCLAMATION );
@@ -236,7 +236,7 @@ void CA::Allocate()
         waverowbuffer[i] = new Wavecell[_max_horz_count];
         if (!waverowbuffer[i])
         {
-            MessageBox( hwnd,
+            MessageBoxA( hwnd,
                 (LPSTR)"Failure in Waverow Allocation!",
                 (LPSTR)"Memory Problems!",
                     MB_OK | MB_ICONEXCLAMATION );
@@ -253,7 +253,7 @@ void CA::Allocate()
         waveplanebuffer[i] =  new Wavecell2[(int)CX_2D * CY_2D];
         if (!waveplanebuffer[i])
         {
-            MessageBox( hwnd,
+            MessageBoxA( hwnd,
                 (LPSTR)"Failure in Waveplane Allocation!",
                 (LPSTR)"Memory Problems!",
                     MB_OK | MB_ICONEXCLAMATION );
@@ -278,7 +278,7 @@ void CA::Allocate()
     colortable = (COLORREF  *)(new COLORREF[MAX_COLOR]);
     if (!colortable)
     {
-        MessageBox( hwnd,
+        MessageBoxA( hwnd,
             (LPSTR)"Failure in ColorTable Allocation!",
             (LPSTR)"Memory Problems!",
             MB_OK | MB_ICONEXCLAMATION );
@@ -288,7 +288,7 @@ void CA::Allocate()
     _anchor_color = new COLORREF[MAX_BAND_COUNT+1];
     if (!_anchor_color)
     {
-        MessageBox( hwnd,
+        MessageBoxA( hwnd,
             (LPSTR)"Failure in AnchorColor Allocation!",
             (LPSTR)"Memory Problems!",
             MB_OK | MB_ICONEXCLAMATION );
@@ -299,7 +299,7 @@ void CA::Allocate()
     COLORREF_target_row = new COLORREF[_max_horz_count];
     if (!COLORREF_target_row)
         {
-            MessageBox( hwnd,
+            MessageBoxA( hwnd,
                 (LPSTR)"Failure in COLORREF_target_row allocation!",
                 (LPSTR)"Memory Problems!",
                     MB_OK | MB_ICONEXCLAMATION );
@@ -311,7 +311,7 @@ void CA::Allocate()
             _max_horz_count];
         if (!colorindex_target_row)
         {
-            MessageBox( hwnd,
+            MessageBoxA( hwnd,
                 (LPSTR)"Failure in colorindex_target_row Allocation!",
                 (LPSTR)"Memory Problems!",
                     MB_OK | MB_ICONEXCLAMATION );
@@ -321,7 +321,7 @@ void CA::Allocate()
         tp_real_array = new Real[4*_max_horz_count];
         if (!tp_real_array)
         {
-            MessageBox( hwnd,
+            MessageBoxA( hwnd,
                 (LPSTR)"Failure in tp_real_array Allocation!",
                 (LPSTR)"Memory Problems!",
                     MB_OK | MB_ICONEXCLAMATION );
@@ -331,7 +331,7 @@ void CA::Allocate()
         fourier_a = new Real[MAXTERM];
         if (!fourier_a)
         {
-            MessageBox( hwnd,
+            MessageBoxA( hwnd,
                 (LPSTR)"Failure in fourier_a Allocation!",
                 (LPSTR)"Memory Problems!",
                     MB_OK | MB_ICONEXCLAMATION );
@@ -342,7 +342,7 @@ void CA::Allocate()
              // to contain the Fourier coefficients
         if (!fourier_b)
         {
-            MessageBox( hwnd,
+            MessageBoxA( hwnd,
                 (LPSTR)"Failure in fourier_b Allocation!",
                 (LPSTR)"Memory Problems!",
                     MB_OK | MB_ICONEXCLAMATION );
@@ -353,7 +353,7 @@ void CA::Allocate()
             // approximate values by Fourier series
         if (!fourier_approx)
         {
-            MessageBox( hwnd,
+            MessageBoxA( hwnd,
                 (LPSTR)"Failure in fourier_approx Allocation!",
                 (LPSTR)"Memory Problems!",
                     MB_OK | MB_ICONEXCLAMATION );

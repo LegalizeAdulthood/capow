@@ -197,7 +197,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id, HWND hwndCtl, UINT codeNotify)
                 case IDC_APPROXIMATE: //The "Analyze" button
                     if ( (calife_list->FocusCA())->Get_fourierflag() == 0 )
                     {
-                        SetWindowText(GetDlgItem( hDlg, IDC_APPROXIMATE ), "Record A Time Series");
+                        SetWindowTextA(GetDlgItem( hDlg, IDC_APPROXIMATE ), "Record A Time Series");
                         // fourier-flag of focus CA is 0, now will be set to 1
                         if ( !focusflag && (calife_list->Getzoomflag() == 0) )
 
@@ -220,7 +220,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id, HWND hwndCtl, UINT codeNotify)
                     }
                     else    // fourier-flag of focus CA is 1, now will be set to 0
                     {     // and tp_viewgraph, tp_viewapprox also set to 1
-                        SetWindowText(GetDlgItem( hDlg, IDC_APPROXIMATE ), "Analyze The Time Series");
+                        SetWindowTextA(GetDlgItem( hDlg, IDC_APPROXIMATE ), "Analyze The Time Series");
                         if ( !focusflag && (calife_list->Getzoomflag() == 0) )
 
                             for (i=0; i<calife_list->Count(); i++)

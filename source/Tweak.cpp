@@ -109,8 +109,8 @@ TweakParam::TweakParam(Real min, Real valMean, Real valVariance, Real max, LPSTR
 {   //  FIXME later
     // _val = valVariance;
 
-    _label = new char[lstrlen(label)+1];
-    lstrcpy (_label, label);
+    _label = new char[lstrlenA(label)+1];
+    lstrcpyA (_label, label);
     Clamp();
 }
 
@@ -132,8 +132,8 @@ void TweakParam::SetLabel (LPSTR label)
         _label = NULL;
     }
 
-    _label = new char[lstrlen(label)+1];
-    lstrcpy (_label, label);
+    _label = new char[lstrlenA(label)+1];
+    lstrcpyA (_label, label);
 }
 
 void TweakParam::SetVal(Real newval, CA* thisCA)
@@ -226,8 +226,8 @@ AdditiveTweakParam& AdditiveTweakParam::operator= (const AdditiveTweakParam& src
             Free();
             _label = NULL;
         }
-        _label = new char[lstrlen(src._label)+1];
-        lstrcpy (_label, src._label);
+        _label = new char[lstrlenA(src._label)+1];
+        lstrcpyA (_label, src._label);
         _adjustothers = src._adjustothers;
     }
     return *this;
@@ -314,8 +314,8 @@ MultiplicativeTweakParam& MultiplicativeTweakParam::operator=
             Free();
             _label = NULL;
         }
-        _label = new char[lstrlen(src._label)+1];
-        lstrcpy (_label, src._label);
+        _label = new char[lstrlenA(src._label)+1];
+        lstrcpyA (_label, src._label);
         _adjustothers = src._adjustothers;
         _multInc = src._multInc;
         _1_over_multInc = src._1_over_multInc;

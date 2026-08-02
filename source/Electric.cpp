@@ -94,7 +94,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
 
         case IDOK:
             // see Tweakca.hpp for the order of *_TYPE
-            GetWindowText (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
+            GetWindowTextA (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
             num = atof (tmpStr);
             if (focusflag)
                 calife_list->FocusCA()->SetTweakParam(
@@ -167,10 +167,10 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
     char buf[32];
 
     GetWindowRect(hDlg, &rect);
-    wsprintf((LPSTR)buf,"%i",rect.left);
-    WriteProfileString((LPSTR)szMyAppName,(LPSTR)"ELECTIRCX",(LPSTR)buf);
-    wsprintf((LPSTR)buf,"%i",rect.top);
-    WriteProfileString((LPSTR)szMyAppName,(LPSTR)"ELECTIRCY",(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%i",rect.left);
+    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"ELECTIRCX",(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%i",rect.top);
+    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"ELECTIRCY",(LPSTR)buf);
 
 }
 /*----------------------------------------------------------------------------------------*/
@@ -202,7 +202,7 @@ void showparams( HWND hDlg )
 {
     /* Because we are using an edit text box, care needs to be taken
         to prevent an  endless regress of showparams calling showparams which
-        calls showparams, etc.  The SetWindowText call used inside textLabel
+        calls showparams, etc.  The SetWindowTextA call used inside textLabel
         and realLabel to show the current value of an edit params  generates
         a call to WM_COMMAND with a *_TYPE identifier of the edit box in wParam,
         and this sets edit_id to *_TYPE and sends a call to showparams() at the

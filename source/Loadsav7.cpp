@@ -139,7 +139,7 @@ BOOL Version_7_Load_Individual(ifstream& ifs, CA* target)
     /* DEBUGGING - DDC 3/25/96 */
     if (ifs.fail())
     {
-        MessageBox( target->hwnd,
+        MessageBoxA( target->hwnd,
         (LPSTR)"ifstream failed before reading lookup table!",
         (LPSTR)"File Problems!",
             MB_OK | MB_ICONEXCLAMATION );
@@ -214,7 +214,7 @@ BOOL Version_7_Load_Individual(ifstream& ifs, CA* target)
     /* DEBUGGING - DDC 3/25/96 */
     if (ifs.fail())
     {
-        MessageBox( target->hwnd,
+        MessageBoxA( target->hwnd,
         (LPSTR)"ifstream failed in reading at viewmode!",
         (LPSTR)"File Problems!",
         MB_OK | MB_ICONEXCLAMATION );
@@ -238,7 +238,7 @@ BOOL Version_7_Load_Individual(ifstream& ifs, CA* target)
     /* DEBUGGING - DDC 3/25/96 */
     if (ifs.fail())
     {
-        MessageBox( target->hwnd,
+        MessageBoxA( target->hwnd,
         (LPSTR)"ifstream failed in reading at anchor colors!",
         (LPSTR)"File Problems!",
         MB_OK | MB_ICONEXCLAMATION );
@@ -252,7 +252,7 @@ BOOL Version_7_Load_Individual(ifstream& ifs, CA* target)
         /* DEBUGGING - DDC 3/25/96 */
         if (ifs.fail())
         {
-            MessageBox( target->hwnd,
+            MessageBoxA( target->hwnd,
             (LPSTR)"ifstream failed in reading at Time step ( _dt )!",
             (LPSTR)"File Problems!",
             MB_OK | MB_ICONEXCLAMATION );
@@ -464,7 +464,7 @@ of 0 all the time */
             /* DEBUGGING - DDC 3/25/96 */
             if (ifs.fail())
             {
-                MessageBox( target->hwnd,
+                MessageBoxA( target->hwnd,
                 (LPSTR)"ifstream failed reading at source row values!",
                 (LPSTR)"File Problems!",
                 MB_OK | MB_ICONEXCLAMATION );
@@ -498,7 +498,7 @@ of 0 all the time */
             /* DEBUGGING - DDC 3/25/96 */
             if (ifs.fail())
             {
-                MessageBox( target->hwnd,
+                MessageBoxA( target->hwnd,
                 (LPSTR)"ifstream failed reading at past row values!",
                 (LPSTR)"File Problems!",
                 MB_OK | MB_ICONEXCLAMATION );
@@ -528,7 +528,7 @@ void CAlist::Load_Individual7(char* filename, CA *target)
         ifs.open(filename, ios::in|ios::binary);
     if (ifs.fail())
     {
-        MessageBox( hwnd,
+        MessageBoxA( hwnd,
             (LPSTR)filename,//"File Problems!",
             (LPSTR)"Can't open file!",
             MB_OK | MB_ICONEXCLAMATION );
@@ -540,7 +540,7 @@ void CAlist::Load_Individual7(char* filename, CA *target)
     /* If we load a new file, we may want to start breed cycle all over to
     give the new ca a fighting chance */
     if (breedflag)
- /*             if (MessageBox( hwnd,
+ /*             if (MessageBoxA( hwnd,
             (LPSTR)"Reset Breedcycle counter and all scores?",
             (LPSTR)"",
             MB_YESNO | MB_ICONEXCLAMATION ) == IDYES)   */
@@ -564,12 +564,12 @@ BOOL CAlist::Loadall7(char* filename, BOOL startup)
     if (ifs.fail())
     {
         if (!strcmp(filename, "ACTIVE.CAS"))
-            MessageBox( hwnd,
+            MessageBoxA( hwnd,
                 (LPSTR)"No ACTIVE.CAS File, Using Default Parameters.",
                 (LPSTR)"No Problem!",//"File Problems!",
                 MB_OK | MB_ICONEXCLAMATION );
         else
-            MessageBox( hwnd,
+            MessageBoxA( hwnd,
                 (LPSTR)filename,//"File Problems!",
                 (LPSTR)"Can't open file!",
                 MB_OK | MB_ICONEXCLAMATION );
@@ -581,7 +581,7 @@ BOOL CAlist::Loadall7(char* filename, BOOL startup)
     ifs >> dummybuf >> dummybuf >> dummybuf >> dummybuf >> filecount;
     if (filecount == 0)
     {  /*You will hit this if you try and load like an empty  *.CAS file */
-         MessageBox( hwnd,
+         MessageBoxA( hwnd,
                 (LPSTR)filename,//"File Problems!",
                 (LPSTR)"Empty experiment file with 0 CAs in it!",
                 MB_OK | MB_ICONEXCLAMATION );
@@ -591,7 +591,7 @@ BOOL CAlist::Loadall7(char* filename, BOOL startup)
     else if (filecount > MAX_CAS)
     {  /*You will hit this if you try and load like a 9 CA *.CAS file
       with a low memory CAPOW version like CAPOWLOW */
-         MessageBox( hwnd,
+         MessageBoxA( hwnd,
                 (LPSTR)filename,//"File Problems!",
                 (LPSTR)"Too many CAs for this CAPOW version!",
                 MB_OK | MB_ICONEXCLAMATION );
@@ -695,7 +695,7 @@ BOOL CAlist::Loadall7(char* filename, BOOL startup)
     if(!(SetWindowPos(hwnd,  HWND_NOTOPMOST, scr.left, scr.top,
           (scr.right - scr.left),(scr.bottom - scr.top), SWP_NOMOVE)))
     {
-        MessageBox( hwnd,
+        MessageBoxA( hwnd,
             (LPSTR)"problems resizing window!",
             (LPSTR)"Umm, this should work....",
             MB_OK | MB_ICONEXCLAMATION );
@@ -706,7 +706,7 @@ BOOL CAlist::Loadall7(char* filename, BOOL startup)
     /* If we load a new file, we may want to start breed cycle all over to
         give the new ca a fighting chance */
     if (breedflag)
-    /*              if (MessageBox( hwnd,
+    /*              if (MessageBoxA( hwnd,
             (LPSTR)"Reset Breedcycle counter and all scores?",
             (LPSTR)"",
             MB_YESNO | MB_ICONEXCLAMATION ) == IDYES)  */
@@ -824,7 +824,7 @@ void Version_123_Load_Individual(ifstream& ifs, CA* target, int version)
 
         if (uiread >= MAX_COLOR )
         {
-            MessageBox( target->hwnd, //calist_ptr->hwnd,
+            MessageBoxA( target->hwnd, //calist_ptr->hwnd,
                 (LPSTR)"Wrong # of colors saved!",
                 (LPSTR)"File Problems!",
                 MB_OK | MB_ICONEXCLAMATION );
@@ -1088,7 +1088,7 @@ void Version_45_Load_Individual(ifstream& ifs, CA* target)
     /* DEBUGGING - DDC 3/25/96 */
     if (ifs.fail())
     {
-        MessageBox( target->hwnd,
+        MessageBoxA( target->hwnd,
         (LPSTR)"ifstream failed before reading lookup table!",
         (LPSTR)"File Problems!",
             MB_OK | MB_ICONEXCLAMATION );
@@ -1116,7 +1116,7 @@ void Version_45_Load_Individual(ifstream& ifs, CA* target)
     ifs.get();      // read off eoln
     if (uiread >= MAX_COLOR )
     {
-        MessageBox( target->hwnd, //calist_ptr->hwnd,
+        MessageBoxA( target->hwnd, //calist_ptr->hwnd,
             (LPSTR)"Wrong Number of colors saved!",
             (LPSTR)"File Problems!",
             MB_OK | MB_ICONEXCLAMATION );
@@ -1175,7 +1175,7 @@ void Version_45_Load_Individual(ifstream& ifs, CA* target)
     /* DEBUGGING - DDC 3/25/96 */
     if (ifs.fail())
     {
-        MessageBox( target->hwnd,
+        MessageBoxA( target->hwnd,
         (LPSTR)"ifstream failed in reading at viewmode!",
         (LPSTR)"File Problems!",
         MB_OK | MB_ICONEXCLAMATION );
@@ -1199,7 +1199,7 @@ void Version_45_Load_Individual(ifstream& ifs, CA* target)
     /* DEBUGGING - DDC 3/25/96 */
     if (ifs.fail())
     {
-        MessageBox( target->hwnd,
+        MessageBoxA( target->hwnd,
         (LPSTR)"ifstream failed in reading at anchor colors!",
         (LPSTR)"File Problems!",
         MB_OK | MB_ICONEXCLAMATION );
@@ -1344,7 +1344,7 @@ void Version_45_Load_Individual(ifstream& ifs, CA* target)
             /* DEBUGGING - DDC 3/25/96 */
             if (ifs.fail())
             {
-                MessageBox( target->hwnd,
+                MessageBoxA( target->hwnd,
                 (LPSTR)"ifstream failed reading at source row values!",
                 (LPSTR)"File Problems!",
                 MB_OK | MB_ICONEXCLAMATION );
@@ -1378,7 +1378,7 @@ void Version_45_Load_Individual(ifstream& ifs, CA* target)
             /* DEBUGGING - DDC 3/25/96 */
             if (ifs.fail())
             {
-                MessageBox( target->hwnd,
+                MessageBoxA( target->hwnd,
                 (LPSTR)"ifstream failed reading at past row values!",
                 (LPSTR)"File Problems!",
                 MB_OK | MB_ICONEXCLAMATION );
@@ -1412,7 +1412,7 @@ void Version_45_Load_Individual(ifstream& ifs, CA* target)
             /* DEBUGGING - DDC 3/25/96 */
             if (ifs.fail())
             {
-                    MessageBox( target->hwnd,
+                    MessageBoxA( target->hwnd,
                     (LPSTR)"ifstream failed reading at target row values!",
                     (LPSTR)"File Problems!",
                     MB_OK | MB_ICONEXCLAMATION );
@@ -1431,7 +1431,7 @@ void Version_45_Load_Individual(ifstream& ifs, CA* target)
         /* DEBUGGING - DDC 3/25/96 */
         if (ifs.fail())
         {
-            MessageBox( target->hwnd,
+            MessageBoxA( target->hwnd,
             (LPSTR)"ifstream failed in reading at Time step ( _dt )!",
             (LPSTR)"File Problems!",
             MB_OK | MB_ICONEXCLAMATION );
@@ -1523,7 +1523,7 @@ void Version_6_Load_Individual(ifstream& ifs, CA* target)
     /* DEBUGGING - DDC 3/25/96 */
     if (ifs.fail())
     {
-        MessageBox( target->hwnd,
+        MessageBoxA( target->hwnd,
         (LPSTR)"ifstream failed before reading lookup table!",
         (LPSTR)"File Problems!",
             MB_OK | MB_ICONEXCLAMATION );
@@ -1598,7 +1598,7 @@ void Version_6_Load_Individual(ifstream& ifs, CA* target)
     /* DEBUGGING - DDC 3/25/96 */
     if (ifs.fail())
     {
-        MessageBox( target->hwnd,
+        MessageBoxA( target->hwnd,
         (LPSTR)"ifstream failed in reading at viewmode!",
         (LPSTR)"File Problems!",
         MB_OK | MB_ICONEXCLAMATION );
@@ -1622,7 +1622,7 @@ void Version_6_Load_Individual(ifstream& ifs, CA* target)
     /* DEBUGGING - DDC 3/25/96 */
     if (ifs.fail())
     {
-        MessageBox( target->hwnd,
+        MessageBoxA( target->hwnd,
         (LPSTR)"ifstream failed in reading at anchor colors!",
         (LPSTR)"File Problems!",
         MB_OK | MB_ICONEXCLAMATION );
@@ -1767,7 +1767,7 @@ void Version_6_Load_Individual(ifstream& ifs, CA* target)
             /* DEBUGGING - DDC 3/25/96 */
             if (ifs.fail())
             {
-                MessageBox( target->hwnd,
+                MessageBoxA( target->hwnd,
                 (LPSTR)"ifstream failed reading at source row values!",
                 (LPSTR)"File Problems!",
                 MB_OK | MB_ICONEXCLAMATION );
@@ -1801,7 +1801,7 @@ void Version_6_Load_Individual(ifstream& ifs, CA* target)
             /* DEBUGGING - DDC 3/25/96 */
             if (ifs.fail())
             {
-                MessageBox( target->hwnd,
+                MessageBoxA( target->hwnd,
                 (LPSTR)"ifstream failed reading at past row values!",
                 (LPSTR)"File Problems!",
                 MB_OK | MB_ICONEXCLAMATION );
@@ -1835,7 +1835,7 @@ void Version_6_Load_Individual(ifstream& ifs, CA* target)
             /* DEBUGGING - DDC 3/25/96 */
             if (ifs.fail())
             {
-                    MessageBox( target->hwnd,
+                    MessageBoxA( target->hwnd,
                     (LPSTR)"ifstream failed reading at target row values!",
                     (LPSTR)"File Problems!",
                     MB_OK | MB_ICONEXCLAMATION );
@@ -1852,7 +1852,7 @@ void Version_6_Load_Individual(ifstream& ifs, CA* target)
         /* DEBUGGING - DDC 3/25/96 */
         if (ifs.fail())
         {
-            MessageBox( target->hwnd,
+            MessageBoxA( target->hwnd,
             (LPSTR)"ifstream failed in reading at Time step ( _dt )!",
             (LPSTR)"File Problems!",
             MB_OK | MB_ICONEXCLAMATION );

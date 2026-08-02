@@ -44,18 +44,18 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
     HWND hCntl;
 //          CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
             hCntl = GetDlgItem( hDlg, RADIUSSTATES_NEW );
-            SendMessage(hCntl, CB_ADDSTRING, CA1_2, (LPARAM) "Radius-1 States-2");
-            SendMessage(hCntl, CB_ADDSTRING, CA1_4, (LPARAM) "Radius-1 States-4");
-            SendMessage(hCntl, CB_ADDSTRING, CA1_8, (LPARAM) "Radius-1 States-8");
-            SendMessage(hCntl, CB_ADDSTRING, CA1_16, (LPARAM) "Radius-1 States-16");
-            SendMessage(hCntl, CB_ADDSTRING, CA2_2, (LPARAM) "Radius-2 States-2");
-            SendMessage(hCntl, CB_ADDSTRING, CA2_4, (LPARAM) "Radius-2 States-4");
-            SendMessage(hCntl, CB_ADDSTRING, CA3_2, (LPARAM) "Radius-3 States-2");
-            SendMessage(hCntl, CB_ADDSTRING, CA3_4, (LPARAM) "Radius-3 States-4");
-            SendMessage(hCntl, CB_ADDSTRING, CA4_2, (LPARAM) "Radius-4 States-2");
-            SendMessage(hCntl, CB_ADDSTRING, CA5_2, (LPARAM) "Radius-5 States-2");
-            SendMessage(hCntl, CB_ADDSTRING, CA6_2, (LPARAM) "Radius-6 States-2");
-            SendMessage(hCntl, CB_ADDSTRING, CA1_256, (LPARAM) "");
+            SendMessageA(hCntl, CB_ADDSTRING, CA1_2, (LPARAM) "Radius-1 States-2");
+            SendMessageA(hCntl, CB_ADDSTRING, CA1_4, (LPARAM) "Radius-1 States-4");
+            SendMessageA(hCntl, CB_ADDSTRING, CA1_8, (LPARAM) "Radius-1 States-8");
+            SendMessageA(hCntl, CB_ADDSTRING, CA1_16, (LPARAM) "Radius-1 States-16");
+            SendMessageA(hCntl, CB_ADDSTRING, CA2_2, (LPARAM) "Radius-2 States-2");
+            SendMessageA(hCntl, CB_ADDSTRING, CA2_4, (LPARAM) "Radius-2 States-4");
+            SendMessageA(hCntl, CB_ADDSTRING, CA3_2, (LPARAM) "Radius-3 States-2");
+            SendMessageA(hCntl, CB_ADDSTRING, CA3_4, (LPARAM) "Radius-3 States-4");
+            SendMessageA(hCntl, CB_ADDSTRING, CA4_2, (LPARAM) "Radius-4 States-2");
+            SendMessageA(hCntl, CB_ADDSTRING, CA5_2, (LPARAM) "Radius-5 States-2");
+            SendMessageA(hCntl, CB_ADDSTRING, CA6_2, (LPARAM) "Radius-6 States-2");
+            SendMessageA(hCntl, CB_ADDSTRING, CA1_256, (LPARAM) "");
             edit_id = 0;
             showparams( hDlg );
             return 0;
@@ -69,10 +69,10 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
     char buf[32];
 
     GetWindowRect(hDlg, &rect);
-    wsprintf((LPSTR)buf,"%i",rect.left);
-    WriteProfileString((LPSTR)szMyAppName,(LPSTR)"DIGITALX",(LPSTR)buf);
-    wsprintf((LPSTR)buf,"%i",rect.top);
-    WriteProfileString((LPSTR)szMyAppName,(LPSTR)"DIGITALY",(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%i",rect.left);
+    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"DIGITALX",(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%i",rect.top);
+    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"DIGITALY",(LPSTR)buf);
 
 }
 
@@ -182,7 +182,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
 
         case IDOK:
             // lambda is NOT a tweakParam; therefore, "if" statement is necessary
-            GetWindowText (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
+            GetWindowTextA (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
             num = atof (tmpStr);
             if (focusflag)
             {
@@ -284,7 +284,7 @@ void showparams( HWND hDlg )
 {
     /* Because we are using an edit text box, care needs to be taken
         to prevent an  endless regress of showparams calling showparams which
-        calls showparams, etc.  The SetWindowText call used inside textLabel
+        calls showparams, etc.  The SetWindowTextA call used inside textLabel
         and realLabel to show the current value of an edit params  generates
         a call to WM_COMMAND with a *_TYPE identifier of the edit box in wParam,
         and this sets edit_id to *_TYPE and sends a call to showparams() at the

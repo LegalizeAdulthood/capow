@@ -23,7 +23,7 @@ extern BOOL load_save_cells_flag;
 
 static  char szFileName[MAXFILENAME];
 static  char szFileTitle[MAXFILENAME];
-static  OPENFILENAME ofn;
+static  OPENFILENAMEA ofn;
 
     //CA and CAS file load save
 static  char szFilterSpecCA [128] =
@@ -55,8 +55,8 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     }
     ofn.lpstrFile     = szFileName;
 
-    // fill in non-variant fields of OPENFILENAME struct.
-    ofn.lStructSize       = sizeof(OPENFILENAME);
+    // fill in non-variant fields of OPENFILENAMEA struct.
+    ofn.lStructSize       = sizeof(OPENFILENAMEA);
     ofn.hwndOwner         = hDlg;
     ofn.lpstrCustomFilter = NULL;
     ofn.nMaxCustFilter    = 0;
@@ -108,7 +108,7 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
         case IDOK:  //Save button
             if (focusflag) //save focus
             {
-                if( GetSaveFileName((LPOPENFILENAME)&ofn) )
+                if( GetSaveFileNameA((LPOPENFILENAMEA)&ofn) )
                 {
                         SetCursor(LoadCursor(NULL, IDC_WAIT)); // Wait, I'm working!
                         calife_list->Saveindividual(szFileName,calife_list->FocusCA());
@@ -117,7 +117,7 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
             }
             else  //save all
             {
-                if( GetSaveFileName((LPOPENFILENAME)&ofn) )
+                if( GetSaveFileNameA((LPOPENFILENAMEA)&ofn) )
                 {
                         SetCursor(LoadCursor(NULL, IDC_WAIT)); // Wait, I'm working!
                         calife_list->Saveall(szFileName);

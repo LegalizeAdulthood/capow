@@ -102,13 +102,13 @@ void createEdit( )
         AdditiveTweakParam *temp = (AdditiveTweakParam *)
                                                   activeCA->userParamAdd[count];
         LPCSTR msg = temp->Label();
-        HWND hwnd = CreateWindow("static", msg, WS_CHILD | WS_VISIBLE | SS_RIGHT,
+        HWND hwnd = CreateWindowA("static", msg, WS_CHILD | WS_VISIBLE | SS_RIGHT,
                                  0, 0, 0, 0, hUserDialog, NULL, hInst, NULL);
         userAddHLabel.push_back(hwnd);
         SendMessage(hwnd, WM_SETFONT, (WPARAM) hEditFont, 0L);
 
         HWND upDown;
-        hwnd = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 0, 0, 0, 0, hUserDialog,
+        hwnd = CreateWindowA("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 0, 0, 0, 0, hUserDialog,
             (HMENU) (INT_PTR) (count + USEREDITCODEBASE), hInst, NULL);
         upDown = CreateUpDownControl(WS_CHILD | WS_BORDER | WS_VISIBLE |
                          UDS_ALIGNRIGHT, 0, 0, 0, 0, hUserDialog,
@@ -131,7 +131,7 @@ void createEdit( )
         char *pValueText = valueText;
         Real value = activeCA->userParamAdd[count]->Val();
         sprintf(pValueText, "%5.5f", value);
-        SetWindowText(hwnd, valueText);
+        SetWindowTextA(hwnd, valueText);
     }
 }
 
@@ -194,16 +194,16 @@ void createButton()
 // Create groupbox, button, radio button.
 //
 {
-    groupBox = CreateWindow("button", "Change Which?", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 0, 0, 0, 0, hUserDialog,
+    groupBox = CreateWindowA("button", "Change Which?", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 0, 0, 0, 0, hUserDialog,
         (HMENU) (INT_PTR) (BUTTONIDBASE), hInst, NULL);
     SendMessage(groupBox, WM_SETFONT, (WPARAM) hEditFont, 0L);
-    radioChangeAll = CreateWindow("button", "Change All", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 0, 0, 0, 0,
+    radioChangeAll = CreateWindowA("button", "Change All", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 0, 0, 0, 0,
         hUserDialog, (HMENU) (INT_PTR) (BUTTONIDBASE + 1), hInst, NULL);
     SendMessage(radioChangeAll, WM_SETFONT, (WPARAM) hEditFont, 0L);
-    radioChangeFocus = CreateWindow("button", "Change Focus", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 0, 0, 0, 0,
+    radioChangeFocus = CreateWindowA("button", "Change Focus", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 0, 0, 0, 0,
         hUserDialog, (HMENU) (INT_PTR) (BUTTONIDBASE + 2), hInst, NULL);
     SendMessage(radioChangeFocus, WM_SETFONT, (WPARAM) hEditFont, 0L);
-    randomButton = CreateWindow("button", "Mutate Params", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
+    randomButton = CreateWindowA("button", "Mutate Params", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
         hUserDialog, (HMENU) (INT_PTR) (BUTTONIDBASE + 3), hInst, NULL);
     SendMessage(randomButton, WM_SETFONT, (WPARAM) hEditFont, 0L);
     // Save old window callback procedure of edit control windows
@@ -255,12 +255,12 @@ void recreateUserDialog()
 
     CA *activeCA = calife_list->FocusCA();
 
-    TEXTMETRIC  tm;
+    TEXTMETRICA  tm;
     HDC hDC         = GetDC(hUserDialog);
     hEditFont       = (HFONT) GetStockObject(ANSI_VAR_FONT);
     HFONT oldHFont  = (HFONT) SelectObject(hDC, hEditFont);
 
-    GetTextMetrics(hDC, &tm);
+    GetTextMetricsA(hDC, &tm);
 
     // Calculate the largest width
     labelWidth = MINLABELWIDTH;
@@ -269,9 +269,9 @@ void recreateUserDialog()
         AdditiveTweakParam *temp = (AdditiveTweakParam *)
                                             activeCA->userParamAdd[count1];
         LPCSTR msg = temp->Label();
-        int t1 = lstrlen(msg);
+        int t1 = lstrlenA(msg);
         SIZE size;
-        GetTextExtentPoint32(hDC, msg, t1, &size);
+        GetTextExtentPoint32A(hDC, msg, t1, &size);
         if (size.cx+tm.tmAveCharWidth > labelWidth)
             labelWidth = size.cx + tm.tmAveCharWidth;
     }
@@ -311,12 +311,12 @@ void createUserDialog()
     CA *activeCA = calife_list->FocusCA();
 
     // Get system measurement and calcute some parameter
-    TEXTMETRIC  tm;
+    TEXTMETRICA  tm;
     HDC hDC         =  GetDC(hUserDialog);
     hEditFont       = (HFONT) GetStockObject(ANSI_VAR_FONT);
     HFONT oldHFont  = (HFONT) SelectObject(hDC, hEditFont);
 
-    GetTextMetrics(hDC, &tm);
+    GetTextMetricsA(hDC, &tm);
 
     // Calculate the largest width of label
     labelWidth = MINLABELWIDTH;
@@ -325,9 +325,9 @@ void createUserDialog()
         AdditiveTweakParam *temp = (AdditiveTweakParam *)
                                             activeCA->userParamAdd[count1];
         LPCSTR msg = temp->Label();
-        int t1 = lstrlen(msg);
+        int t1 = lstrlenA(msg);
         SIZE size;
-        GetTextExtentPoint32(hDC, msg, t1, &size);
+        GetTextExtentPoint32A(hDC, msg, t1, &size);
         if (size.cx + tm.tmAveCharWidth > labelWidth)
             labelWidth = size.cx + tm.tmAveCharWidth;
     }
@@ -415,18 +415,18 @@ void createUserDialog()
         oldWidth += vscrollWidth;   // if Vertical scroll bar added,
                                     //   add the extra width of the scroll bar
     if (oldX == -1) // Use default x, y or old value
-        hUserDialog = CreateWindow(userDialogName, userDialogName,
+        hUserDialog = CreateWindowA(userDialogName, userDialogName,
                     WS_POPUPWINDOW | WS_VISIBLE |
                     WS_CAPTION | WS_THICKFRAME, CW_USEDEFAULT, CW_USEDEFAULT,
                     oldWidth, oldHeight, masterhwnd, NULL, hInst, NULL);
-    else hUserDialog = CreateWindow(userDialogName, userDialogName,
+    else hUserDialog = CreateWindowA(userDialogName, userDialogName,
                     WS_POPUPWINDOW | WS_VISIBLE |
                     WS_CAPTION | WS_THICKFRAME, oldX, oldY,
                     oldWidth, oldHeight, masterhwnd, NULL, hInst, NULL);
     // Create vertical scroll bar
     RECT rect;
     GetClientRect(hUserDialog, &rect);
-    hScrollBar = CreateWindow("Scrollbar", NULL,
+    hScrollBar = CreateWindowA("Scrollbar", NULL,
                     WS_CHILD | WS_VISIBLE | SBS_VERT | // WS_TABSTOP |
                     SBS_RIGHTALIGN | SBS_TOPALIGN,
                     rect.right - vscrollWidth - STARTX, STARTY, vscrollWidth,
@@ -574,7 +574,7 @@ static LRESULT CALLBACK EditProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                 }
                 break;
         }
-        return CallWindowProc((WNDPROC) randomButtonOld,
+        return CallWindowProcA((WNDPROC) randomButtonOld,
                               hwnd, message, wParam, lParam);
     }
     else
@@ -599,7 +599,7 @@ static LRESULT CALLBACK EditProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                 break;
         }
         if (n < userAddHOldProc.size())
-            return CallWindowProc( (WNDPROC) userAddHOldProc[n], hwnd, message,
+            return CallWindowProcA( (WNDPROC) userAddHOldProc[n], hwnd, message,
                                    wParam, lParam);
         else return 0;
     }
@@ -672,7 +672,7 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
                   {  //2017 had activeCA at start of next line which seems wrong..  Changed to curCA.
                       curCA->RandomizeTweakParamPercent(curCA->userParamAdd[index], curCA->userParamAdd[index]->Val(), clampedvariance);
                       sprintf(valueText, "%5.5f", curCA->userParamAdd[index]->Val());
-                      SetWindowText(userAddHEdit[index], valueText);
+                      SetWindowTextA(userAddHEdit[index], valueText);
                   }
           }
         }
@@ -695,7 +695,7 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
             char *pValueText = valueText;
 
             // Set to new value
-            GetWindowText(hwndCtl, pValueText, 79);
+            GetWindowTextA(hwndCtl, pValueText, 79);
             Real value = atof(valueText);
             TweakParam *temp2 = activeCA->userParamAdd[id-USEREDITCODEBASE];
             if (value == 0 && (strcmp(valueText, "0") != 0))
@@ -706,7 +706,7 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
             value = temp2->Val();   // get the actual value
             sprintf(pValueText, "%5.5f", value);
             // updown the actual value to edit box
-            SetWindowText(hwndCtl, valueText);
+            SetWindowTextA(hwndCtl, valueText);
             if (changeAll)
                 for(int count = 0; count < calife_list->Count(); count++)
                 {
@@ -826,7 +826,7 @@ BOOL HandleUpDownControlUserParam(HWND hDlg, UINT message, WPARAM wParam,
             char *pValueText = valueText;
 
             // Set to new value
-            GetWindowText(userAddHEdit[count], pValueText, 79);
+            GetWindowTextA(userAddHEdit[count], pValueText, 79);
             Real value = atof(valueText);
             if (pnmud->iDelta > 0)
                 // Click up arrow
@@ -845,7 +845,7 @@ BOOL HandleUpDownControlUserParam(HWND hDlg, UINT message, WPARAM wParam,
 
             // Update the actual value of the edit box control
             sprintf(pValueText, "%5.5f", value);
-            SetWindowText(userAddHEdit[count], valueText);
+            SetWindowTextA(userAddHEdit[count], valueText);
             break;
         }
     // We must return true so that the position remain the same value
@@ -880,14 +880,14 @@ void MyWnd_LBUTTONDBCLK(HWND hwnd, BOOL fDoubleClick, int x, int y,
             char valueText[80];
             char *pValueText = valueText;
             // Set to new value
-            GetWindowText(userAddHEdit[index], pValueText, 79);
+            GetWindowTextA(userAddHEdit[index], pValueText, 79);
             Real value = atof(valueText);
 
             curCA ->RandomizeTweakParamPercent(curCA ->userParamAdd[index],
                                 curCA ->userParamAdd[index]->Val(),
                                 curCA ->userParamAdd[variancePost]->Val());
             sprintf(valueText, "%5.5f", curCA ->userParamAdd[index]->Val());
-            SetWindowText(userAddHEdit[index], valueText);
+            SetWindowTextA(userAddHEdit[index], valueText);
         }
       }
     }
@@ -937,6 +937,6 @@ LRESULT CALLBACK userDialogProc(HWND hDlg, UINT message, WPARAM wParam,
             return 0;
           }
         default:
-            return DefWindowProc (hDlg, message, wParam, lParam) ;
+            return DefWindowProcA (hDlg, message, wParam, lParam) ;
     }
 }

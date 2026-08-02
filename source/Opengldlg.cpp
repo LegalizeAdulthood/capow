@@ -32,50 +32,50 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 //  oldtype = 0; //RR 2007 don't use it
 
     hCntl = GetDlgItem(hDlg, IDC_OPENGL_GRAPHTYPES);
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "2D Color");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Sheet");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Torus");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "2D Color");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Sheet");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Torus");
 
     hCntl= GetDlgItem(hDlg, IDC_OPENGL_SURFACE);
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Dots");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Color Dots");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Lines");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Color Lines");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Facets");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Smooth");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Dots");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Color Dots");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Lines");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Color Lines");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Facets");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Smooth");
 
     hCntl = GetDlgItem(hDlg, IDC_OPENGL_MATERIAL);
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Multicolor");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Unlit Multicolor");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Emerald");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Jade");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Obsidian");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Pearl");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Ruby");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Turquoise");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Brass");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Bronze");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Chrome");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Copper");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Gold");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Silver");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Black Plastic");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Cyan Plastic");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Green Plastic");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Red Plastic");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "White Plastic");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Yellow Plastic");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Black Rubber");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Cyan Rubber");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Green Rubber");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Red Rubber");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "White Rubber");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Yellow Rubber");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Multicolor");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Unlit Multicolor");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Emerald");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Jade");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Obsidian");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Pearl");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Ruby");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Turquoise");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Brass");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Bronze");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Chrome");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Copper");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Gold");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Silver");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Black Plastic");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Cyan Plastic");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Green Plastic");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Red Plastic");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "White Plastic");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Yellow Plastic");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Black Rubber");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Cyan Rubber");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Green Rubber");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Red Rubber");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "White Rubber");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Yellow Rubber");
 
     hCntl = GetDlgItem(hDlg, IDC_OPENGL_RESOLUTION);
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "High");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Medium");
-    SendMessage(hCntl, CB_ADDSTRING, 0, (LPARAM) "Low");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "High");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Medium");
+    SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Low");
 
     ShowOpenGLParams( hDlg);
     //hCtrlBlock = GetDlgItem(hDlg, IDD_PROGICON);
@@ -341,10 +341,10 @@ static void MyWnd_MOVE(HWND hDlg,int x, int y)
     char buf[32];
 
     GetWindowRect(hDlg, &rect);
-    wsprintf((LPSTR)buf,"%i",rect.left);
-    WriteProfileString((LPSTR)szMyAppName,(LPSTR)"CYCLEX",(LPSTR)buf);
-    wsprintf((LPSTR)buf,"%i",rect.top);
-    WriteProfileString((LPSTR)szMyAppName,(LPSTR)"CYCLEY",(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%i",rect.left);
+    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"CYCLEX",(LPSTR)buf);
+    wsprintfA((LPSTR)buf,"%i",rect.top);
+    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"CYCLEY",(LPSTR)buf);
 
     UpdateWindow(hDlg);  //Send a WM_PAINT message to dialog
 
