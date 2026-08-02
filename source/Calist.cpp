@@ -956,7 +956,7 @@ void CAlist::Setviewmode(int newmode)
             list[i]->Setviewmode(newmode);
 }
 
-void CAlist::RandomizeCount(UINT randflag) //******Rong Liu*********
+void CAlist::RandomizeCount(UINT randflag)
 {
     int i;
     char szBuffer[4];
@@ -1150,7 +1150,7 @@ void CAlist::Randomize(UINT randflag)
             list[i]->RandomTouch_CA();
         list[i]->Resetscore();
     }
-    if(randflag & RF_COLOR)   //Rong Liu
+    if(randflag & RF_COLOR)
         SetColors();
     /*This last thing is needed to get the split window views right,
     without a messed up little lip in the bottom of the scroll area.

@@ -838,9 +838,8 @@ void CA::Settype(int newtype)
         Seed(); // Need to seed with correct values & reposition row pointers!
         Setcolortable();
     }
-    GetCAStyleName ( CA_STYLE_NAME ); //Andrew
-   // l.andrews 11/2/01 added test for null handle to next line
-    if ( hwndStatusBar != 0 ) Status_SetText(hwndStatusBar, 1, 0, CA_STYLE_NAME ); //Andrew
+    GetCAStyleName ( CA_STYLE_NAME );
+    if ( hwndStatusBar != 0 ) Status_SetText(hwndStatusBar, 1, 0, CA_STYLE_NAME );
 
 
 
@@ -1517,7 +1516,6 @@ So tweak_strength of 0.01 means change it by at most 1%, and sometimes you'd wan
 most a tenth of a percent.  Randomsignreal()*tweak_strength is a random number between -tweak_strength
 and tweak_strength.
 */
-//2017 Version
     Real actual_tweak_strength = Randomsignreal()*tweak_strength;
     t->SetVal(old_val + actual_tweak_strength*old_val, this);
 //And you're done.

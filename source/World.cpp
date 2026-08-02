@@ -63,7 +63,6 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     boxindex_to_type[boxindex] = CA_WAVE_2D;
     boxindex = (int) SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "2D Heat");
     boxindex_to_type[boxindex] = CA_HEAT_2D;
-//JY ------- 10/12
     showparams(hDlg);
     return 0; //if successful
 }

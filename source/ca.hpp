@@ -14,7 +14,7 @@
 using namespace std;
 #include "types.h" //To include windows.h in a standard way
 #include "resource.h"
-#include <vector> //Threw errors 2017, changed
+#include <vector>
 /* This is the STL header.  Because Microsoft makes it hard to
 use STL and no longer automatically installs the STL files, we supply the necessary
 ones with our source code.  They are these *.H files (no *.C or *.CPP files):
@@ -107,7 +107,7 @@ RR 2007, this doesn't seem to work anymore, that is, if I make an ACTIVE.CAS,
 then the program hangs on startup.*/
 
 //=================INCLUDES==================================
-#include <fstream> //For iostream //changed to not have .h 2017
+#include <fstream> //For iostream
 #include <iomanip>
 #include "Bitmap.hpp" //For WindowBitmap class
 #include "Tweak.hpp"   //For TweakParam class
@@ -337,7 +337,7 @@ get rid of a timer */
 #define RF_3DFLAT       0x00010000
 #define RF_3DBOTH       0x00020000
 #define RF_FILE     0x00040000
-#define RF_START (RF_BOTHD | RF_BOTHVAL | RF_BOTHVW | RF_DING | RF_COUNT1 | RF_COLOR | RF_3DBOTH) //2017
+#define RF_START (RF_BOTHD | RF_BOTHVAL | RF_BOTHVW | RF_DING | RF_COUNT1 | RF_COLOR | RF_3DBOTH)
     //Determines default method to randomize in IDM_RANDOMIZE,and the configure.cpp and sets fRandFlags
     //in AUTORAND.CPP
 //---------------------START VALUE DEFINES------------
@@ -553,10 +553,10 @@ class CA
     friend ofstream& operator<<(ofstream& ofs, CA* target);
     friend ifstream& operator>>(ifstream& ifs, CA* target);
     friend void Version_123_Load_Individual(ifstream& ifs, CA* target,
-        int version); // DDC 4-25-96
-    friend void Version_45_Load_Individual(ifstream& ifs, CA* target); // DDC 4-25-96
-    friend void Version_6_Load_Individual(ifstream& ifs, CA* target); // DDC 4-25-96
-    friend BOOL Version_7_Load_Individual(ifstream& ifs, CA* target); // DDC 4-25-96
+        int version);
+    friend void Version_45_Load_Individual(ifstream& ifs, CA* target);
+    friend void Version_6_Load_Individual(ifstream& ifs, CA* target);
+    friend BOOL Version_7_Load_Individual(ifstream& ifs, CA* target);
     friend BOOL inBinary(ifstream& ifs, CA* target);
     friend BOOL outBinary(ofstream& ofs, CA* target);
 private:
@@ -614,7 +614,7 @@ private:
     class Generator *generator_ptr; /*AUTOSET by CA::CA.  TODO, make
         this a list so you can have multiple genearators.*/
     public:
-    GeneratorList generatorlist;   //mike
+    GeneratorList generatorlist;
     private:
     //---------------------CA Evolution Private-----------------
     Real fitness; /* AUTOSET. lies between 0 and 1, is typically set to
@@ -931,7 +931,7 @@ public:
     void Setoldcolor();
         /* Try to get the good old 16 values of Rudy's color table */
     void SetSamecolortable(COLORREF *color, int bc);
-    void SetColors(); // 2-24-96 DDC
+    void SetColors();
     void Change_band_count(int updown);
     void Set_monochromeflag(int onoff);
     void Set_band_count(Real band);
@@ -1336,7 +1336,7 @@ public:
     void SetDefaultLogPalette();
     void SetRandomLogPalette(COLORREF *_anchor_color, int band_count);
     void SetMonochromeLogPalette();
-   void SetColors(); //NEW 3-1-96 DDC
+   void SetColors();
     void Setcolortable();
 //------------------ CAlist TweakParam mutator------------------------
     void BumpCATweakParam (int tweakParamType, int updown);
