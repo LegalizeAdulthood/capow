@@ -62,14 +62,18 @@ if(CAPOW_ENABLE_ALPAKA)
         AlpakaBuffers.cpp
         AlpakaHeat2D.hpp
         AlpakaHeat2D.cpp
+        AlpakaHeat2DLive.hpp
+        AlpakaHeat2DLive.cpp
         AlpakaSyntheticHeat.hpp
         AlpakaSyntheticHeat.cpp
         CapowRules.hpp
         AlpakaUtilities.hpp
     )
     target_link_libraries(CapowAlpaka PRIVATE alpaka::alpaka)
+    target_link_libraries(CapowAlpaka PUBLIC opengl32.lib)
     target_compile_definitions(CapowAlpaka PUBLIC CAPOW_ENABLE_ALPAKA=1)
     target_folder(CapowAlpaka "Libraries")
+    target_link_libraries(CapowCore PUBLIC CapowAlpaka)
     target_link_libraries(CapowGui PUBLIC CapowAlpaka)
 endif()
 

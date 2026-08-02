@@ -617,6 +617,31 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             TrackToolbarButtonMenu(hwnd, hwndActionToolbar, SEEDMENU_BUTTON, hSeedMenu);
         break;
 
+        case IDM_BACKEND_CPU:
+#if defined(CAPOW_ENABLE_ALPAKA)
+            capow::GetAlpakaManager().SetBackend(capow::ALPAKA_BACKEND_CPU);
+#else
+            MessageBoxA(hwnd, "CPU backend is active.", "Backend",
+                MB_OK | MB_ICONINFORMATION);
+#endif
+            break;
+
+        case IDM_BACKEND_GPU:
+#if defined(CAPOW_ENABLE_ALPAKA)
+            {
+            capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
+            if (backendManager.IsGpuAvailable())
+                backendManager.SetBackend(capow::ALPAKA_BACKEND_GPU);
+            else
+                MessageBoxA(hwnd, backendManager.GetAvailabilityMessage(),
+                    "GPU Backend", MB_OK | MB_ICONINFORMATION);
+            break;
+            }
+#else
+            MessageBoxA(hwnd, "GPU backend is not compiled.", "GPU Backend",
+                MB_OK | MB_ICONINFORMATION);
+            break;
+#endif
 
         // For View Drop down Menu... Call ViewProc to handle it
         // Call to ViewProc used to avoid duplicate code
@@ -1631,6 +1656,26 @@ static void MyWnd_LBUTTONUP(HWND hwnd, int x, int y, UINT flags)
 
 static void MyWnd_INITMENUPOPUP(HWND hwnd,  HMENU menu, UINT menuindex, BOOL x )
 {
+    if (GetMenuState(menu, IDM_BACKEND_CPU, MF_BYCOMMAND) != (UINT)-1)
+    {
+#if defined(CAPOW_ENABLE_ALPAKA)
+        capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
+        const bool gpuBackend =
+            backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU;
+        CheckMenuItem(menu, IDM_BACKEND_CPU, MF_BYCOMMAND |
+            (gpuBackend?MF_UNCHECKED:MF_CHECKED));
+        CheckMenuItem(menu, IDM_BACKEND_GPU, MF_BYCOMMAND |
+            (gpuBackend?MF_CHECKED:MF_UNCHECKED));
+        EnableMenuItem(menu, IDM_BACKEND_GPU, MF_BYCOMMAND |
+            (backendManager.IsGpuAvailable()?MF_ENABLED:MF_GRAYED));
+#else
+        CheckMenuItem(menu, IDM_BACKEND_CPU, MF_BYCOMMAND | MF_CHECKED);
+        CheckMenuItem(menu, IDM_BACKEND_GPU, MF_BYCOMMAND | MF_UNCHECKED);
+        EnableMenuItem(menu, IDM_BACKEND_GPU, MF_BYCOMMAND | MF_GRAYED);
+#endif
+        return;
+    }
+
     switch ( menuindex )
     {
         case 0:         // File Menu
