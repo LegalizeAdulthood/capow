@@ -6,7 +6,6 @@
 
     FILE DESCRIPTION:   This file contains CA class function defintions.
 
-    UPDATE LOG:         9-26-97
 *******************************************************************************/
 //====================INCLUDES===============
 #include "ca.hpp"

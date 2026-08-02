@@ -7,8 +7,6 @@
     FILE DESCRIPTION:   This file contains functions and data to control
                         the cell dialog box and its features.
 
-    UPDATE LOG:     9-29-97   Code Commented
-
 *******************************************************************************/
 //====================INCLUDES===============
 #include "ca.hpp"

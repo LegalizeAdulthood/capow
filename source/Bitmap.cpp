@@ -7,8 +7,6 @@
     FILE DESCRIPTION:   This file contains functions to implement our
                         bitmap class.
 
-    UPDATE LOG:
-
 *******************************************************************************/
 //====================INCLUDES===============
 

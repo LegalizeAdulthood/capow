@@ -7,7 +7,6 @@
     FILE DESCRIPTION:   This file contains additional CA class
                         function defintions.
 
-    UPDATE LOG:         9-26-97
 *******************************************************************************/
 //====================INCLUDES===============
 

@@ -6,7 +6,6 @@
 
     FILE DESCRIPTION:   This file contains CA class definitions.
 
-    UPDATE LOG:         9-26-97
 *******************************************************************************/
 
 //=================COMPILER SWITCHES==================================

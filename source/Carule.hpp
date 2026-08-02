@@ -7,8 +7,6 @@
     FILE DESCRIPTION:   This file contains defintions and data to control
                         carule creation.
 
-    UPDATE LOG:
-
 *******************************************************************************/
 //====================INCLUDES===============
 

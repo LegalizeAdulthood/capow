@@ -7,7 +7,6 @@
     FILE DESCRIPTION:   This file contains functions and data to control
                         the cycle dialog box and its features.
 
-    UPDATE LOG:
 *******************************************************************************/
 
 //====================INCLUDES===============

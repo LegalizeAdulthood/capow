@@ -7,10 +7,6 @@
     FILE DESCRIPTION:   This file contains functions and data to control
                         the analog dialog box and its features.
 
-    UPDATE LOG:
-                    9-29-97  Rewrote the Dialog Enable/Disable rountine.
-                             Eliminated Processing of WM_RBUTTONDOWN, WM_MOVE
-                             Removed MyWnd_RBUTTON, and MyWnd_Move
 *******************************************************************************/
 //====================INCLUDES===============
 

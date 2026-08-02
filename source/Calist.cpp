@@ -8,7 +8,6 @@
 
     FILE DESCRIPTION:   This file contains CALIST class function defintions.
 
-    UPDATE LOG:         9-26-97
 *******************************************************************************/
 //====================INCLUDES===============
 

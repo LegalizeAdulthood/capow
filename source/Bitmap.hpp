@@ -7,8 +7,6 @@
     FILE DESCRIPTION:   This file contains class definitions for
                         Bitmap class.
 
-    UPDATE LOG:
-
 *******************************************************************************/
 
 

@@ -7,8 +7,6 @@
     FILE DESCRIPTION:   This file contains functions and data to control
                         the analog dialog box and its features.
 
-    UPDATE LOG:
-                    9-29-97  Commented Code
 *******************************************************************************/
 //====================INCLUDES===============
 

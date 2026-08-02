@@ -7,8 +7,6 @@
     FILE DESCRIPTION:   This file contains functions and data for
                         the implementation of OpenGL 3D rendering.
 
-    UPDATE LOG:
-
 *******************************************************************************/
 //====================INCLUDES===============
 

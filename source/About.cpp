@@ -6,8 +6,6 @@
 
     FILE DESCRIPTION:   Provides an about box for CAPOW!
 
-    UPDATE LOG:
-
 *******************************************************************************/
 //====================INCLUDES===============
 
