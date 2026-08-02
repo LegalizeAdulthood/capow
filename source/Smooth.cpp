@@ -12,7 +12,7 @@ void CA::Smooth(int l, int c, int r)
         wave_source_row[c].intensity +
         wave_source_row[r].intensity) / 3.0;
     wave_target_row[c].velocity = (wave_target_row[c].intensity -
-        wave_source_row[c].intensity)/_dt.Val(); //Calcualte just for graphing.
+        wave_source_row[c].intensity)/_dt.Val(); //Calculate just for graphing.
 }
 
 void CA::SmoothAverageStretch1D()

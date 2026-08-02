@@ -319,7 +319,7 @@ void showparams( HWND hDlg )
 //********************************************************************************
 // enable_active_buttons
 //
-// Based on the CA_TYPE this function will enable/disalbe various controls
+// Based on the CA_TYPE this function will enable/disable various controls
 // in the dialog.
 
 

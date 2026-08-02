@@ -49,7 +49,7 @@ could be used in the CAlist::BumpTweakParam call like in analog.cpp.*/
 #define MAX_MAX_VALPERCENT (Real) 2.0
 #define MIN_MAXVELOCITY (Real) 1.0 //2017
 #define MAX_MAXVELOCITY (Real) 1000.0  //2017 Try MUCH bigger, as View|Velocity has been
-//clamping out wiht all red screen for some rulse.  Was 1000.0. all red.  TOO big 1000000.0 gives all red.
+//clamping out with all red screen for some rules.  Was 1000.0. all red.  TOO big 1000000.0 gives all red.
 //For some reason 100000.0 seems to make about half of the 1D wave CAs show decent patterns.
 //But this seems stupidly high. Go back and set the velocity for these waves more carefully, and then 1000.0 is okay.
 #define MIN_FRICTION    (Real) 0.0

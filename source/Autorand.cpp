@@ -27,7 +27,7 @@ void setPerformanceTimerCycle(int millisecs);
 
 //=================The Timer Function=========
  void setPerformanceTimerCycle(int millisecs)
-{ /* If this is succssful, timer_handle is non-zero.  I *think* that this value
+{ /* If this is successful, timer_handle is non-zero.  I *think* that this value
 is in fact equal to timer_ID.  Never use 0 for a timer_ID or there could be
 be confusion. */
         /*When MASTERTIMER is on, setTimerCycle changes the nature of the update_timer_handle
@@ -50,14 +50,14 @@ be confusion. */
 }
 
 void setTimerCycle(HWND hwnd, int &timer_handle, int timer_ID, int millisecs)
-{ /* If this is succssful, timer_handle is non-zero.  I *think* that this value
+{ /* If this is successful, timer_handle is non-zero.  I *think* that this value
 is in fact equal to timer_ID.  Never use 0 for a timer_ID or there could be
 be confusion. */
         /*When MASTERTIMER is on, setTimerCycle changes the nature of the update_timer_handle
         timer.  When MASTERTIMER is off, setTimerCycle instead changes the
         update_ticks_per_cycle variable used in the PeekMessage loop. */
     /*Now go ahead and set the timer anyway.  You actually need it if (a) the
-    peformer_counter_present is FALSE or if (b) you are using the setTimerCycle
+    performance_counter_present is FALSE or if (b) you are using the setTimerCycle
     for a timer you actually need, such as to drive a screensaver app. */
     if (timer_handle)
     {
@@ -117,7 +117,7 @@ and use them in the configOK as well. */
 /*
 Here is the sample code I found in the MSDN Knowledge Base entry called
 "Moving your Game to Windows".  I'm going to use this code
-to vary the program speed by letting replacing UDPATE_TICKS_MS
+to vary the program speed by letting replacing UPDATE_TICKS_MS
 with a user-adjustable update_millisecs_per_cycle.
 
 #define UPDATE_TICKS_MS 100    // milliseconds per world update

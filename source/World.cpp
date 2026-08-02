@@ -289,7 +289,7 @@ from the combo box */
 /* For some reason this line was getting hit three times when I select a
     new type CA_USER*/
         if (comboint == CA_USER)
-        {   // Care must be taken becuase user can't change focus or all
+        {   // Care must be taken because user can't change focus or all
 // ******************** // If LoadUserRule, it will handle it after user selected the
                         // file name
             if (!calife_list->LoadUserRule(masterhwnd, focusflag))

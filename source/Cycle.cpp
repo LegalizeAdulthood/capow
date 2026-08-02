@@ -220,7 +220,7 @@ static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
 BOOL HandleUpDownControlCycle(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 //
 // Up down control work as follow:
-//      alway remain at 50
+//      always remain at 50
 //      the value or variable change only.
 //
 {

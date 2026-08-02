@@ -645,7 +645,7 @@ BOOL CAlist::Loadall7(char* filename, BOOL startup)
     ifs >> dummybuf >> dummybuf >> dummybuf >> uiread; //viewmode;
     // "\n Show velocity is %"
     ifs.get();  // read off eoln
-    //a workaround here becuase showveloity was moved from CAlist to CA
+    //a workaround here because showvelocity was moved from CAlist to CA
 //  int dummyshowvelocity;
  // ifs >> dummybuf >> dummybuf >> dummybuf >> dummyshowvelocity;
 //  Setshowvelocity(dummyshowvelocity, 0); //0 means set as if with
@@ -798,7 +798,7 @@ void Version_123_Load_Individual(ifstream& ifs, CA* target, int version)
     }
 
     if (version == 1)
-        target->Setoldcolor();          // FILEVERSTION 1 doesn't save the color table
+        target->Setoldcolor();          // FILEVERSION 1 doesn't save the color table
 
     if (version == 2)
     {       //       scan "\nThe color table with Red,Green,Blue values follows:"

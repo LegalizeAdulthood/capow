@@ -78,7 +78,7 @@ an interesting effect like an ocean edge.  See CA::SetWrapFlag.*/
 varying parameters between neighboring cells.*/
 
 #define FAST_ENTROPY
-/* This means to use a faster formulat in CA::Entropy*/
+/* This means to use a faster formula in CA::Entropy*/
 
 //#define ONE_AT_A_TIME
 /*Used in CAlist::Update_and_Show.  This make a faster response to the
@@ -100,7 +100,7 @@ blocks that do the same thing, so the "old" locate should have this code.
 RR 5/20/97*/
 
 //#define SAVE_QUERY
-/* Whether to ask user whether to save current experiement in WM_CLOSE */
+/* Whether to ask user whether to save current experiment in WM_CLOSE */
 
 //#define LOAD_ACTIVE_CAS
 /*Switch Whether to try and load ACTIVE.CAS at startup.  (ACTIVE.CAS, has to live in same dir as the .EXE)
@@ -140,7 +140,7 @@ inline BOOL RealClampAndTell(Real &x, Real lo, Real hi)
 inline-ing it*/
 inline void WRAP(Real &vx, Real vlo, Real vhi)
  //  {if (vx<vlo){vx = vlo;return;} if (vx>vhi)vx = vhi;return;}
-{   //assyne vl0 = -vhi, and vhi > 0.
+{   //assume vl0 = -vhi, and vhi > 0.
     if (vx<vlo)
     {
         if (vx < vlo + vlo)    //vlo is negative
@@ -461,7 +461,7 @@ private:
     Real velocity;
     Real time; /* ticks of time increment in timestep of myca.  At
         present (Rudy November 7, 1994) we are using velocity_
-        mulitplier for the timestep. */
+        multiplier for the timestep. */
     float omega;
     float percent_max_intensity;
     float phase;
@@ -766,7 +766,7 @@ private:
     BOOL _stretch_lasttime;//AUTOSET.
     double _stretch_cell_weight;//AUTOSET.
     BOOL _dx_lock; /* LOADSAVE. Whether or not user can change _dx to value
-         other than 2.0 * _dt.  TRRE means no other vals, FALSE means
+         other than 2.0 * _dt.  TRUE means no other vals, FALSE means
            yes you can.*/
     int showmode;  /*LOADSAVE.  This determines whether you show
         all the cells or just every other cell.*/
@@ -804,8 +804,8 @@ private:
 //---------------CA Wave 2D private-----------------------------------
     int horz_count_2D, vert_count_2D; /*LOADSAVE.  TODO as with
         the 1D horz_count, these should be forced in by making the
-          window the right size.  ACtually you don't need to change
-             the windwo size if you use stretchblt.*/
+          window the right size.  Actually you don't need to change
+             the window size if you use stretchblt.*/
     int maxx_2D, maxy_2D; /* LOADSAVE.  These are set according to
         available memory for the buffer.  At present we AUTOSET them,
           but eventually it would be better to allocate.  If in Locate
@@ -1181,7 +1181,7 @@ public:
         the start of mom's lookup.*/
     void Entropy();
         /* Use freqlookup to compute the entropy if the entropyflag is
-        on.  This is called everytime that cellcount passes 64K.  The
+        on.  This is called every time that cellcount passes 64K.  The
         fitness is set according to the entropy compared to
         the target_entropy.*/
     void Resetfreq();

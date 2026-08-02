@@ -328,7 +328,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, Wavecell2 *val, int total)
 //          ofs.write((char *) &(val[count].param[0]), sizeof(Real) * totalSub);
 //          char cst[80];
 //          sprintf(cst, "%5d:", cst);
-//          cst[5] = 0; // make sure it lenght is five
+//          cst[5] = 0; // make sure its length is five
 //          outWrite(ofs, cst, &(val[count].param[0]), totalSub);
         }
     }

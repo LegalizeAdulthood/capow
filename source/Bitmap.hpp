@@ -67,7 +67,7 @@ public:
     void Clear(HWND hwnd, COLORREF col);
     HPALETTE WBMSelectPalette(HDC hdc, HPALETTE hPal);
     void WBMRealizePalette(HDC hdc);
-//Functions used in to draw a rectanlge in hdc and hdcWBM =============
+//Functions used in to draw a rectangle in hdc and hdcWBM =============
     void Getpen(HDC hdc, int style, int width, COLORREF col);
     void Discardpen(HDC hdc);
     void WBMMoveTo(HDC hdc, int x, int y);

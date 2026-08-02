@@ -73,9 +73,9 @@ it closes:
             if (codeNotify != EN_KILLFOCUS)
                 break;
 /*else if codeNotify is EN_KILLFOCUS just drop through to the
-IDOK case.  This is not a general solution adn wouldn't work with multiple
-edit controls.  In that case I would need to put the code frome case IDOK inside
-a updateeditparms or something.  I can't just send an IDOK message becuase in
+IDOK case.  This is not a general solution and wouldn't work with multiple
+edit controls.  In that case I would need to put the code from case IDOK inside
+a updateeditparms or something.  I can't just send an IDOK message because in
 the screensaver version of the dialog, that gets processed differently */
         case IDOK: /*I should get this when I press ENTER.  For a long time,
     I was not!  Then I found the trick is that we had set the edit box

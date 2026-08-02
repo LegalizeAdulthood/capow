@@ -176,7 +176,7 @@ CA::CA(CAlist *mylist)
          Fourier_init();
 
     //=============================
-    pAddUserParam = AddUserParam; //Set the member funciton pointer to the gobal function.
+    pAddUserParam = AddUserParam; //Set the member function pointer to the global function.
     AddUserParam(this, "Mutation Strength (0 to 1)",  0.2); //Formerly called "Variance"
     userParamAdd[0]->SetRange(0.0, 1.0);
     userParamAdd[0]->SetVal(0.2); //Just to be sure.
@@ -498,7 +498,7 @@ void CA::Locate(int tile, HWND hwnd, int CA_count_per_edge)
     if (CA_count_per_edge!=1)
     {
         windowrect.bottom -= 2;  //subtract the perimeter gap, 1 unit for both edges
-        windowrect.right -= 2;   //subtract the perimter gap, 1 unit for both edges
+        windowrect.right -= 2;   //subtract the perimeter gap, 1 unit for both edges
     }
     miny = (int) ((float)j*(windowrect.bottom + BORDER)/CA_count_per_edge);
     maxy = (int) ((float)(j+1)*(windowrect.bottom + BORDER)/CA_count_per_edge)-BORDER;
@@ -507,7 +507,7 @@ void CA::Locate(int tile, HWND hwnd, int CA_count_per_edge)
     if (CA_count_per_edge!=1)
     {
         miny += 1;  //to adjust for the perimeter gap
-        maxy += 1;  //to adjust for the perimter gap
+        maxy += 1;  //to adjust for the perimeter gap
     }
     minx =  (int) ((float)i*(windowrect.right + BORDER)/CA_count_per_edge);
     maxx =  (int) ((float)(i+1)*(windowrect.right + BORDER)/CA_count_per_edge)-BORDER;
@@ -1258,7 +1258,7 @@ being that lam, A.K.A. acceleration_parameter, shouldn't be very large.
             (1 + 2.0 * _dt_over_dx_2) +
         _dt.Val() * _heat_inc.Val();
     wave_target_row[c].velocity = (wave_target_row[c].intensity -
-        wave_source_row[c].intensity)/_dt.Val(); //Calcualte just for graphing.
+        wave_source_row[c].intensity)/_dt.Val(); //Calculate just for graphing.
     CLAMP(wave_target_row[c].velocity,-_max_velocity.Val(), _max_velocity.Val());
     WRAP((wave_target_row[c].intensity), -_max_intensity.Val(), _max_intensity.Val());
 }
@@ -1288,7 +1288,7 @@ nC = (C + lam(-LL + 16 L + 16 R - RR))/(1 + 30*lam).
     if (wave_target_row[c].intensity > _max_intensity.Val())
         wave_target_row[c].intensity -= 2.0*_max_intensity.Val();
     wave_target_row[c].velocity = (wave_target_row[c].intensity -
-        wave_source_row[c].intensity) / _dt.Val(); //Calcualte just for graphing.
+        wave_source_row[c].intensity) / _dt.Val(); //Calculate just for graphing.
 
     //Assume heat_inc is positive so only wrap at top.  You
     //may possibly get an intensity < -max_intensity, but this
@@ -1303,7 +1303,7 @@ nC = (C + lam(-LL + 16 L + 16 R - RR))/(1 + 30*lam).
             (1 + 30.0 * acceleration_multiplier) +
         dt * heat_inc;
     wave_target_row[c].velocity = (wave_target_row[c].intensity -
-        wave_source_row[c].intensity)/_dt.Val(); //Calcualte just for graphing.
+        wave_source_row[c].intensity)/_dt.Val(); //Calculate just for graphing.
     CLAMP(wave_target_row[c].velocity,-_max_velocity.Val(), _max_velocity.Val());
     WRAP((wave_target_row[c].intensity), -_max_intensity.Val(), _max_intensity.Val());
 #endif //SIMPLE_HEAT2
@@ -1325,7 +1325,7 @@ void CA::AltWaveVelInt1(int l, int c, int r)
         wave_source_row[r].intensity);
     CLAMP(wave_target_row[c].intensity, -_max_intensity.Val(), _max_intensity.Val());
     wave_target_row[c].velocity = (wave_target_row[c].intensity -
-        wave_source_row[c].intensity) / _dt.Val(); //Calcualte just for graphing.
+        wave_source_row[c].intensity) / _dt.Val(); //Calculate just for graphing.
 
 }
 
@@ -1348,7 +1348,7 @@ void CA::WaveVelInt2(int ll, int l, int c, int r, int rr)
         _dt.Val() * wave_target_row[c].velocity + _dt_over_2*dtutt;
     WRAP((wave_target_row[c].intensity), -_max_intensity.Val(), _max_intensity.Val());
     wave_target_row[c].velocity = (wave_target_row[c].intensity -
-        wave_source_row[c].intensity) / _dt.Val(); //Calcualte just for graphing.
+        wave_source_row[c].intensity) / _dt.Val(); //Calculate just for graphing.
 
 }
 
@@ -1513,7 +1513,7 @@ void CA::CubicUlamWave(int l, int c, int r)//CubicUlamWave(int l, int c, int r)
          );
     CLAMP(wave_target_row[c].intensity, -_max_intensity.Val(), _max_intensity.Val());
     wave_target_row[c].velocity = (wave_target_row[c].intensity -
-        wave_source_row[c].intensity) / _dt.Val(); //Calcualte just for graphing.
+        wave_source_row[c].intensity) / _dt.Val(); //Calculate just for graphing.
 }
 #else //not OSTROV_CUBIC
 void CA::CubicUlamWave(int l, int c, int r)//CubicUlamWave(int l, int c, int r)

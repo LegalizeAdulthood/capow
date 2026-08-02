@@ -52,7 +52,7 @@ void CA::Smooth_variance()
 
 void CA::Adjust_acceleration_multiplier()
 {
-/* Be careful here not to call SetTeakParam(&_dx, ???), becuase
+/* Be careful here not to call SetTweakParam(&_dx, ???), because
 this will in turn call _dx.SetVal(???, this), which will in
 turn call this->Adjust_acceleration_multiplier, which will
 put you in an endless loop. Instead do _dx.SetVal(???), or

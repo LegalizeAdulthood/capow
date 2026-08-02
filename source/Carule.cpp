@@ -830,13 +830,13 @@ Comments on diffusion term Da*d2a/dx2.
         Actually, it's a bit better to use Da*(FourSum + 0.75*CornerSum - 7*a).
     The idea is to weight the corner cells a bit less.  I come up with 0.75 because
     it's convenient (because 0.75*4=3) and because the area of a quarter circle
-    is PI/4 the area of the enclosing square, adn PI/4 is close to 0.75.  In this
+    is PI/4 the area of the enclosing square, and PI/4 is close to 0.75.  In this
     case we need to clamp Da and Db to be less than 1/7, or 0.14.
         In converting Meinhardt's 1-D rules to our 2-D rules, we can use all of his
     parameters the same except for his diffusion parameters.  Our raw 2D difference
     term is roughly 7 times the difference between two cells, while in 1D the
     raw difference is 2 times the difference.  So in translating from Meinhardt,
-    we multiply his diffusion paramters by a factor of 2/7.  Normally the rule
+    we multiply his diffusion parameters by a factor of 2/7.  Normally the rule
     is not highly sensitive to the  diffusion value so I in fact simply convert
     Meinhardt's diffusion values by multiplying by a factor of 1/4.
 */
@@ -1076,7 +1076,7 @@ Comments on diffusion term Da*d2a/dx2.
     parameters the same except for his diffusion parameters.  Our raw 2D difference
     term is roughly 4 times the difference between two cells, while in 1D the
     raw difference is 2 times the difference.  So in translating from Meinhardt,
-    we multiply his diffusion paramters by a factor of 1/2.
+    we multiply his diffusion parameters by a factor of 1/2.
 */
 
 #define USERPARAM_COUNT 8 //This is how many user params I list right here.
@@ -1233,13 +1233,13 @@ Comments on diffusion term Da*d2a/dx2.
         Actually, it's a bit better to use Da*(FourSum + 0.75*CornerSum - 7*a).
     The idea is to weight the corner cells a bit less.  I come up with 0.75 because
     it's convenient (because 0.75*4=3) and because the area of a quarter circle
-    is PI/4 the area of the enclosing square, adn PI/4 is close to 0.75.  In this
+    is PI/4 the area of the enclosing square, and PI/4 is close to 0.75.  In this
     case we need to clamp Da and Db to be less than 1/7, or 0.14.
         In converting Meinhardt's 1-D rules to our 2-D rules, we can use all of his
     parameters the same except for his diffusion parameters.  Our raw 2D difference
     term is roughly 7 times the difference between two cells, while in 1D the
     raw difference is 2 times the difference.  So in translating from Meinhardt,
-    we multiply his diffusion paramters by a factor of 2/7.  Normally the rule
+    we multiply his diffusion parameters by a factor of 2/7.  Normally the rule
     is not highly sensitive to the  diffusion value so I in fact simply convert
     Meinhardt's diffusion values by multiplying by a factor of 1/4.
 */
@@ -1396,13 +1396,13 @@ Comments on diffusion term Da*d2a/dx2.
         Actually, it's a bit better to use Da*(FourSum + 0.75*CornerSum - 7*a).
     The idea is to weight the corner cells a bit less.  I come up with 0.75 because
     it's convenient (because 0.75*4=3) and because the area of a quarter circle
-    is PI/4 the area of the enclosing square, adn PI/4 is close to 0.75.  In this
+    is PI/4 the area of the enclosing square, and PI/4 is close to 0.75.  In this
     case we need to clamp Da and Db to be less than 1/7, or 0.14.
         In converting Meinhardt's 1-D rules to our 2-D rules, we can use all of his
     parameters the same except for his diffusion parameters.  Our raw 2D difference
     term is roughly 7 times the difference between two cells, while in 1D the
     raw difference is 2 times the difference.  So in translating from Meinhardt,
-    we multiply his diffusion paramters by a factor of 2/7.  Normally the rule
+    we multiply his diffusion parameters by a factor of 2/7.  Normally the rule
     is not highly sensitive to the  diffusion value so I in fact simply convert
     Meinhardt's diffusion values by multiplying by a factor of 1/4.
 */
@@ -2229,7 +2229,7 @@ maybe makes the cells update-order dependent and hurts the CA's parallelism?*/
 //========================================================================
 #ifdef CARULE_1D_INTERPOLATED
 /* This rule is based on the notion that we might try extending the standard 2-state
-radius-1 rules to contiuous valued rules.  The idea is to view a continous valued update
+radius-1 rules to continuous valued rules.  The idea is to view a continuous valued update
 neighborhood (L, C, R) as being a point in a cube with the canonical discrete neighborhoods
 at the vertices.  We set the value at (L, C, R) to be an appropriately weighted average
 of the update values for the digital corners.  Our weighting is the 3D analog of how you
@@ -2374,7 +2374,7 @@ DllExport void USERINITIALIZE(CA* owner )
     for(i = 0; i < USERPARAM_COUNT; i++)
         (owner->userParamAdd[i+1]->SetVal(editValue[i]));
              /* Need to do this again as the constructor might not have
-            accepted the edit value becuase the range wasn't set yet to
+            accepted the edit value because the range wasn't set yet to
             include it.  Note also that the userParamAdd index is one
             higher than the editValue index. */
     owner->userParamAdd[0]->SetVal(0.05);  //Fix Variance
@@ -2430,7 +2430,7 @@ DllExport void USERINITIALIZE(CA* owner )
     for(i = 0; i < USERPARAM_COUNT; i++)
         (owner->userParamAdd[i+1]->SetVal(editValue[i]));
              /* Need to do this again as the constructor might not have
-            accepted the edit value becuase the range wasn't set yet to
+            accepted the edit value because the range wasn't set yet to
             include it.  Note also that the userParamAdd index is one
             higher than the editValue index. */
     owner->userParamAdd[0]->SetVal(0.2);  //Fix Variance
@@ -2487,7 +2487,7 @@ DllExport void USERINITIALIZE(CA* owner )
     for(i = 0; i < USERPARAM_COUNT; i++)
         (owner->userParamAdd[i+1]->SetVal(editValue[i]));
              /* Need to do this again as the constructor might not have
-            accepted the edit value becuase the range wasn't set yet to
+            accepted the edit value because the range wasn't set yet to
             include it.  Note also that the userParamAdd index is one
             higher than the editValue index. */
     owner->userParamAdd[0]->SetVal(0.2);  //Fix Variance

@@ -180,27 +180,27 @@ IOTA group:
     heights. The new function uses floats, then casts to int, to fit the CA's better.
 
     4/25/97  Reworked the Fourier Dialog box.  Rearrange most controls.  Replaced the
-    four Arrow buttons controling the moving of the Test Point wiht a slider bar that can
+    four Arrow buttons controlling the moving of the Test Point with a slider bar that can
     control either all the point views or simple the focus.  When the focus is changed the slider
     is updated to a position matching the position of the Test Point.  When the focus is NOT on
     a point view CA the controls in the Fourier Dialog are disabled.  Added a new button to the
     dialog.  Previously there was just an apply button that did both the fourier analysis and the
-    the reseting of the point.  Now there are two... When nothing has been analyized the APPLY button
-    is disable and than enabled after the Anazlye button is pressed.   Because the slider bar
+    the resetting of the point.  Now there are two... When nothing has been analyzed the APPLY button
+    is disable and than enabled after the Analyze button is pressed.   Because the slider bar
     can only be drawn so much to either side, there exists a problem when multiple point views exist
     and their test points are not in equal position and the user selects to update all test points.
     The problem is that if the user has the focus set on a CA whose test point is not aligned with the
     others the slider will only slide and subsequently move the other test points as far as the focus'
     test point can be moved.  To get around this the user should select the CA with the longest slider
-    range avaiable.  Slider controls are as follows... The user can drag the slider button and this will
-    update the postion by one... The user can click focus on the slider and use the left and right arrow
+    range available.  Slider controls are as follows... The user can drag the slider button and this will
+    update the position by one... The user can click focus on the slider and use the left and right arrow
     keys and this moves it by one.  The user can click in the slider channel on either side of the button
     and this will update the test point by 5 in the appropriate direction.  And the user can use the Home
     and End keys to move the slider to the appropriate extreme.    Page up moves the slider 5 to the left
     and page down 5 to the right.
     A. Forster
 
-    5-5-97 The "slam" button on teh right of the toolbar should close the 3D view
+    5-5-97 The "slam" button on the right of the toolbar should close the 3D view
     dialog.  ( CLOSED )  A.F.
 
     5-5-97 When I load a DLL the status bar doesn't show the name of the custom rule
@@ -554,7 +554,7 @@ CAlist *calife_list = NULL;
 
 char commandline[1024] = { '\0' }; // Stores Commandline passed program
 /* Usually you would call this variable szAppName, but we are planning to
-make a screen saver version of this program, usign a lot of the same code
+make a screen saver version of this program, using a lot of the same code
 modules (though the main will be CASCREEN.CPP instead of CAPOW.CPP), and
 the screensaver SCRNSAVE.LIB has a static TCHAR szAppName[40]; whose definition
 would conflict with my using szAppName in my modules.  So instead I use a
@@ -706,9 +706,9 @@ int WINAPI CapowWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
             NULL,                   // window menu handle
             hInstance,              // program instance handle
             NULL);                  // creation parameters
-         //If you get an error message here, it is becasue you are
+         //If you get an error message here, it is because you are
          //doing a 32 bit compile and you need to comment out
-         // the caption swith stuff just above.
+         // the caption switch stuff just above.
 
     ShowWindow(masterhwnd, nCmdShow);
     UpdateWindow(masterhwnd);
@@ -857,7 +857,7 @@ here to #ifdef out the code VCC 6 doesn't like.  RR 2/17/99.*/
 #ifdef LOAD_ACTIVE_CAS
 
     if (calife_list->Loadall("ACTIVE.CAS", TRUE))
-    //TRUE means startup, menas don't send a WM_SIZE
+    //TRUE means startup, means don't send a WM_SIZE
     {
         if (calife_list->Get_justloadedcells())
             not_seeded_yet_flag = 0; //Don't Seed it in WM_SIZE
@@ -1272,8 +1272,8 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
         case IDM_RANDOMIZE:                         // Randomize the CAs
             calife_list->Randomize();
-/* Rudy 11/10/97, I don't think I need to clear because Randoimze calls SetView for each
-CA, which does a wbm->ClearSection, which erases that CA's area and doesnt hurt the
+/* Rudy 11/10/97, I don't think I need to clear because Randomize calls SetView for each
+CA, which does a wbm->ClearSection, which erases that CA's area and doesn't hurt the
 grid or the bars. */
     //      SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L);
 // mike 11-1-97: don't need this line
@@ -1998,8 +1998,8 @@ function, the problem seems fixed.  As a test, I've commented out the old fix*/
                     zoomviewflag = FALSE;
                 //  calife_list->Locate();
                 //  recreateUserDialog();
-/* If I have about six user parameters then when I shift focus to somethign with
-one user paramter and then come back to the six guy not all six are showing
+/* If I have about six user parameters then when I shift focus to something with
+one user parameter and then come back to the six guy not all six are showing
 if I only do recreateUserDialog(), but the following works: */
                     if (hUserDialog)
                     {
@@ -2426,8 +2426,8 @@ But I don't want to keep randomizing even when the CA is paused for one reason
 or another.  The code at the start of Cellmain tracks if the CA is paused.
 So we'll use this check and just set a flag here */
         randomizenow = TRUE;
-/* Rudy 11/10, I don't think I need to clear because Randoimze calls SetView for each
-CA, which does a wbm->ClearSection, which erases that CA's area and doesnt hurt the
+/* Rudy 11/10, I don't think I need to clear because Randomize calls SetView for each
+CA, which does a wbm->ClearSection, which erases that CA's area and doesn't hurt the
 grid or the bars. */
 //          SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L); //Don't need
 

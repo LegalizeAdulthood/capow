@@ -21,13 +21,13 @@
         Include directory.
     * A screensaver does its painting in the WM_ERASEBKGND message.  It MUST NOT
         process WM_PAINT.
-    * A screensaver procedure must be called ScreenSaverProc, a screensave
+    * A screensaver procedure must be called ScreenSaverProc, a screensaver
         initialization dialog procedure must be called ScreenSaverConfigureDialog
         and the dialog resource must be called DLG_SCRNSAVECONFIGURE.
     * As well as defining a ScreenSaverProc and a ScreenSaverConfigureDialog,
         you must also define a (trivial) RegisterDialogClasses function
         which just returns TRUE.
-    * The running of the initialziation dialog and the screensaver are distinct.
+    * The running of the initialization dialog and the screensaver are distinct.
         The only way to save info from the dialog is into a profile string (easy)
         or into the Windows Registry using HKEY_USERS, RegSetValueEx, RegEnumValue,
         and RegQueryValueA (don't know how to do yet, it looks gnarly.)  And you
@@ -122,9 +122,9 @@ extern int randomize_timer_cycle;
 //default is in CA.HPP #define RANDOMIZE_TIMER_CYCLE_START 60000//60 seconds.
 extern UINT fRandFlags; //Lives in profile.cpp, set to default there. Determines how to randomize in IDM_RANDOMIZE.
 //  fRandFlags is made of a bunch of RF_??? bitflags defined in CA.HPP.  Default is RF_START.
-//This is the name of the lable where I save szRandFlags in profile, defined in CONFIGURE.CPP
+//This is the name of the label where I save szRandFlags in profile, defined in CONFIGURE.CPP
 extern char szFlagsName[];
-/* This is the standardname of the file I will look for to load my individual
+/* This is the standard name of the file I will look for to load my individual
 rule if RF_FILE is on, this not a filename I change, it's just .\SCREENSAVER.CA,
 it's defined in CONFIGURE.CPP.*/
 extern char szScreenSaverFileShortName[]; //Defined in CONFIGURE.CPP

@@ -1,7 +1,7 @@
 /* touch.cpp by James Kroutch for the SJSU CAMCOS Project. Fall '96
 
     Specification :
-    This module contains the code to impliment a touch feautre to the Capow
+    This module contains the code to implement a touch feature to the Capow
     program.  This feature will allow users,  once certain conditions are
     met, to use their cursor to "touch" the currently running experiment.
 
@@ -11,7 +11,7 @@
         capowlow.exe(only one CA running.)  The touch mode menu choice
         will be grayed out until this first criteria is met.
 
-    2. The user must select touch mode - A choice availible from the
+    2. The user must select touch mode - A choice available from the
         Tools/Cursors menu once the first criteria is satisfied.
         When the user selects this option from the menu the cursor will change
         to signify to the user that they are now in touch mode. The menu
@@ -22,14 +22,14 @@
     will only work if #LITE is defined.  This guarantees that the user will
     only have one active CA. The dialog box will be added later.
     9/17/96 - decided to workout nowrap case 1st.  Will warp ends to
-    ensure continuous values.  Potential problems with stadard and reversable
+    ensure continuous values.  Potential problems with standard and reversible
     CA's.  ask rucker about some specific calls involving these calls
-    9/19/96 - Finished initial implimentation of 1-D touch feature
+    9/19/96 - Finished initial implementation of 1-D touch feature
    9/20/96 - Took out scaling of touch at ends of table because it causes
     too much instability in the wave.  Added Right click as a bump down.
-    9/22/96 - Began implimentation of 2D touch feature
+    9/22/96 - Began implementation of 2D touch feature
     9/23/96 - Added Cursor for Touch Mode and finished basic 2D touch.  Will
-    move on to getting touch feature wotking in Real (16 & 32-bit) Capow.
+    move on to getting touch feature working in Real (16 & 32-bit) Capow.
     10/1/96 - Main decision needs to be made on how to do multi CA
     implementation of touch.  My decision is not to change focus when user
     picks point to tweak in CA.
@@ -236,7 +236,7 @@ void CAlist::RandomTouch_CA( )
 
 void CAlist::Touch_CA(int x, int y, int sender)
 {
-/* For this implimentation we only want to send one CA to CA::Touch_CA
+/* For this implementation we only want to send one CA to CA::Touch_CA
     so we need to determine which one was touched and where */
 
     if (zoomflag)

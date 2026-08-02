@@ -51,10 +51,10 @@ static int oldX      = -1;      // last user dialog coordinate and width
 static int oldY      = -1;      // and height
 static int oldWidth  = -1;
 static int oldHeight = -1;
-static int buttonHeight    = 40;// Heigh of the button rectangle
+static int buttonHeight    = 40;// Height of the button rectangle
 static int numButtonRow    = 1; // # of button per row
 static int numButtonCol    = 1; //             per column
-static int lastScrollPost  = 0; // For scoll bar uses
+static int lastScrollPost  = 0; // For scroll bar uses
 static int totalScrollLine = 0;
 static int totalCol = 0;        // Total column, row, and ...
 static int totalRow = 0;
@@ -137,7 +137,7 @@ void createEdit( )
 
 void moveEdit(int offsetX, int offsetY)
 //
-// Move all edit control to it proper location. Hide if not visiable.
+// Move all edit control to it proper location. Hide if not visible.
 //
 {
     int x = offsetX;
@@ -310,7 +310,7 @@ void createUserDialog()
 
     CA *activeCA = calife_list->FocusCA();
 
-    // Get system measurement and calcute some parameter
+    // Get system measurement and calculate some parameter
     TEXTMETRICA  tm;
     HDC hDC         =  GetDC(hUserDialog);
     hEditFont       = (HFONT) GetStockObject(ANSI_VAR_FONT);
@@ -471,7 +471,7 @@ static void MyWnd_SIZE(HWND hwnd, UINT state, int cx, int cy)
 
     totalUserParam = activeCA->userParamAdd.size();
 
-    // Calcalute new column and row that can be fix with the new resize window
+    // Calculate new column and row that can be fix with the new resize window
     int newTotalCol;
     if (totalCol == 0 || reCreate == FALSE)
     {   // No user parameter or user resize the dialog box,
@@ -810,7 +810,7 @@ BOOL HandleUpDownControlUserParam(HWND hDlg, UINT message, WPARAM wParam,
                                   LPARAM lParam)
 //
 // Up down control work as follow:
-//      alway remain at 50
+//      always remain at 50
 //      the value or variable change only.
 //
 {

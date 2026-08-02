@@ -117,7 +117,7 @@ static void MyWnd_DESTROY(HWND hDlg)
 BOOL HandleUpDownControlCell(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 //
 // Up down control work as follow:
-//      alway remain at 50
+//      always remain at 50
 //      the value or variable change only.
 //
 {

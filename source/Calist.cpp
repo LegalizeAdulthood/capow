@@ -488,7 +488,7 @@ void CAlist::Evolve()
                 father = Random((unsigned short)field);
                 if (field > 1)  // more than one winner to be parents?
                     while (mother == father)
-                        // dont want mother to be the father also
+                        // don't want mother to be the father also
                         father = Random((unsigned short)field);
                 focus->Become_child_of(
                     list[best_list[mother]], list[father]);

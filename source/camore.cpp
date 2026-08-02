@@ -974,14 +974,14 @@ void CA::Mutate(Real mutation_strength)
     {
         userParamAdd[0]->SetVal(DEFAULT_VARIANCE); //Put in a low variance, which means tweakstrength.
             for (int index = 1; index < userParamAdd.size(); index++)
-                //2017 STart loop at 1 so you don't randomize the variance which is in slot 0
+                //2017 Start loop at 1 so you don't randomize the variance which is in slot 0
                 RandomizeTweakParamPercent(userParamAdd[index], userParamAdd[index]->Val(), DEFAULT_VARIANCE);  //Mutate just a little.
     }
 }
 
 void CA::Adjust_acceleration_multiplier()
 {
-/* Be careful here not to call SetTeakParam(&_dx, ???), becuase
+/* Be careful here not to call SetTweakParam(&_dx, ???), because
 this will in turn call _dx.SetVal(???, this), which will in
 turn call this->Adjust_acceleration_multiplier, which will
 put you in an endless loop. Instead do _dx.SetVal(???), or

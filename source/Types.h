@@ -28,7 +28,7 @@ anywhere else.  Always do #include types.h instead. */
 #define PI (Real)3.141592653
 /*If time grows without bound, you might get a floating point overflow
 during a long run.  But you don't want to wrap the time at 2*PI in case
-you frequency is like 0.1, becuase that needs 10*PI to go through a
+your frequency is like 0.1, because that needs 10*PI to go through a
 full cycle*/
 #define TIMEWRAP (Real)100000.0*PI
 #define SMALL_REAL 0.0001 //for avoiding division by zero.

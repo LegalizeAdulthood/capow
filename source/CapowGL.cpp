@@ -177,7 +177,7 @@ void CapowGL::Draw(HDC hdc, CA* focus)
 
 /* Problem, this procedure dies sometimes.  It dies if you do your first
 zoom in on something a lot of times and if you resize window it wakes up.
-Dies in the sense of no longer showing anything changing on scren.
+Dies in the sense of no longer showing anything changing on screen.
 Resizing the window wakes it up. */
 
 /* mike 10-97: actually it doesn't die. CapowGL just wasn't being told the correct
@@ -225,7 +225,7 @@ CapowGL->Size() in Capow.cpp, it seems to fix the problem.
         DrawOpenGLScene();  //draw the CA
     SwapBuffers(hdc);  //swap the back buffer to the screen
 
-    //calculate the period between draws, in ms. Used for timing the flying postion
+    //calculate the period between draws, in ms. Used for timing the flying position
     time = timeGetTime();
     renderperiod = time - time2;  //is the time it took to render the scene
     period = time - oldtime;  //this is the time between each frame, which includes the ca processing
@@ -238,7 +238,7 @@ CapowGL->Size() in Capow.cpp, it seems to fix the problem.
 
 void CapowGL::DrawOpenGLScene()  //this is the meat of the code
 /* Oct 26, 1997, Mike: This function received a thorough rewrite, in order to make
-the code cleaner,and possibly more efficient.  It can now logically accomodate the
+the code cleaner,and possibly more efficient.  It can now logically accommodate the
 torus shape as well as new shapes in the future (like sphere or cylinder?) Also,
 previously the factor 'spacing' was used extensively to convert the unit length
 between adjacent cells so that the entire CA would fit into the viewport.  However,
@@ -422,7 +422,7 @@ look at, and an Up vector.
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             PickMaterial(material);
             glEnable(GL_LIGHTING);
-            glEnable(GL_NORMALIZE);  //will convert normals into unit vectors everytime a glNormal() is called
+            glEnable(GL_NORMALIZE);  //will convert normals into unit vectors every time a glNormal() is called
 
             if (material>1) //if not multicolor
             {
@@ -1627,7 +1627,7 @@ Now the max point height seems to be heightfactor*focus->MaxIntensity().  So
 z * Z_FACTOR = heightfactor*focus->MaxIntensity(),
 so divide through to get the value for heightfactor.  I have found the value
 of Z_FACTOR simply by hit and  miss.  I'm unclear what the spacing has to do
-with it; it does get mulitplied into the height.  Other weird thing: z
+with it; it does get multiplied into the height.  Other weird thing: z
 is negative, so we have to correct for that with a fabs.  Rudy, May 22, 1997.*/
 
 /*Mike 10-97: no, actually z is the zoom, or the translation of the viewer from the CA,
