@@ -1,6 +1,7 @@
 add_library(CapowCore STATIC
     Autorand.cpp
     BatchOptions.hpp BatchOptions.cpp
+    CapowRules.hpp
     ca.hpp ca.cpp
     Calist.cpp
     camore.cpp

@@ -9,6 +9,7 @@
 *******************************************************************************/
 //====================INCLUDES===============
 #include "ca.hpp"
+#include "CapowRules.hpp"
 #include <math.h>
 #include "Random.h"
 #include "resource.h"
@@ -1488,13 +1489,14 @@ void CA::Wave2D(int c, int e, int n,
 void CA::Heat2D(int c, int e, int n,
     int w, int s)
 {
-    Smooth2D(c, e, n, w, s); //Crude 5 cell average.
-      wave_target_plane[c].intensity += _heat_inc.Val();
-    WRAP((wave_target_plane[c].intensity), -_max_intensity.Val(),
-        _max_intensity.Val());
+    const capow::Heat2DResult<Real> result = capow::ComputeHeat2D<Real>(
+        wave_source_plane[c].intensity, wave_source_plane[e].intensity,
+        wave_source_plane[n].intensity, wave_source_plane[w].intensity,
+        wave_source_plane[s].intensity, _heat_inc.Val(),
+        _max_intensity.Val(), _dt.Val());
+    wave_target_plane[c].intensity = result.nextIntensity;
     //2017 extra line to save velocity in variable[1]
-    wave_target_plane[c].variable[1] = (wave_target_plane[c].intensity -
-        wave_source_plane[c].intensity) / _dt.Val(); //Calculate velocity and put in variable[1]
+    wave_target_plane[c].variable[1] = result.velocity; //Calculate velocity and put in variable[1]
 }
 
 void CA::WaveUpdateStep2D(HDC hdc)  //You don't need the hdc argument!
