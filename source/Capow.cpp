@@ -1047,6 +1047,17 @@ static void MyWnd_MOVE(HWND hwnd, int x, int y)
 
 /*********************************************************/
 
+static void TrackToolbarButtonMenu(HWND window, HWND toolbar, int buttonId, HMENU menu)
+{
+    RECT r1;
+    ToolBar_GetItemRect(toolbar, buttonId, &r1);
+    POINT point;
+    point.x = r1.left;
+    point.y = r1.bottom;
+    ClientToScreen(window, &point);
+    TrackPopupMenu(menu, 0, point.x, point.y, 0, window, NULL);
+}
+
 static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
     //((fn)((hwnd), (int)(wParam), (HWND)LOWORD(lParam), (UINT)HIWORD(lParam)), 0L)
@@ -1058,7 +1069,6 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     RECT r;
 //  short focusflag=1;
     char buffer[20];
-    POINT point;
 //Begin commdlg stuff=====================
 //MessageBox ( masterhwnd, "HELLO", "HELL", MB_OK );
 
@@ -1084,31 +1094,16 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     {
 
 // START FILE MENU====================================
-    case IDM_VIEW_MENU:
-            RECT r1;
-            ToolBar_GetItemRect(hwndActionToolbar, VIEWMENU_BUTTON, &r1);
-            point.x = r1.left;
-            point.y = r1.bottom;
-            ClientToScreen ( hwnd, &point );
-            TrackPopupMenu ( hViewMenu, 0, point.x, point.y, 0 , hwnd, NULL );
+        case IDM_VIEW_MENU:
+            TrackToolbarButtonMenu(hwnd, hwndActionToolbar, VIEWMENU_BUTTON, hViewMenu);
         break;
 
         case IDM_CATYPE_MENU:
-            RECT r2;
-            ToolBar_GetItemRect(hwndActionToolbar, CATYPEMENU_BUTTON, &r2);
-            point.x = r2.left;
-            point.y = r2.bottom;
-            ClientToScreen ( hwnd, &point );
-            TrackPopupMenu ( hCATypeMenu, 0, point.x, point.y, 0 , hwnd, NULL );
+            TrackToolbarButtonMenu(hwnd, hwndActionToolbar, CATYPEMENU_BUTTON, hCATypeMenu);
         break;
 
         case IDM_SEED_MENU:
-            RECT r3;
-            ToolBar_GetItemRect(hwndActionToolbar, SEEDMENU_BUTTON, &r3);
-            point.x = r3.left;
-            point.y = r3.bottom;
-            ClientToScreen ( hwnd, &point );
-            TrackPopupMenu ( hSeedMenu, 0, point.x, point.y, 0 , hwnd, NULL );
+            TrackToolbarButtonMenu(hwnd, hwndActionToolbar, SEEDMENU_BUTTON, hSeedMenu);
         break;
 
 
