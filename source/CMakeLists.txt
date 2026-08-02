@@ -50,6 +50,15 @@ add_library(CapowGui STATIC
 target_link_libraries(CapowGui PUBLIC CapowCore)
 target_folder(CapowGui "Libraries")
 
+if(CAPOW_ENABLE_ALPAKA)
+    alpaka_add_library(CapowAlpaka STATIC
+        AlpakaBackend.cpp
+    )
+    target_link_libraries(CapowAlpaka PRIVATE alpaka::alpaka)
+    target_compile_definitions(CapowAlpaka PUBLIC CAPOW_ENABLE_ALPAKA=1)
+    target_folder(CapowAlpaka "Libraries")
+endif()
+
 add_executable(Capow WIN32
     About.bmp
     actionbar.bmp
@@ -66,6 +75,9 @@ add_executable(Capow WIN32
     WinMain.cpp
 )
 target_link_libraries(Capow PUBLIC CapowGui CapowCore Glu32.lib opengl32.lib ComCtl32.lib Lz32.lib Winmm.lib)
+if(CAPOW_ENABLE_ALPAKA)
+    target_link_libraries(Capow PUBLIC CapowAlpaka alpaka::alpaka)
+endif()
 
 add_library(UserRuleCore STATIC
     Caruleuse.cpp

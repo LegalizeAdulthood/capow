@@ -3,6 +3,7 @@
   "name": "capow",
   "version": "8.0.0",
   "dependencies": [
+    "alpaka",
     "gtest"
   ]
 }

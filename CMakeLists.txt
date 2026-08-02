@@ -3,6 +3,15 @@ cmake_minimum_required(VERSION 3.26)
 set(CAPOW_PROJECT_NAME "CAPow" CACHE STRING "Project name for IDEs")
 project("${CAPOW_PROJECT_NAME}" VERSION 8.0.0)
 
+option(CAPOW_ENABLE_ALPAKA "Build with Alpaka CUDA support" ON)
+
+if(CAPOW_ENABLE_ALPAKA)
+    set(alpaka_ACC_GPU_CUDA_ENABLE ON CACHE BOOL "Enable Alpaka CUDA")
+    set(CMAKE_CUDA_ARCHITECTURES "native" CACHE STRING "CUDA architectures")
+    enable_language(CUDA)
+    find_package(alpaka CONFIG REQUIRED)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(misc_target)
 include(set_cxx_standard)
