@@ -35,6 +35,7 @@ TEST(batchOptions, parseValidCpuBatch)
     EXPECT_EQ(capow::BATCH_BACKEND_CPU, result.options.backend);
     EXPECT_EQ(capow::BATCH_RULE_CA_HEAT_2D, result.options.rule);
     EXPECT_EQ(100, result.options.steps);
+    EXPECT_EQ(1946UL, result.options.seed);
     EXPECT_EQ("cpu.bmp", result.options.output);
 }
 
@@ -49,6 +50,17 @@ TEST(batchOptions, parseValidGpuBatch)
     EXPECT_EQ(capow::BATCH_BACKEND_GPU, result.options.backend);
     EXPECT_EQ(capow::BATCH_RULE_CA_WAVE_2D, result.options.rule);
     EXPECT_EQ(25, result.options.steps);
+}
+
+TEST(batchOptions, parseValidSeed)
+{
+    const char *argv[] = {"--batch", "--backend", "cpu", "--rule", "CA_HEAT_2D", "--steps", "100", "--seed", "12345",
+        "--output", "seed.bmp"};
+
+    const capow::BatchParseResult result = Parse(11, argv);
+
+    EXPECT_TRUE(result.ok);
+    EXPECT_EQ(12345UL, result.options.seed);
 }
 
 TEST(batchOptions, parseValidSyntheticHeatBatch)
@@ -95,6 +107,39 @@ TEST(batchOptions, parseRejectsInvalidSteps)
 
     EXPECT_FALSE(result.ok);
     EXPECT_EQ("invalid step count", result.error);
+}
+
+TEST(batchOptions, parseRejectsInvalidSeed)
+{
+    const char *argv[] = {
+        "--batch", "--backend", "cpu", "--rule", "CA_HEAT_2D", "--steps", "100", "--seed", "0", "--output", "cpu.bmp"};
+
+    const capow::BatchParseResult result = Parse(11, argv);
+
+    EXPECT_FALSE(result.ok);
+    EXPECT_EQ("invalid seed", result.error);
+}
+
+TEST(batchOptions, parseRejectsSignedSeed)
+{
+    const char *argv[] = {
+        "--batch", "--backend", "cpu", "--rule", "CA_HEAT_2D", "--steps", "100", "--seed", "-1", "--output", "cpu.bmp"};
+
+    const capow::BatchParseResult result = Parse(11, argv);
+
+    EXPECT_FALSE(result.ok);
+    EXPECT_EQ("invalid seed", result.error);
+}
+
+TEST(batchOptions, parseRejectsDuplicateSeed)
+{
+    const char *argv[] = {"--batch", "--backend", "cpu", "--rule", "CA_HEAT_2D", "--steps", "100", "--seed", "1",
+        "--seed", "2", "--output", "cpu.bmp"};
+
+    const capow::BatchParseResult result = Parse(13, argv);
+
+    EXPECT_FALSE(result.ok);
+    EXPECT_EQ("duplicate --seed", result.error);
 }
 
 TEST(batchOptions, parseRejectsUnknownRule)

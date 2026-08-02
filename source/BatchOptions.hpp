@@ -25,6 +25,7 @@ struct BatchOptions
     BatchBackend backend;
     BatchRule rule;
     int steps;
+    unsigned long seed;
     std::string output;
 
     BatchOptions();

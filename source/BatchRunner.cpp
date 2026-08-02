@@ -183,7 +183,7 @@ int RunBatchMode(const BatchOptions &options)
         return 4;
     }
 
-    rseed(1946);
+    rseed(options.seed);
     calife_list->Changecount(1);
     calife_list->SetSleep(FALSE);
 

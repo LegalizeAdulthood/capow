@@ -115,6 +115,28 @@ bool ParsePositiveInt(const char *text, int *value)
     return true;
 }
 
+bool ParsePositiveUnsignedLong(const char *text, unsigned long *value)
+{
+    char *end = 0;
+    unsigned long parsed;
+    if (text == 0 || *text < '0' || *text > '9')
+    {
+        return false;
+    }
+    errno = 0;
+    parsed = std::strtoul(text, &end, 10);
+    if (*end != '\0' || errno == ERANGE)
+    {
+        return false;
+    }
+    if (parsed == 0)
+    {
+        return false;
+    }
+    *value = parsed;
+    return true;
+}
+
 bool HasBatchFlag(int argc, const char *argv[])
 {
     for (int i = 0; i < argc; ++i)
@@ -204,7 +226,8 @@ BatchOptions::BatchOptions() :
     batch(false),
     backend(BATCH_BACKEND_CPU),
     rule(BATCH_RULE_CA_HEAT_2D),
-    steps(0)
+    steps(0),
+    seed(1946)
 {
 }
 
@@ -220,6 +243,7 @@ BatchParseResult ParseBatchArguments(int argc, const char *argv[])
     bool haveBackend = false;
     bool haveRule = false;
     bool haveSteps = false;
+    bool haveSeed = false;
     bool haveOutput = false;
 
     if (!HasBatchFlag(argc, argv))
@@ -289,6 +313,24 @@ BatchParseResult ParseBatchArguments(int argc, const char *argv[])
                 Fail(&result, "invalid step count");
             }
             haveSteps = result.ok;
+            continue;
+        }
+        if (EqualText(arg, "--seed"))
+        {
+            if (haveSeed)
+            {
+                Fail(&result, "duplicate --seed");
+                continue;
+            }
+            if (!NeedValue(&result, i, argc, "--seed"))
+            {
+                continue;
+            }
+            if (!ParsePositiveUnsignedLong(argv[++i], &result.options.seed))
+            {
+                Fail(&result, "invalid seed");
+            }
+            haveSeed = result.ok;
             continue;
         }
         if (EqualText(arg, "--output"))
