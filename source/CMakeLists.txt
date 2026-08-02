@@ -55,12 +55,14 @@ target_folder(CapowGui "Libraries")
 
 if(CAPOW_ENABLE_ALPAKA)
     alpaka_add_library(CapowAlpaka STATIC
+        AlpakaBackend.hpp
         AlpakaBackend.cpp
         AlpakaUtilities.hpp
     )
     target_link_libraries(CapowAlpaka PRIVATE alpaka::alpaka)
     target_compile_definitions(CapowAlpaka PUBLIC CAPOW_ENABLE_ALPAKA=1)
     target_folder(CapowAlpaka "Libraries")
+    target_link_libraries(CapowGui PUBLIC CapowAlpaka)
 endif()
 
 add_executable(Capow WIN32

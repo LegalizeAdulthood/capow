@@ -8,6 +8,9 @@
 
 #include "Capow.hpp"
 
+#if defined(CAPOW_ENABLE_ALPAKA)
+#include "AlpakaBackend.hpp"
+#endif
 // These first two headers are needed for Randomize()
 #include "BatchOptions.hpp"
 #include "BatchRunner.hpp"
@@ -240,6 +243,10 @@ int WINAPI CapowWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
         OutputDebugStringA("\n");
         return 2;
     }
+#if defined(CAPOW_ENABLE_ALPAKA)
+    OutputDebugStringA(capow::GetAlpakaManager().GetAvailabilityMessage());
+    OutputDebugStringA("\n");
+#endif
     if (!batchParse.batch)
     {
         strcpy ( commandline, lpszCmdParam );

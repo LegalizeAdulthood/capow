@@ -1,5 +1,8 @@
 #include "BatchRunner.hpp"
 
+#if defined(CAPOW_ENABLE_ALPAKA)
+#include "AlpakaBackend.hpp"
+#endif
 #include "BatchImage.hpp"
 #include "Random.h"
 #include "ca.hpp"
@@ -27,6 +30,20 @@ int CaTypeForRule(capow::BatchRule rule)
     return CA_HEAT_2D;
 }
 
+#if defined(CAPOW_ENABLE_ALPAKA)
+capow::AlpakaRule AlpakaRuleForBatchRule(capow::BatchRule rule)
+{
+    switch (rule)
+    {
+    case capow::BATCH_RULE_CA_HEAT_2D:
+        return capow::ALPAKA_RULE_CA_HEAT_2D;
+    case capow::BATCH_RULE_CA_WAVE_2D:
+        return capow::ALPAKA_RULE_CA_WAVE_2D;
+    }
+    return capow::ALPAKA_RULE_CA_HEAT_2D;
+}
+#endif
+
 int FocusImageWidth(CA *focus)
 {
     if (focus->Getdimension() == 2)
@@ -43,6 +60,45 @@ int FocusImageHeight(CA *focus)
         return focus->VertCount2D();
     }
     return focus->VertCount();
+}
+
+bool SelectBatchBackend(const capow::BatchOptions &options)
+{
+#if defined(CAPOW_ENABLE_ALPAKA)
+    capow::AlpakaManager &manager = capow::GetAlpakaManager();
+    if (options.backend == capow::BATCH_BACKEND_CPU)
+    {
+        manager.SetBackend(capow::ALPAKA_BACKEND_CPU);
+        return true;
+    }
+
+    const capow::AlpakaRule rule = AlpakaRuleForBatchRule(options.rule);
+    manager.SetBackend(capow::ALPAKA_BACKEND_GPU);
+    if (manager.CanRunGpu(rule))
+    {
+        return true;
+    }
+    if (!manager.IsGpuAvailable())
+    {
+        OutputDebugStringA("batch GPU backend is unavailable: ");
+        OutputDebugStringA(manager.GetAvailabilityMessage());
+        OutputDebugStringA("\n");
+    }
+    else
+    {
+        OutputDebugStringA("batch GPU backend has no path for ");
+        OutputDebugStringA(capow::AlpakaRuleName(rule));
+        OutputDebugStringA("\n");
+    }
+    return false;
+#else
+    if (options.backend == capow::BATCH_BACKEND_CPU)
+    {
+        return true;
+    }
+    OutputDebugStringA("batch GPU backend is not compiled\n");
+    return false;
+#endif
 }
 
 void LogBatchError(const std::string &error)
@@ -62,9 +118,8 @@ namespace capow
 int RunBatchMode(const BatchOptions &options)
 {
     std::string error;
-    if (options.backend == BATCH_BACKEND_GPU)
+    if (!SelectBatchBackend(options))
     {
-        OutputDebugStringA("batch GPU backend is not available\n");
         return 3;
     }
     if (calife_list == 0 || WBM == 0 || masterhwnd == 0)
