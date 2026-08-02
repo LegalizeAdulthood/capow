@@ -62,6 +62,19 @@ void CleanupDib(HDC dibDc, HBITMAP dibBitmap, HGDIOBJ oldBitmap)
     }
 }
 
+unsigned char IntensityToByte(float value)
+{
+    if (value <= 0.0F)
+    {
+        return 0U;
+    }
+    if (value >= 1.0F)
+    {
+        return 255U;
+    }
+    return static_cast<unsigned char>(value * 255.0F + 0.5F);
+}
+
 } // namespace
 
 namespace capow
@@ -159,6 +172,58 @@ bool WriteBmpFromHdc(HDC hdc, int left, int top, int width, int height, const ch
     }
 
     CleanupDib(dibDc, dibBitmap, oldBitmap);
+    return true;
+}
+
+bool WriteBmpFromIntensityPlane(const float *plane, int width, int height, const char *outputPath, std::string *error)
+{
+    if (plane == 0)
+    {
+        *error = "missing intensity plane";
+        return false;
+    }
+    if (width <= 0 || height <= 0)
+    {
+        *error = "invalid image dimensions";
+        return false;
+    }
+    if (outputPath == 0 || *outputPath == '\0')
+    {
+        *error = "missing output path";
+        return false;
+    }
+
+    std::ofstream output(outputPath, std::ios::binary);
+    if (!output)
+    {
+        *error = "could not open batch output file";
+        return false;
+    }
+
+    const int rowBytes = width * 3;
+    const int rowStride = (rowBytes + 3) & ~3;
+    WriteBmpHeader(&output, width, height, rowStride);
+
+    std::vector<unsigned char> row(static_cast<std::size_t>(rowStride));
+    for (int y = height - 1; y >= 0; --y)
+    {
+        std::fill(row.begin(), row.end(), 0U);
+        for (int x = 0; x < width; ++x)
+        {
+            const unsigned char gray = IntensityToByte(plane[static_cast<std::size_t>(y * width + x)]);
+            const int offset = x * 3;
+            row[static_cast<std::size_t>(offset)] = gray;
+            row[static_cast<std::size_t>(offset + 1)] = gray;
+            row[static_cast<std::size_t>(offset + 2)] = gray;
+        }
+        output.write(reinterpret_cast<const char *>(row.data()), row.size());
+        if (!output)
+        {
+            *error = "could not write batch output file";
+            return false;
+        }
+    }
+
     return true;
 }
 

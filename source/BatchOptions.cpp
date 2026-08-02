@@ -79,6 +79,11 @@ bool ParseBackend(const char *text, capow::BatchBackend *backend)
 
 bool ParseRule(const char *text, capow::BatchRule *rule)
 {
+    if (EqualIgnoreCase(text, "SYNTHETIC_HEAT_2D"))
+    {
+        *rule = capow::BATCH_RULE_SYNTHETIC_HEAT_2D;
+        return true;
+    }
     if (EqualIgnoreCase(text, "CA_HEAT_2D"))
     {
         *rule = capow::BATCH_RULE_CA_HEAT_2D;
@@ -356,6 +361,8 @@ const char *BatchRuleName(BatchRule rule)
 {
     switch (rule)
     {
+    case BATCH_RULE_SYNTHETIC_HEAT_2D:
+        return "SYNTHETIC_HEAT_2D";
     case BATCH_RULE_CA_HEAT_2D:
         return "CA_HEAT_2D";
     case BATCH_RULE_CA_WAVE_2D:

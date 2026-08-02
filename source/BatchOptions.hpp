@@ -14,6 +14,7 @@ enum BatchBackend
 
 enum BatchRule
 {
+    BATCH_RULE_SYNTHETIC_HEAT_2D,
     BATCH_RULE_CA_HEAT_2D,
     BATCH_RULE_CA_WAVE_2D
 };

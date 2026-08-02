@@ -11,8 +11,10 @@ add_executable(test-CapowCore
 target_include_directories(test-CapowCore PRIVATE "${PROJECT_SOURCE_DIR}/source")
 target_link_libraries(test-CapowCore PUBLIC CapowCore GTest::gmock_main)
 if(CAPOW_ENABLE_ALPAKA)
-    target_sources(test-CapowCore PRIVATE AlpakaBackend_test.cpp)
-    target_sources(test-CapowCore PRIVATE AlpakaBuffers_test.cpp)
+    target_sources(test-CapowCore PRIVATE
+        AlpakaBackend_test.cpp
+        AlpakaBuffers_test.cpp
+        AlpakaSyntheticHeat_test.cpp)
     target_link_libraries(test-CapowCore PUBLIC CapowAlpaka)
 endif()
 target_folder(test-CapowCore "Tests")

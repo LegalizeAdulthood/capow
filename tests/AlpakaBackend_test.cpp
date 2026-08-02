@@ -20,7 +20,7 @@ TEST(alpakaBackend, canSelectCpuAndGpu)
     EXPECT_EQ(capow::ALPAKA_BACKEND_CPU, manager.GetBackend());
 }
 
-TEST(alpakaBackend, rulesStartDisabledAndCanBeEnabled)
+TEST(alpakaBackend, caRulesStartDisabledAndCanBeEnabled)
 {
     capow::AlpakaManager manager;
 
@@ -31,6 +31,13 @@ TEST(alpakaBackend, rulesStartDisabledAndCanBeEnabled)
 
     EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_HEAT_2D));
     EXPECT_FALSE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_WAVE_2D));
+}
+
+TEST(alpakaBackend, syntheticHeatStartsEnabled)
+{
+    const capow::AlpakaManager manager;
+
+    EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_SYNTHETIC_HEAT_2D));
 }
 
 TEST(alpakaBackend, gpuRunsRequireDeviceAndEnabledRule)
@@ -48,6 +55,7 @@ TEST(alpakaBackend, namesMatchMenuAndRuleLabels)
 {
     EXPECT_STREQ("CPU", capow::AlpakaBackendName(capow::ALPAKA_BACKEND_CPU));
     EXPECT_STREQ("GPU", capow::AlpakaBackendName(capow::ALPAKA_BACKEND_GPU));
+    EXPECT_STREQ("SYNTHETIC_HEAT_2D", capow::AlpakaRuleName(capow::ALPAKA_RULE_SYNTHETIC_HEAT_2D));
     EXPECT_STREQ("CA_HEAT_2D", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_HEAT_2D));
     EXPECT_STREQ("CA_WAVE_2D", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_WAVE_2D));
 }

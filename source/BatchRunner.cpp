@@ -2,6 +2,7 @@
 
 #if defined(CAPOW_ENABLE_ALPAKA)
 #include "AlpakaBackend.hpp"
+#include "AlpakaSyntheticHeat.hpp"
 #endif
 #include "BatchImage.hpp"
 #include "Random.h"
@@ -9,7 +10,9 @@
 
 #include <Windows.h>
 
+#include <exception>
 #include <string>
+#include <vector>
 
 extern CAlist *calife_list;
 extern HWND masterhwnd;
@@ -22,6 +25,8 @@ int CaTypeForRule(capow::BatchRule rule)
 {
     switch (rule)
     {
+    case capow::BATCH_RULE_SYNTHETIC_HEAT_2D:
+        break;
     case capow::BATCH_RULE_CA_HEAT_2D:
         return CA_HEAT_2D;
     case capow::BATCH_RULE_CA_WAVE_2D:
@@ -35,6 +40,8 @@ capow::AlpakaRule AlpakaRuleForBatchRule(capow::BatchRule rule)
 {
     switch (rule)
     {
+    case capow::BATCH_RULE_SYNTHETIC_HEAT_2D:
+        return capow::ALPAKA_RULE_SYNTHETIC_HEAT_2D;
     case capow::BATCH_RULE_CA_HEAT_2D:
         return capow::ALPAKA_RULE_CA_HEAT_2D;
     case capow::BATCH_RULE_CA_WAVE_2D:
@@ -101,6 +108,11 @@ bool SelectBatchBackend(const capow::BatchOptions &options)
 #endif
 }
 
+bool IsSyntheticBatchRule(capow::BatchRule rule)
+{
+    return rule == capow::BATCH_RULE_SYNTHETIC_HEAT_2D;
+}
+
 void LogBatchError(const std::string &error)
 {
     if (!error.empty())
@@ -109,6 +121,49 @@ void LogBatchError(const std::string &error)
         OutputDebugStringA("\n");
     }
 }
+
+#if defined(CAPOW_ENABLE_ALPAKA)
+int RunSyntheticBatchMode(const capow::BatchOptions &options, CA *focus)
+{
+    capow::SyntheticHeat2DOptions syntheticOptions;
+    syntheticOptions.width = focus->HorzCount2D();
+    syntheticOptions.height = focus->VertCount2D();
+    syntheticOptions.steps = options.steps;
+
+    try
+    {
+        std::vector<capow::AlpakaPlaneValue> initial;
+        std::vector<capow::AlpakaPlaneValue> result;
+        capow::MakeSyntheticHeat2DInitial(syntheticOptions, &initial);
+        if (options.backend == capow::BATCH_BACKEND_CPU)
+        {
+            capow::RunSyntheticHeat2DHost(syntheticOptions, initial, &result);
+        }
+        else
+        {
+            capow::RunSyntheticHeat2DGpu(syntheticOptions, initial, &result);
+        }
+
+        std::string error;
+        const bool ok = capow::WriteBmpFromIntensityPlane(
+            result.data(), syntheticOptions.width, syntheticOptions.height, options.output.c_str(), &error);
+        if (!ok)
+        {
+            LogBatchError(error);
+            return 6;
+        }
+    }
+    catch (const std::exception &exception)
+    {
+        OutputDebugStringA("synthetic heat batch failed: ");
+        OutputDebugStringA(exception.what());
+        OutputDebugStringA("\n");
+        return 7;
+    }
+
+    return 0;
+}
+#endif
 
 } // namespace
 
@@ -128,6 +183,26 @@ int RunBatchMode(const BatchOptions &options)
         return 4;
     }
 
+    rseed(1946);
+    calife_list->Changecount(1);
+    calife_list->SetSleep(FALSE);
+
+    CA *focus = calife_list->FocusCA();
+    if (focus == 0)
+    {
+        OutputDebugStringA("batch mode is missing focus CA\n");
+        return 4;
+    }
+    if (IsSyntheticBatchRule(options.rule))
+    {
+#if defined(CAPOW_ENABLE_ALPAKA)
+        return RunSyntheticBatchMode(options, focus);
+#else
+        OutputDebugStringA("synthetic heat batch rule requires Alpaka build\n");
+        return 3;
+#endif
+    }
+
     HDC hdc = GetDC(masterhwnd);
     if (hdc == 0)
     {
@@ -135,11 +210,6 @@ int RunBatchMode(const BatchOptions &options)
         return 5;
     }
 
-    rseed(1946);
-    calife_list->Changecount(1);
-    calife_list->SetSleep(FALSE);
-
-    CA *focus = calife_list->FocusCA();
     calife_list->SetCAType(focus, CaTypeForRule(options.rule), TRUE);
     focus->Setwrapflag(WF_WRAP);
     calife_list->Locate();

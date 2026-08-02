@@ -57,6 +57,7 @@ AlpakaManager::AlpakaManager() :
     {
         ruleEnabled[ruleIndex] = false;
     }
+    ruleEnabled[ALPAKA_RULE_SYNTHETIC_HEAT_2D] = true;
 }
 
 bool AlpakaManager::IsGpuAvailable() const
@@ -122,6 +123,8 @@ const char *AlpakaRuleName(AlpakaRule rule)
 {
     switch (rule)
     {
+    case ALPAKA_RULE_SYNTHETIC_HEAT_2D:
+        return "SYNTHETIC_HEAT_2D";
     case ALPAKA_RULE_CA_HEAT_2D:
         return "CA_HEAT_2D";
     case ALPAKA_RULE_CA_WAVE_2D:

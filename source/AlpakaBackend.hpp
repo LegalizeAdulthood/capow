@@ -12,6 +12,7 @@ enum AlpakaBackend
 
 enum AlpakaRule
 {
+    ALPAKA_RULE_SYNTHETIC_HEAT_2D,
     ALPAKA_RULE_CA_HEAT_2D,
     ALPAKA_RULE_CA_WAVE_2D,
     ALPAKA_RULE_COUNT
