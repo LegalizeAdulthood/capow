@@ -57,6 +57,8 @@ if(CAPOW_ENABLE_ALPAKA)
     alpaka_add_library(CapowAlpaka STATIC
         AlpakaBackend.hpp
         AlpakaBackend.cpp
+        AlpakaBuffers.hpp
+        AlpakaBuffers.cpp
         AlpakaUtilities.hpp
     )
     target_link_libraries(CapowAlpaka PRIVATE alpaka::alpaka)
