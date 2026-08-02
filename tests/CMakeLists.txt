@@ -34,20 +34,24 @@ add_executable(image-compare
 )
 target_folder(image-compare "Tests")
 
-function(add_image_compare_test name actualVariant expectedResult)
-    add_test(NAME imageCompare.${name}
-        COMMAND ${CMAKE_COMMAND}
-            "-DIMAGE_COMPARE=$<SHELL_PATH:$<TARGET_FILE:image-compare>>"
-            "-DEXPECTED_IMAGE=${CMAKE_CURRENT_BINARY_DIR}/${name}-expected.bmp"
-            "-DACTUAL_IMAGE=${CMAKE_CURRENT_BINARY_DIR}/${name}-actual.bmp"
-            "-DDIFF_IMAGE=${CMAKE_CURRENT_BINARY_DIR}/${name}-diff.bmp"
-            "-DEXPECTED_VARIANT=base"
-            "-DACTUAL_VARIANT=${actualVariant}"
-            "-DEXPECTED_RESULT=${expectedResult}"
-            -P "${CMAKE_CURRENT_SOURCE_DIR}/image_compare_test.cmake"
-    )
-    set_tests_properties(imageCompare.${name} PROPERTIES LABELS "image")
-endfunction()
+if(CAPOW_ENABLE_ALPAKA)
+    function(add_capow_batch_image_compare_test name rule steps seed)
+        add_test(NAME capowBatchImageCompare.${name}
+            COMMAND ${CMAKE_COMMAND}
+                "-DCAPOW_EXECUTABLE=$<SHELL_PATH:$<TARGET_FILE:Capow>>"
+                "-DIMAGE_COMPARE=$<SHELL_PATH:$<TARGET_FILE:image-compare>>"
+                "-DRULE=${rule}"
+                "-DSTEPS=${steps}"
+                "-DSEED=${seed}"
+                "-DCPU_IMAGE=${CMAKE_CURRENT_BINARY_DIR}/${name}-cpu.bmp"
+                "-DGPU_IMAGE=${CMAKE_CURRENT_BINARY_DIR}/${name}-gpu.bmp"
+                "-DDIFF_IMAGE=${CMAKE_CURRENT_BINARY_DIR}/${name}-diff.bmp"
+                -P "${CMAKE_CURRENT_SOURCE_DIR}/ImageCompareTest.cmake"
+        )
+        set_tests_properties(capowBatchImageCompare.${name} PROPERTIES
+            LABELS "image"
+        )
+    endfunction()
 
-add_image_compare_test(equalImagesPass base 0)
-add_image_compare_test(differentImagesFail different 1)
+    add_capow_batch_image_compare_test(syntheticHeat2D SYNTHETIC_HEAT_2D 40 1946)
+endif()

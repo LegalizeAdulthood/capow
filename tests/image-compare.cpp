@@ -26,17 +26,9 @@ struct Image
 
 struct Options
 {
-    bool writeTestImage;
     std::string expectedPath;
     std::string actualPath;
     std::string diffPath;
-    std::string testImagePath;
-    std::string testVariant;
-
-    Options() :
-        writeTestImage(false)
-    {
-    }
 };
 
 void PrintUsage()
@@ -254,29 +246,6 @@ Pixel MakePixel(unsigned char red, unsigned char green, unsigned char blue)
     return pixel;
 }
 
-bool WriteTestImage(const std::string &path, const std::string &variant, std::string *error)
-{
-    Image image;
-    image.width = 2;
-    image.height = 2;
-    image.pixels.push_back(MakePixel(255U, 0U, 0U));
-    image.pixels.push_back(MakePixel(0U, 255U, 0U));
-    image.pixels.push_back(MakePixel(0U, 0U, 255U));
-    image.pixels.push_back(MakePixel(255U, 255U, 255U));
-
-    if (variant == "different")
-    {
-        image.pixels[3U] = MakePixel(0U, 0U, 0U);
-    }
-    else if (variant != "base")
-    {
-        *error = "unknown test image variant";
-        return false;
-    }
-
-    return WriteBmp(path, image, error);
-}
-
 bool SamePixel(const Pixel &left, const Pixel &right)
 {
     return left.red == right.red && left.green == right.green && left.blue == right.blue;
@@ -410,23 +379,6 @@ bool ParseArguments(int argc, const char *argv[], Options *options, std::string 
             }
             options->diffPath = argv[++i];
         }
-        else if (arg == "--write-test-image")
-        {
-            if (!NeedValue(i, argc, "--write-test-image", error))
-            {
-                return false;
-            }
-            options->writeTestImage = true;
-            options->testImagePath = argv[++i];
-        }
-        else if (arg == "--variant")
-        {
-            if (!NeedValue(i, argc, "--variant", error))
-            {
-                return false;
-            }
-            options->testVariant = argv[++i];
-        }
         else if (arg == "--help")
         {
             PrintUsage();
@@ -437,21 +389,6 @@ bool ParseArguments(int argc, const char *argv[], Options *options, std::string 
             *error = "unknown option " + arg;
             return false;
         }
-    }
-
-    if (options->writeTestImage)
-    {
-        if (options->testVariant.empty())
-        {
-            *error = "missing --variant";
-            return false;
-        }
-        if (!options->expectedPath.empty() || !options->actualPath.empty() || !options->diffPath.empty())
-        {
-            *error = "--write-test-image cannot be combined with comparison options";
-            return false;
-        }
-        return true;
     }
 
     if (options->expectedPath.empty() || options->actualPath.empty() || options->diffPath.empty())
@@ -510,16 +447,6 @@ int main(int argc, const char *argv[])
         std::cerr << error << "\n";
         PrintUsage();
         return 2;
-    }
-
-    if (options.writeTestImage)
-    {
-        if (!WriteTestImage(options.testImagePath, options.testVariant, &error))
-        {
-            std::cerr << error << "\n";
-            return 2;
-        }
-        return 0;
     }
 
     return CompareImages(options);
