@@ -853,6 +853,12 @@ public:
     void ResetGenerationCount() { _generationcount = 0 ;}
     int Maxx() { return maxx; }
     int Minx() { return minx; }
+    int Maxy() { return maxy; }
+    int Miny() { return miny; }
+    int HorzCount() { return horz_count; }
+    int VertCount() { return vert_count; }
+    int HorzCount2D() { return horz_count_2D; }
+    int VertCount2D() { return vert_count_2D; }
     int Get_TestPoint() { return test_point ; }
     Real MaxIntensity(){return _max_intensity.Val();}
 //------------------CA-Color accessors-------------------------------

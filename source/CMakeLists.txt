@@ -1,5 +1,6 @@
 add_library(CapowCore STATIC
     Autorand.cpp
+    BatchOptions.hpp BatchOptions.cpp
     ca.hpp ca.cpp
     Calist.cpp
     camore.cpp
@@ -27,6 +28,8 @@ target_folder(CapowCore "Libraries")
 add_library(CapowGui STATIC
     About.cpp
     Analog.cpp
+    BatchImage.hpp BatchImage.cpp
+    BatchRunner.hpp BatchRunner.cpp
     Capow.hpp Capow.cpp
     Cell.cpp
     Color.cpp

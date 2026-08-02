@@ -9,6 +9,8 @@
 #include "Capow.hpp"
 
 // These first two headers are needed for Randomize()
+#include "BatchOptions.hpp"
+#include "BatchRunner.hpp"
 #include "ca.hpp"
 #include "resource.h"
 #include "Random.h"
@@ -230,8 +232,19 @@ int WINAPI CapowWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
     HACCEL hAccel;
     MSG msg;
     WNDCLASSA wndclass;
-    strcpy ( commandline, lpszCmdParam );
-    ParseCommandLine ( commandline, WinArgv ); // ~ Copies Command line to a global char array
+    const capow::BatchParseResult batchParse =
+        capow::ParseBatchCommandLine(lpszCmdParam);
+    if (batchParse.batch && !batchParse.ok)
+    {
+        OutputDebugStringA(batchParse.error.c_str());
+        OutputDebugStringA("\n");
+        return 2;
+    }
+    if (!batchParse.batch)
+    {
+        strcpy ( commandline, lpszCmdParam );
+        ParseCommandLine ( commandline, WinArgv ); // ~ Copies Command line to a global char array
+    }
     if (!hPrevInstance)
     {
         wndclass.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
@@ -290,8 +303,15 @@ int WINAPI CapowWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
          //doing a 32 bit compile and you need to comment out
          // the caption switch stuff just above.
 
-    ShowWindow(masterhwnd, nCmdShow);
+    ShowWindow(masterhwnd, batchParse.batch ? SW_HIDE : nCmdShow);
     UpdateWindow(masterhwnd);
+
+    if (batchParse.batch)
+    {
+        const int batchExit = capow::RunBatchMode(batchParse.options);
+        DestroyWindow(masterhwnd);
+        return batchExit;
+    }
 
     hAccel = LoadAcceleratorsA ( hInstance, "Capow_Accelerators" );
 

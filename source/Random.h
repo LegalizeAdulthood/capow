@@ -3,7 +3,11 @@ randomizing functions are based on a cellular automata rule discovered
 by Stephen Wolfram and called Rule 30. */
 #include "Types.h" //For definition of Real as float or double.
 
+#if defined(__FLAT__) || !defined(__BORLANDC__)
+extern void rseed(unsigned long); //Start the randomizer off in a specific state
+#else
 extern void rseed(unsigned int); //Start the randomizer off in a specific state
+#endif
 extern unsigned int Randomize(void); //Seed with the time in seconds
 extern unsigned int Random(unsigned int n); //Return an int betweeon 0 and n - 1
 extern unsigned char Randombyte(void); //Return a byte between 0 and 255

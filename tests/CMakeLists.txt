@@ -4,6 +4,7 @@ find_package(GTest CONFIG REQUIRED)
 
 add_executable(test-CapowCore
     AlpakaUtilities_test.cpp
+    BatchOptions_test.cpp
     ImageBuffer_test.cpp
     WavePlaneImage_test.cpp
 )
