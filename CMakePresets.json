@@ -70,7 +70,8 @@
       "name": "default",
       "displayName": "Test with default settings",
       "configurePreset": "default",
-      "inherits": [ "settings" ]
+      "inherits": [ "settings" ],
+      "configuration": "Debug"
     }
   ],
   "workflowPresets": [
