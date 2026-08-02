@@ -15,8 +15,16 @@ if(CAPOW_ENABLE_ALPAKA)
     target_sources(test-CapowCore PRIVATE
         AlpakaBackend_test.cpp
         AlpakaBuffers_test.cpp
+        AlpakaHeat2D_test.cpp
         AlpakaSyntheticHeat_test.cpp)
     target_link_libraries(test-CapowCore PUBLIC CapowAlpaka)
+
+    add_executable(heat2d-timing
+        heat2d-timing.cpp
+    )
+    target_include_directories(heat2d-timing PRIVATE "${PROJECT_SOURCE_DIR}/source")
+    target_link_libraries(heat2d-timing PUBLIC CapowAlpaka CapowCore)
+    target_folder(heat2d-timing "Tests")
 endif()
 target_folder(test-CapowCore "Tests")
 gtest_discover_tests(test-CapowCore)

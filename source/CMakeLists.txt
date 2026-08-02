@@ -60,8 +60,11 @@ if(CAPOW_ENABLE_ALPAKA)
         AlpakaBackend.cpp
         AlpakaBuffers.hpp
         AlpakaBuffers.cpp
+        AlpakaHeat2D.hpp
+        AlpakaHeat2D.cpp
         AlpakaSyntheticHeat.hpp
         AlpakaSyntheticHeat.cpp
+        CapowRules.hpp
         AlpakaUtilities.hpp
     )
     target_link_libraries(CapowAlpaka PRIVATE alpaka::alpaka)
