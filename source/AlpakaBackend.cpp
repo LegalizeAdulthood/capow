@@ -58,6 +58,7 @@ AlpakaManager::AlpakaManager() :
         ruleEnabled[ruleIndex] = false;
     }
     ruleEnabled[ALPAKA_RULE_SYNTHETIC_HEAT_2D] = true;
+    ruleEnabled[ALPAKA_RULE_CA_HEAT_2D] = true;
 }
 
 bool AlpakaManager::IsGpuAvailable() const

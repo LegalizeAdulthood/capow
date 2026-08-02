@@ -167,8 +167,8 @@ void RunHeat2DHost(const Heat2DOptions &options, const std::vector<AlpakaPlaneVa
         std::swap(current, nextIntensity);
     }
 
-    result->intensity = current;
-    result->velocity = nextVelocity;
+    result->intensityField = current;
+    result->velocityField = nextVelocity;
 }
 
 void RunHeat2DGpu(const Heat2DOptions &options, const std::vector<AlpakaPlaneValue> &initial, Heat2DFields *result)
@@ -178,8 +178,8 @@ void RunHeat2DGpu(const Heat2DOptions &options, const std::vector<AlpakaPlaneVal
 
     if (options.steps == 0)
     {
-        result->intensity = initial;
-        result->velocity.assign(initial.size(), AlpakaPlaneValue(0));
+        result->intensityField = initial;
+        result->velocityField.assign(initial.size(), AlpakaPlaneValue(0));
         return;
     }
 
@@ -215,10 +215,10 @@ void RunHeat2DGpu(const Heat2DOptions &options, const std::vector<AlpakaPlaneVal
     }
     alpaka::wait(queue);
 
-    result->intensity.resize(CellCount(options));
-    result->velocity.resize(CellCount(options));
-    HostView hostIntensity = alpaka::createView(hostDevice, result->intensity.data(), memExtent);
-    HostView hostVelocity = alpaka::createView(hostDevice, result->velocity.data(), memExtent);
+    result->intensityField.resize(CellCount(options));
+    result->velocityField.resize(CellCount(options));
+    HostView hostIntensity = alpaka::createView(hostDevice, result->intensityField.data(), memExtent);
+    HostView hostVelocity = alpaka::createView(hostDevice, result->velocityField.data(), memExtent);
     alpaka::memcpy(queue, hostIntensity, deviceCurrent, memExtent);
     alpaka::memcpy(queue, hostVelocity, deviceNextVelocity, memExtent);
     alpaka::wait(queue);

@@ -32,8 +32,9 @@ void ExpectHeatGpuMatchesHost(int width, int height, int steps)
     capow::RunHeat2DGpu(options, initial, &gpuResult);
 
     const capow::AlpakaPlaneValue intensityError =
-        capow::MaxHeat2DDifference(hostResult.intensity, gpuResult.intensity);
-    const capow::AlpakaPlaneValue velocityError = capow::MaxHeat2DDifference(hostResult.velocity, gpuResult.velocity);
+        capow::MaxHeat2DDifference(hostResult.intensityField, gpuResult.intensityField);
+    const capow::AlpakaPlaneValue velocityError =
+        capow::MaxHeat2DDifference(hostResult.velocityField, gpuResult.velocityField);
     EXPECT_LE(intensityError, 1.0e-5F) << "max intensity error: " << intensityError;
     EXPECT_LE(velocityError, 1.0e-5F) << "max velocity error: " << velocityError;
 }

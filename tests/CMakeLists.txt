@@ -36,6 +36,10 @@ target_folder(image-compare "Tests")
 
 if(CAPOW_ENABLE_ALPAKA)
     function(add_capow_batch_image_compare_test name rule steps seed)
+        set(toleranceArgument "")
+        if(ARGC GREATER 4)
+            set(toleranceArgument "-DTOLERANCE=${ARGV4}")
+        endif()
         add_test(NAME capowBatchImageCompare.${name}
             COMMAND ${CMAKE_COMMAND}
                 "-DCAPOW_EXECUTABLE=$<SHELL_PATH:$<TARGET_FILE:Capow>>"
@@ -46,6 +50,7 @@ if(CAPOW_ENABLE_ALPAKA)
                 "-DCPU_IMAGE=${CMAKE_CURRENT_BINARY_DIR}/${name}-cpu.bmp"
                 "-DGPU_IMAGE=${CMAKE_CURRENT_BINARY_DIR}/${name}-gpu.bmp"
                 "-DDIFF_IMAGE=${CMAKE_CURRENT_BINARY_DIR}/${name}-diff.bmp"
+                ${toleranceArgument}
                 -P "${CMAKE_CURRENT_SOURCE_DIR}/ImageCompareTest.cmake"
         )
         set_tests_properties(capowBatchImageCompare.${name} PROPERTIES
@@ -54,4 +59,5 @@ if(CAPOW_ENABLE_ALPAKA)
     endfunction()
 
     add_capow_batch_image_compare_test(syntheticHeat2D SYNTHETIC_HEAT_2D 40 1946)
+    add_capow_batch_image_compare_test(caHeat2D CA_HEAT_2D 40 1946)
 endif()

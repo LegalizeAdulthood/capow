@@ -42,6 +42,10 @@ require_variable(SEED)
 require_variable(CPU_IMAGE)
 require_variable(GPU_IMAGE)
 require_variable(DIFF_IMAGE)
+set(toleranceArguments "")
+if(DEFINED TOLERANCE AND NOT "${TOLERANCE}" STREQUAL "")
+    list(APPEND toleranceArguments --tolerance "${TOLERANCE}")
+endif()
 
 file(REMOVE "${CPU_IMAGE}" "${GPU_IMAGE}" "${DIFF_IMAGE}")
 
@@ -70,6 +74,7 @@ format_command(compareCommand
     --expected "${CPU_IMAGE}"
     --actual "${GPU_IMAGE}"
     --diff "${DIFF_IMAGE}"
+    ${toleranceArguments}
 )
 
 execute_process(
@@ -77,6 +82,7 @@ execute_process(
         --expected "${CPU_IMAGE}"
         --actual "${GPU_IMAGE}"
         --diff "${DIFF_IMAGE}"
+        ${toleranceArguments}
     RESULT_VARIABLE compareResult
     OUTPUT_VARIABLE compareOutput
     ERROR_VARIABLE compareError

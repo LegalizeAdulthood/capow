@@ -54,8 +54,8 @@ Measurement MeasureHeat2D(const capow::Heat2DOptions &options)
     Measurement measurement;
     measurement.cpuMs = cpuMs;
     measurement.gpuMs = gpuMs;
-    measurement.maxIntensityError = capow::MaxHeat2DDifference(hostResult.intensity, gpuResult.intensity);
-    measurement.maxVelocityError = capow::MaxHeat2DDifference(hostResult.velocity, gpuResult.velocity);
+    measurement.maxIntensityError = capow::MaxHeat2DDifference(hostResult.intensityField, gpuResult.intensityField);
+    measurement.maxVelocityError = capow::MaxHeat2DDifference(hostResult.velocityField, gpuResult.velocityField);
     return measurement;
 }
 

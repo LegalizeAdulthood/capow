@@ -29,11 +29,18 @@ struct Options
     std::string expectedPath;
     std::string actualPath;
     std::string diffPath;
+    int tolerance;
+
+    Options() :
+        tolerance(0)
+    {
+    }
 };
 
 void PrintUsage()
 {
-    std::cerr << "usage: image-compare --expected expected.bmp --actual actual.bmp --diff diff.bmp\n";
+    std::cerr << "usage: image-compare --expected expected.bmp --actual actual.bmp --diff diff.bmp "
+                 "[--tolerance 0..255]\n";
 }
 
 bool ReadFile(const std::string &path, std::vector<unsigned char> *bytes, std::string *error)
@@ -246,23 +253,28 @@ Pixel MakePixel(unsigned char red, unsigned char green, unsigned char blue)
     return pixel;
 }
 
-bool SamePixel(const Pixel &left, const Pixel &right)
-{
-    return left.red == right.red && left.green == right.green && left.blue == right.blue;
-}
-
 int AbsDiff(unsigned char left, unsigned char right)
 {
     return std::abs(static_cast<int>(left) - static_cast<int>(right));
 }
 
-Pixel DiffPixel(const Pixel &expected, const Pixel &actual)
+int PixelTolerance(const Pixel &left, const Pixel &right)
 {
-    const int redDiff = AbsDiff(expected.red, actual.red);
-    const int greenDiff = AbsDiff(expected.green, actual.green);
-    const int blueDiff = AbsDiff(expected.blue, actual.blue);
-    const int maxDiff = std::max(redDiff, std::max(greenDiff, blueDiff));
-    if (maxDiff == 0)
+    const int redDiff = AbsDiff(left.red, right.red);
+    const int greenDiff = AbsDiff(left.green, right.green);
+    const int blueDiff = AbsDiff(left.blue, right.blue);
+    return std::max(redDiff, std::max(greenDiff, blueDiff));
+}
+
+bool PixelsMatch(const Pixel &left, const Pixel &right, int tolerance)
+{
+    return PixelTolerance(left, right) <= tolerance;
+}
+
+Pixel DiffPixel(const Pixel &expected, const Pixel &actual, int tolerance)
+{
+    const int maxDiff = PixelTolerance(expected, actual);
+    if (maxDiff <= tolerance)
     {
         return MakePixel(0U, 0U, 0U);
     }
@@ -280,7 +292,7 @@ bool TryGetPixel(const Image &image, int x, int y, Pixel *pixel)
     return true;
 }
 
-Image MakeDiffImage(const Image &expected, const Image &actual)
+Image MakeDiffImage(const Image &expected, const Image &actual, int tolerance)
 {
     Image diff;
     diff.width = std::max(expected.width, actual.width);
@@ -298,7 +310,7 @@ Image MakeDiffImage(const Image &expected, const Image &actual)
             Pixel diffPixel = MakePixel(0U, 0U, 0U);
             if (hasExpected && hasActual)
             {
-                diffPixel = DiffPixel(expectedPixel, actualPixel);
+                diffPixel = DiffPixel(expectedPixel, actualPixel, tolerance);
             }
             else if (hasExpected)
             {
@@ -315,7 +327,17 @@ Image MakeDiffImage(const Image &expected, const Image &actual)
     return diff;
 }
 
-bool ImagesEqual(const Image &expected, const Image &actual, int *differentPixels)
+int RequiredTolerance(const Image &expected, const Image &actual)
+{
+    int result = 0;
+    for (std::size_t i = 0; i < expected.pixels.size(); ++i)
+    {
+        result = std::max(result, PixelTolerance(expected.pixels[i], actual.pixels[i]));
+    }
+    return result;
+}
+
+bool ImagesEqual(const Image &expected, const Image &actual, int tolerance, int *differentPixels)
 {
     *differentPixels = 0;
     if (expected.width != actual.width || expected.height != actual.height)
@@ -325,7 +347,7 @@ bool ImagesEqual(const Image &expected, const Image &actual, int *differentPixel
 
     for (std::size_t i = 0; i < expected.pixels.size(); ++i)
     {
-        if (!SamePixel(expected.pixels[i], actual.pixels[i]))
+        if (!PixelsMatch(expected.pixels[i], actual.pixels[i], tolerance))
         {
             ++*differentPixels;
         }
@@ -342,6 +364,31 @@ bool NeedValue(int index, int argc, const char *name, std::string *error)
     *error = "missing value for ";
     *error += name;
     return false;
+}
+
+bool ParseTolerance(const std::string &text, int *value)
+{
+    if (text.empty())
+    {
+        return false;
+    }
+
+    int result = 0;
+    for (std::size_t index = 0; index < text.size(); ++index)
+    {
+        const char ch = text[index];
+        if (ch < '0' || ch > '9')
+        {
+            return false;
+        }
+        result = result * 10 + ch - '0';
+        if (result > 255)
+        {
+            return false;
+        }
+    }
+    *value = result;
+    return true;
 }
 
 bool ParseArguments(int argc, const char *argv[], Options *options, std::string *error)
@@ -379,6 +426,18 @@ bool ParseArguments(int argc, const char *argv[], Options *options, std::string 
             }
             options->diffPath = argv[++i];
         }
+        else if (arg == "--tolerance")
+        {
+            if (!NeedValue(i, argc, "--tolerance", error))
+            {
+                return false;
+            }
+            if (!ParseTolerance(argv[++i], &options->tolerance))
+            {
+                *error = "--tolerance must be an integer from 0 to 255";
+                return false;
+            }
+        }
         else if (arg == "--help")
         {
             PrintUsage();
@@ -411,12 +470,12 @@ int CompareImages(const Options &options)
     }
 
     int differentPixels = 0;
-    if (ImagesEqual(expected, actual, &differentPixels))
+    if (ImagesEqual(expected, actual, options.tolerance, &differentPixels))
     {
         return 0;
     }
 
-    const Image diff = MakeDiffImage(expected, actual);
+    const Image diff = MakeDiffImage(expected, actual, options.tolerance);
     if (!WriteBmp(options.diffPath, diff, &error))
     {
         std::cerr << error << "\n";
@@ -427,10 +486,13 @@ int CompareImages(const Options &options)
     {
         std::cerr << "image dimensions differ: expected " << expected.width << "x" << expected.height << ", actual "
                   << actual.width << "x" << actual.height << "\n";
+        std::cerr << "no tolerance can pass images with different dimensions\n";
     }
     else
     {
-        std::cerr << "images differ: " << differentPixels << " pixels differ\n";
+        const int requiredTolerance = RequiredTolerance(expected, actual);
+        std::cerr << "images differ: " << differentPixels << " pixels exceed tolerance " << options.tolerance << "\n";
+        std::cerr << "minimum tolerance needed to pass: " << requiredTolerance << "\n";
     }
     std::cerr << "diff written to " << options.diffPath << "\n";
     return 1;

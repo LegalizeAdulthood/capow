@@ -22,8 +22,8 @@ struct Heat2DOptions
 
 struct Heat2DFields
 {
-    std::vector<AlpakaPlaneValue> intensity;
-    std::vector<AlpakaPlaneValue> velocity;
+    std::vector<AlpakaPlaneValue> intensityField;
+    std::vector<AlpakaPlaneValue> velocityField;
 };
 
 void MakeHeat2DInitial(const Heat2DOptions &options, std::vector<AlpakaPlaneValue> *field);
