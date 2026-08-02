@@ -60,9 +60,9 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 {
     HINSTANCE hInstance;
 
-    hInstance = (HINSTANCE)GetWindowLong(hDlg, GWLP_HINSTANCE);
+    hInstance = (HINSTANCE) GetWindowLongPtr(hDlg, GWLP_HINSTANCE);
 
-//  CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
+    //  CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
     controlID_to_TweakID[0] = SPACE_STEP_TYPE;
     controlID_to_TweakID[1] = TIME_STEP_TYPE;
     controlID_to_TweakID[2] = MAX_INTENSITY_TYPE;

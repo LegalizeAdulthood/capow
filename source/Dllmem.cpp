@@ -97,7 +97,7 @@ BOOL CA::GetUserRulePtr(HWND hwnd, char *DLLname)
 /* If you have already loaded this library before, then this increases
 the library's "reference count".  You eventually need to call FreeLibrary
 once for each time that you call LoadLibary. */
-    if ((UINT)_DLLhandle < (UINT)HINSTANCE_ERROR) //LoadLibrary failed
+    if (_DLLhandle == NULL) // LoadLibrary failed
     {
         MessageBox( hwnd,
             (LPSTR)"Unable to Load DLL Library!",

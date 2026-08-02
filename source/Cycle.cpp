@@ -65,9 +65,9 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
 
             // Set EVOLVE type Combo Box
             hCntl = GetDlgItem( hDlg, IDC_EVOLVE);
-            SendMessage( hCntl, CB_ADDSTRING, CA_ZAP, (LONG)"Zap");
-            SendMessage( hCntl, CB_ADDSTRING, CA_CLONE, (LONG)"Clone");
-            SendMessage( hCntl, CB_ADDSTRING, CA_SEX, (LONG)"Breed");
+            SendMessage(hCntl, CB_ADDSTRING, CA_ZAP, (LPARAM) "Zap");
+            SendMessage(hCntl, CB_ADDSTRING, CA_CLONE, (LPARAM) "Clone");
+            SendMessage(hCntl, CB_ADDSTRING, CA_SEX, (LPARAM) "Breed");
 
             showcycleparams(hDlg);
 

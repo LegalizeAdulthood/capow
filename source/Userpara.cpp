@@ -71,8 +71,8 @@ static int lastVisible  = 0;    // Used to show and hide edit when scroll
 static HFONT    hEditFont;
 static BOOL     changeAll = TRUE;
 
-LRESULT CALLBACK EditProc(HWND hwnd, UINT message, UINT wParam, LONG lParam);
- static void MyWnd_SIZE(HWND hwnd, UINT state, int cx, int cy);
+LRESULT CALLBACK EditProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+static void MyWnd_SIZE(HWND hwnd, UINT state, int cx, int cy);
 
 void removeUserParam(CA *activeCA, BOOL removeVariance)
 //
@@ -108,9 +108,8 @@ void createEdit( )
         SendMessage(hwnd, WM_SETFONT, (WPARAM) hEditFont, 0L);
 
         HWND upDown;
-        hwnd = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER |
-                         WS_TABSTOP, 0, 0, 0, 0, hUserDialog,
-                         (HMENU)(count+USEREDITCODEBASE), hInst, NULL);
+        hwnd = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 0, 0, 0, 0, hUserDialog,
+            (HMENU) (INT_PTR) (count + USEREDITCODEBASE), hInst, NULL);
         upDown = CreateUpDownControl(WS_CHILD | WS_BORDER | WS_VISIBLE |
                          UDS_ALIGNRIGHT, 0, 0, 0, 0, hUserDialog,
                          count+size+USEREDITCODEBASE, hInst, hwnd, 100, 0, 50);
@@ -121,11 +120,11 @@ void createEdit( )
         SendMessage(hwnd, WM_SETFONT, (WPARAM) hEditFont, 0L);
 
         // Save old window callback procedure of edit control windows
-        WNDPROC oldEditProc = (WNDPROC) GetWindowLong(hwnd, GWLP_WNDPROC);
+        WNDPROC oldEditProc = (WNDPROC) GetWindowLongPtr(hwnd, GWLP_WNDPROC);
         // and set to new window callback procedure of edit control. This
         // way we can process the tab and <return> key
         userAddHOldProc.push_back(oldEditProc);
-        SetWindowLong(hwnd, GWLP_WNDPROC, (LONG) EditProc);
+        SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR) EditProc);
 
         // Set edit value
         char valueText[80];
@@ -195,31 +194,23 @@ void createButton()
 // Create groupbox, button, radio button.
 //
 {
-    groupBox = CreateWindow("button", "Change Which?",
-                            WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-                            0, 0, 0, 0, hUserDialog, (HMENU)(BUTTONIDBASE),
-                            hInst, NULL);
+    groupBox = CreateWindow("button", "Change Which?", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 0, 0, 0, 0, hUserDialog,
+        (HMENU) (INT_PTR) (BUTTONIDBASE), hInst, NULL);
     SendMessage(groupBox, WM_SETFONT, (WPARAM) hEditFont, 0L);
-    radioChangeAll = CreateWindow("button", "Change All",
-                                  WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-                                  0, 0, 0, 0, hUserDialog,
-                                  (HMENU)(BUTTONIDBASE+1), hInst, NULL);
+    radioChangeAll = CreateWindow("button", "Change All", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 0, 0, 0, 0,
+        hUserDialog, (HMENU) (INT_PTR) (BUTTONIDBASE + 1), hInst, NULL);
     SendMessage(radioChangeAll, WM_SETFONT, (WPARAM) hEditFont, 0L);
-    radioChangeFocus = CreateWindow("button", "Change Focus",
-                                  WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-                                  0, 0, 0, 0, hUserDialog,
-                                  (HMENU)(BUTTONIDBASE+2), hInst, NULL);
+    radioChangeFocus = CreateWindow("button", "Change Focus", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 0, 0, 0, 0,
+        hUserDialog, (HMENU) (INT_PTR) (BUTTONIDBASE + 2), hInst, NULL);
     SendMessage(radioChangeFocus, WM_SETFONT, (WPARAM) hEditFont, 0L);
-    randomButton = CreateWindow("button", "Mutate Params",
-                                WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                                0, 0, 0, 0, hUserDialog,
-                                (HMENU)(BUTTONIDBASE+3), hInst, NULL);
+    randomButton = CreateWindow("button", "Mutate Params", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 0, 0, 0, 0,
+        hUserDialog, (HMENU) (INT_PTR) (BUTTONIDBASE + 3), hInst, NULL);
     SendMessage(randomButton, WM_SETFONT, (WPARAM) hEditFont, 0L);
     // Save old window callback procedure of edit control windows
-    randomButtonOld = (WNDPROC) GetWindowLong(randomButton, GWLP_WNDPROC);
+    randomButtonOld = (WNDPROC) GetWindowLongPtr(randomButton, GWLP_WNDPROC);
     // and set to new window callback procedure of edit control. This
     // way we can process the tab and <return> key
-    SetWindowLong(randomButton, GWLP_WNDPROC, (LONG) EditProc);
+    SetWindowLongPtr(randomButton, GWLP_WNDPROC, (LONG_PTR) EditProc);
 }
 
 void moveButton(int x, int y)
@@ -563,14 +554,13 @@ static void MyWnd_SIZE(HWND hwnd, UINT state, int cx, int cy)
     validUserDialog = TRUE; // OK to process WM_RESIZE or this procedure again
 }
 
-static LRESULT CALLBACK EditProc(HWND hwnd, UINT message,
-                                        UINT wParam, LONG lParam)
+static LRESULT CALLBACK EditProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 //
 // This function replace the default edit box call back function. This
 // way we can process the TAB and RETURN key.
 //
 {
-    short n = (short) GetWindowLong(hwnd, GWL_ID);
+    short n = (short) GetDlgCtrlID(hwnd);
     if (n == BUTTONIDBASE+3)
     {   // It is the randomize button
         switch (message)
@@ -603,9 +593,7 @@ static LRESULT CALLBACK EditProc(HWND hwnd, UINT message,
                 else if (wParam == VK_RETURN)
                 {   // Enter press, sent an EN_KILLFOCUS message as signal of
                     //  update
-                    SendMessage(hUserDialog, WM_COMMAND,
-                                MAKEWPARAM(n + USEREDITCODEBASE, EN_KILLFOCUS),
-                                LONG(hwnd));
+                    SendMessage(hUserDialog, WM_COMMAND, MAKEWPARAM(n + USEREDITCODEBASE, EN_KILLFOCUS), (LPARAM) hwnd);
                     return 0;
                 }
                 break;

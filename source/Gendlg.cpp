@@ -343,7 +343,7 @@ void showparams(HWND hDlg)
             _ltoa(calife_list->FocusCA()->generatorlist.Location_y(i)  ,buffer2, 10);
             wsprintf((LPSTR) buffer, "%2s %4s %2s",(LPSTR)buffer1, (LPSTR)"    ", (LPSTR)buffer2);
         }
-        SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_ADDSTRING, 0, (LONG)(LPSTR)buffer);
+        SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_ADDSTRING, 0, (LPARAM) (LPSTR) buffer);
         SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_SETITEMDATA, i, (LPARAM) i);
         SendMessage(GetDlgItem(hDlg, IDC_GENERATORS_LIST1), LB_SETCURSEL, focusGen, 0L); //highlights list box sellection
     }

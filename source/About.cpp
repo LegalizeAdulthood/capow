@@ -98,8 +98,7 @@ static void PaintBlock(HWND hwnd)
     PAINTSTRUCT ps;
 
     hdc = BeginPaint(hwnd, &ps);
-    hBitmap = LoadBitmap((HINSTANCE)GetWindowLong(hCtrlBlock, GWLP_HINSTANCE),
-            "AboutBMP");
+    hBitmap = LoadBitmap((HINSTANCE) GetWindowLongPtr(hCtrlBlock, GWLP_HINSTANCE), "AboutBMP");
     if (calife_list->numcolor() == 256)
     {
         old_hpal = SelectPalette(hdc, calife_list->hpal(), 0);

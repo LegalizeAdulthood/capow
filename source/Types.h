@@ -5,8 +5,12 @@
 /* We want to do this here so that the same "STRICT" version
 of windows.h gets used throughout.  Don't allow any #include windows.h
 anywhere else.  Always do #include types.h instead. */
+#ifndef STRICT
 #define STRICT
+#endif
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #include <windows.h>
 #include <windowsx.h>
 #pragma warning (disable : 4068)

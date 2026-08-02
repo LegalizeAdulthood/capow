@@ -453,18 +453,18 @@ void ShowParams (HWND hDlg)
             cur_group = 0;    // named for this group
             // Set vertical parameters
             hCtrl = GetDlgItem (hDlg, IDC_VERTPARAM);
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "No Param");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Lambda");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Entropy");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Score");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "No Param");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Lambda");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
             SendMessage (hCtrl, CB_SETCURSEL, Y_Index[cur_group], 0L);
 
             // Set horizontal parameters
             hCtrl = GetDlgItem (hDlg, IDC_HORZPARAM);
-     //     SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "No Param");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Lambda");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Entropy");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Score");
+            //     SendMessage (hCtrl, CB_ADDSTRING, 0, (LPARAM)"No Param");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Lambda");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
             SendMessage (hCtrl, CB_SETCURSEL, X_Index[cur_group], 0L);
             break;
 
@@ -475,26 +475,26 @@ void ShowParams (HWND hDlg)
             cur_group = 1;    // named for this group
             // Set vertical parameters
             hCtrl = GetDlgItem (hDlg, IDC_VERTPARAM);
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "No Param");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Time Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Space Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Vel. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Int. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Band Count");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Entropy");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Score");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "No Param");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Space Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Int. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Band Count");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
             SendMessage (hCtrl, CB_SETCURSEL, Y_Index[cur_group], 0L);
 
             // Set horizontal parameters
             hCtrl = GetDlgItem (hDlg, IDC_HORZPARAM);
-      //        SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "No Param");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Time Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Space Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Vel. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Int. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Band Count");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Entropy");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Score");
+            //        SendMessage (hCtrl, CB_ADDSTRING, 0, (LPARAM)"No Param");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Space Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Int. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Band Count");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
             SendMessage (hCtrl, CB_SETCURSEL, X_Index[cur_group], 0L);
             break;
 
@@ -505,28 +505,28 @@ void ShowParams (HWND hDlg)
             cur_group = 2;    // named for this group
             // Set vertical parameters
             hCtrl = GetDlgItem (hDlg, IDC_VERTPARAM);
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "No Param");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Time Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Space Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Vel. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Int. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Band Count");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Nonlinearity");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Entropy");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Score");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "No Param");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Space Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Int. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Band Count");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Nonlinearity");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
             SendMessage (hCtrl, CB_SETCURSEL, Y_Index[cur_group], 0L);
 
             // Set horizontal parameters
             hCtrl = GetDlgItem (hDlg, IDC_HORZPARAM);
-      //        SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "No Param");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Time Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Space Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Vel. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Int. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Band Count");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Nonlinearity");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Entropy");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Score");
+            //        SendMessage (hCtrl, CB_ADDSTRING, 0, (LPARAM)"No Param");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Space Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Int. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Band Count");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Nonlinearity");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
             SendMessage (hCtrl, CB_SETCURSEL, X_Index[cur_group], 0L);
             break;
 
@@ -535,28 +535,28 @@ void ShowParams (HWND hDlg)
             cur_group = 3;    // named for this group
             // Set vertical parameters
             hCtrl = GetDlgItem (hDlg, IDC_VERTPARAM);
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "No Param");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Time Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Space Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Vel. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Int. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Heat Count");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Band Count");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Entropy");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Score");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "No Param");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Space Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Int. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Heat Count");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Band Count");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
             SendMessage (hCtrl, CB_SETCURSEL, Y_Index[cur_group], 0L);
 
             // Set horizontal parameters
             hCtrl = GetDlgItem (hDlg, IDC_HORZPARAM);
-     //     SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "No Param");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Time Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Space Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Vel. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Int. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Heat Count");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Band Count");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Entropy");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Score");
+            //     SendMessage (hCtrl, CB_ADDSTRING, 0, (LPARAM)"No Param");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Space Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Int. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Heat Count");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Band Count");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
             SendMessage (hCtrl, CB_SETCURSEL, X_Index[cur_group], 0L);
             break;
 
@@ -567,35 +567,35 @@ void ShowParams (HWND hDlg)
             cur_group = 4;    // named for this group
             // Set vertical parameters
             hCtrl = GetDlgItem (hDlg, IDC_VERTPARAM);
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "No Param");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Time Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Vel. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Int. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Band Count");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "1/Capacitance");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Resistance");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Volt. Amp.");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Volt. Freq.");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Inductance");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Entropy");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Score");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "No Param");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Int. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Band Count");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "1/Capacitance");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Resistance");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Volt. Amp.");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Volt. Freq.");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Inductance");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
             SendMessage (hCtrl, CB_SETCURSEL, Y_Index[cur_group], 0L);
 
             // Set horizontal parameters
             hCtrl = GetDlgItem (hDlg, IDC_HORZPARAM);
-      //        SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "No Param");
+            //        SendMessage (hCtrl, CB_ADDSTRING, 0, (LPARAM)"No Param");
             SendMessage (hCtrl, CB_SETCURSEL, X_Index[cur_group], 0L);
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Time Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Vel. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Int. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Band Count");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "1/Capacitance");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Resistance");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Volt. Amp.");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Volt. Freq.");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Inductance");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Entropy");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Score");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Int. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Band Count");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "1/Capacitance");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Resistance");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Volt. Amp.");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Volt. Freq.");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Inductance");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
             SendMessage (hCtrl, CB_SETCURSEL, X_Index[cur_group], 0L);
             break;
 
@@ -607,37 +607,37 @@ void ShowParams (HWND hDlg)
             cur_group = 5;    // named for this group
             // Set vertical parameters
             hCtrl = GetDlgItem (hDlg, IDC_VERTPARAM);
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "No Param");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Time Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Space Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Vel. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Int. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Band Count");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "1/Capacitance");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Resistance");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Volt. Amp.");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Volt. Freq.");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Inductance");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Entropy");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Score");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "No Param");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Space Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Int. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Band Count");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "1/Capacitance");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Resistance");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Volt. Amp.");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Volt. Freq.");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Inductance");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
             SendMessage (hCtrl, CB_SETCURSEL, Y_Index[cur_group], 0L);
 
             // Set horizontal parameters
             hCtrl = GetDlgItem (hDlg, IDC_HORZPARAM);
-      //        SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "No Param");
+            //        SendMessage (hCtrl, CB_ADDSTRING, 0, (LPARAM)"No Param");
             SendMessage (hCtrl, CB_SETCURSEL, X_Index[cur_group], 0L);
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Time Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Space Step");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Vel. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Int. Range");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Band Count");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "1/Capacitance");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Resistance");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Volt. Amp.");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Volt. Freq.");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Inductance");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Entropy");
-            SendMessage (hCtrl, CB_ADDSTRING, 0, (LONG) "Score");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Time Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Space Step");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Vel. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Int. Range");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Band Count");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "1/Capacitance");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Resistance");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Volt. Amp.");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Volt. Freq.");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Inductance");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Entropy");
+            SendMessage(hCtrl, CB_ADDSTRING, 0, (LPARAM) "Score");
             SendMessage (hCtrl, CB_SETCURSEL, X_Index[cur_group], 0L);
             break;
     }
@@ -803,8 +803,8 @@ void ShowRange (HWND hDlg, Real minx, Real maxx,
     {
         EnableWindow (GetDlgItem (hDlg, IDC_HORZMAX), TRUE);
         realLabel (hDlg, IDC_HORZMAX, maxx);
-        //wsprintf (buf, "%.2f", maxx);
-        //SendMessage (GetDlgItem (hDlg, IDC_HORZMAX), WM_SETTEXT, 0,   (LONG) buf);
+        // wsprintf (buf, "%.2f", maxx);
+        // SendMessage (GetDlgItem (hDlg, IDC_HORZMAX), WM_SETTEXT, 0,   (LPARAM)buf);
     }
 
     //  vert values
@@ -815,8 +815,8 @@ void ShowRange (HWND hDlg, Real minx, Real maxx,
     {
         EnableWindow (GetDlgItem (hDlg, IDC_VERTMIN), TRUE);
         realLabel (hDlg, IDC_VERTMIN, miny);
-        //wsprintf (buf, "%.2f", miny);
-        //SendMessage (GetDlgItem (hDlg, IDC_VERTMIN), WM_SETTEXT, 0,   (LONG) buf);
+        // wsprintf (buf, "%.2f", miny);
+        // SendMessage (GetDlgItem (hDlg, IDC_VERTMIN), WM_SETTEXT, 0,   (LPARAM)buf);
     }
 
     strcpy (buf, "");
@@ -826,20 +826,20 @@ void ShowRange (HWND hDlg, Real minx, Real maxx,
     {
         EnableWindow (GetDlgItem (hDlg, IDC_VERTMAX), TRUE);
         realLabel (hDlg, IDC_VERTMAX, maxy);
-        //wsprintf (buf, "%.2f", maxy);
-        //SendMessage (GetDlgItem (hDlg, IDC_VERTMAX), WM_SETTEXT, 0,   (LONG) buf);
+        // wsprintf (buf, "%.2f", maxy);
+        // SendMessage (GetDlgItem (hDlg, IDC_VERTMAX), WM_SETTEXT, 0,   (LPARAM)buf);
     }
 
     if (vparam == RAMP_NO_PARAM )
     {
         strcpy (buf, "");
-        SendMessage (GetDlgItem (hDlg, IDC_VERTMIN), WM_SETTEXT, 0, (LONG) buf);
+        SendMessage(GetDlgItem(hDlg, IDC_VERTMIN), WM_SETTEXT, 0, (LPARAM) buf);
         EnableWindow (GetDlgItem (hDlg, IDC_VERTMIN), FALSE);
-        SendMessage (GetDlgItem (hDlg, IDC_VERTMAX), WM_SETTEXT, 0, (LONG) buf);
+        SendMessage(GetDlgItem(hDlg, IDC_VERTMAX), WM_SETTEXT, 0, (LPARAM) buf);
         EnableWindow (GetDlgItem (hDlg, IDC_VERTMAX), FALSE);
         for(int i = 0; i < numCAs; i++)
         {
-            SendMessage (GetDlgItem (hDlg, IDC_INFO11MAX+i), WM_SETTEXT, 0, (LONG) buf);
+            SendMessage(GetDlgItem(hDlg, IDC_INFO11MAX + i), WM_SETTEXT, 0, (LPARAM) buf);
             EnableWindow (GetDlgItem (hDlg, IDC_INFO11MAX+i), FALSE);
         }
     }
@@ -849,12 +849,12 @@ void ShowRange (HWND hDlg, Real minx, Real maxx,
             for(int col = 0; col < 3; col++)    // column
                 if (row < dimension && col < dimension)
                 {
-                    SendMessage (GetDlgItem (hDlg, IDC_INFO11MAX+(row*3)+col), WM_SETTEXT, 0,   (LONG) buf);
+                    SendMessage(GetDlgItem(hDlg, IDC_INFO11MAX + (row * 3) + col), WM_SETTEXT, 0, (LPARAM) buf);
                     EnableWindow (GetDlgItem (hDlg, IDC_INFO11MAX+(row*3)+col), TRUE);
                 }
                 else
                 {
-                    SendMessage (GetDlgItem (hDlg, IDC_INFO11MAX+(row*3)+col), WM_SETTEXT, 0,   (LONG) buf);
+                    SendMessage(GetDlgItem(hDlg, IDC_INFO11MAX + (row * 3) + col), WM_SETTEXT, 0, (LPARAM) buf);
                     EnableWindow (GetDlgItem (hDlg, IDC_INFO11MAX+(row*3)+col), FALSE);
                 }
     }
@@ -862,13 +862,13 @@ void ShowRange (HWND hDlg, Real minx, Real maxx,
     if (hparam == RAMP_NO_PARAM )
     {
         strcpy (buf, "");
-        SendMessage (GetDlgItem (hDlg, IDC_HORZMIN), WM_SETTEXT, 0, (LONG) buf );
+        SendMessage(GetDlgItem(hDlg, IDC_HORZMIN), WM_SETTEXT, 0, (LPARAM) buf);
         EnableWindow (GetDlgItem (hDlg, IDC_HORZMIN), FALSE);
-        SendMessage (GetDlgItem (hDlg, IDC_HORZMAX), WM_SETTEXT, 0, (LONG) buf);
+        SendMessage(GetDlgItem(hDlg, IDC_HORZMAX), WM_SETTEXT, 0, (LPARAM) buf);
         EnableWindow (GetDlgItem (hDlg, IDC_HORZMAX), FALSE);
         for(int i = 0; i < numCAs; i++)
         {
-            SendMessage (GetDlgItem (hDlg, IDC_INFO11MIN+i), WM_SETTEXT, 0, (LONG) buf);
+            SendMessage(GetDlgItem(hDlg, IDC_INFO11MIN + i), WM_SETTEXT, 0, (LPARAM) buf);
             EnableWindow (GetDlgItem (hDlg, IDC_INFO11MIN+i), FALSE);
         }
     }
@@ -878,12 +878,12 @@ void ShowRange (HWND hDlg, Real minx, Real maxx,
             for(int col = 0; col < 3; col++)    // column
                 if (row < dimension && col < dimension)
                 {
-                    SendMessage (GetDlgItem (hDlg, IDC_INFO11MIN+(row*3)+col), WM_SETTEXT, 0,   (LONG) buf);
+                    SendMessage(GetDlgItem(hDlg, IDC_INFO11MIN + (row * 3) + col), WM_SETTEXT, 0, (LPARAM) buf);
                     EnableWindow (GetDlgItem (hDlg, IDC_INFO11MIN+(row*3)+col), TRUE);
                 }
                 else
                 {
-                    SendMessage (GetDlgItem (hDlg, IDC_INFO11MIN+(row*3)+col), WM_SETTEXT, 0,   (LONG) buf);
+                    SendMessage(GetDlgItem(hDlg, IDC_INFO11MIN + (row * 3) + col), WM_SETTEXT, 0, (LPARAM) buf);
                     EnableWindow (GetDlgItem (hDlg, IDC_INFO11MIN+(row*3)+col), FALSE);
                 }
     }
@@ -891,18 +891,18 @@ void ShowRange (HWND hDlg, Real minx, Real maxx,
     if (hparam == IDC_ENTROPY_SCORE || hparam == IDC_ENTROPY)
     {
         strcpy (buf, "");
-        SendMessage (GetDlgItem (hDlg, IDC_HORZMIN), WM_SETTEXT, 0, (LONG) buf );
+        SendMessage(GetDlgItem(hDlg, IDC_HORZMIN), WM_SETTEXT, 0, (LPARAM) buf);
         EnableWindow (GetDlgItem (hDlg, IDC_HORZMIN), FALSE);
-        SendMessage (GetDlgItem (hDlg, IDC_HORZMAX), WM_SETTEXT, 0, (LONG) buf);
+        SendMessage(GetDlgItem(hDlg, IDC_HORZMAX), WM_SETTEXT, 0, (LPARAM) buf);
         EnableWindow (GetDlgItem (hDlg, IDC_HORZMAX), FALSE);
     }
 
     if (vparam == IDC_ENTROPY_SCORE || vparam == IDC_ENTROPY)
     {
         strcpy (buf, "");
-        SendMessage (GetDlgItem (hDlg, IDC_VERTMIN), WM_SETTEXT, 0, (LONG) buf);
+        SendMessage(GetDlgItem(hDlg, IDC_VERTMIN), WM_SETTEXT, 0, (LPARAM) buf);
         EnableWindow (GetDlgItem (hDlg, IDC_VERTMIN), FALSE);
-        SendMessage (GetDlgItem (hDlg, IDC_VERTMAX), WM_SETTEXT, 0, (LONG) buf);
+        SendMessage(GetDlgItem(hDlg, IDC_VERTMAX), WM_SETTEXT, 0, (LPARAM) buf);
         EnableWindow (GetDlgItem (hDlg, IDC_VERTMAX), FALSE);
     }
 }

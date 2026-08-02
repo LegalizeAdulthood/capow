@@ -289,19 +289,7 @@ ofstream& outWrite(ofstream& ofs, char *msg, Wavecell *val, int total)
             ofs.write((char *) &(val[count].velocity), sizeof(val[count].velocity));
             int totalSub = CELL_PARAM_COUNT;
             char cst[80];
-            sprintf(cst, "%5d:", (int)cst); // 2017.  Had sprintf(cst, "%5d:", cst)
-                                               // 2017 Throws a warning. See line 929 also
-                                               //---format string '%5d' requires an argument of type 'int', but variadic argument 1  has type 'char *'---
-                                               //The "variadic argument 1" means that second occurance of cst.  The : in the format string is part of the
-                                               //desired string's text?  %5d means print a number in decimal in a five character field possibly padded
-                                               //by blanks in front.
-                                               //One suggestion I found online it to put p (for pointer) instead of d (for integer).
-                                               //Supposedly in old all 32 bit world, integer and pointer are the same, but if you have 64 bit world then
-                                               // pointer is 64 bit.  And you have to cast the cst to void * to make the p format happy.
-                                               //So you could try sprintf(cst, "%5p:", (void *)cst);
-                                             // or to make it simpler, I tried sprintf(cst, "%5d:", (int) cst); Seems to work.
-
-            cst[5] = 0; // make sure it lenght is five
+            sprintf(cst, "%5d", count);
             outWrite(ofs, cst, &(val[count]._cell_param[0]), totalSub);
         }
     }
@@ -925,20 +913,7 @@ ifstream& inWrite(ifstream& ifs, char *msg, Wavecell *val, int& total)
 
             int totalSub = CELL_PARAM_COUNT;
             char cst[80];
-            sprintf(cst, "%5d:", (int)cst); // 2017.  See line 929 also. Had sprintf(cst, "%5d:", cst)
-                                            // 2017 Throws a warning.
-                                            //---format string '%5d' requires an argument of type 'int', but variadic argument 1  has type 'char *'---
-                                            //The "variadic argument 1" means that second occurance of cst.  The : in the format string is part of the
-                                            //desired string's text?  %5d means print a number in decimal in a five character field possibly padded
-                                            //by blanks in front.
-                                            //One suggestion I found online is to put p (for pointer) instead of d (for integer).
-                                            //Supposedly in old all 32 bit world, integer and pointer are the same, but if you have 64 bit world then
-                                            // pointer is 64 bit.  And you have to cast the cst to void * to make the p format happy.
-                                            //So you could try sprintf(cst, "%5p:", (void *)cst);
-                                            // or to make it simpler, I tried sprintf(cst, "%5d:", (int) cst); Seems to work.
-
-
-
+            sprintf(cst, "%5d", count);
             inWrite(ifs, cst, &(val[count]._cell_param[0]), totalSub);
         }
 

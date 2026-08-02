@@ -39,23 +39,23 @@ static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
     HINSTANCE hInstance;
     HBITMAP Bitmap;
 
-    hInstance = (HINSTANCE)GetWindowLong(hDlg, GWLP_HINSTANCE);
+    hInstance = (HINSTANCE) GetWindowLongPtr(hDlg, GWLP_HINSTANCE);
 
     HWND hCntl;
 //          CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
             hCntl = GetDlgItem( hDlg, RADIUSSTATES_NEW );
-            SendMessage( hCntl, CB_ADDSTRING, CA1_2,  (LONG)"Radius-1 States-2" );
-            SendMessage( hCntl, CB_ADDSTRING, CA1_4,  (LONG)"Radius-1 States-4" );
-            SendMessage( hCntl, CB_ADDSTRING, CA1_8,  (LONG)"Radius-1 States-8" );
-            SendMessage( hCntl, CB_ADDSTRING, CA1_16, (LONG)"Radius-1 States-16" );
-            SendMessage( hCntl, CB_ADDSTRING, CA2_2,  (LONG)"Radius-2 States-2" );
-            SendMessage( hCntl, CB_ADDSTRING, CA2_4,  (LONG)"Radius-2 States-4" );
-            SendMessage( hCntl, CB_ADDSTRING, CA3_2,  (LONG)"Radius-3 States-2" );
-            SendMessage( hCntl, CB_ADDSTRING, CA3_4,  (LONG)"Radius-3 States-4" );
-            SendMessage( hCntl, CB_ADDSTRING, CA4_2,  (LONG)"Radius-4 States-2" );
-            SendMessage( hCntl, CB_ADDSTRING, CA5_2,  (LONG)"Radius-5 States-2" );
-            SendMessage( hCntl, CB_ADDSTRING, CA6_2,  (LONG)"Radius-6 States-2" );
-            SendMessage( hCntl, CB_ADDSTRING, CA1_256,(LONG)"" );
+            SendMessage(hCntl, CB_ADDSTRING, CA1_2, (LPARAM) "Radius-1 States-2");
+            SendMessage(hCntl, CB_ADDSTRING, CA1_4, (LPARAM) "Radius-1 States-4");
+            SendMessage(hCntl, CB_ADDSTRING, CA1_8, (LPARAM) "Radius-1 States-8");
+            SendMessage(hCntl, CB_ADDSTRING, CA1_16, (LPARAM) "Radius-1 States-16");
+            SendMessage(hCntl, CB_ADDSTRING, CA2_2, (LPARAM) "Radius-2 States-2");
+            SendMessage(hCntl, CB_ADDSTRING, CA2_4, (LPARAM) "Radius-2 States-4");
+            SendMessage(hCntl, CB_ADDSTRING, CA3_2, (LPARAM) "Radius-3 States-2");
+            SendMessage(hCntl, CB_ADDSTRING, CA3_4, (LPARAM) "Radius-3 States-4");
+            SendMessage(hCntl, CB_ADDSTRING, CA4_2, (LPARAM) "Radius-4 States-2");
+            SendMessage(hCntl, CB_ADDSTRING, CA5_2, (LPARAM) "Radius-5 States-2");
+            SendMessage(hCntl, CB_ADDSTRING, CA6_2, (LPARAM) "Radius-6 States-2");
+            SendMessage(hCntl, CB_ADDSTRING, CA1_256, (LPARAM) "");
             edit_id = 0;
             showparams( hDlg );
             return 0;
