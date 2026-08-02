@@ -12,7 +12,7 @@
 //=================COMPILER SWITCHES==================================
 #ifndef CA_HPP
 #define CA_HPP
-using namespace std; //2017
+using namespace std;
 #include "types.h" //To include windows.h in a standard way
 #include "resource.h"
 #include <vector> //Threw errors 2017, changed
@@ -109,7 +109,7 @@ then the program hangs on startup.*/
 
 //=================INCLUDES==================================
 #include <fstream> //For iostream //changed to not have .h 2017
-#include <iomanip> // added 2017
+#include <iomanip>
 #include "Bitmap.hpp" //For WindowBitmap class
 #include "Tweak.hpp"   //For TweakParam class
 //============MACROS============================================
@@ -1249,7 +1249,6 @@ private:
         right away on somebody who fails the stripe test, otherwise
              we add the penalty to his score */
     BOOL stripeseedflag; //LOADSAVE. seed if stripe fail
-    // palette stuff added by JC 12/95
 //--------CAlist Fourier private----------------------------
     int tp_dowhich; //fourier
 public:

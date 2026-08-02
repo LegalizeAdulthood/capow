@@ -616,7 +616,7 @@ extern BOOL CALLBACK WorldProc( HWND, UINT, WPARAM, LPARAM );
 extern BOOL CALLBACK ViewProc( HWND, UINT, WPARAM, LPARAM );
 
 extern BOOL CALLBACK GeneratorsProc(HWND, UINT, WPARAM, LPARAM);
-extern BOOL CALLBACK OpenGLProc(HWND, UINT, WPARAM, LPARAM);   //mike
+extern BOOL CALLBACK OpenGLProc(HWND, UINT, WPARAM, LPARAM);
 extern BOOL CALLBACK SaveFileProc(HWND, UINT, WPARAM, LPARAM);
 extern BOOL CALLBACK ConfigureProc(HWND , UINT , WPARAM,  LPARAM );
 
@@ -645,7 +645,7 @@ extern void LocalHelpProc(HWND, WPARAM);
 
 
 int WINAPI CapowWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
-    LPSTR lpszCmdParam, int nCmdShow) //2017 Changed PSTR to LPSTR
+    LPSTR lpszCmdParam, int nCmdShow)
 {
     HACCEL hAccel;
     MSG msg;
@@ -883,8 +883,8 @@ here to #ifdef out the code VCC 6 doesn't like.  RR 2/17/99.*/
     setPerformanceTimerCycle(update_millisecs_per_cycle);
 //  focusflag = ALL;
 //  SendMessage(hDlgOpenGL, WM_PAINT, 0,0);
-    calife_list->FocusCA()->GetCAStyleName ( CA_STYLE_NAME ); //Andrew
-    Status_SetText(hwndStatusBar, 1, 0, CA_STYLE_NAME ); //Andrew
+    calife_list->FocusCA()->GetCAStyleName ( CA_STYLE_NAME );
+    Status_SetText(hwndStatusBar, 1, 0, CA_STYLE_NAME );
 //put hwndActionToolbar here if you'd rather start with that, Rudy 12/6/97
     if ( !hwndStatusBar | !hwndActionToolbar | !hwndDialogToolbar )
         return FALSE;
@@ -1035,7 +1035,7 @@ when windowIsMinimized is TRUE, no processing occurs.
         SendMessage(hwndDialogToolbar, WM_SIZE, state, MAKELONG(cx, cy));
 
     //adjust viewport for opengl
-        capowgl->Size(hwnd);//mike
+        capowgl->Size(hwnd);
 
 }
 /*********************************************************/
@@ -1085,7 +1085,6 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     char szFilter [128] =
     //  "CA Files (*.CA)\0*.CA\0Experiment File (*.CAs)\0*.CAs\0User Rules (*.dll)\0*.dll\0 All Files (*.*)\0*.*\0";
         "Experiment File (*.CAs)\0*.CAs\0CA Files (*.CA)\0*.CA\0User Rules (*.dll)\0*.dll\0 All Files (*.*)\0*.*\0";
-//RR 2007 Changed this trying to make CAS default file type
 //End commdlg stuff=======================
 
 // Message Processing
@@ -1223,7 +1222,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             ofn.lpstrFile = szFileName;
 
             ofn.lpstrFilter = szFilter;
-            ofn.lpstrDefExt   = "CAS";  //RR 2007.  Was CA.
+            ofn.lpstrDefExt   = "CAS";
             inloadsave = TRUE; //Don't do updates while you're in here
             if( GetOpenFileNameA((LPOPENFILENAMEA)&ofn) ){
             //  char* str1 = strstr(ofn.lpstrFileTitle, ".");
@@ -1938,7 +1937,7 @@ static void MyWnd_LBUTTONDOWN(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
     RECT rect;
 
     HDC hdc = GetDC(hwnd);
-    SetCapture(hwnd);  //mike
+    SetCapture(hwnd);
     CA*  oldfocus = calife_list->FocusCA();
 
     switch(cursormode)
@@ -2011,7 +2010,7 @@ if I only do recreateUserDialog(), but the following works: */
             else
             {   //ifzoomed on a 2d CA
                 if(calife_list->FocusCA()->Getviewmode() ==IDC_2D_VIEW)
-                    capowgl->LeftButtonDown(fDoubleClick, x, y, keyFlags);  //mike 4/97
+                    capowgl->LeftButtonDown(fDoubleClick, x, y, keyFlags);
 
             }
             if( hDlgFourier )  // Adjust Slider bar to position of focus
@@ -2454,9 +2453,9 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         HANDLE_MSG(hwnd,WM_INITDIALOG,MyWnd_INITDIALOG);
         HANDLE_MSG(hwnd,WM_NOTIFY,ToolBarNotify);  // Handles Toolbar
         HANDLE_MSG(hwnd, WM_MENUSELECT, MyWnd_MENUSELECT);
-        HANDLE_MSG(hwnd, WM_MOUSEMOVE, MyWnd_MOUSEMOVE);  //Mike 4/97
-        HANDLE_MSG(hwnd,WM_LBUTTONUP,MyWnd_LBUTTONUP);  //Mike 4/97
-        HANDLE_MSG(hwnd, WM_INITMENUPOPUP,MyWnd_INITMENUPOPUP); //Andrew 9/97
+        HANDLE_MSG(hwnd, WM_MOUSEMOVE, MyWnd_MOUSEMOVE);
+        HANDLE_MSG(hwnd,WM_LBUTTONUP,MyWnd_LBUTTONUP);
+        HANDLE_MSG(hwnd, WM_INITMENUPOPUP,MyWnd_INITMENUPOPUP);
         HANDLE_MSG(hwnd, WM_TIMER, MyWnd_TIMER);
     }
     return DefWindowProcA (hwnd, message, wParam, lParam) ;
@@ -2565,7 +2564,6 @@ behavior if we wanted to.*/
 }
 
 //////////////////////
-/// Added by Andrew Forster.
 void ParseCommandLine ( char commandline[], char* WinArgv[] )
 {
     int i=0;

@@ -29,7 +29,6 @@ void CA::SetSamecolortable(COLORREF *color, int bc)
 }
 
 void CA::SetColors()
-// NEW 2-27-96, DDC
 /* PURPOSE: Sets the anchor colors for the bands. This keeps the
 **          band colors consistent when changing band number or
 **          number of colors.

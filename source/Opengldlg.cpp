@@ -193,12 +193,10 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
             oldtype = 0;
         }
         ==================*/
-            //New RR 2007 code below.
         if (capowgl->Type() == FLATCOLOR)  //flat
             capowgl->Type(SHEET);
         else // capowgl->Type() is SHEET or TORUS
             capowgl->Type(FLATCOLOR);
-        // End New RR 2007 code.
         InvalidateRect(hDlg,NULL,FALSE);
         break;
     case IDC_OPENGL_SHOW_GENERATORS:
@@ -306,7 +304,7 @@ static BOOL MyWnd_LBUTTONDOWN(HWND hDlg, BOOL fDoubleClick, int x, int y, UINT k
     GetWindowRect(hDlgOpenGL, &rect2);
     capowgl->SetCellXY(x-(rect.left-rect2.left),y-(rect.top-rect2.top));
     if(calife_list->FocusCA()->Getviewmode() ==IDC_2D_VIEW)
-        capowgl->LeftButtonDown(fDoubleClick, x, y, keyFlags);  //mike 4/97
+        capowgl->LeftButtonDown(fDoubleClick, x, y, keyFlags);
     return 0;
 }
 

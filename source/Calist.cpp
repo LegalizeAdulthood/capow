@@ -147,7 +147,7 @@ void CAlist::Locate(int dmaxx, int dmaxy)
 
 }
 
-void CAlist::Locate()        //mike 4/97
+void CAlist::Locate()
 //this locate function uses hwnd to resize the location
 //variables for each of the CAs
 {

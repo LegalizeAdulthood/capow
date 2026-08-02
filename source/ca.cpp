@@ -115,7 +115,7 @@ CA::CA(CAlist *mylist)
          // below because band_count is used in setcolortable
    type_ca = 0;    // l.andrews 11/2/01 since it will be used by Gettype()
                    // before any other initialization
-    SetColors();   // added 2-24-96 DDC
+    SetColors();
 //  InitSeed();    // Set all cells in all rows to zero
 //Don't need this anymore as the Cell constructors do that.
     /*Set this before you do any table settings */
@@ -217,7 +217,7 @@ void CA::Allocate()
     for (i=0; i<MEMORY; i++)
     {
         rowbuffer[i] = (unsigned char  *) new char[_max_horz_count];
-      for ( int j=0; j<_max_horz_count; ++j ) rowbuffer[i][j] = '\0';  // l.andrews 11/3/01
+      for ( int j=0; j<_max_horz_count; ++j ) rowbuffer[i][j] = '\0';
         if (!rowbuffer[i])
         {
             MessageBoxA( hwnd,
@@ -714,7 +714,7 @@ void CA::StandardUpdate(HDC hdc)
 
     if (generatorflag)
         generator_ptr->Step();
-    generatorlist.Step();  //mike
+    generatorlist.Step();
 /* We let the generator, if it's on, write to the target row.  This
 way you see the generator value, and this value is used as source
 after the rows are rolled just below.*/
@@ -1008,7 +1008,7 @@ void CA::ReversibleUpdate(HDC hdc)
 
     if (generatorflag)
         generator_ptr->Step();
-    generatorlist.Step(); //mike
+    generatorlist.Step();
 /* We let the generator, if it's on, write to the target row.  This
 way you see the generator value, and this value is used as source
 after the rows are rolled just below.*/
@@ -1122,7 +1122,7 @@ void CA::WaveUpdateStep(HDC hdc)
 
     if (generatorflag)
         generator_ptr->Step();
-    generatorlist.Step(); //mike
+    generatorlist.Step();
 /* We let the generator, if it's on, write to the wave target row.  This
 way you see the generator value, and this value is used as source
 after the rows are swapped just below.*/
@@ -1576,7 +1576,7 @@ void CA::WaveUpdateStep2D(HDC hdc)  //You don't need the hdc argument!
 
     if (generatorflag)
         generator_ptr->Step();  //write to target_plane
-    generatorlist.Step(); //mike
+    generatorlist.Step();
 
     for (short y = 0; y < vert_count_2D; y++)
     {
