@@ -195,6 +195,9 @@ void CA::Touch_CA(int cx, int cy, int sender)
 
     } // closes dimension if
 
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 } // Closes CA::Touch_CA
 
 #define TOUCH_BUFF 10

@@ -1759,6 +1759,9 @@ BOOL CAlist::Load_Individual(char* filename, CA *target)
     //the scrolling CA.  It *will* make a ding line in the other scrolling
     //CAs, but this is acceptale.  The main thing it is doing is setting
     //blt_flag to 0 and making all of the line counters the same.
+#if defined(CAPOW_ENABLE_ALPAKA)
+    target->MarkAlpakaHeat2DDirty();
+#endif
     if (!errOccurred)
     {
         // If we load a new file, start breed cycle all over to
@@ -1790,6 +1793,10 @@ BOOL CAlist::Loadall_Individual(char* filename)// Load all CA with same *.CA
             list[i]->Settype(focus->Gettype());
             list[i]->CopyCA(focus);
         }
+#if defined(CAPOW_ENABLE_ALPAKA)
+    for (int i = 0; i < count; i++)
+        list[i]->MarkAlpakaHeat2DDirty();
+#endif
     return TRUE;
 }
 
@@ -2042,6 +2049,10 @@ and this gets rid of the bug! Rudy 5/21/97.  We also do this in WM_LBUTTONDOWN*/
             list[i]->Set_justloadedcells(TRUE); // These are the CA mutators.
         Set_justloadedcells(TRUE); // This is the CAlist mutator.
     }
+#if defined(CAPOW_ENABLE_ALPAKA)
+    for (int i = 0; i < count; i++)
+        list[i]->MarkAlpakaHeat2DDirty();
+#endif
     if (removeCompress)
     {
         LZOpenFile(filename, &fileStruct, OF_DELETE);

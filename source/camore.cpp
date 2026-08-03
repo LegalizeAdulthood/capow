@@ -206,6 +206,9 @@ void CA::CopyCA(CA *goodCA)
         lstrcpyA(_userrulename, goodCA->_userrulename); //So install the file name,
         type_ca = CA_USER;
     }
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 void CA::Changelambda(Real increment)
@@ -305,6 +308,9 @@ void CA::Become_child_of(CA *mom, CA *dad)
         SetTweakParam(&_dx, (mom->_dx.Val() + dad->_dx.Val()) / 2.0);
         Adjust_acceleration_multiplier();
     }
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 void CA::Entropy()
@@ -633,6 +639,9 @@ void CA::Setviewmode(int newmode)
         default :
             break;
     }
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 void CA::Settype(int newtype)
@@ -843,6 +852,9 @@ void CA::Settype(int newtype)
     if ( hwndStatusBar != 0 ) Status_SetText(hwndStatusBar, 1, 0, CA_STYLE_NAME );
 
 
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 
 }
 
@@ -964,6 +976,9 @@ void CA::Mutate(Real mutation_strength)
                 //2017 Start loop at 1 so you don't randomize the variance which is in slot 0
                 RandomizeTweakParamPercent(userParamAdd[index], userParamAdd[index]->Val(), DEFAULT_VARIANCE);  //Mutate just a little.
     }
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 void CA::Adjust_acceleration_multiplier()
@@ -1109,6 +1124,9 @@ void CA::Setgeneratorflag(int onoff)
     generatorflag = onoff;
     if (generatorflag)
         Zeroseed();
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 
@@ -1208,6 +1226,9 @@ then turn off the _justloadedflag so you only skip the smooth once. */
         }
 #endif //EDGE_FLUTTER_2D
     }
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 //--------------------Generator things-----------------

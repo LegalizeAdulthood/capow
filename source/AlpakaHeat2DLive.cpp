@@ -177,7 +177,6 @@ public:
     void Deactivate();
     bool RunFrame(const Heat2DLiveOptions &nextOptions, const AlpakaPlaneValue *sourcePlane, int valueStride,
         const std::uint32_t *colorTable, std::string *error);
-    bool CopyCurrentToHost(AlpakaPlaneValue *targetPlane, int valueStride, std::string *error);
 
 private:
     void Resize(const Heat2DLiveOptions &nextOptions);
@@ -187,7 +186,6 @@ private:
     void UploadColors(const std::uint32_t *colorTable);
     void RunHeatStep();
     bool ColorizeTexture(std::string *error);
-    void CopyPlaneToHost(std::vector<AlpakaPlaneValue> *hostPlane, const PlaneBuffer &devicePlane);
     void CopyHostToDevice(std::vector<AlpakaPlaneValue> *hostPlane, PlaneBuffer *devicePlane);
 
     AccDevice accDevice;
@@ -198,8 +196,6 @@ private:
     bool active;
     std::size_t cellCount;
     std::vector<AlpakaPlaneValue> hostSource;
-    std::vector<AlpakaPlaneValue> hostCurrent;
-    std::vector<AlpakaPlaneValue> hostVelocity;
     std::vector<std::uint32_t> hostColors;
     std::optional<PlaneBuffer> deviceCurrent;
     std::optional<PlaneBuffer> deviceNextIntensity;
@@ -279,38 +275,6 @@ bool Heat2DLiveState::Impl::RunFrame(const Heat2DLiveOptions &nextOptions, const
     }
 }
 
-bool Heat2DLiveState::Impl::CopyCurrentToHost(AlpakaPlaneValue *targetPlane, int valueStride, std::string *error)
-{
-    try
-    {
-        if (!active)
-        {
-            return true;
-        }
-        ValidatePlane(targetPlane, valueStride);
-        CopyPlaneToHost(&hostCurrent, *deviceCurrent);
-        CopyPlaneToHost(&hostVelocity, *deviceVelocity);
-        for (std::size_t index = 0; index < cellCount; ++index)
-        {
-            targetPlane[index * static_cast<std::size_t>(valueStride)] = hostCurrent[index];
-            if (valueStride > 1)
-            {
-                targetPlane[index * static_cast<std::size_t>(valueStride) + 1U] = hostVelocity[index];
-            }
-        }
-        active = false;
-        return true;
-    }
-    catch (const std::exception &exception)
-    {
-        if (error != 0)
-        {
-            *error = exception.what();
-        }
-        return false;
-    }
-}
-
 void Heat2DLiveState::Impl::Resize(const Heat2DLiveOptions &nextOptions)
 {
     const bool sameSize = initialized && options.width == nextOptions.width && options.height == nextOptions.height;
@@ -329,8 +293,6 @@ void Heat2DLiveState::Impl::Resize(const Heat2DLiveOptions &nextOptions)
     deviceVelocity.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, planeExtent));
     deviceColors.emplace(alpaka::allocBuf<std::uint32_t, Idx>(accDevice, colorExtent));
     hostSource.assign(cellCount, AlpakaPlaneValue(0));
-    hostCurrent.assign(cellCount, AlpakaPlaneValue(0));
-    hostVelocity.assign(cellCount, AlpakaPlaneValue(0));
     hostColors.assign(static_cast<std::size_t>(options.colorCount), 0U);
     active = false;
     initialized = true;
@@ -462,14 +424,6 @@ bool Heat2DLiveState::Impl::ColorizeTexture(std::string *error)
         SetCudaError(syncResult, "sync live CA_HEAT_2D color kernel", error);
 }
 
-void Heat2DLiveState::Impl::CopyPlaneToHost(std::vector<AlpakaPlaneValue> *hostPlane, const PlaneBuffer &devicePlane)
-{
-    const MemExtent extent = MemExtent{static_cast<Idx>(cellCount)};
-    HostPlaneView hostView = alpaka::createView(hostDevice, hostPlane->data(), extent);
-    alpaka::memcpy(queue, hostView, devicePlane, extent);
-    alpaka::wait(queue);
-}
-
 void Heat2DLiveState::Impl::CopyHostToDevice(std::vector<AlpakaPlaneValue> *hostPlane, PlaneBuffer *devicePlane)
 {
     const MemExtent extent = MemExtent{static_cast<Idx>(cellCount)};
@@ -504,11 +458,6 @@ bool Heat2DLiveState::RunFrame(const Heat2DLiveOptions &options, const AlpakaPla
     const std::uint32_t *colorTable, std::string *error)
 {
     return impl->RunFrame(options, sourcePlane, valueStride, colorTable, error);
-}
-
-bool Heat2DLiveState::CopyCurrentToHost(AlpakaPlaneValue *targetPlane, int valueStride, std::string *error)
-{
-    return impl->CopyCurrentToHost(targetPlane, valueStride, error);
 }
 
 } // namespace capow

@@ -36,7 +36,6 @@ public:
     void Deactivate();
     bool RunFrame(const Heat2DLiveOptions &options, const AlpakaPlaneValue *sourcePlane, int valueStride,
         const std::uint32_t *colorTable, std::string *error);
-    bool CopyCurrentToHost(AlpakaPlaneValue *targetPlane, int valueStride, std::string *error);
 
 private:
     class Impl;

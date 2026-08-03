@@ -87,6 +87,9 @@ void CA::RandomSeed()
     Reset_smoothsteps(SMOOTHRANDSTEPSFACTOR);
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 
 }
 
@@ -254,6 +257,9 @@ this in such a way that one term is likely to get most of the weight.*/
     generator_ptr->Seed();
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 
 }
 
@@ -340,6 +346,9 @@ the horz_count steps)*/
     }
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 
 }
 
@@ -460,6 +469,9 @@ void CA::Oneseed()
     generator_ptr->Seed();
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 void CA::Zeroseed()
@@ -514,6 +526,9 @@ void CA::Zeroseed()
     }
     generator_ptr->Seed();
     generatorlist.Reset();
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 void CA::Halfmaxseed()
@@ -570,6 +585,9 @@ void CA::Halfmaxseed()
     }
     generator_ptr->Seed();
     generatorlist.Reset();
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 void CA::BitmapSeed() //only works for 2-D CAs
@@ -615,6 +633,9 @@ void CA::BitmapSeed() //only works for 2-D CAs
     generator_ptr->Seed();
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 #else //BLANK_HELPERS is turned on
@@ -693,6 +714,9 @@ void CA::RandomSeed()
     Reset_smoothsteps(SMOOTHRANDSTEPSFACTOR);
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 
 }
 
@@ -860,6 +884,9 @@ this in such a way that one term is likely to get most of the weight.*/
     generator_ptr->Seed();
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 
 }
 
@@ -942,6 +969,9 @@ the horz_count steps)*/
     }
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 
 }
 
@@ -1061,6 +1091,9 @@ void CA::Oneseed()
     generator_ptr->Seed();
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 void CA::Zeroseed()
@@ -1115,6 +1148,9 @@ void CA::Zeroseed()
     }
     generator_ptr->Seed();
     generatorlist.Reset();
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 void CA::Halfmaxseed()
@@ -1176,6 +1212,9 @@ void CA::Halfmaxseed()
     }
     generator_ptr->Seed();
     generatorlist.Reset();
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 void CA::BitmapSeed() //only works for 2-D CAs
@@ -1219,6 +1258,9 @@ void CA::BitmapSeed() //only works for 2-D CAs
     generator_ptr->Seed();
     generatorlist.Reset();
     Setwrapflag(wrapflag); //In case of WF_ZERO or WF_FIXED you need to match past/source/target
+#if defined(CAPOW_ENABLE_ALPAKA)
+    MarkAlpakaHeat2DDirty();
+#endif
 }
 
 #endif //BLANK_HELPERS case

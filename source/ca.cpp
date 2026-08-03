@@ -451,7 +451,7 @@ void CA::Locate(int tile, HWND hwnd, int CA_count_per_edge)
                                    //  Used 64 for most of the border pix.  32 for
                                    //"reversible circuit 2x CA" for illo for chapter 4 of my
                                    // LIFEBOX book.  Used 64 for FLURB.
-#endif // FORCENARROW
+#endif                             // FORCENARROW
 #ifndef FIT_STATUS_BAR
     Locate(tile, windowrect.right, windowrect.bottom, CA_count_per_edge);
 #else  // do new FIT_STATUS_BAR way
@@ -1421,21 +1421,10 @@ void CA::RotateWavePlanes2D()
 }
 
 #if defined(CAPOW_ENABLE_ALPAKA)
-void CA::SyncAlpakaHeat2DToCpu()
+void CA::MarkAlpakaHeat2DDirty()
 {
-    if (!alpakaHeat2DLive || !alpakaHeat2DLive->IsActive())
-    {
-        alpakaHeat2DTextureReady = false;
-        return;
-    }
-
-    std::string errorText;
-    if (!alpakaHeat2DLive->CopyCurrentToHost(&wave_source_plane[0].variable[0], PLANE_VARIABLE_COUNT, &errorText))
-    {
-        OutputDebugStringA("CA_HEAT_2D GPU sync failed: ");
-        OutputDebugStringA(errorText.c_str());
-        OutputDebugStringA("\n");
-    }
+    if (alpakaHeat2DLive)
+        alpakaHeat2DLive->Deactivate();
     alpakaHeat2DTextureReady = false;
 }
 
@@ -1443,7 +1432,7 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
 {
     if (type_ca != CA_HEAT_2D)
     {
-        SyncAlpakaHeat2DToCpu();
+        MarkAlpakaHeat2DDirty();
         return false;
     }
 
@@ -1454,7 +1443,7 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
         capowgl->Type() == FLATCOLOR;
     if (!canUseGpu)
     {
-        SyncAlpakaHeat2DToCpu();
+        MarkAlpakaHeat2DDirty();
         return false;
     }
 
@@ -1473,7 +1462,7 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
 
     if (!capowgl->MakeCurrent(hdc))
     {
-        SyncAlpakaHeat2DToCpu();
+        MarkAlpakaHeat2DDirty();
         return false;
     }
 
@@ -1486,7 +1475,7 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
         OutputDebugStringA("CA_HEAT_2D GPU update failed: ");
         OutputDebugStringA(errorText.c_str());
         OutputDebugStringA("\n");
-        SyncAlpakaHeat2DToCpu();
+        MarkAlpakaHeat2DDirty();
         return false;
     }
 

@@ -651,7 +651,7 @@ private:
     class CAlist *calist_ptr; // AUTOSET by CAlist::CAlist.  The parent.
     int type_ca;              // LOADSAVE set, used by CA::Settype.
     int _castyle;             // Gives the CA_* value, or type_ca, of the most similar CA rule
-                  // AUTOSET.  Use this to reduce the cases in dialog boxes, and with CA_USER.
+                              // AUTOSET.  Use this to reduce the cases in dialog boxes, and with CA_USER.
     char _castylename[MAXCASTYLENAMESIZE];
     long _generationcount;
     int _phylum;                            /* NEW LOADSAVE, used by CA::Settype when type_ca is
@@ -777,8 +777,8 @@ private:
     char _userrulename[MAXFILENAME];
     int _usernabesize; // Set from DLL with _lpfnUSERNABESIZE function.
                        // Will be 1, 3, 5, or 9.
-    int _usercastyle; // Set from DLL with _lpfnUSERCASTYLE function.
-                      // Is a CA_* code of the type_ca kind, corresponding to a similar CA.
+    int _usercastyle;  // Set from DLL with _lpfnUSERCASTYLE function.
+                       // Is a CA_* code of the type_ca kind, corresponding to a similar CA.
     FPINT _lpfnUSERNABESIZE;
     FPINT _lpfnUSERCASTYLE;
     FPCELLUPDATE_1 _lpfnUSERRULE_1; // typedef of FPCELLUPDATE_1 is in types.h
@@ -1452,8 +1452,8 @@ public:
     void WaveUpdateStep2D(HDC hdc);
     void RotateWavePlanes2D();
 #if defined(CAPOW_ENABLE_ALPAKA)
+    void MarkAlpakaHeat2DDirty();
     bool TryAlpakaHeat2DUpdate(HDC hdc);
-    void SyncAlpakaHeat2DToCpu();
     bool DrawAlpakaHeat2DTexture(HDC hdc, int left, int top, int width, int height);
 #endif
     //--------------CA Network update functions ----------------------
@@ -1831,7 +1831,7 @@ for the screensaver */
     Real Mutation_strength()
     {
         return mutation_strength;
-    }                                    /* How much to
+    } /* How much to
 mutate 0 to 1.0 */
     void Changeentropy(Real newentropy); // Changes the target_entropy
     void Mutate();                       // Mutate each CA by mutation_strength

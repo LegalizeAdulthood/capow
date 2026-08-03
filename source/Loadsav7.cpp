@@ -535,6 +535,9 @@ void CAlist::Load_Individual7(char* filename, CA *target)
     }
     oldGetFrom(ifs, target);
     ifs.close();
+#if defined(CAPOW_ENABLE_ALPAKA)
+    target->MarkAlpakaHeat2DDirty();
+#endif
     /* If we load a new file, we may want to start breed cycle all over to
     give the new ca a fighting chance */
     if (breedflag)
@@ -701,6 +704,10 @@ for the second call to Locate (a first one took place in ift >> list[i]) */
             list[i]->Set_justloadedcells(TRUE); //These are the CA mutators.
         Set_justloadedcells(TRUE); //This is the CAlist mutator.
     }
+#if defined(CAPOW_ENABLE_ALPAKA)
+    for (int i = 0; i < count; i++)
+        list[i]->MarkAlpakaHeat2DDirty();
+#endif
     /* trigger a window resizing event to
     clear and redraw the display*/
     return TRUE;
