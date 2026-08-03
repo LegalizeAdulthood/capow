@@ -97,6 +97,36 @@ bool ParseRule(const char *text, capow::BatchRule *rule)
     return false;
 }
 
+bool ParseWrapMode(const char *text, capow::BatchWrapMode *wrapMode)
+{
+    if (EqualIgnoreCase(text, "zero"))
+    {
+        *wrapMode = capow::BATCH_WRAP_ZERO;
+        return true;
+    }
+    if (EqualIgnoreCase(text, "fixed"))
+    {
+        *wrapMode = capow::BATCH_WRAP_FIXED;
+        return true;
+    }
+    if (EqualIgnoreCase(text, "wrap"))
+    {
+        *wrapMode = capow::BATCH_WRAP_WRAP;
+        return true;
+    }
+    if (EqualIgnoreCase(text, "free"))
+    {
+        *wrapMode = capow::BATCH_WRAP_FREE;
+        return true;
+    }
+    if (EqualIgnoreCase(text, "absorb"))
+    {
+        *wrapMode = capow::BATCH_WRAP_ABSORB;
+        return true;
+    }
+    return false;
+}
+
 bool ParsePositiveInt(const char *text, int *value)
 {
     char *end = 0;
@@ -226,6 +256,7 @@ BatchOptions::BatchOptions() :
     batch(false),
     backend(BATCH_BACKEND_CPU),
     rule(BATCH_RULE_CA_HEAT_2D),
+    wrapMode(BATCH_WRAP_WRAP),
     steps(0),
     seed(1946)
 {
@@ -242,6 +273,7 @@ BatchParseResult ParseBatchArguments(int argc, const char *argv[])
     BatchParseResult result;
     bool haveBackend = false;
     bool haveRule = false;
+    bool haveWrap = false;
     bool haveSteps = false;
     bool haveSeed = false;
     bool haveOutput = false;
@@ -313,6 +345,24 @@ BatchParseResult ParseBatchArguments(int argc, const char *argv[])
                 Fail(&result, "invalid step count");
             }
             haveSteps = result.ok;
+            continue;
+        }
+        if (EqualText(arg, "--wrap"))
+        {
+            if (haveWrap)
+            {
+                Fail(&result, "duplicate --wrap");
+                continue;
+            }
+            if (!NeedValue(&result, i, argc, "--wrap"))
+            {
+                continue;
+            }
+            if (!ParseWrapMode(argv[++i], &result.options.wrapMode))
+            {
+                Fail(&result, "invalid wrap mode");
+            }
+            haveWrap = result.ok;
             continue;
         }
         if (EqualText(arg, "--seed"))

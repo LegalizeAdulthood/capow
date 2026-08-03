@@ -1,6 +1,6 @@
+#include "CapowGL.hpp"
 #include "ca.hpp"
 #include "resource.h"
-#include "CapowGL.hpp"
 
 extern HWND hDlgOpenGL, masterhwnd;
 extern char *szMyAppName;
@@ -9,8 +9,7 @@ extern CapowGL *capowgl;
 extern class CAlist *calife_list;
 
 extern BOOL zoomviewflag;
-extern void realLabel (HWND, int, Real);
-
+extern void realLabel(HWND, int, Real);
 
 unsigned char drop;
 
@@ -28,7 +27,7 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Sheet");
     SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Torus");
 
-    hCntl= GetDlgItem(hDlg, IDC_OPENGL_SURFACE);
+    hCntl = GetDlgItem(hDlg, IDC_OPENGL_SURFACE);
     SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Dots");
     SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Color Dots");
     SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Lines");
@@ -69,11 +68,11 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Medium");
     SendMessageA(hCntl, CB_ADDSTRING, 0, (LPARAM) "Low");
 
-    ShowOpenGLParams( hDlg);
+    ShowOpenGLParams(hDlg);
     return TRUE;
 }
 
-static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
+static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 {
     int comboint;
     HDC testhdc;
@@ -91,24 +90,24 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
         break;
 
     case IDC_OPENGL_GRAPHTYPES:
-        comboint = SendMessage((HWND)hwndCtl, CB_GETCURSEL, 0, 0L);
+        comboint = SendMessage((HWND) hwndCtl, CB_GETCURSEL, 0, 0L);
         capowgl->Type(comboint);
         ShowOpenGLParams(hDlg);
         break;
 
     case IDC_OPENGL_SURFACE:
-        comboint = SendMessage((HWND)hwndCtl, CB_GETCURSEL, 0 , 0L);
+        comboint = SendMessage((HWND) hwndCtl, CB_GETCURSEL, 0, 0L);
         capowgl->SurfaceType(comboint);
         ShowOpenGLParams(hDlg);
         break;
     case IDC_OPENGL_MATERIAL:
-        comboint = SendMessage((HWND)hwndCtl, CB_GETCURSEL, 0, 0L);
+        comboint = SendMessage((HWND) hwndCtl, CB_GETCURSEL, 0, 0L);
         capowgl->Material(comboint);
         ShowOpenGLParams(hDlg);
         break;
 
     case IDC_OPENGL_RESOLUTION:
-        comboint = SendMessage((HWND)hwndCtl, CB_GETCURSEL, 0, 0L);
+        comboint = SendMessage((HWND) hwndCtl, CB_GETCURSEL, 0, 0L);
         capowgl->Resolution(comboint);
         ShowOpenGLParams(hDlg);
         break;
@@ -164,8 +163,8 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
         break;
     case IDC_OPENGL_FLAT:
         break;
-    case IDC_OPENGL_FLIP_TYPE:  //to let clicking on the bitmap be a switch
-        if (capowgl->Type() == FLATCOLOR)  //flat
+    case IDC_OPENGL_FLIP_TYPE:            // to let clicking on the bitmap be a switch
+        if (capowgl->Type() == FLATCOLOR) // flat
             capowgl->Type(SHEET);
         else // capowgl->Type() is SHEET or TORUS
             capowgl->Type(FLATCOLOR);
@@ -203,7 +202,7 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
         SendMessage(masterhwnd, WM_COMMAND, IDM_PAUSE, 0);
         ShowOpenGLParams(hDlg);
         break;
-    case IDC_OPENGL_GLSLEEP: //Rudy added this 12/2/97
+    case IDC_OPENGL_GLSLEEP: // Rudy added this 12/2/97
         calife_list->ToggleGlSleep();
         ShowOpenGLParams(hDlg);
         break;
@@ -213,11 +212,10 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
     }
 }
 
-
 static BOOL MyWnd_PAINT(HWND hDlg)
 {
-    //if zoomed on 2-D focus
-    if (zoomviewflag&& calife_list->Focus()->Getdimension() ==2)
+    // if zoomed on 2-D focus
+    if (zoomviewflag && calife_list->Focus()->Getdimension() == 2)
     {
         HWND hCtrlBlock = GetDlgItem(hDlg, IDC_OPENGL_FLAT);
         capowgl->DrawImagePreview(hCtrlBlock, calife_list->Focus());
@@ -229,7 +227,7 @@ static BOOL MyWnd_PAINT(HWND hDlg)
 static BOOL MyWnd_DESTROY(HWND hDlg)
 {
     hDlgOpenGL = 0;
-    InvalidateRect( masterhwnd, NULL, FALSE);
+    InvalidateRect(masterhwnd, NULL, FALSE);
 
     return TRUE;
 }
@@ -238,33 +236,31 @@ static BOOL MyWnd_LBUTTONDOWN(HWND hDlg, BOOL fDoubleClick, int x, int y, UINT k
 {
     RECT rect, rect2;
 
-//((fn)((hwnd), FALSE, (int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam), (UINT)(wParam)), 0L)
+    //((fn)((hwnd), FALSE, (int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam), (UINT)(wParam)), 0L)
     SetCapture(hDlg);
     GetWindowRect(GetDlgItem(hDlg, IDC_OPENGL_FLAT), &rect);
     GetWindowRect(hDlgOpenGL, &rect2);
-    capowgl->SetCellXY(x-(rect.left-rect2.left),y-(rect.top-rect2.top));
-    if(calife_list->FocusCA()->Getviewmode() ==IDC_2D_VIEW)
+    capowgl->SetCellXY(x - (rect.left - rect2.left), y - (rect.top - rect2.top));
+    if (calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW)
         capowgl->LeftButtonDown(fDoubleClick, x, y, keyFlags);
     return 0;
 }
 
 static void MyWnd_MOUSEMOVE(HWND hwnd, int x, int y, UINT flags)
 {
-  //  ((fn)((hwnd), (int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam), (UINT)(wParam)), 0L)
-        //if zoomed on a 2D CA, and capowgl is not in fly mode, then interpret the mousemove
-        if(zoomviewflag && calife_list->FocusCA()->Getviewmode() ==IDC_2D_VIEW && capowgl->MouseMode()!= 6)
-            capowgl->MouseMove(x, y, flags);
-
+    //  ((fn)((hwnd), (int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam), (UINT)(wParam)), 0L)
+    // if zoomed on a 2D CA, and capowgl is not in fly mode, then interpret the mousemove
+    if (zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW && capowgl->MouseMode() != 6)
+        capowgl->MouseMove(x, y, flags);
 }
 
 static void MyWnd_LBUTTONUP(HWND hwnd, int x, int y, UINT flags)
 {
-//    ((fn)((hwnd), (int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam), (UINT)(wParam)), 0L)
-        if(zoomviewflag && calife_list->FocusCA()->Getviewmode() ==IDC_2D_VIEW)
-            capowgl->LeftButtonUp(x, y, flags);
+    //    ((fn)((hwnd), (int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam), (UINT)(wParam)), 0L)
+    if (zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW)
+        capowgl->LeftButtonUp(x, y, flags);
 
     ReleaseCapture();
-
 }
 
 static BOOL MyWnd_CLOSE(HWND hDlg)
@@ -273,19 +269,18 @@ static BOOL MyWnd_CLOSE(HWND hDlg)
     return TRUE;
 }
 
-static void MyWnd_MOVE(HWND hDlg,int x, int y)
+static void MyWnd_MOVE(HWND hDlg, int x, int y)
 {
     RECT rect;
     char buf[32];
 
     GetWindowRect(hDlg, &rect);
-    wsprintfA((LPSTR)buf,"%i",rect.left);
-    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"CYCLEX",(LPSTR)buf);
-    wsprintfA((LPSTR)buf,"%i",rect.top);
-    WriteProfileStringA((LPSTR)szMyAppName,(LPSTR)"CYCLEY",(LPSTR)buf);
+    wsprintfA((LPSTR) buf, "%i", rect.left);
+    WriteProfileStringA((LPSTR) szMyAppName, (LPSTR) "CYCLEX", (LPSTR) buf);
+    wsprintfA((LPSTR) buf, "%i", rect.top);
+    WriteProfileStringA((LPSTR) szMyAppName, (LPSTR) "CYCLEY", (LPSTR) buf);
 
-    UpdateWindow(hDlg);  //Send a WM_PAINT message to dialog
-
+    UpdateWindow(hDlg); // Send a WM_PAINT message to dialog
 }
 
 static void MyWnd_PARENTNOTIFY(HWND hDlg, UINT fwEvent, HWND lValue, UINT idChild)
@@ -296,50 +291,51 @@ BOOL CALLBACK OpenGLProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-        HANDLE_MSG(hDlg,WM_INITDIALOG,MyWnd_INITDIALOG);
-        HANDLE_MSG(hDlg,WM_PAINT,MyWnd_PAINT);
-        HANDLE_MSG(hDlg,WM_MOVE,MyWnd_MOVE); //Need this or the long button text doesn't come back.
-        HANDLE_MSG(hDlg,WM_COMMAND,MyWnd_COMMAND);
-        HANDLE_MSG(hDlg,WM_CLOSE,MyWnd_CLOSE);
-        HANDLE_MSG(hDlg,WM_DESTROY,MyWnd_DESTROY);
+        HANDLE_MSG(hDlg, WM_INITDIALOG, MyWnd_INITDIALOG);
+        HANDLE_MSG(hDlg, WM_PAINT, MyWnd_PAINT);
+        HANDLE_MSG(hDlg, WM_MOVE, MyWnd_MOVE); // Need this or the long button text doesn't come back.
+        HANDLE_MSG(hDlg, WM_COMMAND, MyWnd_COMMAND);
+        HANDLE_MSG(hDlg, WM_CLOSE, MyWnd_CLOSE);
+        HANDLE_MSG(hDlg, WM_DESTROY, MyWnd_DESTROY);
         HANDLE_MSG(hDlg, WM_LBUTTONDOWN, MyWnd_LBUTTONDOWN);
         HANDLE_MSG(hDlg, WM_MOUSEMOVE, MyWnd_MOUSEMOVE);
         HANDLE_MSG(hDlg, WM_LBUTTONUP, MyWnd_LBUTTONUP);
         HANDLE_MSG(hDlg, WM_PARENTNOTIFY, MyWnd_PARENTNOTIFY);
     default:
-            return FALSE;
+        return FALSE;
     }
 }
-
 
 void ShowOpenGLParams(HWND hDlg)
 {
     BOOL GL_active;
     BOOL imageActive;
+    int graphType;
     int i;
-    if (!SendMessage( GetDlgItem( hDlg, IDC_OPENGL_GRAPHTYPES), CB_GETDROPPEDSTATE, 0, 0L))
-        SendMessage(GetDlgItem( hDlg, IDC_OPENGL_GRAPHTYPES),
-            CB_SETCURSEL, (WORD)capowgl->Type(), 0);
+    if (!SendMessage(GetDlgItem(hDlg, IDC_OPENGL_GRAPHTYPES), CB_GETDROPPEDSTATE, 0, 0L))
+    {
+        graphType = capowgl->Type();
+        if (graphType == GPU_TEXTURE)
+            graphType = FLATCOLOR;
+        SendMessage(GetDlgItem(hDlg, IDC_OPENGL_GRAPHTYPES), CB_SETCURSEL, (WORD) graphType, 0);
+    }
 
-    if (!SendMessage( GetDlgItem( hDlg, IDC_OPENGL_SURFACE), CB_GETDROPPEDSTATE, 0, 0L))
-        SendMessage(GetDlgItem( hDlg, IDC_OPENGL_SURFACE),
-            CB_SETCURSEL, (WORD)capowgl->SurfaceType(), 0);
+    if (!SendMessage(GetDlgItem(hDlg, IDC_OPENGL_SURFACE), CB_GETDROPPEDSTATE, 0, 0L))
+        SendMessage(GetDlgItem(hDlg, IDC_OPENGL_SURFACE), CB_SETCURSEL, (WORD) capowgl->SurfaceType(), 0);
 
-    if (!SendMessage( GetDlgItem( hDlg, IDC_OPENGL_MATERIAL), CB_GETDROPPEDSTATE, 0, 0L))
-        SendMessage(GetDlgItem( hDlg, IDC_OPENGL_MATERIAL),
-            CB_SETCURSEL, (WORD)capowgl->Material(), 0);
+    if (!SendMessage(GetDlgItem(hDlg, IDC_OPENGL_MATERIAL), CB_GETDROPPEDSTATE, 0, 0L))
+        SendMessage(GetDlgItem(hDlg, IDC_OPENGL_MATERIAL), CB_SETCURSEL, (WORD) capowgl->Material(), 0);
 
-    if (!SendMessage( GetDlgItem( hDlg, IDC_OPENGL_RESOLUTION), CB_GETDROPPEDSTATE, 0, 0L))
-        SendMessage(GetDlgItem( hDlg, IDC_OPENGL_RESOLUTION),
-            CB_SETCURSEL, (WORD)capowgl->Resolution(), 0);
+    if (!SendMessage(GetDlgItem(hDlg, IDC_OPENGL_RESOLUTION), CB_GETDROPPEDSTATE, 0, 0L))
+        SendMessage(GetDlgItem(hDlg, IDC_OPENGL_RESOLUTION), CB_SETCURSEL, (WORD) capowgl->Resolution(), 0);
 
-    SendMessage(GetDlgItem(hDlg,IDC_OPENGL_ORIENT), BM_SETSTATE, capowgl->MouseMode()==0, 0);
-    SendMessage(GetDlgItem(hDlg,IDC_OPENGL_HEIGHT), BM_SETSTATE, capowgl->MouseMode()==5, 0);
-    SendMessage(GetDlgItem(hDlg,IDC_OPENGL_ZOOM), BM_SETSTATE, capowgl->MouseMode()==4, 0);
-    SendMessage(GetDlgItem(hDlg,IDC_OPENGL_PAN), BM_SETSTATE, capowgl->MouseMode()==2, 0);
-    SendMessage(GetDlgItem(hDlg,IDC_OPENGL_FLY), BM_SETSTATE, capowgl->MouseMode()==6, 0);
+    SendMessage(GetDlgItem(hDlg, IDC_OPENGL_ORIENT), BM_SETSTATE, capowgl->MouseMode() == 0, 0);
+    SendMessage(GetDlgItem(hDlg, IDC_OPENGL_HEIGHT), BM_SETSTATE, capowgl->MouseMode() == 5, 0);
+    SendMessage(GetDlgItem(hDlg, IDC_OPENGL_ZOOM), BM_SETSTATE, capowgl->MouseMode() == 4, 0);
+    SendMessage(GetDlgItem(hDlg, IDC_OPENGL_PAN), BM_SETSTATE, capowgl->MouseMode() == 2, 0);
+    SendMessage(GetDlgItem(hDlg, IDC_OPENGL_FLY), BM_SETSTATE, capowgl->MouseMode() == 6, 0);
 
-    CheckDlgButton(hDlg, IDC_OPENGL_SHOW_GENERATORS,capowgl->ShowGenerators());
+    CheckDlgButton(hDlg, IDC_OPENGL_SHOW_GENERATORS, capowgl->ShowGenerators());
     CheckDlgButton(hDlg, IDC_OPENGL_ZERO_PLANE, capowgl->ZeroPlane());
     CheckDlgButton(hDlg, IDC_OPENGL_MAX_PLANE, capowgl->MaxPlane());
     CheckDlgButton(hDlg, IDC_OPENGL_SPIN, capowgl->Spin());
@@ -347,39 +343,40 @@ void ShowOpenGLParams(HWND hDlg)
     CheckDlgButton(hDlg, IDC_OPENGL_ANTIALIASED, capowgl->AntiAliased());
     CheckDlgButton(hDlg, IDC_OPENGL_GLASSES, capowgl->ThreeDGlasses());
 
-
-    realLabel (hDlg, IDC_OPENGL_TEMPWIDTH, capowgl->tempwidth);
-    realLabel (hDlg, IDC_OPENGL_TEMPHEIGHT, capowgl->tempheight);
+    realLabel(hDlg, IDC_OPENGL_TEMPWIDTH, capowgl->tempwidth);
+    realLabel(hDlg, IDC_OPENGL_TEMPHEIGHT, capowgl->tempheight);
 
     imageActive = zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW &&
         calife_list->FocusCA()->HasImageBuffer2D();
-    GL_active = zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW && capowgl->Type();
+    graphType = capowgl->Type();
+    GL_active = zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW && graphType != FLATCOLOR &&
+        graphType != GPU_TEXTURE;
 
-    EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_GRAPHTYPES ),zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW );
-    EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_MATERIAL ),GL_active );
-    EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_SURFACE), GL_active);
-    EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_RESOLUTION), GL_active);
+    EnableWindow(
+        GetDlgItem(hDlg, IDC_OPENGL_GRAPHTYPES), zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_MATERIAL), GL_active);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_SURFACE), GL_active);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_RESOLUTION), GL_active);
 
-    for (i=  IDC_OPENGL_MOUSE_CA; i<=IDC_OPENGL_MOUSE_FLY; i++)
-        EnableWindow( GetDlgItem( hDlg, i ),GL_active);
-    EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_SHOW_GENERATORS),GL_active || imageActive);
-    EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_ZERO_PLANE),GL_active);
-    EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_MAX_PLANE),GL_active);
-    EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_SPIN),GL_active);
-    EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_FLY_SHOW), GL_active);
-    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_FLIP_TYPE),calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW);
-    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_RESET),GL_active);
+    for (i = IDC_OPENGL_MOUSE_CA; i <= IDC_OPENGL_MOUSE_FLY; i++)
+        EnableWindow(GetDlgItem(hDlg, i), GL_active);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_SHOW_GENERATORS), GL_active || imageActive);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_ZERO_PLANE), GL_active);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_MAX_PLANE), GL_active);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_SPIN), GL_active);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_FLY_SHOW), GL_active);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_FLIP_TYPE), calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_RESET), GL_active);
 
-    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_ORIENT),GL_active);
-    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_HEIGHT),GL_active);
-    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_ZOOM),GL_active);
-    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_PAN),GL_active&&!capowgl->ThreeDGlasses());
-    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_FLY),GL_active&&!capowgl->ThreeDGlasses());
-    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_GLASSES),GL_active);
-    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_ANTIALIASED),GL_active);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_ORIENT), GL_active);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_HEIGHT), GL_active);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_ZOOM), GL_active);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_PAN), GL_active && !capowgl->ThreeDGlasses());
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_FLY), GL_active && !capowgl->ThreeDGlasses());
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_GLASSES), GL_active);
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_ANTIALIASED), GL_active);
 
     EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_TO_VRML), GL_active);
-
 
     /* Rudy added the OPENGL_SLEEP control.  The idea is that now rendering is by default
 paused when the CAs are paused and you need to use the gl_sleep checkbox to turn
@@ -388,17 +385,16 @@ it on if you want it in. 12/2/97.  Had persistent bug problems. */
     This was the WRONG thing to do, it meant that whenever ShowOpenGLParams got called, this
     button got toggled, for instance when you clicked on the screen.  Rudy fixed this bug by
     Michael Ling on 5/19/98 ---RR. */
-        CheckDlgButton(hDlg, IDC_OPENGL_PAUSE, calife_list->GetSleep());
-        CheckDlgButton(hDlg, IDC_OPENGL_GLSLEEP, 1-(calife_list->GetGlSleep()));
-        /* The checkbox says "Render While CAs Are Paused," which means that
-        gl_sleep is 0, so we set check with the complementary value of gl_sleep.*/
-        EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_GLSLEEP), GL_active);
+    CheckDlgButton(hDlg, IDC_OPENGL_PAUSE, calife_list->GetSleep());
+    CheckDlgButton(hDlg, IDC_OPENGL_GLSLEEP, 1 - (calife_list->GetGlSleep()));
+    /* The checkbox says "Render While CAs Are Paused," which means that
+    gl_sleep is 0, so we set check with the complementary value of gl_sleep.*/
+    EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_GLSLEEP), GL_active);
 #define GRAY_GLSLEEP
 #ifdef GRAY_GLSLEEP
-    if (!GL_active || !calife_list->GetSleep()) //Not GL_active or not paused
+    if (!GL_active || !calife_list->GetSleep()) // Not GL_active or not paused
         EnableWindow(GetDlgItem(hDlg, IDC_OPENGL_GLSLEEP), FALSE);
-        /* The only way to enable this checkbox is to go to
-        pause.*/
-#endif //GRAY_GLSLEEP
+    /* The only way to enable this checkbox is to go to
+    pause.*/
+#endif // GRAY_GLSLEEP
 }
-

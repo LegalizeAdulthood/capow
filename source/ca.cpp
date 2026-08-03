@@ -35,6 +35,30 @@ extern int statusBarHeight;
 extern int toolBarHeight;
 #if defined(CAPOW_ENABLE_ALPAKA)
 extern CapowGL *capowgl;
+
+static capow::Heat2DBoundaryMode Heat2DBoundaryModeForWrapFlag(int wrapFlag)
+{
+    switch (wrapFlag)
+    {
+    case WF_WRAP:
+        return capow::HEAT_2D_BOUNDARY_WRAP;
+    case WF_FREE:
+        return capow::HEAT_2D_BOUNDARY_FREE;
+    case WF_ABSORB:
+        return capow::HEAT_2D_BOUNDARY_ABSORB;
+    case WF_ZERO:
+        return capow::HEAT_2D_BOUNDARY_ZERO;
+    case WF_FIXED:
+        return capow::HEAT_2D_BOUNDARY_FIXED;
+    }
+    return capow::HEAT_2D_BOUNDARY_WRAP;
+}
+
+static bool IsAlpakaHeat2DWrapFlagSupported(int wrapFlag)
+{
+    return wrapFlag == WF_WRAP || wrapFlag == WF_FREE || wrapFlag == WF_ABSORB || wrapFlag == WF_ZERO ||
+        wrapFlag == WF_FIXED;
+}
 #endif
 
 void AddUserParam(CA *owner, LPSTR label, Real value)
@@ -1421,11 +1445,73 @@ void CA::RotateWavePlanes2D()
 }
 
 #if defined(CAPOW_ENABLE_ALPAKA)
+void CA::CopyAlpakaHeat2DToCpu()
+{
+    if (!alpakaHeat2DLive || !alpakaHeat2DLive->IsActive())
+        return;
+
+    const std::size_t packedCount = static_cast<std::size_t>(horz_count_2D) * static_cast<std::size_t>(vert_count_2D);
+    std::vector<capow::AlpakaPlaneValue> intensityValues(packedCount);
+    std::vector<capow::AlpakaPlaneValue> velocityValues(packedCount);
+    std::string errorText;
+    const bool ok = alpakaHeat2DLive->DownloadCurrent(intensityValues.data(), 1, velocityValues.data(), 1, &errorText);
+    if (!ok)
+    {
+        OutputDebugStringA("CA_HEAT_2D GPU download failed: ");
+        OutputDebugStringA(errorText.c_str());
+        OutputDebugStringA("\n");
+        return;
+    }
+
+    for (int y = 0; y < vert_count_2D; ++y)
+    {
+        for (int x = 0; x < horz_count_2D; ++x)
+        {
+            const std::size_t packedIndex =
+                static_cast<std::size_t>(y) * static_cast<std::size_t>(horz_count_2D) + static_cast<std::size_t>(x);
+            const int c = index(x, y);
+            wave_source_plane[c].intensity = intensityValues[packedIndex];
+            wave_source_plane[c].variable[1] = velocityValues[packedIndex];
+            wave_target_plane[c] = wave_source_plane[c];
+            wave_past_plane[c] = wave_source_plane[c];
+        }
+    }
+
+    PaintHeat2DPlaneToBitmap(wave_source_plane);
+}
+
 void CA::MarkAlpakaHeat2DDirty()
 {
+    CopyAlpakaHeat2DToCpu();
     if (alpakaHeat2DLive)
         alpakaHeat2DLive->Deactivate();
     alpakaHeat2DTextureReady = false;
+}
+
+void CA::PaintHeat2DPlaneToBitmap(const Wavecell2 *plane)
+{
+    if (WBM == 0 || plane == 0)
+        return;
+
+    for (short y = 0; y < vert_count_2D; ++y)
+    {
+        int c = index(0, y);
+        short pixx = (short) minx;
+        const short pixy = (short) (miny + y);
+        for (short x = 0; x < horz_count_2D; ++x)
+        {
+            Real displayValue = plane[c].intensity;
+            if (showvelocity)
+                displayValue = AMPLIFY_VEL_COLOR_2D * plane[c].variable[1];
+
+            unsigned short colindex = (unsigned short) (((MAX_COLOR - 1) * (displayValue + _max_intensity.Val())) /
+                (2.0 * _max_intensity.Val()));
+            POSITIVECLAMP(colindex, (unsigned short) (MAX_COLOR - 1));
+            WBM->WBMOnlyPutPixel(pixx, pixy, colortable[colindex]);
+            ++c;
+            ++pixx;
+        }
+    }
 }
 
 bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
@@ -1438,9 +1524,9 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
 
     capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
     const bool canUseGpu = backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU &&
-        backendManager.CanRunGpu(capow::ALPAKA_RULE_CA_HEAT_2D) && viewmode == IDC_2D_VIEW && wrapflag == WF_WRAP &&
-        _smoothsteps == 0 && !generatorflag && generatorlist.Count() == 0 && capowgl != 0 &&
-        capowgl->Type() == FLATCOLOR;
+        backendManager.CanRunGpu(capow::ALPAKA_RULE_CA_HEAT_2D) && viewmode == IDC_2D_VIEW &&
+        IsAlpakaHeat2DWrapFlagSupported(wrapflag) && _smoothsteps == 0 && !generatorflag &&
+        generatorlist.Count() == 0 && capowgl != 0 && capowgl->Type() == GPU_TEXTURE;
     if (!canUseGpu)
     {
         MarkAlpakaHeat2DDirty();
@@ -1459,6 +1545,18 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
     options.velocityColorScale = AMPLIFY_VEL_COLOR_2D;
     options.colorCount = MAX_COLOR;
     options.showVelocity = showvelocity != 0;
+    options.boundaryMode = Heat2DBoundaryModeForWrapFlag(wrapflag);
+
+    std::vector<capow::AlpakaPlaneValue> sourcePlane(
+        static_cast<std::size_t>(horz_count_2D) * static_cast<std::size_t>(vert_count_2D));
+    for (int y = 0; y < vert_count_2D; ++y)
+    {
+        for (int x = 0; x < horz_count_2D; ++x)
+        {
+            sourcePlane[static_cast<std::size_t>(y) * static_cast<std::size_t>(horz_count_2D) +
+                static_cast<std::size_t>(x)] = wave_source_plane[index(x, y)].intensity;
+        }
+    }
 
     if (!capowgl->MakeCurrent(hdc))
     {
@@ -1467,8 +1565,8 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
     }
 
     std::string errorText;
-    const bool ok = alpakaHeat2DLive->RunFrame(options, &wave_source_plane[0].variable[0], PLANE_VARIABLE_COUNT,
-        reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
+    const bool ok = alpakaHeat2DLive->RunFrame(
+        options, sourcePlane.data(), 1, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
     capowgl->ReleaseCurrent();
     if (!ok)
     {
@@ -1486,6 +1584,10 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
 
 bool CA::DrawAlpakaHeat2DTexture(HDC hdc, int left, int top, int width, int height)
 {
+    if (capow::GetAlpakaManager().GetBackend() != capow::ALPAKA_BACKEND_GPU)
+        return false;
+    if (capowgl == 0 || capowgl->Type() != GPU_TEXTURE)
+        return false;
     if (!alpakaHeat2DTextureReady || !alpakaHeat2DLive)
         return false;
 

@@ -46,6 +46,10 @@ set(toleranceArguments "")
 if(DEFINED TOLERANCE AND NOT "${TOLERANCE}" STREQUAL "")
     list(APPEND toleranceArguments --tolerance "${TOLERANCE}")
 endif()
+set(wrapArguments "")
+if(DEFINED WRAP_MODE AND NOT "${WRAP_MODE}" STREQUAL "")
+    list(APPEND wrapArguments --wrap "${WRAP_MODE}")
+endif()
 
 file(REMOVE "${CPU_IMAGE}" "${GPU_IMAGE}" "${DIFF_IMAGE}")
 
@@ -56,6 +60,7 @@ run_command("CPU batch image generation"
     --rule "${RULE}"
     --steps "${STEPS}"
     --seed "${SEED}"
+    ${wrapArguments}
     --output "${CPU_IMAGE}"
 )
 
@@ -66,6 +71,7 @@ run_command("GPU batch image generation"
     --rule "${RULE}"
     --steps "${STEPS}"
     --seed "${SEED}"
+    ${wrapArguments}
     --output "${GPU_IMAGE}"
 )
 

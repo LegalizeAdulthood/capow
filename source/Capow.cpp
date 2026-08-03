@@ -170,6 +170,18 @@ int  cxParent, cyParent;
 
 CapowGL *capowgl;
 
+#if defined(CAPOW_ENABLE_ALPAKA)
+static void MarkAlpakaHeat2DDisplaysDirty()
+{
+    if (calife_list == NULL)
+        return;
+
+    for (int i = 0; i < calife_list->Count(); ++i)
+        calife_list->GetCA(i)->MarkAlpakaHeat2DDirty();
+    InvalidateRect(masterhwnd, NULL, FALSE);
+}
+#endif
+
 
 /* Here is a flag I use in CONFIGURE.CPP to decide whether that dialog's code
 is for the dialog of the *.EXE or for the initializer of the *.SCR */
@@ -620,6 +632,9 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         case IDM_BACKEND_CPU:
 #if defined(CAPOW_ENABLE_ALPAKA)
             capow::GetAlpakaManager().SetBackend(capow::ALPAKA_BACKEND_CPU);
+            if (capowgl != NULL && capowgl->Type() == GPU_TEXTURE)
+                capowgl->Type(FLATCOLOR);
+            MarkAlpakaHeat2DDisplaysDirty();
 #else
             MessageBoxA(hwnd, "CPU backend is active.", "Backend",
                 MB_OK | MB_ICONINFORMATION);
@@ -631,7 +646,13 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             {
             capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
             if (backendManager.IsGpuAvailable())
+            {
                 backendManager.SetBackend(capow::ALPAKA_BACKEND_GPU);
+                if (capowgl != NULL && calife_list != NULL &&
+                    calife_list->FocusCA()->Gettype() == CA_HEAT_2D)
+                    capowgl->Type(GPU_TEXTURE);
+                MarkAlpakaHeat2DDisplaysDirty();
+            }
             else
                 MessageBoxA(hwnd, backendManager.GetAvailabilityMessage(),
                     "GPU Backend", MB_OK | MB_ICONINFORMATION);

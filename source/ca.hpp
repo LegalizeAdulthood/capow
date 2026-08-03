@@ -1452,7 +1452,9 @@ public:
     void WaveUpdateStep2D(HDC hdc);
     void RotateWavePlanes2D();
 #if defined(CAPOW_ENABLE_ALPAKA)
+    void CopyAlpakaHeat2DToCpu();
     void MarkAlpakaHeat2DDirty();
+    void PaintHeat2DPlaneToBitmap(const Wavecell2 *plane);
     bool TryAlpakaHeat2DUpdate(HDC hdc);
     bool DrawAlpakaHeat2DTexture(HDC hdc, int left, int top, int width, int height);
 #endif

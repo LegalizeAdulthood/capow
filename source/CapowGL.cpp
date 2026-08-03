@@ -207,7 +207,7 @@ of the program.
 
 bool CapowGL::RenderFocus(CA *focus)
 {
-    if (graphtype == FLATCOLOR)
+    if (graphtype == FLATCOLOR || graphtype == GPU_TEXTURE)
         return false;
 
     /* Problem, this procedure dies sometimes.  It dies if you do your first

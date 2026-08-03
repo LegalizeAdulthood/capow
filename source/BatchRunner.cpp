@@ -36,6 +36,24 @@ int CaTypeForRule(capow::BatchRule rule)
     return CA_HEAT_2D;
 }
 
+int WrapFlagForBatchMode(capow::BatchWrapMode wrapMode)
+{
+    switch (wrapMode)
+    {
+    case capow::BATCH_WRAP_ZERO:
+        return WF_ZERO;
+    case capow::BATCH_WRAP_FIXED:
+        return WF_FIXED;
+    case capow::BATCH_WRAP_WRAP:
+        return WF_WRAP;
+    case capow::BATCH_WRAP_FREE:
+        return WF_FREE;
+    case capow::BATCH_WRAP_ABSORB:
+        return WF_ABSORB;
+    }
+    return WF_WRAP;
+}
+
 #if defined(CAPOW_ENABLE_ALPAKA)
 capow::AlpakaRule AlpakaRuleForBatchRule(capow::BatchRule rule)
 {
@@ -49,6 +67,24 @@ capow::AlpakaRule AlpakaRuleForBatchRule(capow::BatchRule rule)
         return capow::ALPAKA_RULE_CA_WAVE_2D;
     }
     return capow::ALPAKA_RULE_CA_HEAT_2D;
+}
+
+capow::Heat2DBoundaryMode Heat2DBoundaryModeForBatchMode(capow::BatchWrapMode wrapMode)
+{
+    switch (wrapMode)
+    {
+    case capow::BATCH_WRAP_ZERO:
+        return capow::HEAT_2D_BOUNDARY_ZERO;
+    case capow::BATCH_WRAP_FIXED:
+        return capow::HEAT_2D_BOUNDARY_FIXED;
+    case capow::BATCH_WRAP_WRAP:
+        return capow::HEAT_2D_BOUNDARY_WRAP;
+    case capow::BATCH_WRAP_FREE:
+        return capow::HEAT_2D_BOUNDARY_FREE;
+    case capow::BATCH_WRAP_ABSORB:
+        return capow::HEAT_2D_BOUNDARY_ABSORB;
+    }
+    return capow::HEAT_2D_BOUNDARY_WRAP;
 }
 #endif
 
@@ -189,6 +225,7 @@ int RunHeat2DBatchMode(const capow::BatchOptions &options, CA *focus)
     heatOptions.width = focus->HorzCount2D();
     heatOptions.height = focus->VertCount2D();
     heatOptions.steps = options.steps;
+    heatOptions.boundaryMode = Heat2DBoundaryModeForBatchMode(options.wrapMode);
 
     try
     {
@@ -281,7 +318,7 @@ int RunBatchMode(const BatchOptions &options)
     }
 
     calife_list->SetCAType(focus, CaTypeForRule(options.rule), TRUE);
-    focus->Setwrapflag(WF_WRAP);
+    focus->Setwrapflag(WrapFlagForBatchMode(options.wrapMode));
     calife_list->Locate();
     focus->FourierSeed();
     focus->ResetGenerationCount();

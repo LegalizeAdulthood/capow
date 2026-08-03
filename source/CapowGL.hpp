@@ -25,6 +25,7 @@
 #define SHEET 1
 #define TORUS 2
 #define IMAGE_TEXTURE 3
+#define GPU_TEXTURE 4
 
 // surface
 #define DOTS 0

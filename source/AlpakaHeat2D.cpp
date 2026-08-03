@@ -1,6 +1,5 @@
 #include "AlpakaHeat2D.hpp"
 
-#include "AlpakaUtilities.hpp"
 #include "CapowRules.hpp"
 
 #include <alpaka/alpaka.hpp>
@@ -39,8 +38,8 @@ struct Heat2DKernel
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc &acc, const capow::AlpakaPlaneValue *source,
         capow::AlpakaPlaneValue *targetIntensity, capow::AlpakaPlaneValue *targetVelocity, Idx width, Idx height,
-        capow::AlpakaPlaneValue heatIncrement, capow::AlpakaPlaneValue maxIntensity,
-        capow::AlpakaPlaneValue timeStep) const
+        capow::AlpakaPlaneValue heatIncrement, capow::AlpakaPlaneValue maxIntensity, capow::AlpakaPlaneValue timeStep,
+        capow::Heat2DBoundaryMode boundaryMode) const
     {
         const alpaka::Vec<WorkDim, Idx> global = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
         const Idx y = global[0];
@@ -51,13 +50,11 @@ struct Heat2DKernel
             return;
         }
 
-        const capow::alpaka_util::FiveNeighborIndexes indexes =
-            capow::alpaka_util::five_neighbor_indexes(x, y, width, height);
-        const capow::Heat2DResult<capow::AlpakaPlaneValue> result = capow::ComputeHeat2D<capow::AlpakaPlaneValue>(
-            source[indexes.center], source[indexes.east], source[indexes.north], source[indexes.west],
-            source[indexes.south], heatIncrement, maxIntensity, timeStep);
-        targetIntensity[indexes.center] = result.nextIntensity;
-        targetVelocity[indexes.center] = result.velocity;
+        const capow::Heat2DResult<capow::AlpakaPlaneValue> result = capow::ComputeHeat2DCell<capow::AlpakaPlaneValue>(
+            source, x, y, width, height, boundaryMode, heatIncrement, maxIntensity, timeStep);
+        const Idx center = capow::Heat2DIndex(x, y, width);
+        targetIntensity[center] = result.nextIntensity;
+        targetVelocity[center] = result.velocity;
     }
 };
 
@@ -94,6 +91,27 @@ void ValidateFieldSize(const capow::Heat2DOptions &options, const std::vector<ca
     }
 }
 
+void ApplyInitialBoundary(const capow::Heat2DOptions &options, std::vector<capow::AlpakaPlaneValue> *field)
+{
+    if (options.boundaryMode != capow::HEAT_2D_BOUNDARY_ZERO)
+    {
+        return;
+    }
+
+    const std::uint32_t width = static_cast<std::uint32_t>(options.width);
+    const std::uint32_t height = static_cast<std::uint32_t>(options.height);
+    for (std::uint32_t y = 0U; y < height; ++y)
+    {
+        for (std::uint32_t x = 0U; x < width; ++x)
+        {
+            if (capow::IsHeat2DBoundaryCell(x, y, width, height))
+            {
+                (*field)[capow::Heat2DIndex(x, y, width)] = capow::AlpakaPlaneValue(0);
+            }
+        }
+    }
+}
+
 capow::AlpakaPlaneValue UnitValue(std::uint32_t index)
 {
     std::uint32_t value = index * 1103515245U + 12345U + 0x5678U;
@@ -111,13 +129,12 @@ void Heat2DStepHost(const capow::Heat2DOptions &options, const std::vector<capow
     {
         for (std::uint32_t x = 0U; x < width; ++x)
         {
-            const capow::alpaka_util::FiveNeighborIndexes indexes =
-                capow::alpaka_util::five_neighbor_indexes(x, y, width, height);
-            const capow::Heat2DResult<capow::AlpakaPlaneValue> result = capow::ComputeHeat2D<capow::AlpakaPlaneValue>(
-                source[indexes.center], source[indexes.east], source[indexes.north], source[indexes.west],
-                source[indexes.south], options.heatIncrement, options.maxIntensity, options.timeStep);
-            (*targetIntensity)[indexes.center] = result.nextIntensity;
-            (*targetVelocity)[indexes.center] = result.velocity;
+            const capow::Heat2DResult<capow::AlpakaPlaneValue> result =
+                capow::ComputeHeat2DCell<capow::AlpakaPlaneValue>(source.data(), x, y, width, height,
+                    options.boundaryMode, options.heatIncrement, options.maxIntensity, options.timeStep);
+            const std::uint32_t center = capow::Heat2DIndex(x, y, width);
+            (*targetIntensity)[center] = result.nextIntensity;
+            (*targetVelocity)[center] = result.velocity;
         }
     }
 }
@@ -138,7 +155,8 @@ Heat2DOptions::Heat2DOptions() :
     steps(0),
     heatIncrement(defaultHeatIncrement),
     maxIntensity(defaultMaxIntensity),
-    timeStep(defaultTimeStep)
+    timeStep(defaultTimeStep),
+    boundaryMode(HEAT_2D_BOUNDARY_WRAP)
 {
 }
 
@@ -159,6 +177,7 @@ void RunHeat2DHost(const Heat2DOptions &options, const std::vector<AlpakaPlaneVa
     ValidateFieldSize(options, initial);
 
     std::vector<AlpakaPlaneValue> current = initial;
+    ApplyInitialBoundary(options, &current);
     std::vector<AlpakaPlaneValue> nextIntensity(CellCount(options));
     std::vector<AlpakaPlaneValue> nextVelocity(CellCount(options), AlpakaPlaneValue(0));
     for (int step = 0; step < options.steps; ++step)
@@ -179,6 +198,7 @@ void RunHeat2DGpu(const Heat2DOptions &options, const std::vector<AlpakaPlaneVal
     if (options.steps == 0)
     {
         result->intensityField = initial;
+        ApplyInitialBoundary(options, &result->intensityField);
         result->velocityField.assign(initial.size(), AlpakaPlaneValue(0));
         return;
     }
@@ -194,6 +214,7 @@ void RunHeat2DGpu(const Heat2DOptions &options, const std::vector<AlpakaPlaneVal
     DeviceBuffer deviceNextIntensity = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, memExtent);
     DeviceBuffer deviceNextVelocity = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, memExtent);
     std::vector<AlpakaPlaneValue> hostInitialData = initial;
+    ApplyInitialBoundary(options, &hostInitialData);
     HostView hostInitial = alpaka::createView(hostDevice, hostInitialData.data(), memExtent);
     alpaka::memcpy(queue, deviceCurrent, hostInitial, memExtent);
     alpaka::wait(queue);
@@ -210,7 +231,7 @@ void RunHeat2DGpu(const Heat2DOptions &options, const std::vector<AlpakaPlaneVal
         alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(deviceCurrent),
             alpaka::getPtrNative(deviceNextIntensity), alpaka::getPtrNative(deviceNextVelocity),
             static_cast<Idx>(options.width), static_cast<Idx>(options.height), options.heatIncrement,
-            options.maxIntensity, options.timeStep);
+            options.maxIntensity, options.timeStep, options.boundaryMode);
         std::swap(deviceCurrent, deviceNextIntensity);
     }
     alpaka::wait(queue);

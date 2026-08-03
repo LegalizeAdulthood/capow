@@ -1,6 +1,5 @@
 #include "AlpakaHeat2DLive.hpp"
 
-#include "AlpakaUtilities.hpp"
 #include "CapowRules.hpp"
 
 #include <alpaka/alpaka.hpp>
@@ -48,8 +47,8 @@ struct Heat2DLiveKernel
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc &acc, const capow::AlpakaPlaneValue *source,
         capow::AlpakaPlaneValue *targetIntensity, capow::AlpakaPlaneValue *targetVelocity, Idx width, Idx height,
-        capow::AlpakaPlaneValue heatIncrement, capow::AlpakaPlaneValue maxIntensity,
-        capow::AlpakaPlaneValue timeStep) const
+        capow::AlpakaPlaneValue heatIncrement, capow::AlpakaPlaneValue maxIntensity, capow::AlpakaPlaneValue timeStep,
+        capow::Heat2DBoundaryMode boundaryMode) const
     {
         const alpaka::Vec<WorkDim, Idx> global = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
         const Idx y = global[0];
@@ -60,13 +59,11 @@ struct Heat2DLiveKernel
             return;
         }
 
-        const capow::alpaka_util::FiveNeighborIndexes indexes =
-            capow::alpaka_util::five_neighbor_indexes(x, y, width, height);
-        const capow::Heat2DResult<capow::AlpakaPlaneValue> result = capow::ComputeHeat2D<capow::AlpakaPlaneValue>(
-            source[indexes.center], source[indexes.east], source[indexes.north], source[indexes.west],
-            source[indexes.south], heatIncrement, maxIntensity, timeStep);
-        targetIntensity[indexes.center] = result.nextIntensity;
-        targetVelocity[indexes.center] = result.velocity;
+        const capow::Heat2DResult<capow::AlpakaPlaneValue> result = capow::ComputeHeat2DCell<capow::AlpakaPlaneValue>(
+            source, x, y, width, height, boundaryMode, heatIncrement, maxIntensity, timeStep);
+        const Idx center = capow::Heat2DIndex(x, y, width);
+        targetIntensity[center] = result.nextIntensity;
+        targetVelocity[center] = result.velocity;
     }
 };
 
@@ -175,6 +172,8 @@ public:
     bool IsActive() const;
     unsigned int GetTexture() const;
     void Deactivate();
+    bool DownloadCurrent(AlpakaPlaneValue *targetPlane, int valueStride, AlpakaPlaneValue *targetVelocity,
+        int velocityStride, std::string *error);
     bool RunFrame(const Heat2DLiveOptions &nextOptions, const AlpakaPlaneValue *sourcePlane, int valueStride,
         const std::uint32_t *colorTable, std::string *error);
 
@@ -187,6 +186,7 @@ private:
     void RunHeatStep();
     bool ColorizeTexture(std::string *error);
     void CopyHostToDevice(std::vector<AlpakaPlaneValue> *hostPlane, PlaneBuffer *devicePlane);
+    void CopyDeviceToHost(PlaneBuffer *devicePlane, std::vector<AlpakaPlaneValue> *hostPlane);
 
     AccDevice accDevice;
     HostDevice hostDevice;
@@ -196,6 +196,7 @@ private:
     bool active;
     std::size_t cellCount;
     std::vector<AlpakaPlaneValue> hostSource;
+    std::vector<AlpakaPlaneValue> hostVelocity;
     std::vector<std::uint32_t> hostColors;
     std::optional<PlaneBuffer> deviceCurrent;
     std::optional<PlaneBuffer> deviceNextIntensity;
@@ -209,7 +210,8 @@ Heat2DLiveState::Impl::Impl() :
     accDevice(alpaka::getDevByIdx(AccPlatform{}, 0U)),
     hostDevice(alpaka::getDevByIdx(HostPlatform{}, 0U)),
     queue(accDevice),
-    options{0, 0, AlpakaPlaneValue(0), AlpakaPlaneValue(0), AlpakaPlaneValue(0), AlpakaPlaneValue(0), 0, false},
+    options{0, 0, AlpakaPlaneValue(0), AlpakaPlaneValue(0), AlpakaPlaneValue(0), AlpakaPlaneValue(0), 0, false,
+        HEAT_2D_BOUNDARY_WRAP},
     initialized(false),
     active(false),
     cellCount(0U),
@@ -236,6 +238,37 @@ unsigned int Heat2DLiveState::Impl::GetTexture() const
 void Heat2DLiveState::Impl::Deactivate()
 {
     active = false;
+}
+
+bool Heat2DLiveState::Impl::DownloadCurrent(AlpakaPlaneValue *targetPlane, int valueStride,
+    AlpakaPlaneValue *targetVelocity, int velocityStride, std::string *error)
+{
+    try
+    {
+        ValidatePlane(targetPlane, valueStride);
+        ValidatePlane(targetVelocity, velocityStride);
+        if (!active || !deviceCurrent || !deviceVelocity)
+        {
+            return true;
+        }
+
+        CopyDeviceToHost(&*deviceCurrent, &hostSource);
+        CopyDeviceToHost(&*deviceVelocity, &hostVelocity);
+        for (std::size_t index = 0; index < cellCount; ++index)
+        {
+            targetPlane[index * static_cast<std::size_t>(valueStride)] = hostSource[index];
+            targetVelocity[index * static_cast<std::size_t>(velocityStride)] = hostVelocity[index];
+        }
+        return true;
+    }
+    catch (const std::exception &exception)
+    {
+        if (error != 0)
+        {
+            *error = exception.what();
+        }
+        return false;
+    }
 }
 
 bool Heat2DLiveState::Impl::RunFrame(const Heat2DLiveOptions &nextOptions, const AlpakaPlaneValue *sourcePlane,
@@ -293,6 +326,7 @@ void Heat2DLiveState::Impl::Resize(const Heat2DLiveOptions &nextOptions)
     deviceVelocity.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, planeExtent));
     deviceColors.emplace(alpaka::allocBuf<std::uint32_t, Idx>(accDevice, colorExtent));
     hostSource.assign(cellCount, AlpakaPlaneValue(0));
+    hostVelocity.assign(cellCount, AlpakaPlaneValue(0));
     hostColors.assign(static_cast<std::size_t>(options.colorCount), 0U);
     active = false;
     initialized = true;
@@ -378,7 +412,7 @@ void Heat2DLiveState::Impl::RunHeatStep()
     alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(*deviceCurrent),
         alpaka::getPtrNative(*deviceNextIntensity), alpaka::getPtrNative(*deviceVelocity),
         static_cast<Idx>(options.width), static_cast<Idx>(options.height), options.heatIncrement, options.maxIntensity,
-        options.timeStep);
+        options.timeStep, options.boundaryMode);
     alpaka::wait(queue);
 }
 
@@ -432,6 +466,14 @@ void Heat2DLiveState::Impl::CopyHostToDevice(std::vector<AlpakaPlaneValue> *host
     alpaka::wait(queue);
 }
 
+void Heat2DLiveState::Impl::CopyDeviceToHost(PlaneBuffer *devicePlane, std::vector<AlpakaPlaneValue> *hostPlane)
+{
+    const MemExtent extent = MemExtent{static_cast<Idx>(cellCount)};
+    HostPlaneView hostView = alpaka::createView(hostDevice, hostPlane->data(), extent);
+    alpaka::memcpy(queue, hostView, *devicePlane, extent);
+    alpaka::wait(queue);
+}
+
 Heat2DLiveState::Heat2DLiveState() :
     impl(std::make_unique<Impl>())
 {
@@ -452,6 +494,12 @@ unsigned int Heat2DLiveState::GetTexture() const
 void Heat2DLiveState::Deactivate()
 {
     impl->Deactivate();
+}
+
+bool Heat2DLiveState::DownloadCurrent(AlpakaPlaneValue *targetPlane, int valueStride,
+    AlpakaPlaneValue *targetVelocity, int velocityStride, std::string *error)
+{
+    return impl->DownloadCurrent(targetPlane, valueStride, targetVelocity, velocityStride, error);
 }
 
 bool Heat2DLiveState::RunFrame(const Heat2DLiveOptions &options, const AlpakaPlaneValue *sourcePlane, int valueStride,

@@ -8,7 +8,8 @@
 namespace
 {
 
-void ExpectHeatGpuMatchesHost(int width, int height, int steps)
+void ExpectHeatGpuMatchesHost(
+    int width, int height, int steps, capow::Heat2DBoundaryMode boundaryMode = capow::HEAT_2D_BOUNDARY_WRAP)
 {
     capow::AlpakaManager &manager = capow::GetAlpakaManager();
     if (!manager.IsGpuAvailable())
@@ -23,6 +24,7 @@ void ExpectHeatGpuMatchesHost(int width, int height, int steps)
     options.heatIncrement = 0.375F;
     options.maxIntensity = 7.0F;
     options.timeStep = 0.25F;
+    options.boundaryMode = boundaryMode;
 
     std::vector<capow::AlpakaPlaneValue> initial;
     capow::Heat2DFields hostResult;
@@ -49,4 +51,24 @@ TEST(alpakaHeat2D, oneStepMatchesHost)
 TEST(alpakaHeat2D, thousandStepsMatchHost)
 {
     ExpectHeatGpuMatchesHost(37, 23, 1000);
+}
+
+TEST(alpakaHeat2D, freeStepsMatchHost)
+{
+    ExpectHeatGpuMatchesHost(19, 11, 250, capow::HEAT_2D_BOUNDARY_FREE);
+}
+
+TEST(alpakaHeat2D, absorbStepsMatchHost)
+{
+    ExpectHeatGpuMatchesHost(19, 11, 250, capow::HEAT_2D_BOUNDARY_ABSORB);
+}
+
+TEST(alpakaHeat2D, zeroStepsMatchHost)
+{
+    ExpectHeatGpuMatchesHost(19, 11, 250, capow::HEAT_2D_BOUNDARY_ZERO);
+}
+
+TEST(alpakaHeat2D, fixedStepsMatchHost)
+{
+    ExpectHeatGpuMatchesHost(19, 11, 250, capow::HEAT_2D_BOUNDARY_FIXED);
 }

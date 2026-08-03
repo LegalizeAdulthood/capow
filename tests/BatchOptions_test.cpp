@@ -34,6 +34,7 @@ TEST(batchOptions, parseValidCpuBatch)
     EXPECT_TRUE(result.options.batch);
     EXPECT_EQ(capow::BATCH_BACKEND_CPU, result.options.backend);
     EXPECT_EQ(capow::BATCH_RULE_CA_HEAT_2D, result.options.rule);
+    EXPECT_EQ(capow::BATCH_WRAP_WRAP, result.options.wrapMode);
     EXPECT_EQ(100, result.options.steps);
     EXPECT_EQ(1946UL, result.options.seed);
     EXPECT_EQ("cpu.bmp", result.options.output);
@@ -61,6 +62,17 @@ TEST(batchOptions, parseValidSeed)
 
     EXPECT_TRUE(result.ok);
     EXPECT_EQ(12345UL, result.options.seed);
+}
+
+TEST(batchOptions, parseValidWrapMode)
+{
+    const char *argv[] = {"--batch", "--backend", "cpu", "--rule", "CA_HEAT_2D", "--steps", "100", "--wrap", "free",
+        "--output", "free.bmp"};
+
+    const capow::BatchParseResult result = Parse(11, argv);
+
+    EXPECT_TRUE(result.ok);
+    EXPECT_EQ(capow::BATCH_WRAP_FREE, result.options.wrapMode);
 }
 
 TEST(batchOptions, parseValidSyntheticHeatBatch)
@@ -129,6 +141,28 @@ TEST(batchOptions, parseRejectsSignedSeed)
 
     EXPECT_FALSE(result.ok);
     EXPECT_EQ("invalid seed", result.error);
+}
+
+TEST(batchOptions, parseRejectsInvalidWrapMode)
+{
+    const char *argv[] = {"--batch", "--backend", "cpu", "--rule", "CA_HEAT_2D", "--steps", "100", "--wrap", "mirror",
+        "--output", "cpu.bmp"};
+
+    const capow::BatchParseResult result = Parse(11, argv);
+
+    EXPECT_FALSE(result.ok);
+    EXPECT_EQ("invalid wrap mode", result.error);
+}
+
+TEST(batchOptions, parseRejectsDuplicateWrapMode)
+{
+    const char *argv[] = {"--batch", "--backend", "cpu", "--rule", "CA_HEAT_2D", "--steps", "100", "--wrap", "wrap",
+        "--wrap", "free", "--output", "cpu.bmp"};
+
+    const capow::BatchParseResult result = Parse(13, argv);
+
+    EXPECT_FALSE(result.ok);
+    EXPECT_EQ("duplicate --wrap", result.error);
 }
 
 TEST(batchOptions, parseRejectsDuplicateSeed)

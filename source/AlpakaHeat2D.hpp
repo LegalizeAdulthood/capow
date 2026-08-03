@@ -2,6 +2,7 @@
 #define ALPAKAHEAT2D_HPP
 
 #include "AlpakaBuffers.hpp"
+#include "CapowRules.hpp"
 
 #include <vector>
 
@@ -16,6 +17,7 @@ struct Heat2DOptions
     AlpakaPlaneValue heatIncrement;
     AlpakaPlaneValue maxIntensity;
     AlpakaPlaneValue timeStep;
+    Heat2DBoundaryMode boundaryMode;
 
     Heat2DOptions();
 };

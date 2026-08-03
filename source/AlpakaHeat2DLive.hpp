@@ -2,6 +2,7 @@
 #define ALPAKAHEAT2DLIVE_HPP
 
 #include "AlpakaBuffers.hpp"
+#include "CapowRules.hpp"
 
 #include <cstdint>
 #include <memory>
@@ -20,6 +21,7 @@ struct Heat2DLiveOptions
     AlpakaPlaneValue velocityColorScale;
     int colorCount;
     bool showVelocity;
+    Heat2DBoundaryMode boundaryMode;
 };
 
 class Heat2DLiveState
@@ -34,6 +36,8 @@ public:
     bool IsActive() const;
     unsigned int GetTexture() const;
     void Deactivate();
+    bool DownloadCurrent(AlpakaPlaneValue *targetPlane, int valueStride, AlpakaPlaneValue *targetVelocity,
+        int velocityStride, std::string *error);
     bool RunFrame(const Heat2DLiveOptions &options, const AlpakaPlaneValue *sourcePlane, int valueStride,
         const std::uint32_t *colorTable, std::string *error);
 

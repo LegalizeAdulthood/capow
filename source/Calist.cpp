@@ -188,17 +188,21 @@ void CAlist::Update_and_Show(HDC hdc)
         // sleeping, so you are allowed to change it IF you turn off gl_sleep.
         // Normally the gl_sleep value mathches the value of sleep.
         {
-            if (capowgl->Type())
-                capowgl->Draw(hdc, focus);
-            else
+            if (capowgl->Type() == GPU_TEXTURE)
             {
-                bool drawn = false;
+                DrawZoomed2D(hdc, focus);
 #if defined(CAPOW_ENABLE_ALPAKA)
-                drawn = focus->DrawAlpakaHeat2DTexture(
+                focus->DrawAlpakaHeat2DTexture(
                     hdc, 0, (toolbarON) ? toolBarHeight : 0, focus->horz_count + 2, focus->vert_count);
 #endif
-                if (!drawn)
-                    DrawZoomed2D(hdc, focus);
+            }
+            else if (capowgl->Type())
+            {
+                capowgl->Draw(hdc, focus);
+            }
+            else
+            {
+                DrawZoomed2D(hdc, focus);
             }
 
             if (hDlgOpenGL) // if open, draw bitmap to opengl dialog
@@ -254,17 +258,19 @@ void CAlist::Update_and_Show(HDC hdc)
         case IDC_2D_VIEW:
             capowgl->FocusIsActive(TRUE); // tell capowgl focus is not asleep
 
-            if (capowgl->Type())           // if not flat 2-D
+            if (capowgl->Type() == GPU_TEXTURE)
+            {
+                DrawZoomed2D(hdc, focus);
+#if defined(CAPOW_ENABLE_ALPAKA)
+                focus->DrawAlpakaHeat2DTexture(
+                    hdc, 0, (toolbarON) ? toolBarHeight : 0, focus->horz_count + 2, focus->vert_count);
+#endif
+            }
+            else if (capowgl->Type())      // if not flat 2-D
                 capowgl->Draw(hdc, focus); // draw 3-D view
             else                           // draw the flat 2-D
             {
-                bool drawn = false;
-#if defined(CAPOW_ENABLE_ALPAKA)
-                drawn = focus->DrawAlpakaHeat2DTexture(
-                    hdc, 0, (toolbarON) ? toolBarHeight : 0, focus->horz_count + 2, focus->vert_count);
-#endif
-                if (!drawn)
-                    DrawZoomed2D(hdc, focus);
+                DrawZoomed2D(hdc, focus);
             }
 
             if (hDlgOpenGL) // if open, draw bitmap to opengl dialog
@@ -337,17 +343,19 @@ void CAlist::Show(HDC hdc, const RECT &)
         {
             if (focus->viewmode == IDC_2D_VIEW)
             {
-                if (capowgl->Type())
+                if (capowgl->Type() == GPU_TEXTURE)
+                {
+                    DrawZoomed2D(hdc, focus);
+#if defined(CAPOW_ENABLE_ALPAKA)
+                    focus->DrawAlpakaHeat2DTexture(
+                        hdc, 0, (toolbarON) ? toolBarHeight : 0, focus->horz_count + 2, focus->vert_count);
+#endif
+                }
+                else if (capowgl->Type())
                     capowgl->Draw(hdc, focus);
                 else
                 {
-                    bool drawn = false;
-#if defined(CAPOW_ENABLE_ALPAKA)
-                    drawn = focus->DrawAlpakaHeat2DTexture(
-                        hdc, 0, (toolbarON) ? toolBarHeight : 0, focus->horz_count + 2, focus->vert_count);
-#endif
-                    if (!drawn)
-                        DrawZoomed2D(hdc, focus);
+                    DrawZoomed2D(hdc, focus);
                 }
             }
         } // end  zoomflag  case
@@ -546,7 +554,7 @@ int CAlist::Changecount(int icount)
             if (focus == list[i]) // if focus being deleted
                 focus = list[0];  // set to the first CA
     if (count == 1)               // Always act as if zoomed in when count is 1.
-                    //  copy the LBUTTON zoom in code
+                                  //  copy the LBUTTON zoom in code
     {
         if (Zoom(1)) // zoom in
         {            // if you weren't already zoomed in, do this

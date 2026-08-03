@@ -36,9 +36,13 @@ target_folder(image-compare "Tests")
 
 if(CAPOW_ENABLE_ALPAKA)
     function(add_capow_batch_image_compare_test name rule steps seed)
+        set(wrapArgument "")
+        if(ARGC GREATER 4 AND NOT "${ARGV4}" STREQUAL "")
+            set(wrapArgument "-DWRAP_MODE=${ARGV4}")
+        endif()
         set(toleranceArgument "")
-        if(ARGC GREATER 4)
-            set(toleranceArgument "-DTOLERANCE=${ARGV4}")
+        if(ARGC GREATER 5)
+            set(toleranceArgument "-DTOLERANCE=${ARGV5}")
         endif()
         add_test(NAME capowBatchImageCompare.${name}
             COMMAND ${CMAKE_COMMAND}
@@ -50,6 +54,7 @@ if(CAPOW_ENABLE_ALPAKA)
                 "-DCPU_IMAGE=${CMAKE_CURRENT_BINARY_DIR}/${name}-cpu.bmp"
                 "-DGPU_IMAGE=${CMAKE_CURRENT_BINARY_DIR}/${name}-gpu.bmp"
                 "-DDIFF_IMAGE=${CMAKE_CURRENT_BINARY_DIR}/${name}-diff.bmp"
+                ${wrapArgument}
                 ${toleranceArgument}
                 -P "${CMAKE_CURRENT_SOURCE_DIR}/ImageCompareTest.cmake"
         )
@@ -59,5 +64,9 @@ if(CAPOW_ENABLE_ALPAKA)
     endfunction()
 
     add_capow_batch_image_compare_test(syntheticHeat2D SYNTHETIC_HEAT_2D 40 1946)
-    add_capow_batch_image_compare_test(caHeat2D CA_HEAT_2D 40 1946)
+    add_capow_batch_image_compare_test(caHeat2DWrap CA_HEAT_2D 40 1946 wrap)
+    add_capow_batch_image_compare_test(caHeat2DFree CA_HEAT_2D 40 1946 free)
+    add_capow_batch_image_compare_test(caHeat2DAbsorb CA_HEAT_2D 40 1946 absorb)
+    add_capow_batch_image_compare_test(caHeat2DZero CA_HEAT_2D 40 1946 zero)
+    add_capow_batch_image_compare_test(caHeat2DFixed CA_HEAT_2D 40 1946 fixed)
 endif()
