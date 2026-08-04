@@ -8,6 +8,7 @@ add_library(CapowCore STATIC
     Carule.hpp
     Dllmem.cpp
     Fourier.cpp
+    ImageBuffer.hpp ImageBuffer.cpp
     Loadsav7.cpp
     Loadsave.cpp
     Palette.cpp
@@ -150,6 +151,7 @@ add_library(CAScreen SHARED
     Configure.cpp
     Dllmem.cpp
     Fourier.cpp
+    ImageBuffer.cpp
     Label.cpp
     Loadsav7.cpp
     Loadsave.cpp
