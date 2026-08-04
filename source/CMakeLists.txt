@@ -21,6 +21,7 @@ add_library(CapowCore STATIC
     Tweak.hpp Tweak.cpp
     Tweakca.hpp
     Types.h
+    WavePlaneImage.hpp WavePlaneImage.cpp
 )
 target_folder(CapowCore "Libraries")
 
@@ -164,6 +165,7 @@ add_library(CAScreen SHARED
     Touch.cpp
     Tweak.cpp
     Userpara.cpp
+    WavePlaneImage.cpp
     capow.ico
     CAScreen.rc
 )

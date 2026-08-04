@@ -14,6 +14,7 @@
 #include "resource.h"
 #include "Tweakca.hpp"
 #include "Userpara.hpp"
+#include "WavePlaneImage.hpp"
 //#include <vector.h> already in ca.hpp
 
 //====================EXTERNAL DATA===============
@@ -1542,52 +1543,14 @@ void CA::Heat2D(int c, int e, int n,
 
 void CA::WaveUpdateStep2D(HDC hdc)  //You don't need the hdc argument!
 {
-    unsigned short colindex;
-    int c;
-    short pixx, pixy;
-
     if (generatorflag)
         generator_ptr->Step();  //write to target_plane
     generatorlist.Step();
 
-    for (short y = 0; y < vert_count_2D; y++)
-    {
-        c = index(0,y);
-        pixx = (short)minx;
-        pixy = (short)(miny+y);
-        for (short x = 0; x< horz_count_2D; x++)
-        {
-/* Changed this so that the 2D rules can either show intensity or variable[1].
-Recall that "intensity" is #define in CA.HPP to stand for "variable[0]".*/
-//2017 I worked on this code and the similar code in WaveUpdateStep
+    capow::RenderWavePlaneToImageBuffer(&wavePlaneImage, wave_target_plane, horz_count_2D, vert_count_2D, CX_2D,
+        colortable, _max_intensity.Val(), showvelocity != 0);
+    capow::CopyImageBufferToDevice(WBM->GetHDC(), wavePlaneImage, minx, miny);
 
-            if (!(showvelocity))
-                // show intensity as a point on -max_intensity to max_intensity, scale 0.0 to 1.0
-                colindex = (unsigned short)(((MAX_COLOR - 1) *
-                (wave_target_plane[c].intensity +
-                    _max_intensity.Val())) / (2.0 * _max_intensity.Val()));
-            else
-                /* 2017 Show variable[1]. Scale on 2*max_velocity range viewed as 0.0 to 1.0.  I used
-                to scale it on the intensity range. If this is a simple 2D wave I make sure to put
-                velocity in variable[1] during the update.  Otherise, if it's reaction diffusion I
-                might have inhibitor in variable[1] */
-                /* 2017 second change needed. I'm getting monochrome images,
-                even though in 3D view, the variable[1] has good range.  I'm trying out
-                the idea of "amplifying" the velocity value before displaying it. A large
-                amplification like the 80.0 used by AMPLIFY_VEL_COLOR for 1D is too big.
-                Let's try 1.0. */
-
-                colindex = (unsigned short) (((MAX_COLOR-1) *
-                    (AMPLIFY_VEL_COLOR_2D * wave_target_plane[c].variable[1] +
-                    _max_intensity.Val())) / (2.0 * _max_intensity.Val())); // 2017 changed
-
-
-            POSITIVECLAMP(colindex, (unsigned short)(MAX_COLOR-1));
-            WBM->WBMOnlyPutPixel(pixx, pixy, colortable[colindex]);
-            c++;
-            pixx++;
-        }
-    }
     if (++wavesourceindex >= 3)
         wavesourceindex = 0;
     if (++wavetargetindex >= 3)

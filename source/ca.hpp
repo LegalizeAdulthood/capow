@@ -110,6 +110,7 @@ then the program hangs on startup.*/
 #include <fstream> //For iostream
 #include <iomanip>
 #include "Bitmap.hpp" //For WindowBitmap class
+#include "ImageBuffer.hpp"
 #include "Tweak.hpp"   //For TweakParam class
 //============MACROS============================================
 #define MIN(x,y) ((x)<=(y))?(x):(y)
@@ -817,6 +818,7 @@ private:
         wave_old_plane = waveplanebuffer[waveoldindex]  always have
              wave_source_plane = waveplanebuffer[wavesourceindex]  always have
              wave_target_plane = waveplanebuffer[wavetargetindex] */
+    capow::ImageBuffer wavePlaneImage;
 //------------------CA Wave Oscillator private-----------------------------
     Real frequency_factor; /*AUTOSET.  This is
       is a helping variable defined in CA::Adjust_acceleration as
