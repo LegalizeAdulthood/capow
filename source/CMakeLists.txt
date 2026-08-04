@@ -11,6 +11,7 @@ add_library(CapowCore STATIC
     ImageBuffer.hpp ImageBuffer.cpp
     Loadsav7.cpp
     Loadsave.cpp
+    OpenGlImagePresenter.hpp OpenGlImagePresenter.cpp
     Palette.cpp
     Random.h Random.cpp
     resource.h
@@ -155,6 +156,7 @@ add_library(CAScreen SHARED
     Label.cpp
     Loadsav7.cpp
     Loadsave.cpp
+    OpenGlImagePresenter.cpp
     Palette.cpp
     Random.cpp
     Seed.cpp
