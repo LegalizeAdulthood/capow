@@ -202,7 +202,7 @@ void CAlist::Update_and_Show(HDC hdc)
         {
             if (capowgl->Type())
                 capowgl->Draw(hdc, focus);
-            else
+            else if (!capowgl->DrawImage(hdc, focus))
             {
                 StretchBlt(hdc,   //target hdc
                     0, (toolbarON)?toolBarHeight:0,  //target corner
@@ -332,7 +332,7 @@ the FIXED_640_480 case.*/
 
                 if (capowgl->Type())  //if not flat 2-D
                     capowgl->Draw(hdc, focus);  //draw 3-D view
-                else    //draw the flat 2-D
+                else if (!capowgl->DrawImage(hdc, focus)) //draw the flat 2-D
                 {
                     StretchBlt(hdc,   //target hdc
                         0, (toolbarON)?toolBarHeight:0,  //target corner

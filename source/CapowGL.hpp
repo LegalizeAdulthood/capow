@@ -15,6 +15,7 @@
 #include "types.h"
 #include "ca.hpp"
 #include "Bitmap.hpp"
+#include "OpenGlImagePresenter.hpp"
 #include <GL/gl.h>
 #include <GL/glu.h>
 // #include <GL/glaux.h> 2017
@@ -25,6 +26,7 @@
 #define FLATCOLOR 0
 #define SHEET 1
 #define TORUS 2
+#define IMAGE_TEXTURE 3
 
 //surface
 #define DOTS 0
@@ -183,13 +185,15 @@ private:
     float matDif[3];
     float matSpec[3];
     float matShine;
+    capow::OpenGlImagePresenter imagePresenter;
 public:
     CapowGL(HWND hwnd);
     ~CapowGL();
-    void Draw(HDC hdc, CA* focus);
+    bool Draw(HDC hdc, CA* focus);
+    bool DrawImage(HDC hdc, CA* focus);
     void Size(HWND hwnd);
     HGLRC SetUpOpenGL(HWND hWnd);
-    void DrawOpenGLScene();
+    bool DrawOpenGLScene();
     inline GLfloat CapowGL::GraphHeight(int i,int j);
     inline GLfloat CapowGL::GraphHeight(int i);
     void SetUpLights();

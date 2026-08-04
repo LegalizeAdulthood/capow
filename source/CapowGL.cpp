@@ -163,12 +163,12 @@ of the program.
     return hRC;
 }
 
-void CapowGL::Draw(HDC hdc, CA* focus)
+bool CapowGL::Draw(HDC hdc, CA* focus)
 {
     float time2;
     static float oldtime;
     if (graphtype == FLATCOLOR)
-        return;
+        return false;
     time2 = timeGetTime();
 
 /* Problem, this procedure dies sometimes.  It dies if you do your first
@@ -192,24 +192,27 @@ CapowGL->Size() in Capow.cpp, it seems to fix the problem.
     glEnable( GL_DEPTH_TEST );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glLoadIdentity();
-    if (threeDGlasses)
+    bool drawn = false;
+    if (threeDGlasses && graphtype != IMAGE_TEXTURE)
     {
         glPushMatrix();
         currentEyeColor = leftColor;
         whichEye = LEFTEYE;
         glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
-        DrawOpenGLScene();
+        const bool leftDrawn = DrawOpenGLScene();
         glPopMatrix();
         glClear(GL_DEPTH_BUFFER_BIT);
         currentEyeColor = rightColor;
         whichEye = RIGHTEYE;
         glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE);
-        DrawOpenGLScene();
+        const bool rightDrawn = DrawOpenGLScene();
         glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        drawn = leftDrawn && rightDrawn;
     }
     else
-        DrawOpenGLScene();  //draw the CA
-    SwapBuffers(hdc);  //swap the back buffer to the screen
+        drawn = DrawOpenGLScene();  //draw the CA
+    if (drawn)
+        SwapBuffers(hdc);  //swap the back buffer to the screen
 
     //calculate the period between draws, in ms. Used for timing the flying position
     time = timeGetTime();
@@ -220,9 +223,24 @@ CapowGL->Size() in Capow.cpp, it seems to fix the problem.
         DrawStats(hdc);
 
     wglMakeCurrent(NULL,NULL);
+    return drawn;
 }
 
-void CapowGL::DrawOpenGLScene()  //this is the meat of the code
+bool CapowGL::DrawImage(HDC hdc, CA* focus)
+{
+    if (focus == 0 || focus->viewmode != IDC_2D_VIEW || focus->wavePlaneImage.Data() == 0 ||
+        focus->wavePlaneImage.Width() != focus->horz_count_2D ||
+        focus->wavePlaneImage.Height() != focus->vert_count_2D)
+        return false;
+
+    const int oldType = graphtype;
+    graphtype = IMAGE_TEXTURE;
+    const bool drawn = Draw(hdc, focus);
+    graphtype = oldType;
+    return drawn;
+}
+
+bool CapowGL::DrawOpenGLScene()  //this is the meat of the code
 /* Oct 26, 1997, Mike: This function received a thorough rewrite, in order to make
 the code cleaner,and possibly more efficient.  It can now logically accommodate the
 torus shape as well as new shapes in the future (like sphere or cylinder?) Also,
@@ -242,6 +260,14 @@ unitvectorizing, no longer does so now.
     int i,j, i2,j2;
     GLfloat n[3];
     COLORREF pointcolor;
+
+    if (graphtype == IMAGE_TEXTURE)
+    {
+        if (graphfocus == 0)
+            return false;
+        return imagePresenter.Present(graphfocus->wavePlaneImage, 0, 0, graphfocus->horz_count + 2,
+            graphfocus->vert_count);
+    }
 
     // Enable depth testing and clear the color and depth
     //  buffers.
@@ -867,6 +893,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
         }
     break;
     }
+    return true;
 }
 
 
