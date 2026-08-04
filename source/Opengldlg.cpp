@@ -315,7 +315,7 @@ void ShowOpenGLParams(HWND hDlg)
     if (!SendMessage(GetDlgItem(hDlg, IDC_OPENGL_GRAPHTYPES), CB_GETDROPPEDSTATE, 0, 0L))
     {
         graphType = capowgl->Type();
-        if (graphType == GPU_TEXTURE)
+        if (graphType == LIVE_GPU)
             graphType = FLATCOLOR;
         SendMessage(GetDlgItem(hDlg, IDC_OPENGL_GRAPHTYPES), CB_SETCURSEL, (WORD) graphType, 0);
     }
@@ -350,7 +350,7 @@ void ShowOpenGLParams(HWND hDlg)
         calife_list->FocusCA()->HasImageBuffer2D();
     graphType = capowgl->Type();
     GL_active = zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW && graphType != FLATCOLOR &&
-        graphType != GPU_TEXTURE;
+        graphType != LIVE_GPU;
 
     EnableWindow(
         GetDlgItem(hDlg, IDC_OPENGL_GRAPHTYPES), zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW);

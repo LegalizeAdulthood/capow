@@ -34,6 +34,7 @@ public:
     Heat2DLiveState &operator=(const Heat2DLiveState &) = delete;
 
     bool IsActive() const;
+    bool NeedsSource(const Heat2DLiveOptions &options) const;
     unsigned int GetTexture() const;
     void Deactivate();
     bool DownloadCurrent(AlpakaPlaneValue *targetPlane, int valueStride, AlpakaPlaneValue *targetVelocity,

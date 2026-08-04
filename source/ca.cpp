@@ -1523,13 +1523,16 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
     }
 
     capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
+    const bool liveGpuType = capowgl != 0 && capowgl->Type() == LIVE_GPU;
     const bool canUseGpu = backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU &&
         backendManager.CanRunGpu(capow::ALPAKA_RULE_CA_HEAT_2D) && viewmode == IDC_2D_VIEW &&
         IsAlpakaHeat2DWrapFlagSupported(wrapflag) && _smoothsteps == 0 && !generatorflag &&
-        generatorlist.Count() == 0 && capowgl != 0 && capowgl->Type() == GPU_TEXTURE;
+        generatorlist.Count() == 0 && liveGpuType;
     if (!canUseGpu)
     {
         MarkAlpakaHeat2DDirty();
+        if (liveGpuType)
+            capowgl->Type(FLATCOLOR);
         return false;
     }
 
@@ -1547,15 +1550,20 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
     options.showVelocity = showvelocity != 0;
     options.boundaryMode = Heat2DBoundaryModeForWrapFlag(wrapflag);
 
-    std::vector<capow::AlpakaPlaneValue> sourcePlane(
-        static_cast<std::size_t>(horz_count_2D) * static_cast<std::size_t>(vert_count_2D));
-    for (int y = 0; y < vert_count_2D; ++y)
+    const capow::AlpakaPlaneValue *sourceData = 0;
+    std::vector<capow::AlpakaPlaneValue> sourcePlane;
+    if (alpakaHeat2DLive->NeedsSource(options))
     {
-        for (int x = 0; x < horz_count_2D; ++x)
+        sourcePlane.resize(static_cast<std::size_t>(horz_count_2D) * static_cast<std::size_t>(vert_count_2D));
+        for (int y = 0; y < vert_count_2D; ++y)
         {
-            sourcePlane[static_cast<std::size_t>(y) * static_cast<std::size_t>(horz_count_2D) +
-                static_cast<std::size_t>(x)] = wave_source_plane[index(x, y)].intensity;
+            for (int x = 0; x < horz_count_2D; ++x)
+            {
+                sourcePlane[static_cast<std::size_t>(y) * static_cast<std::size_t>(horz_count_2D) +
+                    static_cast<std::size_t>(x)] = wave_source_plane[index(x, y)].intensity;
+            }
         }
+        sourceData = sourcePlane.data();
     }
 
     if (!capowgl->MakeCurrent(hdc))
@@ -1566,7 +1574,7 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
 
     std::string errorText;
     const bool ok = alpakaHeat2DLive->RunFrame(
-        options, sourcePlane.data(), 1, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
+        options, sourceData, 1, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
     capowgl->ReleaseCurrent();
     if (!ok)
     {
@@ -1574,6 +1582,7 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
         OutputDebugStringA(errorText.c_str());
         OutputDebugStringA("\n");
         MarkAlpakaHeat2DDirty();
+        capowgl->Type(FLATCOLOR);
         return false;
     }
 
@@ -1586,7 +1595,7 @@ bool CA::DrawAlpakaHeat2DTexture(HDC hdc, int left, int top, int width, int heig
 {
     if (capow::GetAlpakaManager().GetBackend() != capow::ALPAKA_BACKEND_GPU)
         return false;
-    if (capowgl == 0 || capowgl->Type() != GPU_TEXTURE)
+    if (capowgl == 0 || capowgl->Type() != LIVE_GPU)
         return false;
     if (!alpakaHeat2DTextureReady || !alpakaHeat2DLive)
         return false;
@@ -1595,8 +1604,7 @@ bool CA::DrawAlpakaHeat2DTexture(HDC hdc, int left, int top, int width, int heig
     if (texture == 0U)
         return false;
 
-    capowgl->DrawTexture2D(hdc, texture, left, top, width, height);
-    return true;
+    return capowgl->DrawTexture2D(hdc, texture, left, top, width, height);
 }
 #endif
 

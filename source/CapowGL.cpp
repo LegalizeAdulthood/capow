@@ -205,10 +205,14 @@ of the program.
     return hRC;
 }
 
-bool CapowGL::RenderFocus(CA *focus)
+bool CapowGL::RenderFocus(HDC hdc, CA *focus)
 {
-    if (graphtype == FLATCOLOR || graphtype == GPU_TEXTURE)
+    if (graphtype == FLATCOLOR)
         return false;
+#if !defined(CAPOW_ENABLE_ALPAKA)
+    if (graphtype == LIVE_GPU)
+        return false;
+#endif
 
     /* Problem, this procedure dies sometimes.  It dies if you do your first
     zoom in on something a lot of times and if you resize window it wakes up.
@@ -229,25 +233,37 @@ bool CapowGL::RenderFocus(CA *focus)
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
+
     bool drawn = false;
-    if (threeDGlasses && graphtype != IMAGE_TEXTURE)
+#if defined(CAPOW_ENABLE_ALPAKA)
+    if (graphtype == LIVE_GPU)
     {
-        glPushMatrix();
-        currentEyeColor = leftColor;
-        whichEye = LEFTEYE;
-        glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
-        const bool leftDrawn = DrawOpenGLScene();
-        glPopMatrix();
-        glClear(GL_DEPTH_BUFFER_BIT);
-        currentEyeColor = rightColor;
-        whichEye = RIGHTEYE;
-        glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE);
-        const bool rightDrawn = DrawOpenGLScene();
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        drawn = leftDrawn && rightDrawn;
+        if (focus != 0)
+            drawn = focus->DrawAlpakaHeat2DTexture(
+                hdc, 0, (toolbarON) ? toolBarHeight : 0, focus->horz_count + 2, focus->vert_count);
     }
     else
-        drawn = DrawOpenGLScene(); // draw the CA
+#endif
+    {
+        if (threeDGlasses && graphtype != IMAGE_TEXTURE)
+        {
+            glPushMatrix();
+            currentEyeColor = leftColor;
+            whichEye = LEFTEYE;
+            glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
+            const bool leftDrawn = DrawOpenGLScene();
+            glPopMatrix();
+            glClear(GL_DEPTH_BUFFER_BIT);
+            currentEyeColor = rightColor;
+            whichEye = RIGHTEYE;
+            glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE);
+            const bool rightDrawn = DrawOpenGLScene();
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+            drawn = leftDrawn && rightDrawn;
+        }
+        else
+            drawn = DrawOpenGLScene(); // draw the CA
+    }
     return drawn;
 }
 
@@ -262,7 +278,7 @@ bool CapowGL::Draw(HDC hdc, CA *focus)
     if (!wglMakeCurrent(hdc, hRC)) // associate the rendering context with an hdc
         return false;
 
-    const bool drawn = RenderFocus(focus);
+    const bool drawn = RenderFocus(hdc, focus);
     if (drawn)
         SwapBuffers(hdc); // swap the back buffer to the screen
 
@@ -366,7 +382,7 @@ HGLOBAL CapowGL::CaptureBackBufferDIB(HWND hwnd, CAlist *caList, const RECT &rec
                 const int oldType = graphtype;
                 if (graphtype == FLATCOLOR)
                     graphtype = IMAGE_TEXTURE;
-                drawn = RenderFocus(focus);
+                drawn = RenderFocus(hdc, focus);
                 graphtype = oldType;
             }
             else
@@ -1059,23 +1075,22 @@ void CapowGL::ReleaseCurrent()
     wglMakeCurrent(NULL, NULL);
 }
 
-void CapowGL::DrawTexture2D(HDC hdc, unsigned int texture, int left, int top, int width, int height)
+bool CapowGL::DrawTexture2D(HDC hdc, unsigned int texture, int left, int top, int width, int height)
 {
     if (texture == 0U || width <= 0 || height <= 0)
-        return;
+        return false;
 
     HWND window = WindowFromDC(hdc);
     if (window == NULL)
-        return;
+        return false;
 
     RECT clientRect;
     GetClientRect(window, &clientRect);
-    if (!MakeCurrent(hdc))
-        return;
 
     glPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_VIEWPORT_BIT);
-    glDrawBuffer(GL_FRONT);
+    glDrawBuffer(GL_BACK);
     glViewport(0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
     glDisable(GL_CULL_FACE);
@@ -1109,8 +1124,7 @@ void CapowGL::DrawTexture2D(HDC hdc, unsigned int texture, int left, int top, in
     glMatrixMode(GL_MODELVIEW);
     glBindTexture(GL_TEXTURE_2D, 0);
     glPopAttrib();
-    glFlush();
-    ReleaseCurrent();
+    return true;
 }
 
 bool CapowGL::DrawOpenGLScene() // this is the meat of the code

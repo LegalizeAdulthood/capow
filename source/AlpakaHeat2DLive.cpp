@@ -170,6 +170,7 @@ public:
     ~Impl();
 
     bool IsActive() const;
+    bool NeedsSource(const Heat2DLiveOptions &nextOptions) const;
     unsigned int GetTexture() const;
     void Deactivate();
     bool DownloadCurrent(AlpakaPlaneValue *targetPlane, int valueStride, AlpakaPlaneValue *targetVelocity,
@@ -230,6 +231,13 @@ bool Heat2DLiveState::Impl::IsActive() const
     return active;
 }
 
+bool Heat2DLiveState::Impl::NeedsSource(const Heat2DLiveOptions &nextOptions) const
+{
+    return !active || !initialized || options.width != nextOptions.width ||
+        options.height != nextOptions.height ||
+        options.colorCount != nextOptions.colorCount;
+}
+
 unsigned int Heat2DLiveState::Impl::GetTexture() const
 {
     return texture;
@@ -277,7 +285,6 @@ bool Heat2DLiveState::Impl::RunFrame(const Heat2DLiveOptions &nextOptions, const
     try
     {
         ValidateOptions(nextOptions);
-        ValidatePlane(sourcePlane, valueStride);
         if (colorTable == 0)
         {
             throw std::invalid_argument("live CA_HEAT_2D color table must not be null");
@@ -286,6 +293,7 @@ bool Heat2DLiveState::Impl::RunFrame(const Heat2DLiveOptions &nextOptions, const
         EnsureTexture();
         if (!active)
         {
+            ValidatePlane(sourcePlane, valueStride);
             UploadSource(sourcePlane, valueStride);
         }
         UploadColors(colorTable);
@@ -484,6 +492,11 @@ Heat2DLiveState::~Heat2DLiveState() = default;
 bool Heat2DLiveState::IsActive() const
 {
     return impl->IsActive();
+}
+
+bool Heat2DLiveState::NeedsSource(const Heat2DLiveOptions &options) const
+{
+    return impl->NeedsSource(options);
 }
 
 unsigned int Heat2DLiveState::GetTexture() const

@@ -25,7 +25,7 @@
 #define SHEET 1
 #define TORUS 2
 #define IMAGE_TEXTURE 3
-#define GPU_TEXTURE 4
+#define LIVE_GPU 4
 
 // surface
 #define DOTS 0
@@ -199,7 +199,7 @@ private:
     void DrawTiledBorders(CAlist *calist);
     bool EnsureImagePreviewFormat(HDC hdc);
     const capow::ImageBuffer *PreviewImage(CA *focus);
-    bool RenderFocus(CA *focus);
+    bool RenderFocus(HDC hdc, CA *focus);
     bool RenderHistoryView(CA *focus);
     bool RenderTiledViews(CAlist *calist);
 
@@ -214,7 +214,7 @@ public:
     bool DrawTiledViews(HDC hdc, CAlist *calist);
     BOOL MakeCurrent(HDC hdc);
     void ReleaseCurrent();
-    void DrawTexture2D(HDC hdc, unsigned int texture, int left, int top, int width, int height);
+    bool DrawTexture2D(HDC hdc, unsigned int texture, int left, int top, int width, int height);
     void Size(HWND hwnd);
     HGLRC SetUpOpenGL(HWND hWnd);
     bool DrawOpenGLScene();

@@ -171,14 +171,56 @@ int  cxParent, cyParent;
 CapowGL *capowgl;
 
 #if defined(CAPOW_ENABLE_ALPAKA)
-static void MarkAlpakaHeat2DDisplaysDirty()
+static void SyncAlpakaHeat2DDisplays()
 {
     if (calife_list == NULL)
         return;
 
     for (int i = 0; i < calife_list->Count(); ++i)
         calife_list->GetCA(i)->MarkAlpakaHeat2DDirty();
-    InvalidateRect(masterhwnd, NULL, FALSE);
+}
+
+static bool CanShowLiveGpu()
+{
+    if (capowgl == NULL || calife_list == NULL || !zoomviewflag)
+        return false;
+
+    CA *focus = calife_list->FocusCA();
+    capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
+    return backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU &&
+        backendManager.CanRunGpu(capow::ALPAKA_RULE_CA_HEAT_2D) &&
+        focus != NULL &&
+        focus->Gettype() == CA_HEAT_2D &&
+        focus->Getviewmode() == IDC_2D_VIEW;
+}
+
+static void UpdateAlpakaDisplayType()
+{
+    if (capowgl == NULL)
+        return;
+
+    if (CanShowLiveGpu())
+    {
+        if (capowgl->Type() != LIVE_GPU)
+        {
+            SyncAlpakaHeat2DDisplays();
+            capowgl->Type(LIVE_GPU);
+            InvalidateRect(masterhwnd, NULL, FALSE);
+        }
+        return;
+    }
+
+    if (capowgl->Type() == LIVE_GPU)
+    {
+        SyncAlpakaHeat2DDisplays();
+        capowgl->Type(FLATCOLOR);
+        InvalidateRect(masterhwnd, NULL, FALSE);
+    }
+}
+
+static bool IsLiveGpuDisplayActive()
+{
+    return CanShowLiveGpu() && capowgl->Type() == LIVE_GPU;
 }
 #endif
 
@@ -369,7 +411,11 @@ int WINAPI CapowWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
         else
         {
             QueryPerformanceCounter((LARGE_INTEGER*)&_end);
-            if ((_end - _start) >= _update_ticks_per_cycle)
+            bool runCellmain = false;
+#if defined(CAPOW_ENABLE_ALPAKA)
+            runCellmain = IsLiveGpuDisplayActive();
+#endif
+            if (runCellmain || (_end - _start) >= _update_ticks_per_cycle)
             /* If you set update_ticks_per_cycle unrealistically low, then you are going
             to spend so much time in here that your program will be unresponsive.
             And don't be greedy and try and work a "while" instead of an "if" to
@@ -631,10 +677,13 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
         case IDM_BACKEND_CPU:
 #if defined(CAPOW_ENABLE_ALPAKA)
+            SyncAlpakaHeat2DDisplays();
             capow::GetAlpakaManager().SetBackend(capow::ALPAKA_BACKEND_CPU);
-            if (capowgl != NULL && capowgl->Type() == GPU_TEXTURE)
+            if (capowgl != NULL && capowgl->Type() == LIVE_GPU)
+            {
                 capowgl->Type(FLATCOLOR);
-            MarkAlpakaHeat2DDisplaysDirty();
+                InvalidateRect(masterhwnd, NULL, FALSE);
+            }
 #else
             MessageBoxA(hwnd, "CPU backend is active.", "Backend",
                 MB_OK | MB_ICONINFORMATION);
@@ -648,14 +697,13 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             if (backendManager.IsGpuAvailable())
             {
                 backendManager.SetBackend(capow::ALPAKA_BACKEND_GPU);
-                if (capowgl != NULL && calife_list != NULL &&
-                    calife_list->FocusCA()->Gettype() == CA_HEAT_2D)
-                    capowgl->Type(GPU_TEXTURE);
-                MarkAlpakaHeat2DDisplaysDirty();
+                UpdateAlpakaDisplayType();
             }
             else
+            {
                 MessageBoxA(hwnd, backendManager.GetAvailabilityMessage(),
                     "GPU Backend", MB_OK | MB_ICONINFORMATION);
+            }
             break;
             }
 #else
@@ -696,6 +744,9 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             else // Second argument says adjust for the rule to be stable.
                 calife_list->SetAllType(id, TRUE);
             capowgl->AdjustHeightFactor(calife_list->FocusCA());
+#if defined(CAPOW_ENABLE_ALPAKA)
+            UpdateAlpakaDisplayType();
+#endif
             if (hDlgOpenGL)
                 InvalidateRect(hDlgOpenGL, NULL, TRUE);
         break;
@@ -1395,6 +1446,9 @@ it was called too early, before the window was created. So after moving that
 function, the problem seems fixed.  As a test, I've commented out the old fix*/
 
                     capowgl->AdjustHeightFactor(calife_list->FocusCA());
+#if defined(CAPOW_ENABLE_ALPAKA)
+                    UpdateAlpakaDisplayType();
+#endif
                 if( hDlgOpenGL )
                     InvalidateRect(hDlgOpenGL, NULL, TRUE);
 
@@ -1408,6 +1462,9 @@ function, the problem seems fixed.  As a test, I've commented out the old fix*/
                     update_flag = TRUE; //Maybe changing focus
 
                     zoomviewflag = FALSE;
+#if defined(CAPOW_ENABLE_ALPAKA)
+                    UpdateAlpakaDisplayType();
+#endif
 /* If I have about six user parameters then when I shift focus to something with
 one user parameter and then come back to the six guy not all six are showing
 if I only do recreateUserDialog(), but the following works: */
@@ -1483,6 +1540,9 @@ static void MyWnd_RBUTTONDOWN(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT k
             if (calife_list->Zoom(0))
             {
                 zoomviewflag = FALSE;
+#if defined(CAPOW_ENABLE_ALPAKA)
+                UpdateAlpakaDisplayType();
+#endif
                 calife_list->Locate();
                 SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L);
 

@@ -188,18 +188,8 @@ void CAlist::Update_and_Show(HDC hdc)
         // sleeping, so you are allowed to change it IF you turn off gl_sleep.
         // Normally the gl_sleep value mathches the value of sleep.
         {
-            if (capowgl->Type() == GPU_TEXTURE)
-            {
-                DrawZoomed2D(hdc, focus);
-#if defined(CAPOW_ENABLE_ALPAKA)
-                focus->DrawAlpakaHeat2DTexture(
-                    hdc, 0, (toolbarON) ? toolBarHeight : 0, focus->horz_count + 2, focus->vert_count);
-#endif
-            }
-            else if (capowgl->Type())
-            {
+            if (capowgl->Type())
                 capowgl->Draw(hdc, focus);
-            }
             else
             {
                 DrawZoomed2D(hdc, focus);
@@ -226,17 +216,6 @@ void CAlist::Update_and_Show(HDC hdc)
 #endif              // ONE_AT_A_TIME
         blt_flag++;
         const bool drawn = capowgl->DrawTiledViews(hdc, this);
-#if defined(CAPOW_ENABLE_ALPAKA)
-        if (drawn)
-        {
-            for (i = 0; i < count; i++)
-            {
-                if (list[i]->viewmode == IDC_2D_VIEW)
-                    list[i]->DrawAlpakaHeat2DTexture(
-                        hdc, list[i]->minx, list[i]->miny, list[i]->horz_count, list[i]->vert_count);
-            }
-        }
-#endif
         if (drawn && !(blt_flag % _blt_lines))
             blt_flag = 0;
         if (breedflag) // only breed in non zoomflag mode
@@ -258,15 +237,7 @@ void CAlist::Update_and_Show(HDC hdc)
         case IDC_2D_VIEW:
             capowgl->FocusIsActive(TRUE); // tell capowgl focus is not asleep
 
-            if (capowgl->Type() == GPU_TEXTURE)
-            {
-                DrawZoomed2D(hdc, focus);
-#if defined(CAPOW_ENABLE_ALPAKA)
-                focus->DrawAlpakaHeat2DTexture(
-                    hdc, 0, (toolbarON) ? toolBarHeight : 0, focus->horz_count + 2, focus->vert_count);
-#endif
-            }
-            else if (capowgl->Type())      // if not flat 2-D
+            if (capowgl->Type())           // if not flat 2-D
                 capowgl->Draw(hdc, focus); // draw 3-D view
             else                           // draw the flat 2-D
             {
@@ -326,32 +297,13 @@ void CAlist::Show(HDC hdc, const RECT &)
     {
         if (!zoomflag) // not zoomed, do them all
         {
-            const bool drawn = capowgl->DrawTiledViews(hdc, this);
-#if defined(CAPOW_ENABLE_ALPAKA)
-            if (drawn)
-            {
-                for (int i = 0; i < count; i++)
-                {
-                    if (list[i]->viewmode == IDC_2D_VIEW)
-                        list[i]->DrawAlpakaHeat2DTexture(
-                            hdc, list[i]->minx, list[i]->miny, list[i]->horz_count, list[i]->vert_count);
-                }
-            }
-#endif
+            capowgl->DrawTiledViews(hdc, this);
         } // end non zoomflag  case
         else
         {
             if (focus->viewmode == IDC_2D_VIEW)
             {
-                if (capowgl->Type() == GPU_TEXTURE)
-                {
-                    DrawZoomed2D(hdc, focus);
-#if defined(CAPOW_ENABLE_ALPAKA)
-                    focus->DrawAlpakaHeat2DTexture(
-                        hdc, 0, (toolbarON) ? toolBarHeight : 0, focus->horz_count + 2, focus->vert_count);
-#endif
-                }
-                else if (capowgl->Type())
+                if (capowgl->Type())
                     capowgl->Draw(hdc, focus);
                 else
                 {
