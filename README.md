@@ -11,6 +11,43 @@ Capow is known to work on all Windows builds through version 10.  Download and u
 <img alt="" src="http://www.rudyrucker.com/blog/images7/capow2017_1200.jpg" />
 
 
+# Contributors
+
+The historical source notes credit Capow's design and implementation to
+Rudy Rucker and his SJSU students, with later fixes by Larry Andrews:
+
+- Rudy Rucker
+- Alan Borecky
+- Andrew Chu
+- Howard Lin
+- Charles Miller
+- Juyoung Lee
+- Tuyen Ly
+- Bob Westergaard
+- David Kent
+- Ping-Chak Wong
+- Jerry Chang
+- Ning Tian
+- Darrel Cherry
+- John Briere
+- Bang Nguyen
+- Thai Truong
+- Juiliekara Techasaratoole
+- Rajaneekara Techasaratoole
+- Chi Pan Lao
+- Otto Leung
+- Darin Levy
+- James Kroutch
+- Siu Ming Tong
+- Michael Ling
+- Andrew Forster
+- Loc Ho
+- Lorrie Tanabe
+- Ted Colbert
+- Rong Liu
+- Larry Andrews
+
+
 # References
 
 [1] <a href="http://www.rudyrucker.com/capow">The Capow home page</a>, with information about the history of the program.
