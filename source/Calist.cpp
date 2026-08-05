@@ -55,7 +55,7 @@ void CAlist::DrawOpenGLDialogPreview(CA *focus)
     if (hCtrlBlock == 0)
         return;
 
-    if (focus->HasWavePlaneImage())
+    if (focus->HasImageBuffer2D())
     {
         capowgl->DrawImagePreview(hCtrlBlock, focus);
         return;
@@ -75,13 +75,7 @@ void CAlist::DrawOpenGLDialogPreview(CA *focus)
 
 bool CAlist::DrawZoomed2D(HDC hdc, CA *focus)
 {
-    if (focus->HasWavePlaneImage())
-        return capowgl->DrawImage(hdc, focus);
-
-    return StretchBlt(hdc, 0, (toolbarON) ? toolBarHeight : 0,
-        focus->horz_count + 2, focus->vert_count, WBM->GetHDC(),
-        focus->minx, focus->miny, focus->horz_count_2D,
-        focus->vert_count_2D, SRCCOPY) != 0;
+    return capowgl->DrawImage(hdc, focus);
 }
 
 /******************************************************************************/

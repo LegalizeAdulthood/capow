@@ -48,7 +48,7 @@ void RefreshGeneratorMarkerDisplay()
 
     if (capowgl->Type())
         capowgl->Draw(hdc, calife_list->FocusCA());
-    else if (calife_list->FocusCA()->HasWavePlaneImage())
+    else if (calife_list->FocusCA()->HasImageBuffer2D())
         capowgl->DrawImage(hdc, calife_list->FocusCA());
 
     ReleaseDC(masterhwnd, hdc);

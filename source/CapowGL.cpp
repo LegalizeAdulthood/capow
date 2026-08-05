@@ -230,7 +230,7 @@ CapowGL->Size() in Capow.cpp, it seems to fix the problem.
 
 bool CapowGL::DrawImage(HDC hdc, CA* focus)
 {
-    if (focus == 0 || !focus->HasWavePlaneImage() || focus->viewmode != IDC_2D_VIEW ||
+    if (focus == 0 || !focus->HasImageBuffer2D() || focus->viewmode != IDC_2D_VIEW ||
         focus->wavePlaneImage.Data() == 0 ||
         focus->wavePlaneImage.Width() != focus->horz_count_2D ||
         focus->wavePlaneImage.Height() != focus->vert_count_2D)
@@ -245,7 +245,7 @@ bool CapowGL::DrawImage(HDC hdc, CA* focus)
 
 bool CapowGL::DrawImagePreview(HWND hwnd, CA *focus)
 {
-    if (hwnd == 0 || focus == 0 || !focus->HasWavePlaneImage() || focus->viewmode != IDC_2D_VIEW ||
+    if (hwnd == 0 || focus == 0 || !focus->HasImageBuffer2D() || focus->viewmode != IDC_2D_VIEW ||
         focus->wavePlaneImage.Data() == 0 || focus->wavePlaneImage.Width() != focus->horz_count_2D ||
         focus->wavePlaneImage.Height() != focus->vert_count_2D)
         return false;
@@ -379,7 +379,7 @@ bool CapowGL::DrawTiledCA(CA *focus, int clientHeight)
     switch (focus->viewmode)
     {
     case IDC_2D_VIEW:
-        if (!focus->HasWavePlaneImage() || focus->wavePlaneImage.Data() == 0)
+        if (!focus->HasImageBuffer2D() || focus->wavePlaneImage.Data() == 0)
             return false;
         return imagePresenter.Present(focus->wavePlaneImage, 0, 0, viewWidth, viewHeight);
 

@@ -224,7 +224,7 @@ static BOOL MyWnd_PAINT(HWND hDlg)
     if (zoomviewflag&& calife_list->Focus()->Getdimension() ==2)
     {
         hCtrlBlock = GetDlgItem(hDlgOpenGL, IDC_OPENGL_FLAT);
-        if (calife_list->Focus()->HasWavePlaneImage())
+        if (calife_list->Focus()->HasImageBuffer2D())
         {
             capowgl->DrawImagePreview(hCtrlBlock, calife_list->Focus());
             ShowOpenGLParams(hDlg);
@@ -373,7 +373,7 @@ void ShowOpenGLParams(HWND hDlg)
     realLabel (hDlg, IDC_OPENGL_TEMPHEIGHT, capowgl->tempheight);
 
     imageActive = zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW &&
-        calife_list->FocusCA()->HasWavePlaneImage();
+        calife_list->FocusCA()->HasImageBuffer2D();
     GL_active = zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW && capowgl->Type();
 
     EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_GRAPHTYPES ),zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW );
