@@ -46,6 +46,27 @@ int blt_flag = 0; // this is for the timing of bitblting to screen
 int StartStates[STATERADIUSCOUNT] = {2,4,8,16,2,4,2,4,2,2};
 int StartRadius[STATERADIUSCOUNT] = {1,1,1, 1,2,2,3,3,4,5};
 
+void CAlist::DrawOpenGLDialogPreview(CA *focus)
+{
+    if (!hDlgOpenGL)
+        return;
+
+    HWND hCtrlBlock = GetDlgItem(hDlgOpenGL, IDC_OPENGL_FLAT);
+    if (hCtrlBlock == 0)
+        return;
+
+    HDC glhdc = GetDC(hCtrlBlock);
+    if (glhdc == 0)
+        return;
+
+    RECT targetrect;
+    GetClientRect(hCtrlBlock, &targetrect);
+    StretchBlt(glhdc, 0, 0, targetrect.right - targetrect.left,
+        targetrect.bottom - targetrect.top, WBM->GetHDC(), focus->minx,
+        focus->miny, focus->horz_count_2D, focus->vert_count_2D, SRCCOPY);
+    ReleaseDC(hCtrlBlock, glhdc);
+}
+
 /******************************************************************************/
 
 CAlist::CAlist(HWND myhwnd, int maxcount)
@@ -165,8 +186,6 @@ void CAlist::Update_and_Show(HDC hdc)
 {
     int i;
     int x,y;
-    HDC glhdc;  //used for drawing to opengl dialog
-    HWND hCtrlBlock;  //used for drawing to opengl dialog
 
 #ifdef ONE_AT_A_TIME
     static int next_i = 0;
@@ -196,10 +215,7 @@ void CAlist::Update_and_Show(HDC hdc)
 
             if (hDlgOpenGL)  //if open, draw bitmap to opengl dialog
             {
-                hCtrlBlock = GetDlgItem(hDlgOpenGL, IDC_OPENGL_FLAT);
-                glhdc = GetDC(hCtrlBlock);
-                BitBlt(glhdc, 0,0, focus->horz_count_2D, focus->vert_count_2D, WBM->GetHDC(),focus->minx, focus->miny, SRCCOPY);
-                ReleaseDC(hCtrlBlock, glhdc);
+                DrawOpenGLDialogPreview(focus);
             }
         }
         return;
@@ -329,10 +345,7 @@ the FIXED_640_480 case.*/
 
                 if (hDlgOpenGL)  //if open, draw bitmap to opengl dialog
                 {
-                    hCtrlBlock = GetDlgItem(hDlgOpenGL, IDC_OPENGL_FLAT);
-                    glhdc = GetDC(hCtrlBlock);
-                    BitBlt(glhdc, 0,0, focus->horz_count_2D, focus->vert_count_2D, WBM->GetHDC(),focus->minx, focus->miny, SRCCOPY);
-                    ReleaseDC(hCtrlBlock, glhdc);
+                    DrawOpenGLDialogPreview(focus);
                 }
 
                 break;

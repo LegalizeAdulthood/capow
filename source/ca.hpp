@@ -1216,6 +1216,7 @@ private:
     CA *focus; //AUTOSET. This is the CA with the box around it.
     WindowBitmap *WBM; /*AUTOSET WindowBitmap. Put pixels here,
          then bitblt all to screen*/
+    void DrawOpenGLDialogPreview(CA *focus);
     BOOL zoomflag; //LOADSAVE. If this is on, we only show the focus CA.
     int CA_count_per_edge; //AUTOSET. length & height of displayed cells
     int sleep; /* AUTOSET. Used when the window is minimized. If sleep = 1,

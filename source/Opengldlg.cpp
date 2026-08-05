@@ -227,13 +227,13 @@ static BOOL MyWnd_PAINT(HWND hDlg)
         {
             hCtrlBlock = GetDlgItem(hDlgOpenGL, IDC_OPENGL_FLAT);
             hdc = GetDC(hCtrlBlock);
-            GetWindowRect(hCtrlBlock, &targetrect);
+            GetClientRect(hCtrlBlock, &targetrect);
             //get the rectangle of the focus CA
             calife_list->GetFocusRect(&sourcerect);
-            //The stretchblt should resize the rect to fit the box in the dialog
-            //but it doesn't work.
-            StretchBlt(hdc, 0,0, targetrect.left-targetrect.right, targetrect.bottom-targetrect.top,
-                WBM->GetHDC(),sourcerect.left, sourcerect.top, sourcerect.left-sourcerect.right, sourcerect.bottom-sourcerect.top, SRCCOPY);
+            StretchBlt(hdc, 0, 0, targetrect.right - targetrect.left,
+                targetrect.bottom - targetrect.top, WBM->GetHDC(),
+                sourcerect.left, sourcerect.top, sourcerect.right - sourcerect.left,
+                sourcerect.bottom - sourcerect.top, SRCCOPY);
             ReleaseDC(hCtrlBlock, hdc);
         }
     }
