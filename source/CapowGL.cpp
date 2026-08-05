@@ -16,6 +16,7 @@
 #include <mmsystem.h>  //for timeGetTime()
 #include <commdlg.h>
 #include <stdio.h>
+#include <vector>
 //====================DEBUG FLAGS ===============
 //====================DEFINE CONSTANTS ===============
 
@@ -275,6 +276,122 @@ bool CapowGL::DrawImagePreview(HWND hwnd, CA *focus)
 
     ReleaseDC(hwnd, hdc);
     return drawn;
+}
+
+bool CapowGL::DrawHistoryView(HDC hdc, CA *focus)
+{
+    if (focus == 0 || focus->Getdimension() != 1)
+        return false;
+    if (focus->viewmode != IDC_DOWN_VIEW && focus->viewmode != IDC_SCROLL_VIEW && focus->viewmode != IDC_WIRE_VIEW &&
+        focus->viewmode != IDC_GRAPH_VIEW && focus->viewmode != IDC_SPLIT_VIEW)
+        return false;
+    if (focus->viewmode != IDC_WIRE_VIEW && focus->historyImage.Data() == 0)
+        return false;
+
+    graphfocus = focus;
+    if (!wglMakeCurrent(hdc, hRC))
+        return false;
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    bool drawn = true;
+    if (focus->viewmode == IDC_WIRE_VIEW)
+        DrawHistoryWire(focus);
+    else
+    {
+        const int viewWidth = focus->historyImage.Width();
+        const int viewHeight = focus->historyImage.Height();
+        drawn = imagePresenter.Present(focus->historyImage, 0, 0, viewWidth, viewHeight);
+        if (drawn && focus->viewmode == IDC_GRAPH_VIEW)
+            DrawHistoryGraph(focus, viewHeight - 1, focus->vert_count - 1);
+        else if (drawn && focus->viewmode == IDC_SPLIT_VIEW)
+            DrawHistoryGraph(focus, viewHeight - 1, focus->split_vert_count - 2);
+    }
+
+    if (drawn)
+        SwapBuffers(hdc);
+    wglMakeCurrent(NULL, NULL);
+    return drawn;
+}
+
+void CapowGL::DrawHistoryGraph(CA *focus, int bottom, int height)
+{
+    if (focus == 0 || height <= 0 || focus->horz_count <= 0)
+        return;
+
+    std::vector<POINT> points;
+    points.reserve(focus->horz_count);
+    const bool digital = focus->type_ca == CA_STANDARD || focus->type_ca == CA_REVERSIBLE;
+    const Real stateScale = focus->states > 1 ? static_cast<Real>(height) / (focus->states - 1) : 0.0;
+    const Real colorScale = static_cast<Real>(height) / (MAX_COLOR - 1);
+
+    for (int i = 0; i < focus->horz_count; ++i)
+    {
+        POINT point;
+        point.x = i;
+        if (digital)
+            point.y = bottom - static_cast<int>(stateScale * focus->source_row[i]);
+        else
+            point.y = bottom - static_cast<int>(colorScale * focus->colorindex_target_row[i]);
+        points.push_back(point);
+    }
+
+    if (!points.empty())
+        imagePresenter.DrawPoints(&points[0], static_cast<int>(points.size()), RGB(255, 255, 255));
+
+    for (int i = 0; i < focus->generatorlist.Count(); ++i)
+    {
+        const int location = focus->generatorlist.Location(i);
+        if (location >= focus->horz_count)
+            continue;
+
+        int y;
+        if (digital)
+            y = bottom - static_cast<int>(stateScale * focus->source_row[location]);
+        else
+            y = bottom - static_cast<int>(colorScale * focus->colorindex_target_row[location]);
+        imagePresenter.DrawRectangle(location - 1, y - 1, location + 1, y + 1, RGB(255, 0, 0));
+    }
+}
+
+void CapowGL::DrawHistoryWire(CA *focus)
+{
+    if (focus == 0 || focus->horz_count <= 0)
+        return;
+
+    const int wireThickness = 16;
+    const int viewWidth = focus->maxx - focus->minx + 1;
+    const int viewHeight = focus->maxy - focus->miny + 1;
+    const int startY = static_cast<int>(focus->vert_count / 2.0);
+    int endY = startY + wireThickness - 1;
+    if (endY >= viewHeight)
+        endY = viewHeight - 1;
+
+    float lineWidth = 1.0F;
+    if (viewWidth > focus->horz_count)
+        lineWidth = static_cast<float>(viewWidth) / static_cast<float>(focus->horz_count);
+
+    std::vector<POINT> starts;
+    std::vector<POINT> ends;
+    std::vector<COLORREF> colors;
+    starts.reserve(focus->horz_count);
+    ends.reserve(focus->horz_count);
+    colors.reserve(focus->horz_count);
+    for (int i = 0; i < focus->horz_count; ++i)
+    {
+        const int x = (i * viewWidth) / focus->horz_count;
+        POINT start;
+        start.x = x;
+        start.y = startY;
+        POINT end;
+        end.x = x;
+        end.y = endY;
+        starts.push_back(start);
+        ends.push_back(end);
+        colors.push_back(focus->COLORREF_target_row[i]);
+    }
+
+    if (!starts.empty())
+        imagePresenter.DrawColoredLines(&starts[0], &ends[0], &colors[0], static_cast<int>(starts.size()), lineWidth);
 }
 
 bool CapowGL::EnsureImagePreviewFormat(HDC hdc)

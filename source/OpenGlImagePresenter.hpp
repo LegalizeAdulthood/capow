@@ -20,6 +20,9 @@ public:
 
     bool Present(const ImageBuffer &image, int left, int top, int width, int height);
     void DrawLine(int x0, int y0, int x1, int y1, COLORREF color, float lineWidth = 1.0F);
+    void DrawColoredLines(
+        const POINT *starts, const POINT *ends, const COLORREF *colors, int count, float lineWidth = 1.0F);
+    void DrawPoints(const POINT *points, int count, COLORREF color, float pointSize = 1.0F);
     void DrawRectangle(int left, int top, int right, int bottom, COLORREF color, float lineWidth = 1.0F);
     void Release();
 

@@ -351,56 +351,35 @@ the FIXED_640_480 case.*/
 
                 break;
             case IDC_GRAPH_VIEW:
-            //======== Bang-Nguyen ========
+                //======== Bang-Nguyen ========
+                capowgl->DrawHistoryView(hdc, focus);
+                break;
             case IDC_POINT_GRAPH:
-            //=============================
-                WBM->WBMBitBlt(hdc, focus->minx, focus->miny,
-                            focus->maxx, focus->maxy);
+                //=============================
+                WBM->WBMBitBlt(hdc, focus->minx, focus->miny, focus->maxx, focus->maxy);
                 break;
 
             case IDC_DOWN_VIEW:
                 if (!(blt_flag % _blt_lines))
                 {
-                    if (focus->row_number == focus->miny)
-                    //In this case you just wrapped row_number to miny
-                    //blt the bottom strip
-                        WBM->WBMBitBlt(hdc,
-                            focus->minx,
-                            focus->maxy-_blt_lines,
-                            focus->maxx,
-                            focus->maxy); //maxy is row_number - 1 here
-                    else
-                        WBM->WBMBitBlt(hdc,
-                            focus->minx,
-                            focus->row_number-_blt_lines,
-                            focus->maxx,
-                            focus->row_number - 1);
+                    capowgl->DrawHistoryView(hdc, focus);
                     blt_flag = 0;
                 }
                 break;
             case IDC_SCROLL_VIEW:
                 if (!(blt_flag % _blt_lines))
                 {
-                    WBM->WBMBitBlt(hdc, focus->minx, focus->miny,
-                            focus->maxx, focus->maxy);
+                    capowgl->DrawHistoryView(hdc, focus);
                     blt_flag = 0;
                 }
                 break;
             case IDC_SPLIT_VIEW:
-                //Do the scroll part
-                if (!(blt_flag % _blt_lines))
-                {
-                    WBM->WBMBitBlt(hdc, focus->minx, focus->miny,
-                            focus->maxx, focus->splity);
-                    blt_flag = 0;
-                }
-                //Do the graph part
-                WBM->WBMBitBlt(hdc, focus->minx, focus->splity+1,
-                            focus->maxx, focus->maxy);
+                capowgl->DrawHistoryView(hdc, focus);
                 break;
             case IDC_WIRE_VIEW:
+                capowgl->DrawHistoryView(hdc, focus);
                 break;
-        }
+            }
     } // end  zoomflag  case
     // Check to see if it is Breeding time
 }
@@ -408,9 +387,12 @@ the FIXED_640_480 case.*/
 void CAlist::Show(HDC hdc, const RECT &rcPaint)
 {
     if (Getdimension() == 1)
-        BitBlt(hdc, rcPaint.left, rcPaint.top,
-            rcPaint.right, rcPaint.bottom, WBM->GetHDC(),
-            rcPaint.left, rcPaint.top, SRCCOPY);
+    {
+        if (zoomflag && capowgl->DrawHistoryView(hdc, focus))
+            return;
+        BitBlt(hdc, rcPaint.left, rcPaint.top, rcPaint.right, rcPaint.bottom, WBM->GetHDC(), rcPaint.left, rcPaint.top,
+            SRCCOPY);
+    }
     else //(Getdimension() == 2)
     {
         if (!zoomflag)  // not zoomed, do them all

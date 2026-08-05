@@ -20,6 +20,7 @@
 //====================EXTERNAL DATA===============
 extern BOOL toolbarON;
 extern BOOL statusON;
+extern BOOL zoomviewflag;
 extern HWND masterhwnd;
 extern int statusBarHeight;
 extern int toolBarHeight;
@@ -768,174 +769,176 @@ void CA::Show(HDC hdc)
     int i;
     int x, y;
     const COLORREF black = RGB(0, 0, 0);
-// Convert target_row values to COLORREF values.  For the Standard
-//(digital) CAs, the values will be unsigned char, for the Wave
-//(analog) CAs, the values will be long int.
+    const BOOL openGlHistoryView =
+        zoomviewflag && (viewmode == IDC_WIRE_VIEW || viewmode == IDC_GRAPH_VIEW || viewmode == IDC_SPLIT_VIEW);
+    // Convert target_row values to COLORREF values.  For the Standard
+    //(digital) CAs, the values will be unsigned char, for the Wave
+    //(analog) CAs, the values will be long int.
 
-// Store the target row values into the bitmap.
-    switch(viewmode)
+    // Store the target row values into the bitmap.
+    switch (viewmode)
     {
-        case IDC_DOWN_VIEW:
-            EnsureHistoryImage();
-            for (i = 0; i < horz_count; ++i)
-                PutHistoryPixel(minx + i, row_number, COLORREF_target_row[i]);
-            CopyHistoryImageToWBM();
-            row_number++;
-            if (row_number > maxy)
-                row_number = miny;
+    case IDC_DOWN_VIEW:
+        EnsureHistoryImage();
+        for (i = 0; i < horz_count; ++i)
+            PutHistoryPixel(minx + i, row_number, COLORREF_target_row[i]);
+        CopyHistoryImageToWBM();
+        row_number++;
+        if (row_number > maxy)
+            row_number = miny;
         break;
-        case IDC_SCROLL_VIEW:
-            EnsureHistoryImage();
-            //Do the bump first, if needed, so the image looks good.
-            if (row_number == maxy - (calist_ptr->_blt_lines) + 1)
-                ScrollHistoryRect(minx, miny, maxx, maxy, 0, -(calist_ptr->_blt_lines));
+    case IDC_SCROLL_VIEW:
+        EnsureHistoryImage();
+        // Do the bump first, if needed, so the image looks good.
+        if (row_number == maxy - (calist_ptr->_blt_lines) + 1)
+            ScrollHistoryRect(minx, miny, maxx, maxy, 0, -(calist_ptr->_blt_lines));
+        for (i = 0; i < horz_count; ++i)
+            PutHistoryPixel(minx + i, row_number, COLORREF_target_row[i]);
+        CopyHistoryImageToWBM();
+        row_number++; // Starts at maxy - (calist_ptr->_blt_lines) + 1
+        if (row_number > maxy)
+            row_number = maxy - (calist_ptr->_blt_lines) + 1;
+        break;
+    case IDC_WIRE_VIEW:
+        EnsureHistoryImage();
+        if (!openGlHistoryView)
+        {
             for (i = 0; i < horz_count; ++i)
-                PutHistoryPixel(minx + i, row_number, COLORREF_target_row[i]);
+                PutHistoryPixel(minx + i, miny + (int) (vert_count / 2), COLORREF_target_row[i]);
             CopyHistoryImageToWBM();
-            row_number++;    //Starts at maxy - (calist_ptr->_blt_lines) + 1
-            if (row_number > maxy)
-                row_number = maxy - (calist_ptr->_blt_lines) + 1;
-            break;
-        case IDC_WIRE_VIEW:
-            EnsureHistoryImage();
-            for (i = 0; i < horz_count; ++i)
-                PutHistoryPixel(minx + i,miny +
-                (int)(vert_count/2), COLORREF_target_row[i]);
-            CopyHistoryImageToWBM();
-            WBM->WBMWireBlt(hdc, minx, miny+(int)(vert_count/2.0),
-                maxx, 1);
-            break;
-        case IDC_GRAPH_VIEW:
-            EnsureHistoryImage();
-            FillHistoryRect(minx, miny, maxx, maxy, black);
+            WBM->WBMWireBlt(hdc, minx, miny + (int) (vert_count / 2.0), maxx, 1);
+        }
+        break;
+    case IDC_GRAPH_VIEW:
+        EnsureHistoryImage();
+        FillHistoryRect(minx, miny, maxx, maxy, black);
+        if (!openGlHistoryView)
+        {
             if (type_ca == CA_STANDARD || type_ca == CA_REVERSIBLE)
             {
                 for (i = 0; i < horz_count; ++i)
 
-                    PutHistoryPixel(minx + i,
-                    maxy - (int)((vert_count-1) *
-                    ((Real)(target_row[i])/ (states-1))),
-                    RGB(255, 255, 255));
+                    PutHistoryPixel(minx + i, maxy - (int) ((vert_count - 1) * ((Real) (target_row[i]) / (states - 1))),
+                        RGB(255, 255, 255));
 
-                //DRAW RED GENERATORS
-                for (i=0; i < generatorlist.Count(); i++)
+                // DRAW RED GENERATORS
+                for (i = 0; i < generatorlist.Count(); i++)
                 {
-                    if (generatorlist.Location(i)<horz_count)
+                    if (generatorlist.Location(i) < horz_count)
                     {
                         PutHistoryPixel(minx + generatorlist.Location(i),
-                        maxy - (int)((vert_count-1) *
-                        ((Real)(target_row[generatorlist.Location(i)])/ (states-1))),
-                        RGB(255, 0, 0));
+                            maxy -
+                                (int) ((vert_count - 1) *
+                                    ((Real) (target_row[generatorlist.Location(i)]) / (states - 1))),
+                            RGB(255, 0, 0));
                     }
                 }
             }
-          else
+            else
             {
-            for (i = 0; i < horz_count; ++i)
-                PutHistoryPixel(minx + i,
-                maxy - (int)((vert_count-1) *
-                ((float)(colorindex_target_row[i])/ (MAX_COLOR-1))),
-                RGB(255, 255, 255));
+                for (i = 0; i < horz_count; ++i)
+                    PutHistoryPixel(minx + i,
+                        maxy - (int) ((vert_count - 1) * ((float) (colorindex_target_row[i]) / (MAX_COLOR - 1))),
+                        RGB(255, 255, 255));
 
-            //DRAW RED GENERATORS
-            for (i=0; i < generatorlist.Count(); i++)
-            {
-                if (generatorlist.Location(i)<horz_count)
+                // DRAW RED GENERATORS
+                for (i = 0; i < generatorlist.Count(); i++)
                 {
-                    x = minx + generatorlist.Location(i);
-                    y=maxy - (int)((vert_count-1) *
-                            ((float)(colorindex_target_row[generatorlist.Location(i)])/ (MAX_COLOR-1)));
-                    DrawHistoryRectangle(x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
+                    if (generatorlist.Location(i) < horz_count)
+                    {
+                        x = minx + generatorlist.Location(i);
+                        y = maxy -
+                            (int) ((vert_count - 1) *
+                                ((float) (colorindex_target_row[generatorlist.Location(i)]) / (MAX_COLOR - 1)));
+                        DrawHistoryRectangle(x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
+                    }
                 }
             }
-
-            }
             CopyHistoryImageToWBM();
-            break;
+        }
+        break;
 
-        case IDC_POINT_GRAPH:    //===== 3/15/96 - Bang-Nguyen =====
-            Showpointgraph(hdc);
-            break;
+    case IDC_POINT_GRAPH: //===== 3/15/96 - Bang-Nguyen =====
+        Showpointgraph(hdc);
+        break;
 
-        case IDC_SPLIT_VIEW:
-            EnsureHistoryImage();
-             //Put scroll part in top half.
-            //COPY the IDC_SCROLL_VIEW with splity for maxy.
-            if (row_number == splity - (calist_ptr->_blt_lines) + 1)
-                ScrollHistoryRect(minx, miny, maxx, splity, 0, -(calist_ptr->_blt_lines));
-            for (i = 0; i < horz_count; ++i)
-                PutHistoryPixel(minx + i, row_number,
-                     COLORREF_target_row[i]);
-            row_number++;    //Starts at splity - (calist_ptr->_blt_lines) + 1
-            if (row_number > splity)
-                row_number = splity - (calist_ptr->_blt_lines) + 1;
-            //Put graph part in bottom half.  Put splity for miny.
-            //Put vert_count/2 for vert_count.
+    case IDC_SPLIT_VIEW:
+        EnsureHistoryImage();
+        // Put scroll part in top half.
+        // COPY the IDC_SCROLL_VIEW with splity for maxy.
+        if (row_number == splity - (calist_ptr->_blt_lines) + 1)
+            ScrollHistoryRect(minx, miny, maxx, splity, 0, -(calist_ptr->_blt_lines));
+        for (i = 0; i < horz_count; ++i)
+            PutHistoryPixel(minx + i, row_number, COLORREF_target_row[i]);
+        row_number++; // Starts at splity - (calist_ptr->_blt_lines) + 1
+        if (row_number > splity)
+            row_number = splity - (calist_ptr->_blt_lines) + 1;
+        // Put graph part in bottom half.  Put splity for miny.
+        // Put vert_count/2 for vert_count.
 
-            FillHistoryRect(minx, splity+1, maxx, maxy, black);
+        FillHistoryRect(minx, splity + 1, maxx, maxy, black);
+        if (!openGlHistoryView)
+        {
             if (type_ca == CA_STANDARD || type_ca == CA_REVERSIBLE)
             {
                 for (i = 0; i < horz_count; ++i)
                     PutHistoryPixel(minx + i,
-                    maxy - (int)(((split_vert_count)-2) *
-                    ((Real)(target_row[i])/ (states-1))),
-                    RGB(255, 255, 255));
+                        maxy - (int) (((split_vert_count) -2) * ((Real) (target_row[i]) / (states - 1))),
+                        RGB(255, 255, 255));
 
-                //DRAW GENERATORS
-                for (i=0; i <generatorlist.Count(); i++)
+                // DRAW GENERATORS
+                for (i = 0; i < generatorlist.Count(); i++)
                 {
-                    if (generatorlist.Location(i)<horz_count)
+                    if (generatorlist.Location(i) < horz_count)
                     {
                         x = minx + generatorlist.Location(i);
-                        y = maxy - (int)(((split_vert_count)-2) *
-                        ((Real)(target_row[generatorlist.Location(i)])/ (states-1)));
+                        y = maxy -
+                            (int) (((split_vert_count) -2) *
+                                ((Real) (target_row[generatorlist.Location(i)]) / (states - 1)));
                         DrawHistoryRectangle(x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
                     }
-
                 }
-
             }
-          else
+            else
             {
                 for (i = 0; i < horz_count; ++i)
                     PutHistoryPixel(minx + i,
-                    maxy - (int)(((split_vert_count)-2) *
-                    ((float)(colorindex_target_row[i])/ (MAX_COLOR-1))),
-                    RGB(255, 255, 255));
+                        maxy - (int) (((split_vert_count) -2) * ((float) (colorindex_target_row[i]) / (MAX_COLOR - 1))),
+                        RGB(255, 255, 255));
 
-                //draw generators
+                // draw generators
 
-                for (i=0; i <generatorlist.Count(); i++)
+                for (i = 0; i < generatorlist.Count(); i++)
                 {
-                    if (generatorlist.Location(i)<horz_count)
+                    if (generatorlist.Location(i) < horz_count)
                     {
                         x = minx + generatorlist.Location(i);
-                        y = maxy - (int)(((split_vert_count)-2) *
-                        ((float)(colorindex_target_row[generatorlist.Location(i)])/ (MAX_COLOR-1)));
+                        y = maxy -
+                            (int) (((split_vert_count) -2) *
+                                ((float) (colorindex_target_row[generatorlist.Location(i)]) / (MAX_COLOR - 1)));
 
                         DrawHistoryRectangle(x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
                     }
-
                 }
             }
             CopyHistoryImageToWBM();
-            break;
+        }
+        break;
     }
-    //Roll forward the source and target buffers.
+    // Roll forward the source and target buffers.
     if (++sourcerowindex >= MEMORY)
         sourcerowindex = 0;
     if (++targetrowindex >= MEMORY)
         targetrowindex = 0;
-    source_row = rowbuffer[sourcerowindex];//same as target_row, actually.
+    source_row = rowbuffer[sourcerowindex]; // same as target_row, actually.
     target_row = rowbuffer[targetrowindex];
     if (cellcount > (calist_ptr->breedcycle * horz_count))
-     /*could overflow one of the freqlookup entries in the next row */
+        /*could overflow one of the freqlookup entries in the next row */
 
         Entropy();
     if (sourcerowindex == MEMORY - 1)
         Avoidstripes();
 }
-
 
 void CA::ReversibleUpdate(HDC hdc)
 {

@@ -53,6 +53,42 @@ void OpenGlImagePresenter::DrawLine(int x0, int y0, int x1, int y1, COLORREF col
     EndScreenDrawing(oldMatrixMode);
 }
 
+void OpenGlImagePresenter::DrawColoredLines(
+    const POINT *starts, const POINT *ends, const COLORREF *colors, int count, float lineWidth)
+{
+    if (wglGetCurrentContext() == NULL || starts == 0 || ends == 0 || colors == 0 || count <= 0 || lineWidth <= 0.0F)
+        return;
+
+    GLint oldMatrixMode;
+    BeginScreenDrawing(&oldMatrixMode);
+    glLineWidth(lineWidth);
+    glBegin(GL_LINES);
+    for (int i = 0; i < count; ++i)
+    {
+        SetColor(colors[i]);
+        glVertex2i(starts[i].x, starts[i].y);
+        glVertex2i(ends[i].x, ends[i].y);
+    }
+    glEnd();
+    EndScreenDrawing(oldMatrixMode);
+}
+
+void OpenGlImagePresenter::DrawPoints(const POINT *points, int count, COLORREF color, float pointSize)
+{
+    if (wglGetCurrentContext() == NULL || points == 0 || count <= 0 || pointSize <= 0.0F)
+        return;
+
+    GLint oldMatrixMode;
+    BeginScreenDrawing(&oldMatrixMode);
+    SetColor(color);
+    glPointSize(pointSize);
+    glBegin(GL_POINTS);
+    for (int i = 0; i < count; ++i)
+        glVertex2i(points[i].x, points[i].y);
+    glEnd();
+    EndScreenDrawing(oldMatrixMode);
+}
+
 void OpenGlImagePresenter::DrawRectangle(int left, int top, int right, int bottom, COLORREF color, float lineWidth)
 {
     if (wglGetCurrentContext() == NULL || lineWidth <= 0.0F)
@@ -177,7 +213,8 @@ void OpenGlImagePresenter::BeginScreenDrawing(GLint *oldMatrixMode)
     glGetIntegerv(GL_MATRIX_MODE, oldMatrixMode);
 
     glPushAttrib(
-        GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_TEXTURE_BIT);
+        GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_POINT_BIT |
+        GL_TEXTURE_BIT);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
     glDisable(GL_CULL_FACE);

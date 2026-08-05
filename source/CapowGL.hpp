@@ -188,14 +188,17 @@ private:
     capow::OpenGlImagePresenter imagePresenter;
     int pixelFormatId;
     void DrawImageOverlays();
+    void DrawHistoryGraph(CA *focus, int bottom, int height);
+    void DrawHistoryWire(CA *focus);
     bool EnsureImagePreviewFormat(HDC hdc);
 
 public:
     CapowGL(HWND hwnd);
     ~CapowGL();
-    bool Draw(HDC hdc, CA* focus);
-    bool DrawImage(HDC hdc, CA* focus);
+    bool Draw(HDC hdc, CA *focus);
+    bool DrawImage(HDC hdc, CA *focus);
     bool DrawImagePreview(HWND hwnd, CA *focus);
+    bool DrawHistoryView(HDC hdc, CA *focus);
     void Size(HWND hwnd);
     HGLRC SetUpOpenGL(HWND hWnd);
     bool DrawOpenGLScene();
