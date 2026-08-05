@@ -44,69 +44,69 @@ at link time.
 different name for the *.DLL you are building.
 */
 
-#undef CARULE_WAVE               //Wave.DLL.  If I stretch the velocity, it's Wave Stretch Velocity.DLL
-#undef CARULE_WAVE_SIMPLE        //Wave Unstable.DLL
-#undef CARULE_WAVE_AVG_1         //Wave Half.DLL (Not included)
-#undef CARULE_WAVE_AVG_2         //Wave Third.DLL (Not included)
-#undef CARULE_WAVE_WRAP          //Wave Unstable Wrap.DLL (Not included)
-#undef CARULE_OSCILLATOR_WAVE    //Oscillator Wave.DLL (Not included)
-#undef CARULE_OSCILLATOR_CHAOTIC //Oscillator Chaotic.DLL
-#undef CARULE_OSCILLATOR_WAVE_CHAOTIC    //Oscillator Wave Chaotic.DLL
-#undef CARULE_REACTION_DIFFUSION //Reaction Diffusion.DLL (Not included)
-#undef CARULE_REACTION_WAVE      //Reaction Wave.DLL (Not included)
-#undef CARULE_WAVE_QUADRATIC     //Quadratic Wave.DLL (Not included)
-#undef CARULE_WAVE_CUBIC         //General Cubic Wave.DLL
-#undef CARULE_2D_WAVE_QUADRATIC  //2D Quadratic Wave.DLL
-#undef CARULE_2D_WAVE_CUBIC      //2D Cubic Wave.DLL
-#undef CARULE_2D_HEAT_9          //2D Heat 9-Neighbor.DLL
-#undef CARULE_2D_HEAT_5          //2D Heat 5-Neighbor.DLL (Not included)
-#undef CARULE_2D_LIFE                //2D Life.DLL
-#undef CARULE_2D_HODGE           //2D Hodge.DLL
-#undef CARULE_2D_HODGE_WAVE      //2D Hodge Wave.DLL (Not included)
-#undef CARULE_2D_PAIR            //2D Pair.DLL (Not included)
-#undef CARULE_2D_ACTIVATOR_INHIBITOR //2D Activator Inhibitor 9.DLL
-#undef CARULE_2D_ACTIVATOR_INHIBITOR_MIN //2D Activator Inhibitor Min 9.DLL
-#undef CARULE_2D_ACTIVATOR_INHIBITOR_5 //2D Activator Inhibitor 5.DLL
-#undef CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION //2D Activator Inhibitor Saturation 9.DLL
-#undef CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION_5//2D Activator Inhibitor Saturation 5.DLL
-#undef CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_WAVE //2D Activator Inhibitor Wave.DLL
+//#define CARULE_WAVE               //Wave.DLL.  If I stretch the velocity, it's Wave Stretch Velocity.DLL
+//#define CARULE_WAVE_SIMPLE        //Wave Unstable.DLL
+//#define CARULE_WAVE_AVG_1         //Wave Half.DLL (Not included)
+//#define CARULE_WAVE_AVG_2         //Wave Third.DLL (Not included)
+//#define CARULE_WAVE_WRAP          //Wave Unstable Wrap.DLL (Not included)
+//#define CARULE_OSCILLATOR_WAVE    //Oscillator Wave.DLL (Not included)
+//#define CARULE_OSCILLATOR_CHAOTIC //Oscillator Chaotic.DLL
+//#define CARULE_OSCILLATOR_WAVE_CHAOTIC    //Oscillator Wave Chaotic.DLL
+//#define CARULE_REACTION_DIFFUSION //Reaction Diffusion.DLL (Not included)
+//#define CARULE_REACTION_WAVE      //Reaction Wave.DLL (Not included)
+//#define CARULE_WAVE_QUADRATIC     //Quadratic Wave.DLL (Not included)
+//#define CARULE_WAVE_CUBIC         //General Cubic Wave.DLL
+//#define CARULE_2D_WAVE_QUADRATIC  //2D Quadratic Wave.DLL
+//#define CARULE_2D_WAVE_CUBIC      //2D Cubic Wave.DLL
+//#define CARULE_2D_HEAT_9          //2D Heat 9-Neighbor.DLL
+//#define CARULE_2D_HEAT_5          //2D Heat 5-Neighbor.DLL (Not included)
+//#define CARULE_2D_LIFE                //2D Life.DLL
+//#define CARULE_2D_HODGE           //2D Hodge.DLL
+//#define CARULE_2D_HODGE_WAVE      //2D Hodge Wave.DLL (Not included)
+//#define CARULE_2D_PAIR            //2D Pair.DLL (Not included)
+//#define CARULE_2D_ACTIVATOR_INHIBITOR //2D Activator Inhibitor 9.DLL
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_MIN //2D Activator Inhibitor Min 9.DLL
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_5 //2D Activator Inhibitor 5.DLL
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION //2D Activator Inhibitor Saturation 9.DLL
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_SATURATION_5//2D Activator Inhibitor Saturation 5.DLL
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_WAVE //2D Activator Inhibitor Wave.DLL
 #define CARULE_2D_ACTIVATOR_INHIBITOR_WAVE_DIFFUSE //2D Activator Wave Inhibitor Diffuse.DLL
-#undef CARULE_2D_AIS_WAVE_DIFFUSE //2D AIS Wave Diffuse.DLL
-#undef CARULE_2D_ACTIVATOR_INHIBITOR_DIFFUSE_WAVE //2D Activator Diffuse Inhibitor Wave.DLL
-#undef CARULE_2D_OSCILLATOR_CHAOTIC    //2D Oscillator Chaotic.DLL
-#undef CARULE_2D_OSCILLATOR_WAVE_CHAOTIC    //2D Oscillator Wave Chaotic.DLL
-#undef CARULE_2D_OSCILLATOR    //2D Oscillator.DLL
-#undef CARULE_2D_OSCILLATOR_WAVE    //2D Oscillator Wave.DLL
-#undef CARULE_2D_BOILING_WAVE_5    //2D Boiling Wave 5.DLL
-#undef CARULE_2D_BOILING_WAVE_9    //2D Boiling Wave.DLL
-#undef CARULE_2D_BOILING_WAVE_9_SMOOTH    //2D Boiling Wave Smooth.DLL
-#undef CARULE_1D_INTERPOLATED  //1D Interpolated Continuous Rule.dll
-#undef CARULE_ASYMMETRIC_HEAT //1D Asymmetric Heat.dll
-#undef CARULE_TWOREGIME_HEAT //1D Two-Regime Heat.dll
-#undef CARULE_2D_LOGISTIC//2D Logistic Diffusion ?.dll, where ? is 5 or 9
-#undef CARULE__ABRAHAM//2D Logistic Diffusion Abraham ?.dll
+//#define CARULE_2D_AIS_WAVE_DIFFUSE //2D AIS Wave Diffuse.DLL
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_DIFFUSE_WAVE //2D Activator Diffuse Inhibitor Wave.DLL
+//#define CARULE_2D_OSCILLATOR_CHAOTIC    //2D Oscillator Chaotic.DLL
+//#define CARULE_2D_OSCILLATOR_WAVE_CHAOTIC    //2D Oscillator Wave Chaotic.DLL
+//#define CARULE_2D_OSCILLATOR    //2D Oscillator.DLL
+//#define CARULE_2D_OSCILLATOR_WAVE    //2D Oscillator Wave.DLL
+//#define CARULE_2D_BOILING_WAVE_5    //2D Boiling Wave 5.DLL
+//#define CARULE_2D_BOILING_WAVE_9    //2D Boiling Wave.DLL
+//#define CARULE_2D_BOILING_WAVE_9_SMOOTH    //2D Boiling Wave Smooth.DLL
+//#define CARULE_1D_INTERPOLATED  //1D Interpolated Continuous Rule.dll
+//#define CARULE_ASYMMETRIC_HEAT //1D Asymmetric Heat.dll
+//#define CARULE_TWOREGIME_HEAT //1D Two-Regime Heat.dll
+//#define CARULE_2D_LOGISTIC//2D Logistic Diffusion ?.dll, where ? is 5 or 9
+//#define CARULE_2D_LOGISTIC_ABRAHAM//2D Logistic Diffusion Abraham ?.dll
     /* This is Ralph Abraham's rule in which he does diffusion based on
     current values.  Makes a nice Zhabo.  I  lost the
     code for the 2D Logistic Diffusion 9Nabe Kaneko.dll, which
     is probably similar. */
-#undef CARULE_2D_DOUBLE_LOGISTIC //2D Logistic Double.dll
+//#define CARULE_2D_DOUBLE_LOGISTIC //2D Logistic Double.dll
     /* Can get Zhabo here if you crank up logistic param to 5 instead of just 4.
     Cranking it up means, however, that you will be hitting the max and min. */
-#undef CARULE_2D_DOUBLE_LOGISTIC_SMOOTH //2D Logistic Double Smooth.dll
+//#define CARULE_2D_DOUBLE_LOGISTIC_SMOOTH //2D Logistic Double Smooth.dll
     //This one uses a better averaging algoirthm and tries to avoid slamming
     //the max and min.
-#undef CARULE_2D_WINFREE_LOGISTIC //2D Logistic Double Smooth.dll
-#undef CARULE_2D_ACTIVATOR_INHIBITOR_BRAIN //2D Brain AI Zhabo.DLL
-#undef CARULE_2D_HODGE_BRAIN //2D Brain Hodge.dll
-#undef CARULE_2D_SANDPILE_5 //2D Sandpile 5.DLL
-#undef CARULE_2D_SANDPILE_9 //2D Sandpile 9.DLL
-#undef CARULE_2D_WAVE_SANDPILE_5 //2D Sandpile Wave 5.DLL
-#undef CARULE_2D_CITYFORMATION //2D City Formation 9.DLL
-#undef CARULE_2D_CITYFORMATION_5 //2D City Formation 5.DLL
-#undef CARULE_2D_CITYFORMATION_5_BADVERSION //2D City Formation Delay 5.DLL
-#undef CARULE_2D_FORESTFIRE //2D Forest Fire ?.DLL
+//#define CARULE_2D_WINFREE_LOGISTIC //2D Logistic Double Smooth.dll
+//#define CARULE_2D_ACTIVATOR_INHIBITOR_BRAIN //2D Brain AI Zhabo.DLL
+//#define CARULE_2D_HODGE_BRAIN //2D Brain Hodge.dll
+//#define CARULE_2D_SANDPILE_5 //2D Sandpile 5.DLL
+//#define CARULE_2D_SANDPILE_9 //2D Sandpile 9.DLL
+//#define CARULE_2D_WAVE_SANDPILE_5 //2D Sandpile Wave 5.DLL
+//#define CARULE_2D_CITYFORMATION //2D City Formation 9.DLL
+//#define CARULE_2D_CITYFORMATION_5 //2D City Formation 5.DLL
+//#define CARULE_2D_CITYFORMATION_5_BADVERSION //2D City Formation Delay 5.DLL
+//#define CARULE_2D_FORESTFIRE //2D Forest Fire ?.DLL
         //? can be 9 or 5
-#undef CARULE_2D_WINFREE_ZHABO_NEW //2D Winfree Zhabo New.dll
+//#define CARULE_2D_WINFREE_ZHABO_NEW //2D Winfree Zhabo New.dll
 
 //========================================================================
 
