@@ -122,3 +122,25 @@ TEST(imageBuffer, scrollRectUsesOverlapSafeCopy)
     EXPECT_EQ(4U, PixelAt(buffer, 1, 2));
     EXPECT_EQ(5U, PixelAt(buffer, 2, 2));
 }
+
+TEST(imageBuffer, scrollRectMovesHistoryRowsUp)
+{
+    ImageBuffer buffer(3, 5);
+
+    for (int y = 0; y < buffer.Height(); ++y)
+    {
+        for (int x = 0; x < buffer.Width(); ++x)
+        {
+            buffer.PutPixel(x, y, static_cast<ImageBuffer::Pixel>(10 * y + x));
+        }
+    }
+
+    buffer.ScrollRect(0, 1, 3, 4, 0, -2);
+
+    EXPECT_EQ(30U, PixelAt(buffer, 0, 1));
+    EXPECT_EQ(31U, PixelAt(buffer, 1, 1));
+    EXPECT_EQ(40U, PixelAt(buffer, 0, 2));
+    EXPECT_EQ(41U, PixelAt(buffer, 1, 2));
+    EXPECT_EQ(30U, PixelAt(buffer, 0, 3));
+    EXPECT_EQ(40U, PixelAt(buffer, 0, 4));
+}

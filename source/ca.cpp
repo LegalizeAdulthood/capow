@@ -720,11 +720,54 @@ after the rows are rolled just below.*/
     Show(hdc);
 }
 
+void CA::EnsureHistoryImage()
+{
+    const int imageWidth = maxx - minx + 1;
+    const int imageHeight = maxy - miny + 1;
+    if (historyImage.Width() != imageWidth || historyImage.Height() != imageHeight)
+        historyImage.Resize(imageWidth, imageHeight);
+}
+
+void CA::PutHistoryPixel(int x, int y, COLORREF color)
+{
+    historyImage.PutPixel(x - minx, y - miny, capow::ImagePixelFromColorRef(color));
+}
+
+void CA::FillHistoryRect(int left, int top, int right, int bottom, COLORREF color)
+{
+    historyImage.FillRect(
+        left - minx, top - miny, right - left + 1, bottom - top + 1, capow::ImagePixelFromColorRef(color));
+}
+
+void CA::ScrollHistoryRect(int left, int top, int right, int bottom, int deltaX, int deltaY)
+{
+    historyImage.ScrollRect(left - minx, top - miny, right - left + 1, bottom - top + 1, deltaX, deltaY);
+}
+
+void CA::DrawHistoryRectangle(int left, int top, int right, int bottom, COLORREF color)
+{
+    for (int x = left; x <= right; ++x)
+    {
+        PutHistoryPixel(x, top, color);
+        PutHistoryPixel(x, bottom, color);
+    }
+    for (int y = top; y <= bottom; ++y)
+    {
+        PutHistoryPixel(left, y, color);
+        PutHistoryPixel(right, y, color);
+    }
+}
+
+void CA::CopyHistoryImageToWBM()
+{
+    capow::CopyImageBufferToDevice(WBM->GetHDC(), historyImage, minx, miny);
+}
 
 void CA::Show(HDC hdc)
 {
     int i;
     int x, y;
+    const COLORREF black = RGB(0, 0, 0);
 // Convert target_row values to COLORREF values.  For the Standard
 //(digital) CAs, the values will be unsigned char, for the Wave
 //(analog) CAs, the values will be long int.
@@ -733,38 +776,43 @@ void CA::Show(HDC hdc)
     switch(viewmode)
     {
         case IDC_DOWN_VIEW:
+            EnsureHistoryImage();
             for (i = 0; i < horz_count; ++i)
-                WBM->WBMOnlyPutPixel(minx + i, row_number,
-                     COLORREF_target_row[i]);
+                PutHistoryPixel(minx + i, row_number, COLORREF_target_row[i]);
+            CopyHistoryImageToWBM();
             row_number++;
             if (row_number > maxy)
                 row_number = miny;
         break;
         case IDC_SCROLL_VIEW:
+            EnsureHistoryImage();
             //Do the bump first, if needed, so the image looks good.
             if (row_number == maxy - (calist_ptr->_blt_lines) + 1)
-                WBM->WBMBumpup(minx, miny, maxx, maxy, (calist_ptr->_blt_lines));
+                ScrollHistoryRect(minx, miny, maxx, maxy, 0, -(calist_ptr->_blt_lines));
             for (i = 0; i < horz_count; ++i)
-                WBM->WBMOnlyPutPixel(minx + i,row_number,
-                     COLORREF_target_row[i]);
+                PutHistoryPixel(minx + i, row_number, COLORREF_target_row[i]);
+            CopyHistoryImageToWBM();
             row_number++;    //Starts at maxy - (calist_ptr->_blt_lines) + 1
             if (row_number > maxy)
                 row_number = maxy - (calist_ptr->_blt_lines) + 1;
             break;
         case IDC_WIRE_VIEW:
+            EnsureHistoryImage();
             for (i = 0; i < horz_count; ++i)
-                WBM->WBMOnlyPutPixel(minx + i,miny +
+                PutHistoryPixel(minx + i,miny +
                 (int)(vert_count/2), COLORREF_target_row[i]);
+            CopyHistoryImageToWBM();
             WBM->WBMWireBlt(hdc, minx, miny+(int)(vert_count/2.0),
                 maxx, 1);
             break;
         case IDC_GRAPH_VIEW:
-            WBM->ClearSection(minx, miny, maxx, maxy);
+            EnsureHistoryImage();
+            FillHistoryRect(minx, miny, maxx, maxy, black);
             if (type_ca == CA_STANDARD || type_ca == CA_REVERSIBLE)
             {
                 for (i = 0; i < horz_count; ++i)
 
-                    WBM->WBMOnlyPutPixel(minx + i,
+                    PutHistoryPixel(minx + i,
                     maxy - (int)((vert_count-1) *
                     ((Real)(target_row[i])/ (states-1))),
                     RGB(255, 255, 255));
@@ -774,7 +822,7 @@ void CA::Show(HDC hdc)
                 {
                     if (generatorlist.Location(i)<horz_count)
                     {
-                        WBM->WBMOnlyPutPixel(minx + generatorlist.Location(i),
+                        PutHistoryPixel(minx + generatorlist.Location(i),
                         maxy - (int)((vert_count-1) *
                         ((Real)(target_row[generatorlist.Location(i)])/ (states-1))),
                         RGB(255, 0, 0));
@@ -784,7 +832,7 @@ void CA::Show(HDC hdc)
           else
             {
             for (i = 0; i < horz_count; ++i)
-                WBM->WBMOnlyPutPixel(minx + i,
+                PutHistoryPixel(minx + i,
                 maxy - (int)((vert_count-1) *
                 ((float)(colorindex_target_row[i])/ (MAX_COLOR-1))),
                 RGB(255, 255, 255));
@@ -797,11 +845,12 @@ void CA::Show(HDC hdc)
                     x = minx + generatorlist.Location(i);
                     y=maxy - (int)((vert_count-1) *
                             ((float)(colorindex_target_row[generatorlist.Location(i)])/ (MAX_COLOR-1)));
-                    WBM->PutRectangle(hdc, x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
+                    DrawHistoryRectangle(x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
                 }
             }
 
             }
+            CopyHistoryImageToWBM();
             break;
 
         case IDC_POINT_GRAPH:    //===== 3/15/96 - Bang-Nguyen =====
@@ -809,12 +858,13 @@ void CA::Show(HDC hdc)
             break;
 
         case IDC_SPLIT_VIEW:
+            EnsureHistoryImage();
              //Put scroll part in top half.
             //COPY the IDC_SCROLL_VIEW with splity for maxy.
             if (row_number == splity - (calist_ptr->_blt_lines) + 1)
-                WBM->WBMBumpup(minx, miny, maxx, splity, (calist_ptr->_blt_lines));
+                ScrollHistoryRect(minx, miny, maxx, splity, 0, -(calist_ptr->_blt_lines));
             for (i = 0; i < horz_count; ++i)
-                WBM->WBMOnlyPutPixel(minx + i, row_number,
+                PutHistoryPixel(minx + i, row_number,
                      COLORREF_target_row[i]);
             row_number++;    //Starts at splity - (calist_ptr->_blt_lines) + 1
             if (row_number > splity)
@@ -822,11 +872,11 @@ void CA::Show(HDC hdc)
             //Put graph part in bottom half.  Put splity for miny.
             //Put vert_count/2 for vert_count.
 
-            WBM->ClearSection(minx, splity+1, maxx, maxy);
+            FillHistoryRect(minx, splity+1, maxx, maxy, black);
             if (type_ca == CA_STANDARD || type_ca == CA_REVERSIBLE)
             {
                 for (i = 0; i < horz_count; ++i)
-                    WBM->WBMOnlyPutPixel(minx + i,
+                    PutHistoryPixel(minx + i,
                     maxy - (int)(((split_vert_count)-2) *
                     ((Real)(target_row[i])/ (states-1))),
                     RGB(255, 255, 255));
@@ -839,7 +889,7 @@ void CA::Show(HDC hdc)
                         x = minx + generatorlist.Location(i);
                         y = maxy - (int)(((split_vert_count)-2) *
                         ((Real)(target_row[generatorlist.Location(i)])/ (states-1)));
-                        WBM->PutRectangle(hdc, x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
+                        DrawHistoryRectangle(x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
                     }
 
                 }
@@ -848,7 +898,7 @@ void CA::Show(HDC hdc)
           else
             {
                 for (i = 0; i < horz_count; ++i)
-                    WBM->WBMOnlyPutPixel(minx + i,
+                    PutHistoryPixel(minx + i,
                     maxy - (int)(((split_vert_count)-2) *
                     ((float)(colorindex_target_row[i])/ (MAX_COLOR-1))),
                     RGB(255, 255, 255));
@@ -863,11 +913,12 @@ void CA::Show(HDC hdc)
                         y = maxy - (int)(((split_vert_count)-2) *
                         ((float)(colorindex_target_row[generatorlist.Location(i)])/ (MAX_COLOR-1)));
 
-                        WBM->PutRectangle(hdc, x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
+                        DrawHistoryRectangle(x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
                     }
 
                 }
             }
+            CopyHistoryImageToWBM();
             break;
     }
     //Roll forward the source and target buffers.

@@ -819,6 +819,13 @@ private:
              wave_source_plane = waveplanebuffer[wavesourceindex]  always have
              wave_target_plane = waveplanebuffer[wavetargetindex] */
     capow::ImageBuffer wavePlaneImage;
+    capow::ImageBuffer historyImage;
+    void EnsureHistoryImage();
+    void PutHistoryPixel(int x, int y, COLORREF color);
+    void FillHistoryRect(int left, int top, int right, int bottom, COLORREF color);
+    void ScrollHistoryRect(int left, int top, int right, int bottom, int deltaX, int deltaY);
+    void DrawHistoryRectangle(int left, int top, int right, int bottom, COLORREF color);
+    void CopyHistoryImageToWBM();
 //------------------CA Wave Oscillator private-----------------------------
     Real frequency_factor; /*AUTOSET.  This is
       is a helping variable defined in CA::Adjust_acceleration as
