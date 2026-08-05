@@ -221,90 +221,8 @@ void CAlist::Update_and_Show(HDC hdc)
             list[i]->Update(hdc);  //HERE'S WHERE THE UPDATE HAPPENS!!!!
 #endif //ONE_AT_A_TIME
         blt_flag++;
-        if (capowgl->DrawTiledViews(hdc, this))
-        {
-            if (!(blt_flag % _blt_lines))
-                blt_flag = 0;
-        }
-        else
-          for (i=0; i<count; i++)
-        switch (list[i]->viewmode)  //9/24/97 Getting exit bug here with THREAD.
-        {
-            case IDC_DOWN_VIEW:
-//Minor bug here, this seems not to show lines at bottom of the box.
-                if (!(blt_flag % _blt_lines))
-                {
-                    if (list[0]->row_number == list[0]->miny)
-                    //In this case you just wrapped row_number to miny
-                    {  //blt the bottom strip
-                        WBM->WBMBitBlt(hdc,
-                            list[i]->minx,
-                            list[i]->maxy-_blt_lines,
-                            list[i]->maxx,
-                            list[i]->maxy); //maxy is row_number - 1 here
-                    }
-                    else
-                         {
-                        WBM->WBMBitBlt(hdc,
-                            list[i]->minx,
-                            list[i]->row_number-_blt_lines,
-                            list[i]->maxx,
-                            list[i]->row_number - 1);
-                    }
-                    blt_flag = 0;
-                }
-                break;
-            case IDC_SCROLL_VIEW:
-                if (!(blt_flag % _blt_lines))
-                {
-                    WBM->WBMBitBlt(hdc, list[i]->minx, list[i]->miny,
-                            list[i]->maxx, list[i]->maxy);
-                    blt_flag = 0;
-                }
-                break;
-            case IDC_WIRE_VIEW:
-                break;
-            case IDC_2D_VIEW:
-/* Later I can add the StretchBlt optoin for all the types for use in
-the FIXED_640_480 case.*/
-                if (list[i]->maxx_2D == list[i]->maxx &&
-                    list[i]->maxy_2D == list[i]->maxy)
-                    WBM->WBMBitBlt(hdc, list[i]->minx, list[i]->miny,
-                            list[i]->maxx_2D, list[i]->maxy_2D);
-                else
-                    StretchBlt(hdc,   //target hdc
-                        list[i]->minx, list[i]->miny,  //target corner
-                        list[i]->horz_count, list[i]->vert_count,//targ size
-                        WBM->GetHDC(),                 //source  hdc
-                        list[i]->minx, list[i]->miny,  //source corner
-                        list[i]->horz_count_2D, list[i]->vert_count_2D,//sc size
-                        SRCCOPY);
-                break;
-            case IDC_GRAPH_VIEW:
-            //======== Bang-Nguyen ========
-            case IDC_POINT_GRAPH:
-            //=============================
-                WBM->WBMBitBlt(hdc, list[i]->minx, list[i]->miny,
-                            list[i]->maxx, list[i]->maxy);
-                break;
-            case IDC_SPLIT_VIEW:
-                // SCROLL due case
-                if (!(blt_flag % _blt_lines))  //Blt the whole screen
-                {
-                    WBM->WBMBitBlt(hdc, list[i]->minx, list[i]->miny,
-                            list[i]->maxx, list[i]->maxy);
-                    blt_flag = 0;
-                }
-                else //just do the GRAPH strips.  Use the GOACROSS approach.
-                {
-                    WBM->WBMBitBlt(hdc,
-                        list[i]->minx,
-                        list[i]->splity+1,
-                        list[i]->maxx,
-                        list[i]->maxy);
-                }
-                break;
-        }
+        if (capowgl->DrawTiledViews(hdc, this) && !(blt_flag % _blt_lines))
+            blt_flag = 0;
         if (breedflag)  //only breed in non zoomflag mode
         {
             ++breedcycle_count;
@@ -369,37 +287,19 @@ the FIXED_640_480 case.*/
     // Check to see if it is Breeding time
 }
 
-void CAlist::Show(HDC hdc, const RECT &rcPaint)
+void CAlist::Show(HDC hdc, const RECT &)
 {
     if (Getdimension() == 1)
     {
-        if (zoomflag && capowgl->DrawHistoryView(hdc, focus))
-            return;
-        if (!zoomflag && capowgl->DrawTiledViews(hdc, this))
-            return;
-        BitBlt(hdc, rcPaint.left, rcPaint.top, rcPaint.right, rcPaint.bottom, WBM->GetHDC(), rcPaint.left, rcPaint.top,
-            SRCCOPY);
+        if (zoomflag)
+            capowgl->DrawHistoryView(hdc, focus);
+        else
+            capowgl->DrawTiledViews(hdc, this);
     }
     else //(Getdimension() == 2)
     {
         if (!zoomflag)  // not zoomed, do them all
-        {
-            if (capowgl->DrawTiledViews(hdc, this))
-                return;
-                if (list[0]->maxx_2D == list[0]->maxx &&
-                    list[0]->maxy_2D == list[0]->maxy)
-                    WBM->WBMBitBlt(hdc, list[0]->minx, list[0]->miny,
-                            list[count-1]->maxx_2D, list[count-1]->maxy_2D);
-                else
-                    for (int i=0; i<count; i++)
-                        StretchBlt(hdc,   //target hdc
-                            list[i]->minx, list[i]->miny,  //target corner
-                            list[i]->horz_count, list[i]->vert_count,//targ size
-                            WBM->GetHDC(),                 //source  hdc
-                            list[i]->minx, list[i]->miny,  //source corner
-                            list[i]->horz_count_2D, list[i]->vert_count_2D,//sc size
-                            SRCCOPY);
-        }// end non zoomflag  case
+            capowgl->DrawTiledViews(hdc, this);
         else
         {
 
