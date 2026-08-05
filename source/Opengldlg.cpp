@@ -94,24 +94,24 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
     case IDC_OPENGL_GRAPHTYPES:
         comboint = SendMessage((HWND)hwndCtl, CB_GETCURSEL, 0, 0L);
         capowgl->Type(comboint);
-        UpdateWindow(hDlg);
+        ShowOpenGLParams(hDlg);
         break;
 
     case IDC_OPENGL_SURFACE:
         comboint = SendMessage((HWND)hwndCtl, CB_GETCURSEL, 0 , 0L);
         capowgl->SurfaceType(comboint);
-        UpdateWindow(hDlg);
+        ShowOpenGLParams(hDlg);
         break;
     case IDC_OPENGL_MATERIAL:
         comboint = SendMessage((HWND)hwndCtl, CB_GETCURSEL, 0, 0L);
         capowgl->Material(comboint);
-        UpdateWindow(hDlg);
+        ShowOpenGLParams(hDlg);
         break;
 
     case IDC_OPENGL_RESOLUTION:
         comboint = SendMessage((HWND)hwndCtl, CB_GETCURSEL, 0, 0L);
         capowgl->Resolution(comboint);
-        UpdateWindow(hDlg);
+        ShowOpenGLParams(hDlg);
         break;
 
     case IDC_OPENGL_PAN_UP:
@@ -170,7 +170,7 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
             capowgl->Type(SHEET);
         else // capowgl->Type() is SHEET or TORUS
             capowgl->Type(FLATCOLOR);
-        InvalidateRect(hDlg,NULL,FALSE);
+        ShowOpenGLParams(hDlg);
         break;
     case IDC_OPENGL_SHOW_GENERATORS:
         capowgl->ShowGenerators(!capowgl->ShowGenerators());
