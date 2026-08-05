@@ -94,6 +94,7 @@ CapowGL::CapowGL(HWND hwnd)
     antiAliased = DEFAULTANTIALIASEDFLAG;
     whichEye = LEFTEYE;
     eyeAngle = 2.5f;
+    pixelFormatId = 0;
     hRC = SetUpOpenGL(hwnd);  // l.andrews 11/2/01 moved from much above so
           // lots of things (like lightsflag) will be initialized
 }
@@ -131,23 +132,22 @@ of the program.
         0                       // No damage mask
     };
 
-    int nMyPixelFormatID;
     HDC hDC;
 
     hDC = GetDC( hWnd );
-    nMyPixelFormatID = ChoosePixelFormat( hDC, &pfd );
+    pixelFormatId = ChoosePixelFormat( hDC, &pfd );
 
     // catch errors here.
     // If nMyPixelFormat is zero, then there's
     // something wrong... most likely the window's
     // style bits are incorrect (in CreateWindow() )
     // or OpenGl isn't installed on this machine
-    if (nMyPixelFormatID==0)
+    if (pixelFormatId==0)
     {
         MessageBoxA(hWnd, "ChoosePixelFormat() failed!", "OpenGL error", MB_OK);
     }
 
-    SetPixelFormat( hDC, nMyPixelFormatID, &pfd );
+    SetPixelFormat( hDC, pixelFormatId, &pfd );
 
     hRC = wglCreateContext( hDC );
 
@@ -239,6 +239,62 @@ bool CapowGL::DrawImage(HDC hdc, CA* focus)
     const bool drawn = Draw(hdc, focus);
     graphtype = oldType;
     return drawn;
+}
+
+bool CapowGL::DrawImagePreview(HWND hwnd, CA *focus)
+{
+    if (hwnd == 0 || focus == 0 || !focus->HasWavePlaneImage() || focus->viewmode != IDC_2D_VIEW ||
+        focus->wavePlaneImage.Data() == 0 || focus->wavePlaneImage.Width() != focus->horz_count_2D ||
+        focus->wavePlaneImage.Height() != focus->vert_count_2D)
+        return false;
+
+    HDC hdc = GetDC(hwnd);
+    if (hdc == 0)
+        return false;
+
+    bool drawn = false;
+    if (EnsureImagePreviewFormat(hdc) && wglMakeCurrent(hdc, hRC))
+    {
+        RECT rect;
+        GLint oldViewport[4];
+        GetClientRect(hwnd, &rect);
+        const int width = rect.right - rect.left;
+        const int height = rect.bottom - rect.top;
+        if (width > 0 && height > 0)
+        {
+            glGetIntegerv(GL_VIEWPORT, oldViewport);
+            glViewport(0, 0, width, height);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            drawn = imagePresenter.Present(focus->wavePlaneImage, 0, 0, width, height);
+            if (drawn)
+                SwapBuffers(hdc);
+            glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
+        }
+        wglMakeCurrent(NULL, NULL);
+    }
+
+    ReleaseDC(hwnd, hdc);
+    return drawn;
+}
+
+bool CapowGL::EnsureImagePreviewFormat(HDC hdc)
+{
+    if (pixelFormatId == 0)
+        return false;
+
+    const int currentPixelFormat = GetPixelFormat(hdc);
+    if (currentPixelFormat == pixelFormatId)
+        return true;
+    if (currentPixelFormat != 0)
+        return false;
+
+    PIXELFORMATDESCRIPTOR pfd;
+    if (!DescribePixelFormat(hdc, pixelFormatId, sizeof(pfd), &pfd))
+        return false;
+    if (!SetPixelFormat(hdc, pixelFormatId, &pfd))
+        return false;
+
+    return true;
 }
 
 bool CapowGL::DrawOpenGLScene()  //this is the meat of the code

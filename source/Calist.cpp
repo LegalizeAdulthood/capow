@@ -55,6 +55,12 @@ void CAlist::DrawOpenGLDialogPreview(CA *focus)
     if (hCtrlBlock == 0)
         return;
 
+    if (focus->HasWavePlaneImage())
+    {
+        capowgl->DrawImagePreview(hCtrlBlock, focus);
+        return;
+    }
+
     HDC glhdc = GetDC(hCtrlBlock);
     if (glhdc == 0)
         return;
@@ -65,6 +71,17 @@ void CAlist::DrawOpenGLDialogPreview(CA *focus)
         targetrect.bottom - targetrect.top, WBM->GetHDC(), focus->minx,
         focus->miny, focus->horz_count_2D, focus->vert_count_2D, SRCCOPY);
     ReleaseDC(hCtrlBlock, glhdc);
+}
+
+bool CAlist::DrawZoomed2D(HDC hdc, CA *focus)
+{
+    if (focus->HasWavePlaneImage())
+        return capowgl->DrawImage(hdc, focus);
+
+    return StretchBlt(hdc, 0, (toolbarON) ? toolBarHeight : 0,
+        focus->horz_count + 2, focus->vert_count, WBM->GetHDC(),
+        focus->minx, focus->miny, focus->horz_count_2D,
+        focus->vert_count_2D, SRCCOPY) != 0;
 }
 
 /******************************************************************************/
@@ -202,16 +219,8 @@ void CAlist::Update_and_Show(HDC hdc)
         {
             if (capowgl->Type())
                 capowgl->Draw(hdc, focus);
-            else if (!capowgl->DrawImage(hdc, focus))
-            {
-                StretchBlt(hdc,   //target hdc
-                    0, (toolbarON)?toolBarHeight:0,  //target corner
-                focus->horz_count+2, focus->vert_count,//targ size
-                WBM->GetHDC(),                 //source  hdc
-                focus->minx, focus->miny,  //source corner
-                focus->horz_count_2D, focus->vert_count_2D,//sc size
-                SRCCOPY);
-            }
+            else
+                DrawZoomed2D(hdc, focus);
 
             if (hDlgOpenGL)  //if open, draw bitmap to opengl dialog
             {
@@ -332,16 +341,8 @@ the FIXED_640_480 case.*/
 
                 if (capowgl->Type())  //if not flat 2-D
                     capowgl->Draw(hdc, focus);  //draw 3-D view
-                else if (!capowgl->DrawImage(hdc, focus)) //draw the flat 2-D
-                {
-                    StretchBlt(hdc,   //target hdc
-                        0, (toolbarON)?toolBarHeight:0,  //target corner
-                    focus->horz_count+2, focus->vert_count,//targ size
-                    WBM->GetHDC(),                 //source  hdc
-                    focus->minx, focus->miny,  //source corner
-                    focus->horz_count_2D, focus->vert_count_2D,//sc size
-                    SRCCOPY);
-                }
+                else
+                    DrawZoomed2D(hdc, focus); //draw the flat 2-D
 
                 if (hDlgOpenGL)  //if open, draw bitmap to opengl dialog
                 {
@@ -432,7 +433,12 @@ void CAlist::Show(HDC hdc, const RECT &rcPaint)
         {
 
             if (focus->viewmode== IDC_2D_VIEW)
-                capowgl->Draw(hdc, focus);
+            {
+                if (capowgl->Type())
+                    capowgl->Draw(hdc, focus);
+                else
+                    DrawZoomed2D(hdc, focus);
+            }
         } // end  zoomflag  case
     } //end Getdimension == 2 case
 }

@@ -186,12 +186,16 @@ private:
     float matSpec[3];
     float matShine;
     capow::OpenGlImagePresenter imagePresenter;
+    int pixelFormatId;
     void DrawImageOverlays();
+    bool EnsureImagePreviewFormat(HDC hdc);
+
 public:
     CapowGL(HWND hwnd);
     ~CapowGL();
     bool Draw(HDC hdc, CA* focus);
     bool DrawImage(HDC hdc, CA* focus);
+    bool DrawImagePreview(HWND hwnd, CA *focus);
     void Size(HWND hwnd);
     HGLRC SetUpOpenGL(HWND hWnd);
     bool DrawOpenGLScene();

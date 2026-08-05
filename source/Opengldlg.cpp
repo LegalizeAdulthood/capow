@@ -220,12 +220,18 @@ static BOOL MyWnd_PAINT(HWND hDlg)
     HWND hCtrlBlock;
     HDC hdc;
     RECT sourcerect, targetrect;
-    if (WBM)
+    //if zoomed on 2-D focus
+    if (zoomviewflag&& calife_list->Focus()->Getdimension() ==2)
     {
-        //if zoomed on 2-D focus
-        if (zoomviewflag&& calife_list->Focus()->Getdimension() ==2)
+        hCtrlBlock = GetDlgItem(hDlgOpenGL, IDC_OPENGL_FLAT);
+        if (calife_list->Focus()->HasWavePlaneImage())
         {
-            hCtrlBlock = GetDlgItem(hDlgOpenGL, IDC_OPENGL_FLAT);
+            capowgl->DrawImagePreview(hCtrlBlock, calife_list->Focus());
+            ShowOpenGLParams(hDlg);
+            return TRUE;
+        }
+        if (WBM)
+        {
             hdc = GetDC(hCtrlBlock);
             GetClientRect(hCtrlBlock, &targetrect);
             //get the rectangle of the focus CA
