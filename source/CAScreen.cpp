@@ -68,7 +68,6 @@
 #include "resource.h" //resources shared with CAPOW
     //Includes needed for CAPOW.
 #include "ca.hpp"
-#include "Bitmap.hpp"
 #include "capowGL.hpp"
 
 //VARIABLES=======================================
@@ -135,7 +134,6 @@ int divider_width = 3; //Width of the gray line dividers, used in Bitmap.cpp
     //Note that I use 1 for this in the *.EXE.
 CAlist *calife_list = NULL;
 CapowGL *capowgl;
-WindowBitmap *WBM;  // our memory bitmap
 char CA_STYLE_NAME[256]; //Used in several places to get the current rule name.
 //Dummy values for consistency with full CAPOW program.
 #define ALL  0
@@ -177,21 +175,12 @@ extern  void Config_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify);
 void Cellmain(HWND hwnd) //This is the continually running thing.
 {
     HDC hdc;
-    HPALETTE old_hpal;
     static long GenCount;
     static char GenCountChar[10];
     MSG msg;
 
     hdc = GetDC(hwnd);
-    if (calife_list->numcolor() == 256)
-    {
-        old_hpal = WBM->WBMSelectPalette(hdc, calife_list->hpal());
-        WBM->WBMRealizePalette(hdc);
-    }
     calife_list->Update_and_Show(hdc);
-    calife_list->DrawDivider(hdc);
-    if (calife_list->numcolor() == 256)
-        WBM->WBMSelectPalette(hdc, old_hpal);
     ReleaseDC(hwnd, hdc);
 }
 
@@ -199,10 +188,9 @@ void Cellmain(HWND hwnd) //This is the continually running thing.
 
 LRESULT FAR PASCAL ScreenSaverProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    //Use these three variables in WM_ERASEBKGND
+    //Use these two variables in WM_ERASEBKGND
     HDC hdc;
     RECT rcPaint;
-    HPALETTE old_hpal;
 
     switch (message)
     {
@@ -212,10 +200,8 @@ LRESULT FAR PASCAL ScreenSaverProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
             hInst = hMainInstance; //Used in capow dialog files as global main HINSTANCE
             masterhwnd = hwnd;
             //masterhwnd is used in capow dialog files as global main HWND
-            WBM         = new WindowBitmap(hwnd);
             capowgl = new CapowGL(hwnd);
             calife_list = new CAlist(hwnd, MAX_CAS); //Calls CA:Allocate for members
-            calife_list->SetWindowBitmap(WBM); //Registers
             calife_list->Locate(); //Uses masterhwnd.
             capowgl->Size(hwnd);
             setTimerCycle(hwnd, update_timer_handle, UPDATE_TIMER_ID,
@@ -252,28 +238,14 @@ LRESULT FAR PASCAL ScreenSaverProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
     process WM_ERASEBKGND, then both the preview and the full screen modes work.
     Here we are free to think of the window as being the full screen window. */
             hdc = (HDC)wParam; //Cleaner than GetDC(hwnd)
-/*  GetClipBox(hdc, &rcPaint); seems to miss a few pixels at the edges, so I
-    go ahead and get the size of the WBM, which is set by its constructor to
-    the pixel size of the screen. */
-            rcPaint.left = rcPaint.top = 0;
-            rcPaint.right = WBM->CX();
-            rcPaint.bottom = WBM->CY();
-            if (calife_list->numcolor() == 256)
-            {
-                old_hpal = WBM->WBMSelectPalette(hdc, calife_list->hpal());
-                WBM->WBMRealizePalette(hdc);
-            }
-            calife_list->DrawDivider(hdc);
+            GetClientRect(hwnd, &rcPaint);
             calife_list->Show(hdc, rcPaint); //Just gets the rcPaint RECT from ps.
-            if (calife_list->numcolor() == 256)
-                WBM->WBMSelectPalette(hdc, old_hpal);
             return 0;
 
         case WM_SIZE:
         /* This gets called only once, at the startup */
             calife_list->Locate(); //Uses calife_list.hwnd
             SendMessage(hwnd, WM_COMMAND, IDM_CLEAR, 0L);
-                //Draws our dividers on top of the bitmap.
             calife_list->FourierSeed();
             capowgl->Size(hwnd); //For use by a possible 3D view
             return 0;
@@ -293,10 +265,8 @@ LRESULT FAR PASCAL ScreenSaverProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
             switch(wParam)
             {
                 case IDM_CLEAR: // Clears all CAs
-                    WBM->Clear(hwnd, RGB(0,0,0));
-                    hdc = GetDC(hwnd);
-                    calife_list->DrawDivider(hdc);
-                    ReleaseDC(hwnd,hdc);
+                    calife_list->ClearDisplayImages();
+                    InvalidateRect(hwnd, NULL, FALSE);
                     break;
             }
             return 0;
@@ -305,7 +275,6 @@ LRESULT FAR PASCAL ScreenSaverProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
                 KillTimer(hwnd, update_timer_handle);
             if (randomize_timer_handle)
                 KillTimer(hwnd, randomize_timer_handle);
-            delete WBM;// Free bitmap
             delete capowgl;
             delete calife_list;//Calls dll_list destructor.  Important to call FreeLibrary on DLLS.
             calife_list = NULL; //So any remaining WM_TIMER knows its over.
