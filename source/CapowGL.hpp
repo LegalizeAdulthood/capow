@@ -186,6 +186,7 @@ private:
     float matSpec[3];
     float matShine;
     capow::OpenGlImagePresenter imagePresenter;
+    void DrawImageOverlays();
 public:
     CapowGL(HWND hwnd);
     ~CapowGL();

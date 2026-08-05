@@ -330,6 +330,7 @@ BOOL CALLBACK OpenGLProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 void ShowOpenGLParams(HWND hDlg)
 {
     BOOL GL_active;
+    BOOL imageActive;
     int i;
     if (!SendMessage( GetDlgItem( hDlg, IDC_OPENGL_GRAPHTYPES), CB_GETDROPPEDSTATE, 0, 0L))
         SendMessage(GetDlgItem( hDlg, IDC_OPENGL_GRAPHTYPES),
@@ -365,6 +366,8 @@ void ShowOpenGLParams(HWND hDlg)
     realLabel (hDlg, IDC_OPENGL_TEMPWIDTH, capowgl->tempwidth);
     realLabel (hDlg, IDC_OPENGL_TEMPHEIGHT, capowgl->tempheight);
 
+    imageActive = zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW &&
+        calife_list->FocusCA()->HasWavePlaneImage();
     GL_active = zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW && capowgl->Type();
 
     EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_GRAPHTYPES ),zoomviewflag && calife_list->FocusCA()->Getviewmode() == IDC_2D_VIEW );
@@ -374,7 +377,7 @@ void ShowOpenGLParams(HWND hDlg)
 
     for (i=  IDC_OPENGL_MOUSE_CA; i<=IDC_OPENGL_MOUSE_FLY; i++)
         EnableWindow( GetDlgItem( hDlg, i ),GL_active);
-    EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_SHOW_GENERATORS),GL_active);
+    EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_SHOW_GENERATORS),GL_active || imageActive);
     EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_ZERO_PLANE),GL_active);
     EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_MAX_PLANE),GL_active);
     EnableWindow( GetDlgItem( hDlg, IDC_OPENGL_SPIN),GL_active);

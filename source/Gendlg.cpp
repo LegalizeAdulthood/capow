@@ -34,7 +34,25 @@ static BOOL phase_synced = FALSE;
 //====================LOCAL FUNCTIONS ===============
 
 BOOL HandleUpDownControlGenerators(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+void RefreshGeneratorMarkerDisplay();
 void showparams(HWND hDlg);
+
+void RefreshGeneratorMarkerDisplay()
+{
+    if (!zoomviewflag || calife_list->FocusCA()->Getviewmode() != IDC_2D_VIEW)
+        return;
+
+    HDC hdc = GetDC(masterhwnd);
+    if (hdc == 0)
+        return;
+
+    if (capowgl->Type())
+        capowgl->Draw(hdc, calife_list->FocusCA());
+    else if (calife_list->FocusCA()->HasWavePlaneImage())
+        capowgl->DrawImage(hdc, calife_list->FocusCA());
+
+    ReleaseDC(masterhwnd, hdc);
+}
 
 //------------------------ Message Processing -----------------------//
 
@@ -106,6 +124,13 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
                 SendMessage(masterhwnd, WM_COMMAND, CUR_GENERATOR, 0L);
                 SendMessage(hDlg, WM_COMMAND, IDC_GENERATORS_GEN_CUR, 0L);
             }
+            break;
+
+        case IDC_GENERATORS_SHOW_MARKERS:
+            capowgl->ShowGenerators(
+                IsDlgButtonChecked(hDlg, IDC_GENERATORS_SHOW_MARKERS) == BST_CHECKED);
+            showparams(hDlg);
+            RefreshGeneratorMarkerDisplay();
             break;
 
 
@@ -357,6 +382,7 @@ void showparams(HWND hDlg)
         SetDlgItemTextA(hDlg, IDC_GENERATORS_INDEX, " ");
     }
 
+    CheckDlgButton(hDlg, IDC_GENERATORS_SHOW_MARKERS, capowgl->ShowGenerators());
     edit_id = 0;  //This undoes the unwanted setting of edit_id by SetWindowTextA.
 }
 

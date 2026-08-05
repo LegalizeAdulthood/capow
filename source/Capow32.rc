@@ -379,6 +379,7 @@ BEGIN
     PUSHBUTTON      "Pick 'n zoom",IDC_GENERATORS_PICK_CUR,11,136,47,14
     PUSHBUTTON      "Place Generator",IDC_GENERATORS_GEN_CUR,9,156,54,14
     LISTBOX         IDC_GENERATORS_LIST1,6,31,50,75,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Show Markers",IDC_GENERATORS_SHOW_MARKERS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,111,60,10
     LTEXT           "X",IDC_STATIC,11,23,8,8
     LTEXT           "Y",IDC_STATIC,31,23,10,8
     CTEXT           "Amplitude",IDC_STATIC,88,43,35,10
@@ -840,7 +841,7 @@ BEGIN
             VALUE "FileDescription", "Capow"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "Capow"
-            VALUE "LegalCopyright", "Copyright © San Jose State University 1998"
+            VALUE "LegalCopyright", "Copyright (C) San Jose State University 1998"
             VALUE "OriginalFilename", "Capow.scr"
             VALUE "ProductName", "CAMCOS Capow"
             VALUE "ProductVersion", "1, 0, 0, 1"
@@ -851,7 +852,7 @@ BEGIN
             VALUE "FileDescription", "Capow32"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "Capow32"
-            VALUE "LegalCopyright", "Copyright © 1997"
+            VALUE "LegalCopyright", "Copyright (C) 1997"
             VALUE "OriginalFilename", "Capow32.exe"
             VALUE "ProductName", "SJSU Capow32"
             VALUE "ProductVersion", "1, 0, 0, 1"

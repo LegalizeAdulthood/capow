@@ -266,8 +266,11 @@ unitvectorizing, no longer does so now.
     {
         if (graphfocus == 0)
             return false;
-        return imagePresenter.Present(graphfocus->wavePlaneImage, 0, 0, graphfocus->horz_count + 2,
-            graphfocus->vert_count);
+        const bool drawn = imagePresenter.Present(
+            graphfocus->wavePlaneImage, 0, 0, graphfocus->horz_count + 2, graphfocus->vert_count);
+        if (drawn)
+            DrawImageOverlays();
+        return drawn;
     }
 
     // Enable depth testing and clear the color and depth
@@ -1570,6 +1573,32 @@ void CapowGL::SurfaceType(int newtype)
     if (newtype == SMOOTH)
         ComputeNormals();
     surfacetype = newtype;
+}
+
+void CapowGL::DrawImageOverlays()
+{
+    if (!showgeneratorsflag || graphfocus == 0 || graphfocus->generatorlist.Count() == 0)
+        return;
+
+    const int imageWidth = graphfocus->wavePlaneImage.Width();
+    const int imageHeight = graphfocus->wavePlaneImage.Height();
+    const int viewWidth = graphfocus->horz_count + 2;
+    const int viewHeight = graphfocus->vert_count;
+    if (imageWidth <= 0 || imageHeight <= 0)
+        return;
+
+    for (int k = 0; k < graphfocus->generatorlist.Count(); ++k)
+    {
+        const int imageX = graphfocus->generatorlist.Location_x(k);
+        const int imageY = graphfocus->generatorlist.Location_y(k);
+        if (imageX < 0 || imageX >= imageWidth || imageY < 0 || imageY >= imageHeight)
+            continue;
+
+        const int screenX = (imageX * viewWidth) / imageWidth;
+        const int screenY = (imageY * viewHeight) / imageHeight;
+        imagePresenter.DrawRectangle(
+            screenX - 5, screenY - 5, screenX + 5, screenY + 5, RGB(255, 0, 0), 2.0F);
+    }
 }
 
 #define HEIGHT_FACTOR 30

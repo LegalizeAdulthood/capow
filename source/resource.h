@@ -512,6 +512,7 @@
 #define IDC_GENERATORS_SPIN_AMP         7005
 #define IDC_GENERATORS_PHASE            7006
 #define IDC_GENERATORS_SPIN_PHASE       7007
+#define IDC_GENERATORS_SHOW_MARKERS     7008
 #define IDM_ANALOG                      7716
 #define IDM_ELECTRIC                    7717
 #define IDM_DIGITAL                     7718

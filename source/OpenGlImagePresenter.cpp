@@ -37,6 +37,40 @@ bool OpenGlImagePresenter::Present(const ImageBuffer &image, int left, int top, 
     return true;
 }
 
+void OpenGlImagePresenter::DrawLine(int x0, int y0, int x1, int y1, COLORREF color, float lineWidth)
+{
+    if (wglGetCurrentContext() == NULL || lineWidth <= 0.0F)
+        return;
+
+    GLint oldMatrixMode;
+    BeginScreenDrawing(&oldMatrixMode);
+    SetColor(color);
+    glLineWidth(lineWidth);
+    glBegin(GL_LINES);
+    glVertex2i(x0, y0);
+    glVertex2i(x1, y1);
+    glEnd();
+    EndScreenDrawing(oldMatrixMode);
+}
+
+void OpenGlImagePresenter::DrawRectangle(int left, int top, int right, int bottom, COLORREF color, float lineWidth)
+{
+    if (wglGetCurrentContext() == NULL || lineWidth <= 0.0F)
+        return;
+
+    GLint oldMatrixMode;
+    BeginScreenDrawing(&oldMatrixMode);
+    SetColor(color);
+    glLineWidth(lineWidth);
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(left, top);
+    glVertex2i(right, top);
+    glVertex2i(right, bottom);
+    glVertex2i(left, bottom);
+    glEnd();
+    EndScreenDrawing(oldMatrixMode);
+}
+
 void OpenGlImagePresenter::Release()
 {
     if (texture == 0U || wglGetCurrentContext() == NULL)
@@ -100,7 +134,7 @@ void OpenGlImagePresenter::DrawQuad(int left, int top, int width, int height)
     glGetIntegerv(GL_VIEWPORT, viewport);
     glGetIntegerv(GL_MATRIX_MODE, &oldMatrixMode);
 
-    glPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT);
+    glPushAttrib(GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
     glDisable(GL_CULL_FACE);
@@ -134,6 +168,44 @@ void OpenGlImagePresenter::DrawQuad(int left, int top, int width, int height)
     glPopMatrix();
     glMatrixMode(oldMatrixMode);
     glPopAttrib();
+}
+
+void OpenGlImagePresenter::BeginScreenDrawing(GLint *oldMatrixMode)
+{
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    glGetIntegerv(GL_MATRIX_MODE, oldMatrixMode);
+
+    glPushAttrib(
+        GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_TEXTURE_BIT);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(0.0, viewport[2], viewport[3], 0.0, -1.0, 1.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+}
+
+void OpenGlImagePresenter::EndScreenDrawing(GLint oldMatrixMode)
+{
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(oldMatrixMode);
+    glPopAttrib();
+}
+
+void OpenGlImagePresenter::SetColor(COLORREF color)
+{
+    glColor3ub(GetRValue(color), GetGValue(color), GetBValue(color));
 }
 
 } // namespace capow
