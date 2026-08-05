@@ -769,8 +769,9 @@ void CA::Show(HDC hdc)
     int i;
     int x, y;
     const COLORREF black = RGB(0, 0, 0);
-    const BOOL openGlHistoryView =
-        zoomviewflag && (viewmode == IDC_WIRE_VIEW || viewmode == IDC_GRAPH_VIEW || viewmode == IDC_SPLIT_VIEW);
+    const BOOL openGlHistoryView = zoomviewflag &&
+        (viewmode == IDC_WIRE_VIEW || viewmode == IDC_GRAPH_VIEW || viewmode == IDC_POINT_GRAPH ||
+            viewmode == IDC_SPLIT_VIEW);
     // Convert target_row values to COLORREF values.  For the Standard
     //(digital) CAs, the values will be unsigned char, for the Wave
     //(analog) CAs, the values will be long int.
@@ -859,7 +860,10 @@ void CA::Show(HDC hdc)
         break;
 
     case IDC_POINT_GRAPH: //===== 3/15/96 - Bang-Nguyen =====
-        Showpointgraph(hdc);
+        if (openGlHistoryView)
+            UpdatePointGraph();
+        else
+            Showpointgraph(hdc);
         break;
 
     case IDC_SPLIT_VIEW:

@@ -190,6 +190,10 @@ private:
     void DrawImageOverlays();
     void DrawHistoryGraph(CA *focus, int bottom, int height);
     void DrawHistoryWire(CA *focus);
+    void DrawPointGraph(CA *focus, int viewWidth, int viewHeight);
+    void DrawPointGraphSeries(CA *focus, int minY, int maxY);
+    void DrawPointGraphFourier(CA *focus, int minY, int maxY);
+    void DrawPointGraphSpectrum(CA *focus, int minY, int maxY, Real maxValue, int termLimit);
     bool EnsureImagePreviewFormat(HDC hdc);
 
 public:

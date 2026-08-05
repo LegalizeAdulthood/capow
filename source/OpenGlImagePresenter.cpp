@@ -53,6 +53,22 @@ void OpenGlImagePresenter::DrawLine(int x0, int y0, int x1, int y1, COLORREF col
     EndScreenDrawing(oldMatrixMode);
 }
 
+void OpenGlImagePresenter::DrawPolyline(const POINT *points, int count, COLORREF color, float lineWidth)
+{
+    if (wglGetCurrentContext() == NULL || points == 0 || count <= 1 || lineWidth <= 0.0F)
+        return;
+
+    GLint oldMatrixMode;
+    BeginScreenDrawing(&oldMatrixMode);
+    SetColor(color);
+    glLineWidth(lineWidth);
+    glBegin(GL_LINE_STRIP);
+    for (int i = 0; i < count; ++i)
+        glVertex2i(points[i].x, points[i].y);
+    glEnd();
+    EndScreenDrawing(oldMatrixMode);
+}
+
 void OpenGlImagePresenter::DrawColoredLines(
     const POINT *starts, const POINT *ends, const COLORREF *colors, int count, float lineWidth)
 {

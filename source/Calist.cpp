@@ -356,7 +356,7 @@ the FIXED_640_480 case.*/
                 break;
             case IDC_POINT_GRAPH:
                 //=============================
-                WBM->WBMBitBlt(hdc, focus->minx, focus->miny, focus->maxx, focus->maxy);
+                capowgl->DrawHistoryView(hdc, focus);
                 break;
 
             case IDC_DOWN_VIEW:

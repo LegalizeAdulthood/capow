@@ -283,9 +283,9 @@ bool CapowGL::DrawHistoryView(HDC hdc, CA *focus)
     if (focus == 0 || focus->Getdimension() != 1)
         return false;
     if (focus->viewmode != IDC_DOWN_VIEW && focus->viewmode != IDC_SCROLL_VIEW && focus->viewmode != IDC_WIRE_VIEW &&
-        focus->viewmode != IDC_GRAPH_VIEW && focus->viewmode != IDC_SPLIT_VIEW)
+        focus->viewmode != IDC_GRAPH_VIEW && focus->viewmode != IDC_POINT_GRAPH && focus->viewmode != IDC_SPLIT_VIEW)
         return false;
-    if (focus->viewmode != IDC_WIRE_VIEW && focus->historyImage.Data() == 0)
+    if (focus->viewmode != IDC_WIRE_VIEW && focus->viewmode != IDC_POINT_GRAPH && focus->historyImage.Data() == 0)
         return false;
 
     graphfocus = focus;
@@ -296,6 +296,12 @@ bool CapowGL::DrawHistoryView(HDC hdc, CA *focus)
     bool drawn = true;
     if (focus->viewmode == IDC_WIRE_VIEW)
         DrawHistoryWire(focus);
+    else if (focus->viewmode == IDC_POINT_GRAPH)
+    {
+        const int viewWidth = focus->maxx - focus->minx + 1;
+        const int viewHeight = focus->maxy - focus->miny + 1;
+        DrawPointGraph(focus, viewWidth, viewHeight);
+    }
     else
     {
         const int viewWidth = focus->historyImage.Width();
@@ -392,6 +398,300 @@ void CapowGL::DrawHistoryWire(CA *focus)
 
     if (!starts.empty())
         imagePresenter.DrawColoredLines(&starts[0], &ends[0], &colors[0], static_cast<int>(starts.size()), lineWidth);
+}
+
+void CapowGL::DrawPointGraph(CA *focus, int viewWidth, int viewHeight)
+{
+    if (focus == 0 || focus->horz_count <= 0 || viewWidth <= 0 || viewHeight <= 0)
+        return;
+
+    const bool digital = focus->type_ca == CA_STANDARD || focus->type_ca == CA_REVERSIBLE;
+    std::vector<POINT> points;
+    points.reserve(focus->horz_count);
+
+    if (digital)
+    {
+        const int bottom = viewHeight - 1;
+        const int height = viewHeight - 1;
+        const Real stateScale = focus->states > 1 ? static_cast<Real>(height) / (focus->states - 1) : 0.0;
+        for (int i = 0; i < focus->horz_count; ++i)
+        {
+            POINT point;
+            point.x = i;
+            point.y = bottom - static_cast<int>(stateScale * focus->target_row[i]);
+            points.push_back(point);
+        }
+        if (!points.empty())
+            imagePresenter.DrawPoints(&points[0], static_cast<int>(points.size()), RGB(255, 255, 255));
+
+        for (int i = 0; i < focus->generatorlist.Count(); i++)
+        {
+            const int location = focus->generatorlist.Location(i);
+            if (location >= focus->horz_count)
+                continue;
+            const int y = bottom - static_cast<int>(stateScale * focus->target_row[location]);
+            imagePresenter.DrawRectangle(location - 1, y - 1, location + 1, y + 1, RGB(255, 0, 0));
+        }
+        return;
+    }
+
+    const int vertCount1 = static_cast<int>(focus->vert_count / 2);
+    const int minY1 = 0;
+    const int maxY1 = vertCount1;
+    const int minY2 = maxY1 + 1;
+    const int maxY2 = viewHeight - 1;
+    const Real colorScale = vertCount1 > 1 ? static_cast<Real>(vertCount1 - 1) / (MAX_COLOR - 1) : 0.0;
+
+    for (int i = 0; i < focus->horz_count; ++i)
+    {
+        POINT point;
+        point.x = i;
+        point.y = maxY1 - static_cast<int>(colorScale * focus->colorindex_target_row[i]);
+        points.push_back(point);
+    }
+    if (!points.empty())
+        imagePresenter.DrawPoints(&points[0], static_cast<int>(points.size()), RGB(255, 255, 255));
+
+    for (int i = 0; i < focus->generatorlist.Count(); i++)
+    {
+        const int location = focus->generatorlist.Location(i);
+        if (location >= focus->horz_count)
+            continue;
+        const int y = maxY1 - static_cast<int>(colorScale * focus->colorindex_target_row[location]);
+        imagePresenter.DrawRectangle(location - 1, y - 1, location + 1, y + 1, RGB(255, 0, 0));
+    }
+
+    imagePresenter.DrawLine(focus->temp_test_point, minY1, focus->temp_test_point, maxY1, RGB(0, 100, 0));
+    imagePresenter.DrawLine(focus->test_point, minY1, focus->test_point, maxY1, RGB(0, 255, 0));
+    imagePresenter.DrawLine(0, maxY1, viewWidth - 1, maxY1, RGB(255, 255, 255));
+
+    if (minY2 <= maxY2)
+    {
+        DrawPointGraphSeries(focus, minY2, maxY2);
+        if (focus->fourierflag)
+            DrawPointGraphFourier(focus, minY2, maxY2);
+    }
+}
+
+void CapowGL::DrawPointGraphSeries(CA *focus, int minY, int maxY)
+{
+    if (focus == 0 || !focus->tp_graphflag || focus->tp_endpos <= focus->tp_startpos)
+        return;
+
+    int yStep = 1;
+    int xStep = 1;
+    int startPos = focus->tp_startpos;
+    switch (focus->tp_viewmode)
+    {
+    case IDC_TIMESCALEHALF:
+        yStep = 2;
+        startPos = (focus->tp_endpos >= 2 * focus->horz_count)
+            ? 2 * static_cast<int>((focus->tp_endpos - 2 * focus->horz_count) / 2) + 1
+            : focus->tp_startpos;
+        break;
+    case IDC_TIMESCALEDOUBLE:
+        xStep = 2;
+        startPos = (focus->tp_endpos >= static_cast<int>(focus->horz_count / 2))
+            ? (focus->tp_endpos - static_cast<int>(focus->horz_count / 2))
+            : focus->tp_startpos;
+        break;
+    default:
+        startPos =
+            (focus->tp_endpos >= focus->horz_count) ? (focus->tp_endpos - focus->horz_count) : focus->tp_startpos;
+        break;
+    }
+    if (startPos < 0 || startPos >= focus->tp_endpos)
+        return;
+
+    const Real maxValue = (!focus->showvelocity) ? focus->_max_intensity.Val() : focus->_max_velocity.Val();
+    std::vector<POINT> points;
+    points.reserve(focus->horz_count);
+
+    POINT point;
+    point.x = 0;
+    point.y = focus->Screen_yvalue(focus->tp_real_array[startPos], maxValue, minY, maxY);
+    points.push_back(point);
+
+    int xCoord = xStep;
+    for (int i = startPos + yStep; i < focus->tp_endpos; i += yStep)
+    {
+        point.x = xCoord;
+        point.y = focus->Screen_yvalue(focus->tp_real_array[i], maxValue, minY, maxY);
+        points.push_back(point);
+        xCoord += xStep;
+    }
+
+    if (!points.empty())
+        imagePresenter.DrawPolyline(&points[0], static_cast<int>(points.size()), RGB(200, 200, 200));
+}
+
+void CapowGL::DrawPointGraphFourier(CA *focus, int minY, int maxY)
+{
+    if (focus == 0 || focus->tp_endpos <= focus->tp_startpos)
+        return;
+
+    int yStep = 1;
+    int xStep = 1;
+    int startPos = focus->tp_startpos;
+    switch (focus->tp_viewmode)
+    {
+    case IDC_TIMESCALEHALF:
+        yStep = 2;
+        startPos = (focus->tp_endpos >= 2 * focus->horz_count)
+            ? 2 * static_cast<int>((focus->tp_endpos - 2 * focus->horz_count) / 2) + 1
+            : focus->tp_startpos;
+        break;
+    case IDC_TIMESCALEDOUBLE:
+        xStep = 2;
+        startPos = (focus->tp_endpos >= static_cast<int>(focus->horz_count / 2))
+            ? (focus->tp_endpos - static_cast<int>(focus->horz_count / 2))
+            : focus->tp_startpos;
+        break;
+    default:
+        startPos =
+            (focus->tp_endpos >= focus->horz_count) ? (focus->tp_endpos - focus->horz_count) : focus->tp_startpos;
+        break;
+    }
+
+    int termCount = static_cast<int>((focus->tp_endpos - startPos) / 2);
+    if (termCount < 1)
+        termCount = 1;
+    const int endPos = 2 * termCount;
+    int termLimit = focus->numofterm - 1;
+    termLimit = (termLimit < termCount) ? termLimit : termCount - 1;
+    if (termLimit < 1)
+        termLimit = 1;
+    const Real maxValue = (!focus->showvelocity) ? focus->_max_intensity.Val() : focus->_max_velocity.Val();
+    const int viewWidth = focus->maxx - focus->minx + 1;
+
+    std::vector<Real> xValues(static_cast<std::size_t>(2 * termCount));
+    if (focus->tp_approxtype == IDC_BOTHSINECOSINE)
+    {
+        for (int i = 0; i < 2 * termCount; i++)
+            xValues[static_cast<std::size_t>(i)] = PI * (static_cast<Real>(i) / static_cast<Real>(termCount) - 1.0);
+    }
+    else
+    {
+        for (int i = 0; i < 2 * termCount; i++)
+            xValues[static_cast<std::size_t>(i)] =
+                PI * (static_cast<Real>(i) / (static_cast<Real>(termCount) * 2.0) - 1.0);
+    }
+
+    int yCoord = focus->Screen_yvalue(0, maxValue, minY, maxY);
+    imagePresenter.DrawLine(0, yCoord, viewWidth - 1, yCoord, RGB(100, 100, 100));
+
+    if (focus->tp_cosineflag)
+    {
+        yCoord = focus->Screen_yvalue((focus->fourier_a[0] / 2.0), maxValue, minY, maxY);
+        imagePresenter.DrawLine(0, yCoord, (endPos / yStep) * xStep, yCoord, RGB(64, 64, 255));
+
+        for (int k = 1; k <= termLimit; k++)
+        {
+            std::vector<POINT> points;
+            points.reserve(static_cast<std::size_t>(endPos / yStep + 1));
+            POINT point;
+            point.x = 0;
+            point.y = focus->Screen_yvalue(
+                (focus->fourier_a[k] * cos(static_cast<double>(k) * xValues[0])), maxValue, minY, maxY);
+            points.push_back(point);
+            int xCoord = xStep;
+            for (int i = yStep; i < endPos; i += yStep)
+            {
+                point.x = xCoord;
+                point.y = focus->Screen_yvalue(
+                    (focus->fourier_a[k] * cos(static_cast<double>(k) * xValues[static_cast<std::size_t>(i)])),
+                    maxValue, minY, maxY);
+                points.push_back(point);
+                xCoord += xStep;
+            }
+            if (!points.empty())
+                imagePresenter.DrawPolyline(&points[0], static_cast<int>(points.size()), RGB(64, 64, 255));
+        }
+    }
+
+    if (focus->tp_sineflag)
+    {
+        for (int k = 0; k <= termLimit - 1; k++)
+        {
+            std::vector<POINT> points;
+            points.reserve(static_cast<std::size_t>(endPos / yStep + 1));
+            POINT point;
+            point.x = 0;
+            point.y = focus->Screen_yvalue(
+                (focus->fourier_b[k] * sin(static_cast<double>(k) * xValues[0])), maxValue, minY, maxY);
+            points.push_back(point);
+            int xCoord = xStep;
+            for (int i = yStep; i < endPos; i += yStep)
+            {
+                point.x = xCoord;
+                point.y = focus->Screen_yvalue(
+                    (focus->fourier_b[k] * sin(static_cast<double>(k) * xValues[static_cast<std::size_t>(i)])),
+                    maxValue, minY, maxY);
+                points.push_back(point);
+                xCoord += xStep;
+            }
+            if (!points.empty())
+                imagePresenter.DrawPolyline(&points[0], static_cast<int>(points.size()), RGB(64, 255, 64));
+        }
+    }
+
+    if (focus->tp_spectrumflag)
+        DrawPointGraphSpectrum(focus, minY, maxY, maxValue, termLimit);
+
+    if (focus->tp_approxflag)
+    {
+        std::vector<POINT> points;
+        points.reserve(static_cast<std::size_t>(endPos / yStep + 1));
+        POINT point;
+        point.x = 0;
+        point.y = focus->Screen_yvalue(focus->fourier_approx[0], maxValue, minY, maxY);
+        points.push_back(point);
+        int xCoord = xStep;
+        for (int i = yStep; i < endPos; i += yStep)
+        {
+            point.x = xCoord;
+            point.y = focus->Screen_yvalue(focus->fourier_approx[i], maxValue, minY, maxY);
+            points.push_back(point);
+            xCoord += xStep;
+        }
+        if (!points.empty())
+            imagePresenter.DrawPolyline(&points[0], static_cast<int>(points.size()), RGB(255, 64, 64));
+    }
+}
+
+void CapowGL::DrawPointGraphSpectrum(CA *focus, int minY, int maxY, Real maxValue, int termLimit)
+{
+    if (focus == 0 || termLimit < 1)
+        return;
+
+    const int viewWidth = focus->maxx - focus->minx + 1;
+    const int specInterval = (viewWidth - 4) / termLimit;
+    const int zeroY = focus->Screen_yvalue(0, maxValue, minY, maxY);
+
+    if (focus->tp_approxtype != IDC_SINEONLY)
+    {
+        int xCoord = 1;
+        int yCoord = focus->Screen_yvalue((focus->fourier_a[0] / 2.0), maxValue, minY, maxY);
+        imagePresenter.DrawLine(xCoord, zeroY, xCoord, yCoord, RGB(127, 127, 255), 2.0F);
+        xCoord += specInterval;
+        for (int k = 1; k <= termLimit; k++)
+        {
+            yCoord = focus->Screen_yvalue(focus->fourier_a[k], maxValue, minY, maxY);
+            imagePresenter.DrawLine(xCoord, zeroY, xCoord, yCoord, RGB(127, 127, 255), 2.0F);
+            xCoord += specInterval;
+        }
+    }
+
+    if (focus->tp_approxtype != IDC_COSINEONLY)
+    {
+        int xCoord = 3;
+        for (int k = 0; k <= termLimit; k++)
+        {
+            const int yCoord = focus->Screen_yvalue(focus->fourier_b[k], maxValue, minY, maxY);
+            imagePresenter.DrawLine(xCoord, zeroY, xCoord, yCoord, RGB(63, 255, 63), 2.0F);
+            xCoord += specInterval;
+        }
+    }
 }
 
 bool CapowGL::EnsureImagePreviewFormat(HDC hdc)

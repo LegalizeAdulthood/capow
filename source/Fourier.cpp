@@ -1079,6 +1079,35 @@ void CA::Showpointgraph(HDC hdc)
     }
 }
 
+void CA::UpdatePointGraph()
+{
+    if (states < 1)
+        states = 1;
+
+    if (type_ca == CA_STANDARD || type_ca == CA_REVERSIBLE)
+        return;
+
+    if (!fourierflag)
+    {
+        if (tp_endpos == (4 * horz_count))
+        {
+            tp_startpos = 0;
+            tp_endpos = 2 * horz_count;
+        }
+
+        if (!showvelocity)
+            tp_real_array[tp_endpos] = wave_target_row[test_point].intensity;
+        else
+            tp_real_array[tp_endpos] = wave_target_row[test_point].velocity;
+
+        if ((tp_endpos - tp_startpos) == 2 * horz_count)
+        {
+            tp_real_array[tp_startpos] = tp_real_array[tp_endpos];
+            tp_startpos++;
+        }
+        tp_endpos++;
+    }
+}
 
 int CA::Screen_yvalue(Real val, Real max, int min_y, int max_y)
 {
