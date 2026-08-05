@@ -821,6 +821,7 @@ private:
     capow::ImageBuffer wavePlaneImage;
     capow::ImageBuffer historyImage;
     void EnsureHistoryImage();
+    void ClearHistoryImage();
     void PutHistoryPixel(int x, int y, COLORREF color);
     void FillHistoryRect(int left, int top, int right, int bottom, COLORREF color);
     void ScrollHistoryRect(int left, int top, int right, int bottom, int deltaX, int deltaY);
@@ -849,6 +850,7 @@ public:
     int Gettype(void) {return type_ca;}
     int Getcastyle(void) {return _castyle;}
     bool HasImageBuffer2D() {return _castyle == CA_WAVE_2D || _castyle == CA_HEAT_2D || _castyle == CA_CUSTOM_2D;}
+    void ClearDisplayImages();
     int Getshowmode(){return showmode;}
     int Getwrapflag(void) {return wrapflag;}
     int Getdimension(){return dimension;}
@@ -1342,6 +1344,7 @@ public:
     BOOL GetOpenGLDisplayRect(RECT *rect);
     void UpdateGenerationCount();
     void ResetAllGenerationCount();
+    void ClearDisplayImages();
 //---------------CAlist Color Mutators------------------
     void Set_monochromeflag(int onoff);
     void Set_band_count(Real band);
@@ -1398,7 +1401,6 @@ for the screensaver */
     CA *Getfocus(int cursorx, int cursory); /* return pointer to the CA
         that is positioned on screen at cursorx,cursory */
     CA *Focus(){return focus;}
-    void Boxfocus(HDC hdc, COLORREF color); //Draw a box around focus CA.
     void DrawDivider(HDC hdc);
     void LocateNewGenerator(int cx, int cy, int sender);
 //------------CAlist Seed Methods----------------------

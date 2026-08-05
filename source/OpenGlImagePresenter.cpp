@@ -8,6 +8,16 @@
 #define GL_BGRA 0x80E1
 #endif
 
+namespace
+{
+
+float PixelCenter(int coordinate)
+{
+    return static_cast<float>(coordinate) + 0.5F;
+}
+
+} // namespace
+
 namespace capow
 {
 
@@ -47,8 +57,8 @@ void OpenGlImagePresenter::DrawLine(int x0, int y0, int x1, int y1, COLORREF col
     SetColor(color);
     glLineWidth(lineWidth);
     glBegin(GL_LINES);
-    glVertex2i(x0, y0);
-    glVertex2i(x1, y1);
+    glVertex2f(PixelCenter(x0), PixelCenter(y0));
+    glVertex2f(PixelCenter(x1), PixelCenter(y1));
     glEnd();
     EndScreenDrawing(oldMatrixMode);
 }
@@ -64,7 +74,7 @@ void OpenGlImagePresenter::DrawPolyline(const POINT *points, int count, COLORREF
     glLineWidth(lineWidth);
     glBegin(GL_LINE_STRIP);
     for (int i = 0; i < count; ++i)
-        glVertex2i(points[i].x, points[i].y);
+        glVertex2f(PixelCenter(points[i].x), PixelCenter(points[i].y));
     glEnd();
     EndScreenDrawing(oldMatrixMode);
 }
@@ -82,8 +92,8 @@ void OpenGlImagePresenter::DrawColoredLines(
     for (int i = 0; i < count; ++i)
     {
         SetColor(colors[i]);
-        glVertex2i(starts[i].x, starts[i].y);
-        glVertex2i(ends[i].x, ends[i].y);
+        glVertex2f(PixelCenter(starts[i].x), PixelCenter(starts[i].y));
+        glVertex2f(PixelCenter(ends[i].x), PixelCenter(ends[i].y));
     }
     glEnd();
     EndScreenDrawing(oldMatrixMode);
@@ -100,7 +110,7 @@ void OpenGlImagePresenter::DrawPoints(const POINT *points, int count, COLORREF c
     glPointSize(pointSize);
     glBegin(GL_POINTS);
     for (int i = 0; i < count; ++i)
-        glVertex2i(points[i].x, points[i].y);
+        glVertex2f(PixelCenter(points[i].x), PixelCenter(points[i].y));
     glEnd();
     EndScreenDrawing(oldMatrixMode);
 }
@@ -115,10 +125,10 @@ void OpenGlImagePresenter::DrawRectangle(int left, int top, int right, int botto
     SetColor(color);
     glLineWidth(lineWidth);
     glBegin(GL_LINE_LOOP);
-    glVertex2i(left, top);
-    glVertex2i(right, top);
-    glVertex2i(right, bottom);
-    glVertex2i(left, bottom);
+    glVertex2f(PixelCenter(left), PixelCenter(top));
+    glVertex2f(PixelCenter(right), PixelCenter(top));
+    glVertex2f(PixelCenter(right), PixelCenter(bottom));
+    glVertex2f(PixelCenter(left), PixelCenter(bottom));
     glEnd();
     EndScreenDrawing(oldMatrixMode);
 }

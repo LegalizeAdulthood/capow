@@ -609,25 +609,26 @@ void CA::Setviewmode(int newmode)
     switch (viewmode)
     {
         case IDC_DOWN_VIEW :
+            ClearHistoryImage();
             row_number = miny;
             break;
         case IDC_SCROLL_VIEW :
-            WBM->ClearSection(minx, miny, maxx, maxy);
+            ClearHistoryImage();
             row_number = maxy - (calist_ptr->_blt_lines) + 1;
             break;
         case IDC_SPLIT_VIEW :
             //SCROLL and GRAPH both do this
-            WBM->ClearSection(minx, miny,maxx, maxy);
+            ClearHistoryImage();
             //SCROLL does this
             row_number = splity - (calist_ptr->_blt_lines) + 1;
             break;
         case IDC_GRAPH_VIEW:
             Reset_tp_all();
-            WBM->ClearSection(minx, miny, maxx, maxy);
+            ClearHistoryImage();
             break;
         case IDC_POINT_GRAPH:
             Reset_tp_all();
-            WBM->ClearSection(minx, miny, maxx, maxy);
+            ClearHistoryImage();
             break;
         default :
             break;

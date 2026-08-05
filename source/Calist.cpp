@@ -417,29 +417,19 @@ void CAlist::Setgeneratorflag(int onoff)
         list[i]->Setgeneratorflag(onoff);
 }
 
-
-void CAlist::Boxfocus(HDC hdc, COLORREF color)
-{
-    if (zoomflag)
-        return;
-    WBM->PutRectangle(hdc, focus->minx-1, focus->miny-1,
-            focus->maxx+1, focus->maxy+1, color);
-}
-
-int CAlist::Setfocus(HDC hdc, CA *new_focus)
+int CAlist::Setfocus(HDC, CA *new_focus)
 {
     if (zoomflag)
         return 0;
     if (new_focus==focus)
         return 1;
-    Boxfocus(hdc,RGB(0,0,0));
     focus = new_focus;
-    Boxfocus(hdc,RGB(255,255,255));
 
 
     focus->GetCAStyleName ( CA_STYLE_NAME );
     Status_SetText(hwndStatusBar, 1, 0, CA_STYLE_NAME );
 
+    InvalidateRect(masterhwnd, NULL, FALSE);
 
     return 0;
 }
@@ -1152,6 +1142,12 @@ void CAlist::ResetAllGenerationCount()
             list[i]->ResetGenerationCount();
 }
 
+void CAlist::ClearDisplayImages()
+{
+    for ( int i=0; i < count; i++ )
+            list[i]->ClearDisplayImages();
+}
+
 void CAlist::GetFocusRect(RECT *rect)
 //fills a RECT structure with the rectangle of the focus, if possible
 {
@@ -1179,7 +1175,6 @@ void CAlist::set_blt_lines(int linecount)
         _blt_lines = linecount;
         Locate();
         InvalidateRect(masterhwnd, NULL, FALSE);
-        WBM->Clear(masterhwnd, RGB(0,0,0));
         capowgl->Size(hwnd);
     }
 }

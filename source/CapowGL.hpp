@@ -194,6 +194,7 @@ private:
     void DrawPointGraphSeries(CA *focus, int minY, int maxY);
     void DrawPointGraphFourier(CA *focus, int minY, int maxY);
     void DrawPointGraphSpectrum(CA *focus, int minY, int maxY, Real maxValue, int termLimit);
+    void DrawImageBorder(int viewWidth, int viewHeight);
     bool DrawTiledCA(CA *focus, int clientHeight);
     void DrawTiledBorders(CAlist *calist);
     bool EnsureImagePreviewFormat(HDC hdc);

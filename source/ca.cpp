@@ -729,6 +729,30 @@ void CA::EnsureHistoryImage()
         historyImage.Resize(imageWidth, imageHeight);
 }
 
+void CA::ClearHistoryImage()
+{
+    EnsureHistoryImage();
+    historyImage.Clear(capow::ImageBuffer::Pixel(0xFF000000U));
+}
+
+void CA::ClearDisplayImages()
+{
+    const capow::ImageBuffer::Pixel black = capow::ImageBuffer::Pixel(0xFF000000U);
+
+    if (wavePlaneImage.Data() != 0)
+        wavePlaneImage.Clear(black);
+
+    if (viewmode == IDC_2D_VIEW)
+    {
+        if (historyImage.Data() != 0)
+            historyImage.Clear(black);
+    }
+    else
+    {
+        ClearHistoryImage();
+    }
+}
+
 void CA::PutHistoryPixel(int x, int y, COLORREF color)
 {
     historyImage.PutPixel(x - minx, y - miny, capow::ImagePixelFromColorRef(color));

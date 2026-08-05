@@ -455,8 +455,6 @@ static void MyWnd_PAINT(HWND hwnd)
         WBM->WBMRealizePalette(hdc);
     }
     calife_list->Show(hdc, ps.rcPaint);
-    calife_list->DrawDivider(hdc);
-    calife_list->Boxfocus(hdc,RGB(255,255,255));
     if (calife_list->numcolor() == 256)
         WBM->WBMSelectPalette(hdc, old_hpal);
 
@@ -793,15 +791,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             break;
 
         case IDM_CLEAR:                             // Clears all CAs
-            WBM->Clear(hwnd, RGB(0,0,0)); //clears the client area
-            RECT rect;
-            GetClientRect(masterhwnd, &rect);
-            //clear the bitmap
-            WBM->ClearSection(rect.left, rect.top, rect.right, rect.bottom);
-
-// draw to the bitmap, rather than to the window.
-            calife_list->Boxfocus(WBM->GetHDC(),RGB(255,255,255));
-            calife_list->DrawDivider(WBM->GetHDC());
+            calife_list->ClearDisplayImages();
             calife_list->ResetAllGenerationCount();
             InvalidateRect(hwnd, NULL, FALSE);
             break;
@@ -863,7 +853,6 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             // Resize other windows.
             calife_list->Locate();
             InvalidateRect(masterhwnd, NULL, FALSE);
-            WBM->Clear(masterhwnd, RGB(0,0,0));
             capowgl->Size(hwnd);
             break;
 
@@ -874,7 +863,6 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             ShowWindow(hwndActionToolbar, ((ActionToolbar && toolbarON)? SW_SHOW:SW_HIDE));
             ShowWindow(hwndDialogToolbar, ((DialogToolbar && toolbarON)?SW_SHOW:SW_HIDE));
             calife_list->Locate();
-            WBM->Clear(masterhwnd, RGB(0,0,0));
             capowgl->Size(hwnd);
             InvalidateRect(masterhwnd, NULL, FALSE);
             break;
@@ -885,7 +873,6 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             ShowWindow(hwndActionToolbar, ((ActionToolbar && toolbarON)? SW_SHOW:SW_HIDE));
             ShowWindow(hwndDialogToolbar, ((DialogToolbar && toolbarON)?SW_SHOW:SW_HIDE));
             calife_list->Locate();
-            WBM->Clear(masterhwnd, RGB(0,0,0));
             capowgl->Size(hwnd);
             InvalidateRect(masterhwnd, NULL, FALSE);
             break;

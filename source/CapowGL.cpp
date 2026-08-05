@@ -68,6 +68,15 @@ COLORREF SampleImageColor(const capow::ImageBuffer &image, int x, int y)
     return ColorRefFromImagePixel(image.Data()[index]);
 }
 
+int ClampBorderCoordinate(int coordinate, int maxCoordinate)
+{
+    if (coordinate < 0)
+        return 0;
+    if (coordinate > maxCoordinate)
+        return maxCoordinate;
+    return coordinate;
+}
+
 } // namespace
 
 CapowGL::CapowGL(HWND hwnd)
@@ -561,26 +570,31 @@ bool CapowGL::DrawTiledCA(CA *focus, int clientHeight)
     const int viewportBottom = clientHeight - focus->maxy - 1;
     glViewport(focus->minx, viewportBottom, viewWidth, viewHeight);
 
+    bool drawn = false;
     switch (focus->viewmode)
     {
     case IDC_2D_VIEW:
         if (!focus->HasImageBuffer2D() || focus->wavePlaneImage.Data() == 0)
             return false;
-        return imagePresenter.Present(focus->wavePlaneImage, 0, 0, viewWidth, viewHeight);
+        drawn = imagePresenter.Present(focus->wavePlaneImage, 0, 0, viewWidth, viewHeight);
+        break;
 
     case IDC_WIRE_VIEW:
         DrawHistoryWire(focus);
-        return true;
+        drawn = true;
+        break;
 
     case IDC_POINT_GRAPH:
         DrawPointGraph(focus, viewWidth, viewHeight);
-        return true;
+        drawn = true;
+        break;
 
     case IDC_DOWN_VIEW:
     case IDC_SCROLL_VIEW:
         if (focus->historyImage.Data() == 0)
             return false;
-        return imagePresenter.Present(focus->historyImage, 0, 0, viewWidth, viewHeight);
+        drawn = imagePresenter.Present(focus->historyImage, 0, 0, viewWidth, viewHeight);
+        break;
 
     case IDC_GRAPH_VIEW:
         if (focus->historyImage.Data() == 0)
@@ -588,7 +602,8 @@ bool CapowGL::DrawTiledCA(CA *focus, int clientHeight)
         if (!imagePresenter.Present(focus->historyImage, 0, 0, viewWidth, viewHeight))
             return false;
         DrawHistoryGraph(focus, viewHeight - 1, focus->vert_count - 1);
-        return true;
+        drawn = true;
+        break;
 
     case IDC_SPLIT_VIEW:
         if (focus->historyImage.Data() == 0)
@@ -596,10 +611,21 @@ bool CapowGL::DrawTiledCA(CA *focus, int clientHeight)
         if (!imagePresenter.Present(focus->historyImage, 0, 0, viewWidth, viewHeight))
             return false;
         DrawHistoryGraph(focus, viewHeight - 1, focus->split_vert_count - 2);
-        return true;
+        drawn = true;
+        break;
     }
 
-    return false;
+    if (drawn)
+        DrawImageBorder(viewWidth, viewHeight);
+    return drawn;
+}
+
+void CapowGL::DrawImageBorder(int viewWidth, int viewHeight)
+{
+    if (viewWidth <= 0 || viewHeight <= 0)
+        return;
+
+    imagePresenter.DrawRectangle(0, 0, viewWidth - 1, viewHeight - 1, RGB(0, 0, 0));
 }
 
 void CapowGL::DrawTiledBorders(CAlist *caList)
@@ -609,16 +635,29 @@ void CapowGL::DrawTiledBorders(CAlist *caList)
 
     const int topOffset = (toolbarON) ? toolBarHeight : 0;
     const float lineWidth = static_cast<float>(divider_width);
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    const int maxX = viewport[2] - 1;
+    const int maxY = viewport[3] - 1;
+    if (maxX < 0 || maxY < 0)
+        return;
+
     for (int i = 0; i < caList->Count(); ++i)
     {
         CA *ca = caList->GetCA(i);
-        imagePresenter.DrawRectangle(ca->minx - 3, ca->miny - topOffset - 3, ca->maxx + 3, ca->maxy - topOffset + 3,
-            RGB(128, 128, 128), lineWidth);
+        const int left = ClampBorderCoordinate(ca->minx - 3, maxX);
+        const int top = ClampBorderCoordinate(ca->miny - topOffset - 3, maxY);
+        const int right = ClampBorderCoordinate(ca->maxx + 3, maxX);
+        const int bottom = ClampBorderCoordinate(ca->maxy - topOffset + 3, maxY);
+        imagePresenter.DrawRectangle(left, top, right, bottom, RGB(128, 128, 128), lineWidth);
     }
 
     CA *focus = caList->FocusCA();
-    imagePresenter.DrawRectangle(focus->minx - 1, focus->miny - topOffset - 1, focus->maxx + 1,
-        focus->maxy - topOffset + 1, RGB(255, 255, 255), lineWidth);
+    const int left = ClampBorderCoordinate(focus->minx, maxX);
+    const int top = ClampBorderCoordinate(focus->miny - topOffset, maxY);
+    const int right = ClampBorderCoordinate(focus->maxx, maxX);
+    const int bottom = ClampBorderCoordinate(focus->maxy - topOffset, maxY);
+    imagePresenter.DrawRectangle(left, top, right, bottom, RGB(255, 255, 255), lineWidth);
 }
 
 void CapowGL::DrawHistoryGraph(CA *focus, int bottom, int height)

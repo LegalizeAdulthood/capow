@@ -2001,9 +2001,8 @@ BOOL CAlist::Loadall(char* filename, BOOL startup)
     //you can load properly, we had a problem loading unzoomed over zoomed.
     HDC hdc = GetDC(masterhwnd);
     Setfocusindex(hdc, focus_index);
-    DrawDivider(hdc);
-    Boxfocus(hdc,RGB(255,255,255));
     ReleaseDC(hwnd, hdc);
+    InvalidateRect(masterhwnd, NULL, FALSE);
     not_seeded_yet_flag = old_not_seeded_yet_flag;
     BOOL mustfixGL = FALSE;
     if (tempzoomflag)
