@@ -1204,7 +1204,6 @@ public:
     void SineSFT(int, int, int);
     void CosineSFT(int, int, int);
     void BothSFT(int, int, int);
-    void Showpointgraph(HDC);           // show the graph
     int  Screen_yvalue(Real, Real, int, int);// translate to screen y_coord
 
     void (*pAddUserParam)(CA *, LPSTR, Real); /* For some screwy reason we

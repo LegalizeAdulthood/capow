@@ -869,10 +869,7 @@ void CA::Show(HDC hdc)
         break;
 
     case IDC_POINT_GRAPH: //===== 3/15/96 - Bang-Nguyen =====
-        if (openGlHistoryView)
-            UpdatePointGraph();
-        else
-            Showpointgraph(hdc);
+        UpdatePointGraph();
         break;
 
     case IDC_SPLIT_VIEW:
