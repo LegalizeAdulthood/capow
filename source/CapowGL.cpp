@@ -228,7 +228,8 @@ CapowGL->Size() in Capow.cpp, it seems to fix the problem.
 
 bool CapowGL::DrawImage(HDC hdc, CA* focus)
 {
-    if (focus == 0 || focus->viewmode != IDC_2D_VIEW || focus->wavePlaneImage.Data() == 0 ||
+    if (focus == 0 || !focus->HasWavePlaneImage() || focus->viewmode != IDC_2D_VIEW ||
+        focus->wavePlaneImage.Data() == 0 ||
         focus->wavePlaneImage.Width() != focus->horz_count_2D ||
         focus->wavePlaneImage.Height() != focus->vert_count_2D)
         return false;
