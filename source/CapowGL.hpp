@@ -198,6 +198,9 @@ private:
     void DrawTiledBorders(CAlist *calist);
     bool EnsureImagePreviewFormat(HDC hdc);
     const capow::ImageBuffer *PreviewImage(CA *focus);
+    bool RenderFocus(CA *focus);
+    bool RenderHistoryView(CA *focus);
+    bool RenderTiledViews(CAlist *calist);
 
 public:
     CapowGL(HWND hwnd);
@@ -205,6 +208,7 @@ public:
     bool Draw(HDC hdc, CA *focus);
     bool DrawImage(HDC hdc, CA *focus);
     bool DrawImagePreview(HWND hwnd, CA *focus);
+    HGLOBAL CaptureBackBufferDIB(HWND hwnd, CAlist *calist, const RECT &rect);
     bool DrawHistoryView(HDC hdc, CA *focus);
     bool DrawTiledViews(HDC hdc, CAlist *calist);
     void Size(HWND hwnd);

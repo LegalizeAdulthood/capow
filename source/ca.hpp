@@ -825,7 +825,7 @@ private:
     void FillHistoryRect(int left, int top, int right, int bottom, COLORREF color);
     void ScrollHistoryRect(int left, int top, int right, int bottom, int deltaX, int deltaY);
     void DrawHistoryRectangle(int left, int top, int right, int bottom, COLORREF color);
-    void CopyHistoryImageToWBM();
+    void CopyDisplayImageToWBM();
     void UpdatePointGraph();
 //------------------CA Wave Oscillator private-----------------------------
     Real frequency_factor; /*AUTOSET.  This is
@@ -1340,6 +1340,7 @@ public:
     you want sleep TRUE and gl_sleep FALSE. */
     void Set_justloadedcells(BOOL onoff){_justloadedcells = onoff;}
     void SyncRows(); //Calls this on the members.
+    BOOL GetOpenGLDisplayRect(RECT *rect);
     void UpdateGenerationCount();
     void ResetAllGenerationCount();
 //---------------CAlist Color Mutators------------------

@@ -14,6 +14,7 @@ unsigned short WavePlaneColorIndex(Real cellIntensity, Real cellVelocity, Real m
 void RenderWavePlaneToImageBuffer(ImageBuffer *image, const Wavecell2 *plane, int width, int height, int stride,
     const COLORREF *colorTable, Real maxIntensity, bool showVelocity);
 bool CopyImageBufferToDevice(HDC hdc, const ImageBuffer &image, int left, int top);
+bool CopyImageBufferToDevice(HDC hdc, const ImageBuffer &image, int left, int top, int width, int height);
 
 } // namespace capow
 

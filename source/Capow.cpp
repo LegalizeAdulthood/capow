@@ -570,6 +570,8 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     //((fn)((hwnd), (int)(wParam), (HWND)LOWORD(lParam), (UINT)HIWORD(lParam)), 0L)
     HDC  hdc;
     HDC  hdc_clip;   // Device Handle to Clipboard
+    HGLOBAL hDib;
+    BOOL clipboardSet;
     RECT rect;
     RECT CaptureRect; // Rect to Capture Screen
     RECT r;
@@ -814,18 +816,38 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
         case IDM_CAPTURE:       // Captures Client Rect to Clipboard
 
-            hdc = GetDC(hwnd);
-            OpenClipboard ( masterhwnd );
-            EmptyClipboard();
-            hdc_clip = CreateCompatibleDC (hdc);
-            GetClientRect(hwnd, &CaptureRect);
-            hBitmap = CreateCompatibleBitmap ( hdc,CaptureRect.right , CaptureRect.bottom+10 );
-            SelectObject(hdc_clip, hBitmap);
-            BitBlt ( hdc_clip, 0, 0, CaptureRect.right, CaptureRect.bottom+10, WBM->GetHDC(), 0,0, SRCCOPY );
-            SetClipboardData ( CF_BITMAP, hBitmap );
-            CloseClipboard();
-            DeleteDC(hdc_clip);
-            DeleteDC(hdc);
+            hDib = 0;
+            hBitmap = 0;
+            if (calife_list->GetOpenGLDisplayRect(&CaptureRect))
+                hDib = capowgl->CaptureBackBufferDIB(hwnd, calife_list, CaptureRect);
+
+            if (hDib == 0)
+            {
+                hdc = GetDC(hwnd);
+                hdc_clip = CreateCompatibleDC (hdc);
+                GetClientRect(hwnd, &CaptureRect);
+                hBitmap = CreateCompatibleBitmap ( hdc,CaptureRect.right , CaptureRect.bottom+10 );
+                SelectObject(hdc_clip, hBitmap);
+                BitBlt ( hdc_clip, 0, 0, CaptureRect.right, CaptureRect.bottom+10, WBM->GetHDC(), 0,0, SRCCOPY );
+                DeleteDC(hdc_clip);
+                ReleaseDC(hwnd, hdc);
+            }
+
+            clipboardSet = FALSE;
+            if ((hDib != 0 || hBitmap != 0) && OpenClipboard ( masterhwnd ))
+            {
+                EmptyClipboard();
+                if (hDib != 0)
+                    clipboardSet = SetClipboardData ( CF_DIB, hDib ) != 0;
+                else
+                    clipboardSet = SetClipboardData ( CF_BITMAP, hBitmap ) != 0;
+                CloseClipboard();
+            }
+
+            if (!clipboardSet && hDib != 0)
+                GlobalFree(hDib);
+            if (!clipboardSet && hBitmap != 0)
+                DeleteObject(hBitmap);
             break;
 
 // END EDIT MENU====================================

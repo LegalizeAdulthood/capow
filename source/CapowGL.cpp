@@ -20,6 +20,10 @@
 //====================DEBUG FLAGS ===============
 //====================DEFINE CONSTANTS ===============
 
+#ifndef GL_BGRA
+#define GL_BGRA 0x80E1
+#endif
+
 
 
  //====================GLOBAL DATA===============
@@ -165,13 +169,10 @@ of the program.
     return hRC;
 }
 
-bool CapowGL::Draw(HDC hdc, CA* focus)
+bool CapowGL::RenderFocus(CA *focus)
 {
-    float time2;
-    static float oldtime;
     if (graphtype == FLATCOLOR)
         return false;
-    time2 = timeGetTime();
 
 /* Problem, this procedure dies sometimes.  It dies if you do your first
 zoom in on something a lot of times and if you resize window it wakes up.
@@ -187,8 +188,8 @@ CapowGL->Size() in Capow.cpp, it seems to fix the problem.
     if (spinflag)
         spinangle += spindelta;
     graphfocus = focus;
-
-    wglMakeCurrent(hdc, hRC);  //associate the rendering context with an hdc
+    if (graphfocus != 0 && graphtype != IMAGE_TEXTURE)
+        graphfocus->CopyDisplayImageToWBM();
 
     //prep the rendering context
     glEnable( GL_DEPTH_TEST );
@@ -213,6 +214,21 @@ CapowGL->Size() in Capow.cpp, it seems to fix the problem.
     }
     else
         drawn = DrawOpenGLScene();  //draw the CA
+    return drawn;
+}
+
+bool CapowGL::Draw(HDC hdc, CA* focus)
+{
+    float time2;
+    static float oldtime;
+    if (graphtype == FLATCOLOR)
+        return false;
+    time2 = timeGetTime();
+
+    if (!wglMakeCurrent(hdc, hRC))  //associate the rendering context with an hdc
+        return false;
+
+    const bool drawn = RenderFocus(focus);
     if (drawn)
         SwapBuffers(hdc);  //swap the back buffer to the screen
 
@@ -278,6 +294,111 @@ bool CapowGL::DrawImagePreview(HWND hwnd, CA *focus)
     return drawn;
 }
 
+HGLOBAL CapowGL::CaptureBackBufferDIB(HWND hwnd, CAlist *caList, const RECT &rect)
+{
+    if (hwnd == 0 || caList == 0)
+        return 0;
+
+    RECT clientRect;
+    GetClientRect(hwnd, &clientRect);
+
+    RECT readRect = rect;
+    if (readRect.left < clientRect.left)
+        readRect.left = clientRect.left;
+    if (readRect.top < clientRect.top)
+        readRect.top = clientRect.top;
+    if (readRect.right > clientRect.right)
+        readRect.right = clientRect.right;
+    if (readRect.bottom > clientRect.bottom)
+        readRect.bottom = clientRect.bottom;
+
+    const int width = readRect.right - readRect.left;
+    const int height = readRect.bottom - readRect.top;
+    if (width <= 0 || height <= 0)
+        return 0;
+
+    HDC hdc = GetDC(hwnd);
+    if (hdc == 0)
+        return 0;
+
+    HGLOBAL dib = 0;
+    if (EnsureImagePreviewFormat(hdc) && wglMakeCurrent(hdc, hRC))
+    {
+        bool drawn = false;
+        if (caList->Getzoomflag())
+        {
+            CA *focus = caList->FocusCA();
+            if (focus != 0 && focus->viewmode == IDC_2D_VIEW)
+            {
+                const int oldType = graphtype;
+                if (graphtype == FLATCOLOR)
+                    graphtype = IMAGE_TEXTURE;
+                drawn = RenderFocus(focus);
+                graphtype = oldType;
+            }
+            else
+                drawn = RenderHistoryView(focus);
+        }
+        else
+            drawn = RenderTiledViews(caList);
+
+        if (drawn)
+        {
+            const SIZE_T pixelByteCount = static_cast<SIZE_T>(width) * static_cast<SIZE_T>(height) * 4U;
+            dib = GlobalAlloc(GMEM_MOVEABLE, sizeof(BITMAPINFOHEADER) + pixelByteCount);
+            BYTE *dibBytes = 0;
+            if (dib != 0)
+                dibBytes = static_cast<BYTE *>(GlobalLock(dib));
+            if (dib != 0 && dibBytes != 0)
+            {
+                BITMAPINFOHEADER *header = reinterpret_cast<BITMAPINFOHEADER *>(dibBytes);
+                memset(header, 0, sizeof(BITMAPINFOHEADER));
+                header->biSize = sizeof(BITMAPINFOHEADER);
+                header->biWidth = width;
+                header->biHeight = height;
+                header->biPlanes = 1;
+                header->biBitCount = 32;
+                header->biCompression = BI_RGB;
+                header->biSizeImage = static_cast<DWORD>(pixelByteCount);
+
+                void *bits = dibBytes + sizeof(BITMAPINFOHEADER);
+                GLint oldReadBuffer;
+                GLint oldPackAlignment;
+                glGetIntegerv(GL_READ_BUFFER, &oldReadBuffer);
+                glGetIntegerv(GL_PACK_ALIGNMENT, &oldPackAlignment);
+                glReadBuffer(GL_BACK);
+                glPixelStorei(GL_PACK_ALIGNMENT, 4);
+                while (glGetError() != GL_NO_ERROR)
+                {
+                }
+                glReadPixels(readRect.left, clientRect.bottom - readRect.bottom, width, height, GL_BGRA,
+                    GL_UNSIGNED_BYTE, bits);
+                const GLenum error = glGetError();
+                glPixelStorei(GL_PACK_ALIGNMENT, oldPackAlignment);
+                glReadBuffer(static_cast<GLenum>(oldReadBuffer));
+                if (error != GL_NO_ERROR)
+                {
+                    GlobalUnlock(dib);
+                    GlobalFree(dib);
+                    dib = 0;
+                }
+                else
+                    GlobalUnlock(dib);
+            }
+            else if (dib != 0)
+            {
+                GlobalFree(dib);
+                dib = 0;
+            }
+        }
+
+        wglMakeCurrent(NULL, NULL);
+    }
+
+    ReleaseDC(hwnd, hdc);
+    return dib;
+}
+
 const capow::ImageBuffer *CapowGL::PreviewImage(CA *focus)
 {
     if (focus == 0)
@@ -296,7 +417,7 @@ const capow::ImageBuffer *CapowGL::PreviewImage(CA *focus)
     return 0;
 }
 
-bool CapowGL::DrawHistoryView(HDC hdc, CA *focus)
+bool CapowGL::RenderHistoryView(CA *focus)
 {
     if (focus == 0 || focus->Getdimension() != 1)
         return false;
@@ -307,8 +428,6 @@ bool CapowGL::DrawHistoryView(HDC hdc, CA *focus)
         return false;
 
     graphfocus = focus;
-    if (!wglMakeCurrent(hdc, hRC))
-        return false;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     bool drawn = true;
@@ -331,26 +450,30 @@ bool CapowGL::DrawHistoryView(HDC hdc, CA *focus)
             DrawHistoryGraph(focus, viewHeight - 1, focus->split_vert_count - 2);
     }
 
+    return drawn;
+}
+
+bool CapowGL::DrawHistoryView(HDC hdc, CA *focus)
+{
+    if (!wglMakeCurrent(hdc, hRC))
+        return false;
+
+    const bool drawn = RenderHistoryView(focus);
     if (drawn)
         SwapBuffers(hdc);
     wglMakeCurrent(NULL, NULL);
     return drawn;
 }
 
-bool CapowGL::DrawTiledViews(HDC hdc, CAlist *caList)
+bool CapowGL::RenderTiledViews(CAlist *caList)
 {
-    if (hdc == 0 || caList == 0 || caList->Getzoomflag())
-        return false;
-    if (!EnsureImagePreviewFormat(hdc))
+    if (caList == 0 || caList->Getzoomflag())
         return false;
 
     RECT clientRect;
     GetClientRect(masterhwnd, &clientRect);
     const int clientHeight = clientRect.bottom - clientRect.top;
     if (clientHeight <= 0)
-        return false;
-
-    if (!wglMakeCurrent(hdc, hRC))
         return false;
 
     GLint oldViewport[4];
@@ -372,10 +495,26 @@ bool CapowGL::DrawTiledViews(HDC hdc, CAlist *caList)
     {
         glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
         DrawTiledBorders(caList);
-        SwapBuffers(hdc);
     }
 
     glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
+    return drawn;
+}
+
+bool CapowGL::DrawTiledViews(HDC hdc, CAlist *caList)
+{
+    if (hdc == 0)
+        return false;
+    if (!EnsureImagePreviewFormat(hdc))
+        return false;
+
+    if (!wglMakeCurrent(hdc, hRC))
+        return false;
+
+    const bool drawn = RenderTiledViews(caList);
+    if (drawn)
+        SwapBuffers(hdc);
+
     wglMakeCurrent(NULL, NULL);
     return drawn;
 }

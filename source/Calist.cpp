@@ -834,6 +834,90 @@ void CAlist::SetWindowBitmap(WindowBitmap *myWBM)
         list[i]->WBM = myWBM;
 }
 
+BOOL CAlist::GetOpenGLDisplayRect(RECT *rect)
+{
+    if (rect == 0)
+        return FALSE;
+
+    if (zoomflag)
+    {
+        if (focus == 0)
+            return FALSE;
+
+        if (focus->viewmode == IDC_2D_VIEW && focus->HasImageBuffer2D() &&
+            focus->wavePlaneImage.Data() != 0)
+        {
+            rect->left = focus->minx;
+            rect->top = focus->miny;
+            rect->right = focus->minx + focus->horz_count + 2;
+            rect->bottom = focus->miny + focus->vert_count;
+            return TRUE;
+        }
+
+        if ((focus->viewmode == IDC_DOWN_VIEW || focus->viewmode == IDC_SCROLL_VIEW ||
+                focus->viewmode == IDC_GRAPH_VIEW || focus->viewmode == IDC_SPLIT_VIEW) &&
+            focus->historyImage.Data() != 0)
+        {
+            rect->left = focus->minx;
+            rect->top = focus->miny;
+            rect->right = focus->maxx + 1;
+            rect->bottom = focus->maxy + 1;
+            return TRUE;
+        }
+
+        if (focus->viewmode == IDC_WIRE_VIEW || focus->viewmode == IDC_POINT_GRAPH)
+        {
+            rect->left = focus->minx;
+            rect->top = focus->miny;
+            rect->right = focus->maxx + 1;
+            rect->bottom = focus->maxy + 1;
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    BOOL found = FALSE;
+    for (int i = 0; i < count; i++)
+    {
+        CA *ca = list[i];
+        BOOL converted = FALSE;
+        if (ca->viewmode == IDC_2D_VIEW && ca->HasImageBuffer2D() &&
+            ca->wavePlaneImage.Data() != 0)
+            converted = TRUE;
+        if ((ca->viewmode == IDC_DOWN_VIEW || ca->viewmode == IDC_SCROLL_VIEW ||
+                ca->viewmode == IDC_GRAPH_VIEW || ca->viewmode == IDC_SPLIT_VIEW) &&
+            ca->historyImage.Data() != 0)
+            converted = TRUE;
+        if (ca->viewmode == IDC_WIRE_VIEW || ca->viewmode == IDC_POINT_GRAPH)
+            converted = TRUE;
+        if (!converted)
+            return FALSE;
+
+        if (!found)
+        {
+            rect->left = ca->minx;
+            rect->top = ca->miny;
+            rect->right = ca->maxx + 1;
+            rect->bottom = ca->maxy + 1;
+            found = TRUE;
+        }
+        else
+        {
+            if (ca->minx < rect->left)
+                rect->left = ca->minx;
+            if (ca->miny < rect->top)
+                rect->top = ca->miny;
+            if (ca->maxx + 1 > rect->right)
+                rect->right = ca->maxx + 1;
+            if (ca->maxy + 1 > rect->bottom)
+                rect->bottom = ca->maxy + 1;
+        }
+    }
+
+    return found;
+}
+
 void CAlist::SetCAType(CA *target, int newtype, BOOL fixflag)
 {
 

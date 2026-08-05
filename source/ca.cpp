@@ -759,9 +759,21 @@ void CA::DrawHistoryRectangle(int left, int top, int right, int bottom, COLORREF
     }
 }
 
-void CA::CopyHistoryImageToWBM()
+void CA::CopyDisplayImageToWBM()
 {
-    capow::CopyImageBufferToDevice(WBM->GetHDC(), historyImage, minx, miny);
+    if (WBM == 0)
+        return;
+
+    if (viewmode == IDC_2D_VIEW && HasImageBuffer2D() && wavePlaneImage.Data() != 0)
+    {
+        capow::CopyImageBufferToDevice(WBM->GetHDC(), wavePlaneImage, minx, miny, horz_count + 2, vert_count);
+        return;
+    }
+
+    if ((viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW || viewmode == IDC_WIRE_VIEW ||
+            viewmode == IDC_GRAPH_VIEW || viewmode == IDC_SPLIT_VIEW) &&
+        historyImage.Data() != 0)
+        capow::CopyImageBufferToDevice(WBM->GetHDC(), historyImage, minx, miny);
 }
 
 void CA::Show(HDC hdc)
@@ -782,7 +794,6 @@ void CA::Show(HDC hdc)
         EnsureHistoryImage();
         for (i = 0; i < horz_count; ++i)
             PutHistoryPixel(minx + i, row_number, COLORREF_target_row[i]);
-        CopyHistoryImageToWBM();
         row_number++;
         if (row_number > maxy)
             row_number = miny;
@@ -794,7 +805,6 @@ void CA::Show(HDC hdc)
             ScrollHistoryRect(minx, miny, maxx, maxy, 0, -(calist_ptr->_blt_lines));
         for (i = 0; i < horz_count; ++i)
             PutHistoryPixel(minx + i, row_number, COLORREF_target_row[i]);
-        CopyHistoryImageToWBM();
         row_number++; // Starts at maxy - (calist_ptr->_blt_lines) + 1
         if (row_number > maxy)
             row_number = maxy - (calist_ptr->_blt_lines) + 1;
@@ -805,7 +815,7 @@ void CA::Show(HDC hdc)
         {
             for (i = 0; i < horz_count; ++i)
                 PutHistoryPixel(minx + i, miny + (int) (vert_count / 2), COLORREF_target_row[i]);
-            CopyHistoryImageToWBM();
+            CopyDisplayImageToWBM();
             WBM->WBMWireBlt(hdc, minx, miny + (int) (vert_count / 2.0), maxx, 1);
         }
         break;
@@ -854,7 +864,7 @@ void CA::Show(HDC hdc)
                     }
                 }
             }
-            CopyHistoryImageToWBM();
+            CopyDisplayImageToWBM();
         }
         break;
 
@@ -924,7 +934,7 @@ void CA::Show(HDC hdc)
                     }
                 }
             }
-            CopyHistoryImageToWBM();
+            CopyDisplayImageToWBM();
         }
         break;
     }
@@ -1606,7 +1616,6 @@ void CA::WaveUpdateStep2D(HDC hdc)  //You don't need the hdc argument!
 
     capow::RenderWavePlaneToImageBuffer(&wavePlaneImage, wave_target_plane, horz_count_2D, vert_count_2D, CX_2D,
         colortable, _max_intensity.Val(), showvelocity != 0);
-    capow::CopyImageBufferToDevice(WBM->GetHDC(), wavePlaneImage, minx, miny);
 
     if (++wavesourceindex >= 3)
         wavesourceindex = 0;

@@ -40,6 +40,11 @@ void RenderWavePlaneToImageBuffer(ImageBuffer *image, const Wavecell2 *plane, in
 
 bool CopyImageBufferToDevice(HDC hdc, const ImageBuffer &image, int left, int top)
 {
+    return CopyImageBufferToDevice(hdc, image, left, top, image.Width(), image.Height());
+}
+
+bool CopyImageBufferToDevice(HDC hdc, const ImageBuffer &image, int left, int top, int width, int height)
+{
     if (!image.Data())
         return false;
 
@@ -51,8 +56,11 @@ bool CopyImageBufferToDevice(HDC hdc, const ImageBuffer &image, int left, int to
     info.bmiHeader.biBitCount = 32;
     info.bmiHeader.biCompression = BI_RGB;
 
-    const int copiedLines = SetDIBitsToDevice(
-        hdc, left, top, image.Width(), image.Height(), 0, 0, 0, image.Height(), image.Data(), &info, DIB_RGB_COLORS);
+    if (width <= 0 || height <= 0)
+        return false;
+
+    const int copiedLines = StretchDIBits(hdc, left, top, width, height, 0, 0, image.Width(), image.Height(),
+        image.Data(), &info, DIB_RGB_COLORS, SRCCOPY);
     return copiedLines != 0;
 }
 
