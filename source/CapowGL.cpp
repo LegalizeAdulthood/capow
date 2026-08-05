@@ -30,6 +30,7 @@ extern WindowBitmap* WBM;
 extern BOOL statusON;
 extern BOOL toolbarON;
 extern HWND masterhwnd;
+extern int divider_width;
 extern int toolBarHeight;
 extern int statusBarHeight;
 //================================================================
@@ -317,6 +318,122 @@ bool CapowGL::DrawHistoryView(HDC hdc, CA *focus)
         SwapBuffers(hdc);
     wglMakeCurrent(NULL, NULL);
     return drawn;
+}
+
+bool CapowGL::DrawTiledViews(HDC hdc, CAlist *caList)
+{
+    if (hdc == 0 || caList == 0 || caList->Getzoomflag())
+        return false;
+    if (!EnsureImagePreviewFormat(hdc))
+        return false;
+
+    RECT clientRect;
+    GetClientRect(masterhwnd, &clientRect);
+    const int clientHeight = clientRect.bottom - clientRect.top;
+    if (clientHeight <= 0)
+        return false;
+
+    if (!wglMakeCurrent(hdc, hRC))
+        return false;
+
+    GLint oldViewport[4];
+    glGetIntegerv(GL_VIEWPORT, oldViewport);
+    glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    bool drawn = true;
+    for (int i = 0; i < caList->Count(); ++i)
+    {
+        if (!DrawTiledCA(caList->GetCA(i), clientHeight))
+        {
+            drawn = false;
+            break;
+        }
+    }
+
+    if (drawn)
+    {
+        glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
+        DrawTiledBorders(caList);
+        SwapBuffers(hdc);
+    }
+
+    glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
+    wglMakeCurrent(NULL, NULL);
+    return drawn;
+}
+
+bool CapowGL::DrawTiledCA(CA *focus, int clientHeight)
+{
+    if (focus == 0)
+        return false;
+
+    const int viewWidth = focus->maxx - focus->minx + 1;
+    const int viewHeight = focus->maxy - focus->miny + 1;
+    if (viewWidth <= 0 || viewHeight <= 0)
+        return false;
+
+    const int viewportBottom = clientHeight - focus->maxy - 1;
+    glViewport(focus->minx, viewportBottom, viewWidth, viewHeight);
+
+    switch (focus->viewmode)
+    {
+    case IDC_2D_VIEW:
+        if (!focus->HasWavePlaneImage() || focus->wavePlaneImage.Data() == 0)
+            return false;
+        return imagePresenter.Present(focus->wavePlaneImage, 0, 0, viewWidth, viewHeight);
+
+    case IDC_WIRE_VIEW:
+        DrawHistoryWire(focus);
+        return true;
+
+    case IDC_POINT_GRAPH:
+        DrawPointGraph(focus, viewWidth, viewHeight);
+        return true;
+
+    case IDC_DOWN_VIEW:
+    case IDC_SCROLL_VIEW:
+        if (focus->historyImage.Data() == 0)
+            return false;
+        return imagePresenter.Present(focus->historyImage, 0, 0, viewWidth, viewHeight);
+
+    case IDC_GRAPH_VIEW:
+        if (focus->historyImage.Data() == 0)
+            return false;
+        if (!imagePresenter.Present(focus->historyImage, 0, 0, viewWidth, viewHeight))
+            return false;
+        DrawHistoryGraph(focus, viewHeight - 1, focus->vert_count - 1);
+        return true;
+
+    case IDC_SPLIT_VIEW:
+        if (focus->historyImage.Data() == 0)
+            return false;
+        if (!imagePresenter.Present(focus->historyImage, 0, 0, viewWidth, viewHeight))
+            return false;
+        DrawHistoryGraph(focus, viewHeight - 1, focus->split_vert_count - 2);
+        return true;
+    }
+
+    return false;
+}
+
+void CapowGL::DrawTiledBorders(CAlist *caList)
+{
+    if (caList == 0)
+        return;
+
+    const int topOffset = (toolbarON) ? toolBarHeight : 0;
+    const float lineWidth = static_cast<float>(divider_width);
+    for (int i = 0; i < caList->Count(); ++i)
+    {
+        CA *ca = caList->GetCA(i);
+        imagePresenter.DrawRectangle(ca->minx - 3, ca->miny - topOffset - 3, ca->maxx + 3, ca->maxy - topOffset + 3,
+            RGB(128, 128, 128), lineWidth);
+    }
+
+    CA *focus = caList->FocusCA();
+    imagePresenter.DrawRectangle(focus->minx - 1, focus->miny - topOffset - 1, focus->maxx + 1,
+        focus->maxy - topOffset + 1, RGB(255, 255, 255), lineWidth);
 }
 
 void CapowGL::DrawHistoryGraph(CA *focus, int bottom, int height)

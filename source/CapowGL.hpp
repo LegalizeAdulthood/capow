@@ -194,6 +194,8 @@ private:
     void DrawPointGraphSeries(CA *focus, int minY, int maxY);
     void DrawPointGraphFourier(CA *focus, int minY, int maxY);
     void DrawPointGraphSpectrum(CA *focus, int minY, int maxY, Real maxValue, int termLimit);
+    bool DrawTiledCA(CA *focus, int clientHeight);
+    void DrawTiledBorders(CAlist *calist);
     bool EnsureImagePreviewFormat(HDC hdc);
 
 public:
@@ -203,6 +205,7 @@ public:
     bool DrawImage(HDC hdc, CA *focus);
     bool DrawImagePreview(HWND hwnd, CA *focus);
     bool DrawHistoryView(HDC hdc, CA *focus);
+    bool DrawTiledViews(HDC hdc, CAlist *calist);
     void Size(HWND hwnd);
     HGLRC SetUpOpenGL(HWND hWnd);
     bool DrawOpenGLScene();

@@ -242,6 +242,12 @@ void CAlist::Update_and_Show(HDC hdc)
             list[i]->Update(hdc);  //HERE'S WHERE THE UPDATE HAPPENS!!!!
 #endif //ONE_AT_A_TIME
         blt_flag++;
+        if (capowgl->DrawTiledViews(hdc, this))
+        {
+            if (!(blt_flag % _blt_lines))
+                blt_flag = 0;
+        }
+        else
           for (i=0; i<count; i++)
         switch (list[i]->viewmode)  //9/24/97 Getting exit bug here with THREAD.
         {
@@ -390,6 +396,8 @@ void CAlist::Show(HDC hdc, const RECT &rcPaint)
     {
         if (zoomflag && capowgl->DrawHistoryView(hdc, focus))
             return;
+        if (!zoomflag && capowgl->DrawTiledViews(hdc, this))
+            return;
         BitBlt(hdc, rcPaint.left, rcPaint.top, rcPaint.right, rcPaint.bottom, WBM->GetHDC(), rcPaint.left, rcPaint.top,
             SRCCOPY);
     }
@@ -397,6 +405,8 @@ void CAlist::Show(HDC hdc, const RECT &rcPaint)
     {
         if (!zoomflag)  // not zoomed, do them all
         {
+            if (capowgl->DrawTiledViews(hdc, this))
+                return;
                 if (list[0]->maxx_2D == list[0]->maxx &&
                     list[0]->maxy_2D == list[0]->maxy)
                     WBM->WBMBitBlt(hdc, list[0]->minx, list[0]->miny,
