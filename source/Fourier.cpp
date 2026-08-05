@@ -33,10 +33,10 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
     if ( calife_list->FocusCA()->Getviewmode() != IDC_POINT_GRAPH )
     {
-        EnableFourierDialogControls (hDlgFourier, FALSE );
+        EnableFourierDialogControls (hDlg, FALSE );
         return 0;
     }
-    EnableFourierDialogControls (hDlgFourier,TRUE );
+    EnableFourierDialogControls (hDlg,TRUE );
     hCntrlTrackBar = GetDlgItem (  hDlg, IDC_FOURIER_SLIDER );
     SendMessage ( hCntrlTrackBar, TBM_SETRANGE, TRUE, MAKELONG ( 0, calife_list->WidthCADisplayWindow() ) );
     SendMessage ( hCntrlTrackBar, TBM_SETPOS, TRUE, calife_list->FocusCA()->Get_TestPoint() );
@@ -113,6 +113,8 @@ static void MyWnd_COMMAND(HWND hDlg,int id, HWND hwndCtl, UINT codeNotify)
 
 
             case SC_UPDATE:
+                    EnableFourierDialogControls(hDlg,
+                        calife_list->FocusCA()->Getviewmode() == IDC_POINT_GRAPH);
                     CheckRadioButton( hDlg, RADIO_ALL, RADIO_FOCUS, RADIO_ALL+focusflag );
                 //Fix all the checks.
                     CheckRadioButton(hDlg,IDC_TIMESCALEHALF,IDC_TIMESCALEDOUBLE,
