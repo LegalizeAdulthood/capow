@@ -13,6 +13,7 @@
 #include "CapowGL.hpp"
 #include <math.h>
 #include <string.h>
+#include <cstddef>
 #include <mmsystem.h>  //for timeGetTime()
 #include <commdlg.h>
 #include <stdio.h>
@@ -30,7 +31,6 @@
 //====================LOCAL FUNCTIONS ===============
 //====================EXTERNAL DATA===============
 
-extern WindowBitmap* WBM;
 extern BOOL statusON;
 extern BOOL toolbarON;
 extern HWND masterhwnd;
@@ -38,6 +38,37 @@ extern int divider_width;
 extern int toolBarHeight;
 extern int statusBarHeight;
 //================================================================
+
+namespace
+{
+
+COLORREF ColorRefFromImagePixel(capow::ImageBuffer::Pixel pixel)
+{
+    return RGB(static_cast<BYTE>((pixel >> 16U) & 0xFFU), static_cast<BYTE>((pixel >> 8U) & 0xFFU),
+        static_cast<BYTE>(pixel & 0xFFU));
+}
+
+COLORREF SampleImageColor(const capow::ImageBuffer &image, int x, int y)
+{
+    if (image.Data() == 0 || image.Width() <= 0 || image.Height() <= 0)
+        return RGB(0, 0, 0);
+
+    if (x < 0)
+        x = 0;
+    else if (x >= image.Width())
+        x = image.Width() - 1;
+
+    if (y < 0)
+        y = 0;
+    else if (y >= image.Height())
+        y = image.Height() - 1;
+
+    const std::size_t index = static_cast<std::size_t>(y) * static_cast<std::size_t>(image.Width()) +
+        static_cast<std::size_t>(x);
+    return ColorRefFromImagePixel(image.Data()[index]);
+}
+
+} // namespace
 
 CapowGL::CapowGL(HWND hwnd)
 {
@@ -188,8 +219,6 @@ CapowGL->Size() in Capow.cpp, it seems to fix the problem.
     if (spinflag)
         spinangle += spindelta;
     graphfocus = focus;
-    if (graphfocus != 0 && graphtype != IMAGE_TEXTURE)
-        graphfocus->CopyDisplayImageToWBM();
 
     //prep the rendering context
     glEnable( GL_DEPTH_TEST );
@@ -1007,6 +1036,7 @@ unitvectorizing, no longer does so now.
     int i,j, i2,j2;
     GLfloat n[3];
     COLORREF pointcolor;
+    const capow::ImageBuffer *colorImage = 0;
 
     if (graphtype == IMAGE_TEXTURE)
     {
@@ -1018,6 +1048,10 @@ unitvectorizing, no longer does so now.
             DrawImageOverlays();
         return drawn;
     }
+
+    colorImage = PreviewImage(graphfocus);
+    if (colorImage == 0)
+        return false;
 
     // Enable depth testing and clear the color and depth
     //  buffers.
@@ -1109,7 +1143,7 @@ look at, and an Up vector.
             for (j = 0; j<CY_2D; j+=interval)
                 for(i = 0; i<CX_2D; i+=interval)
                 {
-                    pointcolor = GetPixel(WBM->GetHDC(), i, (toolbarON)?j+toolBarHeight :j);
+                    pointcolor = SampleImageColor(*colorImage, i, j);
                     glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                     glVertex3f((float)i,(float)-j,(float)GraphHeight(j*CX_2D+i));
                 }
@@ -1159,7 +1193,7 @@ look at, and an Up vector.
                 glBegin(GL_LINE_STRIP);
                     for(i = 0; i<CX_2D; i+= interval)
                     {
-                        pointcolor = GetPixel(WBM->GetHDC(), i, (toolbarON)?j+toolBarHeight :j);
+                        pointcolor = SampleImageColor(*colorImage, i, j);
                         glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                         glVertex3f((float)i,(float)-j,(float)GraphHeight(j*CX_2D+i));
                     }
@@ -1213,7 +1247,7 @@ look at, and an Up vector.
                         for(i=interval;i<CX_2D; i+= interval)
                         {
                             //find the color for each point
-                            pointcolor = GetPixel(WBM->GetHDC(), i-interval, (toolbarON)?j+toolBarHeight :j);
+                            pointcolor = SampleImageColor(*colorImage, i - interval, j);
                             glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                             NormalVector(i-interval,j, UPPERLEFT,n, interval);
                             glNormal3fv(n);
@@ -1253,12 +1287,12 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                     glBegin(GL_TRIANGLE_STRIP);
                     for(i=0;i<CX_2D; i+= interval)
                     {
-                        pointcolor = GetPixel(WBM->GetHDC(), i, (toolbarON)?j+toolBarHeight :j);
+                        pointcolor = SampleImageColor(*colorImage, i, j);
                         glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                         glNormal3fv(normals[j*CX_2D+i]);
                         glVertex3f((float)i,(float)-j, GraphHeight(i,j));
 
-                        pointcolor = GetPixel(WBM->GetHDC(), i, interval+ ((toolbarON)?j+toolBarHeight:j));
+                        pointcolor = SampleImageColor(*colorImage, i, j + interval);
                         glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                         glNormal3fv(normals[(j+interval)*CX_2D+i]);
                         glVertex3f((float)i,(float)(-(j+interval)),(float)GraphHeight(i,j+interval));
@@ -1448,7 +1482,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                     for(i=interval;i<CX_2D; i+= interval)
                     {
                         //find the color
-                        pointcolor = GetPixel(WBM->GetHDC(), i-interval, (toolbarON)?j+toolBarHeight:j);
+                        pointcolor = SampleImageColor(*colorImage, i - interval, j);
                         glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
 
                         glVertex3f(slice[i][0]+slice[i][0]*section[j][0],   slice[i][1] + slice[i][1]*section [j][0] , section[j][1]);
@@ -1456,7 +1490,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                         glVertex3f(slice[i][0]+slice[i][0]*section[j+interval][0],   slice[i][1] + slice[i][1]*section [j+interval][0] , section[j+interval][1]);
 
                     }
-                    pointcolor = GetPixel(WBM->GetHDC(), i-interval, (toolbarON)?j+toolBarHeight:j);
+                    pointcolor = SampleImageColor(*colorImage, i - interval, j);
                     glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
 
                     glVertex3f(slice[0][0]+slice[0][0]*section[j][0],   slice[0][1] + slice[0][1]*section [j][0] , section[j][1]);
@@ -1470,13 +1504,13 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                 glVertex3f(slice[0][0]+slice[0][0]*section[0][0],   slice[0][1] + slice[0][1]*section [0][0] , section[0][1]);
                 for(i=interval; i<CX_2D; i+= interval)
                 {
-                    pointcolor = GetPixel(WBM->GetHDC(), i-interval, (toolbarON)?j+toolBarHeight:j);
+                    pointcolor = SampleImageColor(*colorImage, i - interval, j);
                     glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
 
                     glVertex3f(slice[i][0]+slice[i][0]*section[j][0],   slice[i][1] + slice[i][1]*section [j][0] , section[j][1]);
                     glVertex3f(slice[i][0]+slice[i][0]*section[0][0],   slice[i][1] + slice[i][1]*section [0][0] , section[0][1]);
                 }
-                pointcolor = GetPixel(WBM->GetHDC(), i-interval, (toolbarON)?j+toolBarHeight:j);
+                pointcolor = SampleImageColor(*colorImage, i - interval, j);
                 glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
 
                 glVertex3f(slice[0][0]+slice[0][0]*section[j][0],   slice[0][1] + slice[0][1]*section [j][0] , section[j][1]);
@@ -1495,13 +1529,13 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                 glBegin(GL_TRIANGLE_STRIP);
                 for (i=0; i<CX_2D; i+=interval)
                 {
-                    pointcolor = GetPixel(WBM->GetHDC(), i, (toolbarON)?j+toolBarHeight:j);
+                    pointcolor = SampleImageColor(*colorImage, i, j);
                     glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                     height = 1.0f + GraphHeight(i,j);
                     glVertex3f(slice[i][0]+slice[i][0]*section[j][0],   slice[i][1] + slice[i][1]*section [j][0] , section[j][1]);
 
                     assert(j+interval <CY_2D);
-                    pointcolor = GetPixel(WBM->GetHDC(), i, interval+ ((toolbarON)?j+toolBarHeight:j));
+                    pointcolor = SampleImageColor(*colorImage, i, j + interval);
                     glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                     height = 1.0f + GraphHeight(i,j+interval);
                     glVertex3f(slice[i][0]+slice[i][0]*section[j+interval][0],   slice[i][1] + slice[i][1]*section [j+interval][0] , section[j+interval][1]);
@@ -1527,19 +1561,19 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                     for(i=0;i<CX_2D; i+= interval)
                     {
                         //find the color
-                        pointcolor = GetPixel(WBM->GetHDC(), i, (toolbarON)?j+toolBarHeight:j);
+                        pointcolor = SampleImageColor(*colorImage, i, j);
                         glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                         glVertex3f(slice[i][0]+slice[i][0]*section[j][0],   slice[i][1] + slice[i][1]*section [j][0] , section[j][1]);
 
-                        pointcolor = GetPixel(WBM->GetHDC(), i, interval+((toolbarON)?j+toolBarHeight:j));
+                        pointcolor = SampleImageColor(*colorImage, i, j + interval);
                         glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                         glVertex3f(slice[i][0]+slice[i][0]*section[j+interval][0],   slice[i][1] + slice[i][1]*section [j+interval][0] , section[j+interval][1]);
                     }
-                    pointcolor = GetPixel(WBM->GetHDC(), 0, (toolbarON)?j+toolBarHeight:j);
+                    pointcolor = SampleImageColor(*colorImage, 0, j);
                     glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                     glVertex3f(slice[0][0]+slice[0][0]*section[j][0],   slice[0][1] + slice[0][1]*section [j][0] , section[j][1]);
 
-                    pointcolor = GetPixel(WBM->GetHDC(), 0, interval+((toolbarON)?j+toolBarHeight:j));
+                    pointcolor = SampleImageColor(*colorImage, 0, j + interval);
                     glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                     glVertex3f(slice[0][0]+slice[0][0]*section[j+interval][0],   slice[0][1] + slice[0][1]*section [j+interval][0] , section[j+interval][1]);
 
@@ -1548,19 +1582,19 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
             glBegin(GL_TRIANGLE_STRIP);
             for (i=0; i<CX_2D; i+= interval)
             {
-                pointcolor = GetPixel(WBM->GetHDC(), i, (toolbarON)?j+toolBarHeight:j);
+                pointcolor = SampleImageColor(*colorImage, i, j);
                 glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                 glVertex3f(slice[i][0]+slice[i][0]*section[j][0],   slice[i][1] + slice[i][1]*section [j][0] , section[j][1]);
 
-                pointcolor = GetPixel(WBM->GetHDC(), i,((toolbarON)?toolBarHeight:0));
+                pointcolor = SampleImageColor(*colorImage, i, 0);
                 glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                 glVertex3f(slice[i][0]+slice[i][0]*section[0][0],   slice[i][1] + slice[i][1]*section [0][0] , section[0][1]);
             }
-            pointcolor = GetPixel(WBM->GetHDC(), 0, (toolbarON)?j+toolBarHeight:j);
+            pointcolor = SampleImageColor(*colorImage, 0, j);
             glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
             glVertex3f(slice[0][0]+slice[0][0]*section[j][0],   slice[0][1] + slice[0][1]*section [j][0] , section[j][1]);
 
-            pointcolor = GetPixel(WBM->GetHDC(), 0,((toolbarON)?toolBarHeight:0));
+            pointcolor = SampleImageColor(*colorImage, 0, 0);
             glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
             glVertex3f(slice[0][0]+slice[0][0]*section[0][0],   slice[0][1] + slice[0][1]*section [0][0] , section[0][1]);
 
@@ -1577,7 +1611,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                     for(i=interval;i<CX_2D; i+= interval)
                     {
                         //find the color
-                        pointcolor = GetPixel(WBM->GetHDC(), i-interval, (toolbarON)?j+toolBarHeight:j);
+                        pointcolor = SampleImageColor(*colorImage, i - interval, j);
                         glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
 
                         glVertex3f(slice[i][0]+slice[i][0]*section[j][0],   slice[i][1] + slice[i][1]*section [j][0] , section[j][1]);
@@ -1585,7 +1619,7 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                         glVertex3f(slice[i][0]+slice[i][0]*section[j+interval][0],   slice[i][1] + slice[i][1]*section [j+interval][0] , section[j+interval][1]);
 
                     }
-                    pointcolor = GetPixel(WBM->GetHDC(), i-interval, (toolbarON)?j+toolBarHeight:j);
+                    pointcolor = SampleImageColor(*colorImage, i - interval, j);
                     glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
 
                     glVertex3f(slice[0][0]+slice[0][0]*section[j][0],   slice[0][1] + slice[0][1]*section [j][0] , section[j][1]);
@@ -1599,13 +1633,13 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                 glVertex3f(slice[0][0]+slice[0][0]*section[0][0],   slice[0][1] + slice[0][1]*section [0][0] , section[0][1]);
                 for(i=interval; i<CX_2D; i+= interval)
                 {
-                    pointcolor = GetPixel(WBM->GetHDC(), i-interval, (toolbarON)?j+toolBarHeight:j);
+                    pointcolor = SampleImageColor(*colorImage, i - interval, j);
                     glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
 
                     glVertex3f(slice[i][0]+slice[i][0]*section[j][0],   slice[i][1] + slice[i][1]*section [j][0] , section[j][1]);
                     glVertex3f(slice[i][0]+slice[i][0]*section[0][0],   slice[i][1] + slice[i][1]*section [0][0] , section[0][1]);
                 }
-                pointcolor = GetPixel(WBM->GetHDC(), i-interval, (toolbarON)?j+toolBarHeight:j);
+                pointcolor = SampleImageColor(*colorImage, i - interval, j);
                 glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
 
                 glVertex3f(slice[0][0]+slice[0][0]*section[j][0],   slice[0][1] + slice[0][1]*section [j][0] , section[j][1]);
@@ -1624,13 +1658,13 @@ it should have been. Doing a seed for a paused 2-D CA with a smooth surface shou
                 glBegin(GL_TRIANGLE_STRIP);
                 for (i=0; i<CX_2D; i+=interval)
                 {
-                    pointcolor = GetPixel(WBM->GetHDC(), i, (toolbarON)?j+toolBarHeight:j);
+                    pointcolor = SampleImageColor(*colorImage, i, j);
                     glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                     height = 1.0f + GraphHeight(i,j);
                     glVertex3f(slice[i][0]+slice[i][0]*section[j][0]*height,   slice[i][1] + slice[i][1]*section [j][0]*height , section[j][1]*height);
 
                     assert(j+interval <CY_2D);
-                    pointcolor = GetPixel(WBM->GetHDC(), i, interval+ ((toolbarON)?j+toolBarHeight:j));
+                    pointcolor = SampleImageColor(*colorImage, i, j + interval);
                     glColor3ub(GetRValue(pointcolor), GetGValue(pointcolor), GetBValue(pointcolor));
                     height = 1.0f + GraphHeight(i,j+interval);
                     glVertex3f(slice[i][0]+slice[i][0]*section[j+interval][0]*height,   slice[i][1] + slice[i][1]*section [j+interval][0]*height , section[j+interval][1]*height);
@@ -2586,6 +2620,9 @@ bool CapowGL::CaptureToVRML()
 bool CapowGL::CaptureVRML(void)
 {
 
+    if (graphfocus == 0)
+        return false;
+
     FILE *stream;
     int rows, columns;
     double d;
@@ -2595,6 +2632,10 @@ bool CapowGL::CaptureVRML(void)
 GLenum error;
     if (graphfocus->viewmode==IDC_2D_VIEW)
     {
+        const capow::ImageBuffer *colorImage = PreviewImage(graphfocus);
+        if (colorImage == 0)
+            return false;
+
         rows = 0; columns  = 0;
         float gridspacing = 0.1f;
         int    i,j, i2 = 0;
@@ -2639,7 +2680,7 @@ GLenum error;
                 {
                     for (i=0; i<CX_2D-interval; i+= interval)
                     {
-                        pointcolor = GetPixel(WBM->GetHDC(), i,(toolbarON)?j+toolBarHeight:j);
+                        pointcolor = SampleImageColor(*colorImage, i, j);
                         fprintf(stream, " %.2f", (float)GetRValue(pointcolor)/255);
                         fprintf(stream, " %.2f", (float)GetGValue(pointcolor)/255);
                         fprintf(stream, " %.2f,", (float)GetBValue(pointcolor)/255);
@@ -2658,7 +2699,7 @@ GLenum error;
                 {
                     for (i=0; i<CX_2D; i+= interval)
                     {
-                        pointcolor = GetPixel(WBM->GetHDC(), i,(toolbarON)?j+toolBarHeight:j);
+                        pointcolor = SampleImageColor(*colorImage, i, j);
                         fprintf(stream, " %.2f", (float)GetRValue(pointcolor)/255);
                         fprintf(stream, " %.2f", (float)GetGValue(pointcolor)/255);
                         fprintf(stream, " %.2f,", (float)GetBValue(pointcolor)/255);
