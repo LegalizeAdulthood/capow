@@ -197,6 +197,7 @@ private:
     bool DrawTiledCA(CA *focus, int clientHeight);
     void DrawTiledBorders(CAlist *calist);
     bool EnsureImagePreviewFormat(HDC hdc);
+    const capow::ImageBuffer *PreviewImage(CA *focus);
 
 public:
     CapowGL(HWND hwnd);

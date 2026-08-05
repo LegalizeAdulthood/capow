@@ -245,9 +245,7 @@ bool CapowGL::DrawImage(HDC hdc, CA* focus)
 
 bool CapowGL::DrawImagePreview(HWND hwnd, CA *focus)
 {
-    if (hwnd == 0 || focus == 0 || !focus->HasImageBuffer2D() || focus->viewmode != IDC_2D_VIEW ||
-        focus->wavePlaneImage.Data() == 0 || focus->wavePlaneImage.Width() != focus->horz_count_2D ||
-        focus->wavePlaneImage.Height() != focus->vert_count_2D)
+    if (hwnd == 0)
         return false;
 
     HDC hdc = GetDC(hwnd);
@@ -264,12 +262,13 @@ bool CapowGL::DrawImagePreview(HWND hwnd, CA *focus)
         const int height = rect.bottom - rect.top;
         if (width > 0 && height > 0)
         {
+            const capow::ImageBuffer *image = PreviewImage(focus);
             glGetIntegerv(GL_VIEWPORT, oldViewport);
             glViewport(0, 0, width, height);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            drawn = imagePresenter.Present(focus->wavePlaneImage, 0, 0, width, height);
-            if (drawn)
-                SwapBuffers(hdc);
+            if (image != 0)
+                drawn = imagePresenter.Present(*image, 0, 0, width, height);
+            SwapBuffers(hdc);
             glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
         }
         wglMakeCurrent(NULL, NULL);
@@ -277,6 +276,24 @@ bool CapowGL::DrawImagePreview(HWND hwnd, CA *focus)
 
     ReleaseDC(hwnd, hdc);
     return drawn;
+}
+
+const capow::ImageBuffer *CapowGL::PreviewImage(CA *focus)
+{
+    if (focus == 0)
+        return 0;
+
+    if (focus->viewmode == IDC_2D_VIEW && focus->HasImageBuffer2D() && focus->wavePlaneImage.Data() != 0 &&
+        focus->wavePlaneImage.Width() == focus->horz_count_2D &&
+        focus->wavePlaneImage.Height() == focus->vert_count_2D)
+        return &focus->wavePlaneImage;
+
+    if ((focus->viewmode == IDC_DOWN_VIEW || focus->viewmode == IDC_SCROLL_VIEW ||
+            focus->viewmode == IDC_GRAPH_VIEW || focus->viewmode == IDC_SPLIT_VIEW) &&
+        focus->historyImage.Data() != 0)
+        return &focus->historyImage;
+
+    return 0;
 }
 
 bool CapowGL::DrawHistoryView(HDC hdc, CA *focus)

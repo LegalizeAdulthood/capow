@@ -217,31 +217,11 @@ static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 
 static BOOL MyWnd_PAINT(HWND hDlg)
 {
-    HWND hCtrlBlock;
-    HDC hdc;
-    RECT sourcerect, targetrect;
     //if zoomed on 2-D focus
     if (zoomviewflag&& calife_list->Focus()->Getdimension() ==2)
     {
-        hCtrlBlock = GetDlgItem(hDlgOpenGL, IDC_OPENGL_FLAT);
-        if (calife_list->Focus()->HasImageBuffer2D())
-        {
-            capowgl->DrawImagePreview(hCtrlBlock, calife_list->Focus());
-            ShowOpenGLParams(hDlg);
-            return TRUE;
-        }
-        if (WBM)
-        {
-            hdc = GetDC(hCtrlBlock);
-            GetClientRect(hCtrlBlock, &targetrect);
-            //get the rectangle of the focus CA
-            calife_list->GetFocusRect(&sourcerect);
-            StretchBlt(hdc, 0, 0, targetrect.right - targetrect.left,
-                targetrect.bottom - targetrect.top, WBM->GetHDC(),
-                sourcerect.left, sourcerect.top, sourcerect.right - sourcerect.left,
-                sourcerect.bottom - sourcerect.top, SRCCOPY);
-            ReleaseDC(hCtrlBlock, hdc);
-        }
+        HWND hCtrlBlock = GetDlgItem(hDlg, IDC_OPENGL_FLAT);
+        capowgl->DrawImagePreview(hCtrlBlock, calife_list->Focus());
     }
     ShowOpenGLParams(hDlg);
     return TRUE;

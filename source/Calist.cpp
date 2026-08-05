@@ -55,22 +55,7 @@ void CAlist::DrawOpenGLDialogPreview(CA *focus)
     if (hCtrlBlock == 0)
         return;
 
-    if (focus->HasImageBuffer2D())
-    {
-        capowgl->DrawImagePreview(hCtrlBlock, focus);
-        return;
-    }
-
-    HDC glhdc = GetDC(hCtrlBlock);
-    if (glhdc == 0)
-        return;
-
-    RECT targetrect;
-    GetClientRect(hCtrlBlock, &targetrect);
-    StretchBlt(glhdc, 0, 0, targetrect.right - targetrect.left,
-        targetrect.bottom - targetrect.top, WBM->GetHDC(), focus->minx,
-        focus->miny, focus->horz_count_2D, focus->vert_count_2D, SRCCOPY);
-    ReleaseDC(hCtrlBlock, glhdc);
+    capowgl->DrawImagePreview(hCtrlBlock, focus);
 }
 
 bool CAlist::DrawZoomed2D(HDC hdc, CA *focus)
