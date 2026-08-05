@@ -840,7 +840,7 @@ public:
 //==============ACCESSORS=====================================
     int Gettype(void) {return type_ca;}
     int Getcastyle(void) {return _castyle;}
-    bool HasWavePlaneImage() {return _castyle == CA_WAVE_2D || _castyle == CA_HEAT_2D;}
+    bool HasWavePlaneImage() {return _castyle == CA_WAVE_2D || _castyle == CA_HEAT_2D || _castyle == CA_CUSTOM_2D;}
     int Getshowmode(){return showmode;}
     int Getwrapflag(void) {return wrapflag;}
     int Getdimension(){return dimension;}
