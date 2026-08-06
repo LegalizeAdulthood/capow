@@ -112,6 +112,21 @@ ALPAKA_FN_HOST_ACC inline std::uint32_t Heat2DWrapNext(std::uint32_t value, std:
     return value + 1U == extent ? 0U : value + 1U;
 }
 
+template <typename T>
+ALPAKA_FN_HOST_ACC Wave2DResult<T> ComputeWave2DCell(const T *source, const T *past, std::uint32_t x, std::uint32_t y,
+    std::uint32_t width, std::uint32_t height, T waveSpeed2TimeStep2OverDx2, T maxIntensity, T timeStep)
+{
+    const std::uint32_t center = Heat2DIndex(x, y, width);
+    const std::uint32_t westX = Heat2DWrapPrevious(x, width);
+    const std::uint32_t eastX = Heat2DWrapNext(x, width);
+    const std::uint32_t northY = Heat2DWrapPrevious(y, height);
+    const std::uint32_t southY = Heat2DWrapNext(y, height);
+
+    return ComputeWave2D<T>(source[center], source[Heat2DIndex(eastX, y, width)], source[Heat2DIndex(x, northY, width)],
+        source[Heat2DIndex(westX, y, width)], source[Heat2DIndex(x, southY, width)], past[center],
+        waveSpeed2TimeStep2OverDx2, maxIntensity, timeStep);
+}
+
 ALPAKA_FN_HOST_ACC inline std::uint32_t Heat2DFreePrevious(std::uint32_t value)
 {
     return value == 0U ? 0U : value - 1U;
