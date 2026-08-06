@@ -2,6 +2,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include <array>
 #include <cstdint>
 #include <optional>
 #include <stdexcept>
@@ -22,6 +23,11 @@ using Extent = alpaka::Vec<Dim, Idx>;
 using HostView = alpaka::ViewPlainPtr<HostDevice, capow::AlpakaPlaneValue, Dim, Idx>;
 using PlaneBuffer = alpaka::Buf<AccPlatform, capow::AlpakaPlaneValue, Dim, Idx>;
 
+constexpr int rowSlotCount = 3;
+constexpr int initialSourceSlot = 0;
+constexpr int initialTargetSlot = 1;
+constexpr int initialPastSlot = 2;
+
 void ValidateDimensions(int width, int height)
 {
     if (width <= 0 || height <= 0)
@@ -32,7 +38,7 @@ void ValidateDimensions(int width, int height)
 
 void ValidatePlane(const capow::AlpakaPlaneValue *plane, int valueStride)
 {
-    if (plane == 0)
+    if (plane == nullptr)
     {
         throw std::invalid_argument("Alpaka 2D plane pointer must not be null");
     }
@@ -45,6 +51,36 @@ void ValidatePlane(const capow::AlpakaPlaneValue *plane, int valueStride)
 std::size_t CellCountForDimensions(int width, int height)
 {
     return static_cast<std::size_t>(width) * static_cast<std::size_t>(height);
+}
+
+void ValidateRowWidth(int width)
+{
+    if (width <= 0)
+    {
+        throw std::invalid_argument("Alpaka 1D row width must be positive");
+    }
+}
+
+void ValidateRow(const capow::AlpakaPlaneValue *row, int valueStride)
+{
+    if (row == nullptr)
+    {
+        throw std::invalid_argument("Alpaka 1D row pointer must not be null");
+    }
+    if (valueStride <= 0)
+    {
+        throw std::invalid_argument("Alpaka 1D row value stride must be positive");
+    }
+}
+
+std::size_t CellCountForWidth(int width)
+{
+    return static_cast<std::size_t>(width);
+}
+
+int NextSlot(int slot)
+{
+    return (slot + 1) % rowSlotCount;
 }
 
 } // namespace
@@ -299,6 +335,371 @@ void AlpakaPlaneMirror2D::DebugCopyPastToTarget()
 void AlpakaPlaneMirror2D::CopyTargetToHost(AlpakaPlaneValue *targetPlane, int valueStride)
 {
     impl->CopyTargetToHost(targetPlane, valueStride);
+}
+
+class AlpakaContinuousRowMirror1D::Impl
+{
+public:
+    Impl();
+
+    bool IsInitialized() const;
+    bool IsDirty() const;
+    int GetWidth() const;
+    std::size_t GetCellCount() const;
+    int GetSourceSlot() const;
+    int GetTargetSlot() const;
+    int GetPastSlot() const;
+
+    void Resize(int nextWidth);
+    void MarkDirty();
+    void CopySourceAndPastToDevice(const AlpakaPlaneValue *sourceIntensity, const AlpakaPlaneValue *sourceVelocity,
+        const AlpakaPlaneValue *pastIntensity, const AlpakaPlaneValue *pastVelocity, int valueStride);
+    void DebugCopySourceToTarget();
+    void DebugCopyPastToTarget();
+    void CopyTargetToDisplayRow();
+    void RotateRows();
+    void CopyTargetToHost(AlpakaPlaneValue *targetIntensity, AlpakaPlaneValue *targetVelocity, int valueStride);
+    void CopyDisplayRowToHost(AlpakaPlaneValue *displayIntensity, AlpakaPlaneValue *displayVelocity, int valueStride);
+
+private:
+    void RequireInitialized() const;
+    void ResetSlots();
+    void PackRow(std::vector<AlpakaPlaneValue> *hostRow, const AlpakaPlaneValue *row, int valueStride) const;
+    void UnpackRow(const std::vector<AlpakaPlaneValue> &hostRow, AlpakaPlaneValue *row, int valueStride) const;
+    void CopyHostToDevice(std::vector<AlpakaPlaneValue> *hostRow, PlaneBuffer *deviceRow);
+    void CopyDeviceToHost(const PlaneBuffer &deviceRow, std::vector<AlpakaPlaneValue> *hostRow);
+    void CopyDeviceRowsToTarget(int sourceRowSlot);
+    void CopyDeviceRowToDisplay();
+
+    AccDevice accDevice;
+    HostDevice hostDevice;
+    Queue queue;
+    int width;
+    std::size_t cellCount;
+    bool initialized;
+    bool dirty;
+    int sourceSlot;
+    int targetSlot;
+    int pastSlot;
+    std::array<std::vector<AlpakaPlaneValue>, rowSlotCount> hostIntensity;
+    std::array<std::vector<AlpakaPlaneValue>, rowSlotCount> hostVelocity;
+    std::vector<AlpakaPlaneValue> hostDisplayIntensity;
+    std::vector<AlpakaPlaneValue> hostDisplayVelocity;
+    std::array<std::optional<PlaneBuffer>, rowSlotCount> deviceIntensity;
+    std::array<std::optional<PlaneBuffer>, rowSlotCount> deviceVelocity;
+    std::optional<PlaneBuffer> deviceDisplayIntensity;
+    std::optional<PlaneBuffer> deviceDisplayVelocity;
+};
+
+AlpakaContinuousRowMirror1D::Impl::Impl() :
+    accDevice(alpaka::getDevByIdx(AccPlatform{}, 0U)),
+    hostDevice(alpaka::getDevByIdx(HostPlatform{}, 0U)),
+    queue(accDevice),
+    width(0),
+    cellCount(0U),
+    initialized(false),
+    dirty(false),
+    sourceSlot(initialSourceSlot),
+    targetSlot(initialTargetSlot),
+    pastSlot(initialPastSlot)
+{
+}
+
+bool AlpakaContinuousRowMirror1D::Impl::IsInitialized() const
+{
+    return initialized;
+}
+
+bool AlpakaContinuousRowMirror1D::Impl::IsDirty() const
+{
+    return dirty;
+}
+
+int AlpakaContinuousRowMirror1D::Impl::GetWidth() const
+{
+    return width;
+}
+
+std::size_t AlpakaContinuousRowMirror1D::Impl::GetCellCount() const
+{
+    return cellCount;
+}
+
+int AlpakaContinuousRowMirror1D::Impl::GetSourceSlot() const
+{
+    return sourceSlot;
+}
+
+int AlpakaContinuousRowMirror1D::Impl::GetTargetSlot() const
+{
+    return targetSlot;
+}
+
+int AlpakaContinuousRowMirror1D::Impl::GetPastSlot() const
+{
+    return pastSlot;
+}
+
+void AlpakaContinuousRowMirror1D::Impl::Resize(int nextWidth)
+{
+    ValidateRowWidth(nextWidth);
+
+    const std::size_t nextCellCount = CellCountForWidth(nextWidth);
+    if (initialized && width == nextWidth)
+    {
+        dirty = true;
+        return;
+    }
+
+    const Extent extent = Extent{static_cast<Idx>(nextCellCount)};
+    for (int slot = 0; slot < rowSlotCount; ++slot)
+    {
+        deviceIntensity[slot].emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent));
+        deviceVelocity[slot].emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent));
+        hostIntensity[slot].assign(nextCellCount, AlpakaPlaneValue(0));
+        hostVelocity[slot].assign(nextCellCount, AlpakaPlaneValue(0));
+    }
+    deviceDisplayIntensity.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent));
+    deviceDisplayVelocity.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent));
+
+    width = nextWidth;
+    cellCount = nextCellCount;
+    initialized = true;
+    dirty = true;
+    ResetSlots();
+    hostDisplayIntensity.assign(cellCount, AlpakaPlaneValue(0));
+    hostDisplayVelocity.assign(cellCount, AlpakaPlaneValue(0));
+}
+
+void AlpakaContinuousRowMirror1D::Impl::MarkDirty()
+{
+    dirty = true;
+}
+
+void AlpakaContinuousRowMirror1D::Impl::CopySourceAndPastToDevice(const AlpakaPlaneValue *sourceIntensity,
+    const AlpakaPlaneValue *sourceVelocity, const AlpakaPlaneValue *pastIntensity, const AlpakaPlaneValue *pastVelocity,
+    int valueStride)
+{
+    RequireInitialized();
+    PackRow(&hostIntensity[sourceSlot], sourceIntensity, valueStride);
+    PackRow(&hostVelocity[sourceSlot], sourceVelocity, valueStride);
+    PackRow(&hostIntensity[pastSlot], pastIntensity, valueStride);
+    PackRow(&hostVelocity[pastSlot], pastVelocity, valueStride);
+    CopyHostToDevice(&hostIntensity[sourceSlot], &*deviceIntensity[sourceSlot]);
+    CopyHostToDevice(&hostVelocity[sourceSlot], &*deviceVelocity[sourceSlot]);
+    CopyHostToDevice(&hostIntensity[pastSlot], &*deviceIntensity[pastSlot]);
+    CopyHostToDevice(&hostVelocity[pastSlot], &*deviceVelocity[pastSlot]);
+    dirty = false;
+}
+
+void AlpakaContinuousRowMirror1D::Impl::DebugCopySourceToTarget()
+{
+    RequireInitialized();
+    CopyDeviceRowsToTarget(sourceSlot);
+}
+
+void AlpakaContinuousRowMirror1D::Impl::DebugCopyPastToTarget()
+{
+    RequireInitialized();
+    CopyDeviceRowsToTarget(pastSlot);
+}
+
+void AlpakaContinuousRowMirror1D::Impl::CopyTargetToDisplayRow()
+{
+    RequireInitialized();
+    CopyDeviceRowToDisplay();
+}
+
+void AlpakaContinuousRowMirror1D::Impl::RotateRows()
+{
+    RequireInitialized();
+    sourceSlot = NextSlot(sourceSlot);
+    targetSlot = NextSlot(targetSlot);
+    pastSlot = NextSlot(pastSlot);
+}
+
+void AlpakaContinuousRowMirror1D::Impl::CopyTargetToHost(
+    AlpakaPlaneValue *targetIntensity, AlpakaPlaneValue *targetVelocity, int valueStride)
+{
+    RequireInitialized();
+    ValidateRow(targetIntensity, valueStride);
+    ValidateRow(targetVelocity, valueStride);
+
+    CopyDeviceToHost(*deviceIntensity[targetSlot], &hostIntensity[targetSlot]);
+    CopyDeviceToHost(*deviceVelocity[targetSlot], &hostVelocity[targetSlot]);
+    UnpackRow(hostIntensity[targetSlot], targetIntensity, valueStride);
+    UnpackRow(hostVelocity[targetSlot], targetVelocity, valueStride);
+}
+
+void AlpakaContinuousRowMirror1D::Impl::CopyDisplayRowToHost(
+    AlpakaPlaneValue *displayIntensity, AlpakaPlaneValue *displayVelocity, int valueStride)
+{
+    RequireInitialized();
+    ValidateRow(displayIntensity, valueStride);
+    ValidateRow(displayVelocity, valueStride);
+
+    CopyDeviceToHost(*deviceDisplayIntensity, &hostDisplayIntensity);
+    CopyDeviceToHost(*deviceDisplayVelocity, &hostDisplayVelocity);
+    UnpackRow(hostDisplayIntensity, displayIntensity, valueStride);
+    UnpackRow(hostDisplayVelocity, displayVelocity, valueStride);
+}
+
+void AlpakaContinuousRowMirror1D::Impl::RequireInitialized() const
+{
+    if (!initialized)
+    {
+        throw std::logic_error("Alpaka 1D row mirror is not initialized");
+    }
+}
+
+void AlpakaContinuousRowMirror1D::Impl::ResetSlots()
+{
+    sourceSlot = initialSourceSlot;
+    targetSlot = initialTargetSlot;
+    pastSlot = initialPastSlot;
+}
+
+void AlpakaContinuousRowMirror1D::Impl::PackRow(
+    std::vector<AlpakaPlaneValue> *hostRow, const AlpakaPlaneValue *row, int valueStride) const
+{
+    ValidateRow(row, valueStride);
+    for (std::size_t index = 0; index < cellCount; ++index)
+    {
+        (*hostRow)[index] = row[index * static_cast<std::size_t>(valueStride)];
+    }
+}
+
+void AlpakaContinuousRowMirror1D::Impl::UnpackRow(
+    const std::vector<AlpakaPlaneValue> &hostRow, AlpakaPlaneValue *row, int valueStride) const
+{
+    for (std::size_t index = 0; index < cellCount; ++index)
+    {
+        row[index * static_cast<std::size_t>(valueStride)] = hostRow[index];
+    }
+}
+
+void AlpakaContinuousRowMirror1D::Impl::CopyHostToDevice(std::vector<AlpakaPlaneValue> *hostRow, PlaneBuffer *deviceRow)
+{
+    const Extent extent = Extent{static_cast<Idx>(cellCount)};
+    HostView hostView = alpaka::createView(hostDevice, hostRow->data(), extent);
+    alpaka::memcpy(queue, *deviceRow, hostView, extent);
+    alpaka::wait(queue);
+}
+
+void AlpakaContinuousRowMirror1D::Impl::CopyDeviceToHost(
+    const PlaneBuffer &deviceRow, std::vector<AlpakaPlaneValue> *hostRow)
+{
+    const Extent extent = Extent{static_cast<Idx>(cellCount)};
+    HostView hostView = alpaka::createView(hostDevice, hostRow->data(), extent);
+    alpaka::memcpy(queue, hostView, deviceRow, extent);
+    alpaka::wait(queue);
+}
+
+void AlpakaContinuousRowMirror1D::Impl::CopyDeviceRowsToTarget(int sourceRowSlot)
+{
+    const Extent extent = Extent{static_cast<Idx>(cellCount)};
+    alpaka::memcpy(queue, *deviceIntensity[targetSlot], *deviceIntensity[sourceRowSlot], extent);
+    alpaka::memcpy(queue, *deviceVelocity[targetSlot], *deviceVelocity[sourceRowSlot], extent);
+    alpaka::wait(queue);
+}
+
+void AlpakaContinuousRowMirror1D::Impl::CopyDeviceRowToDisplay()
+{
+    const Extent extent = Extent{static_cast<Idx>(cellCount)};
+    alpaka::memcpy(queue, *deviceDisplayIntensity, *deviceIntensity[targetSlot], extent);
+    alpaka::memcpy(queue, *deviceDisplayVelocity, *deviceVelocity[targetSlot], extent);
+    alpaka::wait(queue);
+}
+
+AlpakaContinuousRowMirror1D::AlpakaContinuousRowMirror1D() :
+    impl(std::make_unique<Impl>())
+{
+}
+
+AlpakaContinuousRowMirror1D::~AlpakaContinuousRowMirror1D() = default;
+
+bool AlpakaContinuousRowMirror1D::IsInitialized() const
+{
+    return impl->IsInitialized();
+}
+
+bool AlpakaContinuousRowMirror1D::IsDirty() const
+{
+    return impl->IsDirty();
+}
+
+int AlpakaContinuousRowMirror1D::GetWidth() const
+{
+    return impl->GetWidth();
+}
+
+std::size_t AlpakaContinuousRowMirror1D::GetCellCount() const
+{
+    return impl->GetCellCount();
+}
+
+int AlpakaContinuousRowMirror1D::GetSourceSlot() const
+{
+    return impl->GetSourceSlot();
+}
+
+int AlpakaContinuousRowMirror1D::GetTargetSlot() const
+{
+    return impl->GetTargetSlot();
+}
+
+int AlpakaContinuousRowMirror1D::GetPastSlot() const
+{
+    return impl->GetPastSlot();
+}
+
+void AlpakaContinuousRowMirror1D::Resize(int width)
+{
+    impl->Resize(width);
+}
+
+void AlpakaContinuousRowMirror1D::MarkDirty()
+{
+    impl->MarkDirty();
+}
+
+void AlpakaContinuousRowMirror1D::CopySourceAndPastToDevice(const AlpakaPlaneValue *sourceIntensity,
+    const AlpakaPlaneValue *sourceVelocity, const AlpakaPlaneValue *pastIntensity, const AlpakaPlaneValue *pastVelocity,
+    int valueStride)
+{
+    impl->CopySourceAndPastToDevice(sourceIntensity, sourceVelocity, pastIntensity, pastVelocity, valueStride);
+}
+
+void AlpakaContinuousRowMirror1D::DebugCopySourceToTarget()
+{
+    impl->DebugCopySourceToTarget();
+}
+
+void AlpakaContinuousRowMirror1D::DebugCopyPastToTarget()
+{
+    impl->DebugCopyPastToTarget();
+}
+
+void AlpakaContinuousRowMirror1D::CopyTargetToDisplayRow()
+{
+    impl->CopyTargetToDisplayRow();
+}
+
+void AlpakaContinuousRowMirror1D::RotateRows()
+{
+    impl->RotateRows();
+}
+
+void AlpakaContinuousRowMirror1D::CopyTargetToHost(
+    AlpakaPlaneValue *targetIntensity, AlpakaPlaneValue *targetVelocity, int valueStride)
+{
+    impl->CopyTargetToHost(targetIntensity, targetVelocity, valueStride);
+}
+
+void AlpakaContinuousRowMirror1D::CopyDisplayRowToHost(
+    AlpakaPlaneValue *displayIntensity, AlpakaPlaneValue *displayVelocity, int valueStride)
+{
+    impl->CopyDisplayRowToHost(displayIntensity, displayVelocity, valueStride);
 }
 
 } // namespace capow
