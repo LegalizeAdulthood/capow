@@ -1395,18 +1395,15 @@ void CA::Wave2D(int c, int e, int n, int w, int s)
     /* This is the form uNew = (2*u - uPast) + 2*Wave*(uNabeAvg - u).  Here
         Wave = 0.5 * _wavespeed_2_times_dt_2_over_dx_2.  2*Wave has to be below 1
         for stability, so this rule is stable as long as dt < sqrt(2.0) * dx. */
-    wave_target_plane[c].intensity = -wave_past_plane[c].intensity + 2.0 * wave_source_plane[c].intensity +
-        _wavespeed_2_times_dt_2_over_dx_2 *
-            /* I do FOUR_SUM/4.0 - C; if I use the more logical FOUR_SUM - 4.0*C, then
-            I need an extra 1/4.0 here for stability.  So it's easer to put it inside. */
-            ((wave_source_plane[e].intensity + wave_source_plane[n].intensity + wave_source_plane[w].intensity +
-                 wave_source_plane[s].intensity) /
-                    4.0 -
-                wave_source_plane[c].intensity);
-    CLAMP(wave_target_plane[c].intensity, -_max_intensity.Val(), _max_intensity.Val());
+    /* I do FOUR_SUM/4.0 - C; if I use the more logical FOUR_SUM - 4.0*C, then
+    I need an extra 1/4.0 here for stability.  So it's easer to put it inside. */
+    const capow::Wave2DResult<Real> result =
+        capow::ComputeWave2D<Real>(wave_source_plane[c].intensity, wave_source_plane[e].intensity,
+            wave_source_plane[n].intensity, wave_source_plane[w].intensity, wave_source_plane[s].intensity,
+            wave_past_plane[c].intensity, _wavespeed_2_times_dt_2_over_dx_2, _max_intensity.Val(), _dt.Val());
+    wave_target_plane[c].intensity = result.nextIntensity;
     // 2017 extra line to save velocity in variable[1]
-    wave_target_plane[c].variable[1] = (wave_target_plane[c].intensity - wave_source_plane[c].intensity) /
-        _dt.Val(); // Calculate velocity and put in variable[1]
+    wave_target_plane[c].variable[1] = result.velocity; // Calculate velocity and put in variable[1]
 }
 
 void CA::Heat2D(int c, int e, int n, int w, int s)

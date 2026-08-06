@@ -33,6 +33,23 @@ struct Heat2DResult
 };
 
 template <typename T>
+struct Wave2DResult
+{
+    T nextIntensity;
+    T velocity;
+};
+
+template <typename T>
+ALPAKA_FN_HOST_ACC T ClampRange(T value, T lowValue, T highValue)
+{
+    if (value < lowValue)
+        return lowValue;
+    if (value > highValue)
+        return highValue;
+    return value;
+}
+
+template <typename T>
 ALPAKA_FN_HOST_ACC T WrapRange(T value, T lowValue, T highValue)
 {
     if (value < lowValue)
@@ -61,6 +78,17 @@ ALPAKA_FN_HOST_ACC Heat2DResult<T> ComputeHeat2D(T centerIntensity, T eastIntens
     const T nabeAverage = (centerIntensity + eastIntensity + northIntensity + westIntensity + southIntensity) / T(5);
     const T nextIntensity = WrapRange(nabeAverage + heatIncrement, -maxIntensity, maxIntensity);
     return Heat2DResult<T>{nextIntensity, (nextIntensity - centerIntensity) / timeStep};
+}
+
+template <typename T>
+ALPAKA_FN_HOST_ACC Wave2DResult<T> ComputeWave2D(T centerIntensity, T eastIntensity, T northIntensity, T westIntensity,
+    T southIntensity, T pastIntensity, T waveSpeed2TimeStep2OverDx2, T maxIntensity, T timeStep)
+{
+    const T nabeAverage = (eastIntensity + northIntensity + westIntensity + southIntensity) / T(4);
+    const T unclampedNext =
+        -pastIntensity + T(2) * centerIntensity + waveSpeed2TimeStep2OverDx2 * (nabeAverage - centerIntensity);
+    const T nextIntensity = ClampRange(unclampedNext, -maxIntensity, maxIntensity);
+    return Wave2DResult<T>{nextIntensity, (nextIntensity - centerIntensity) / timeStep};
 }
 
 ALPAKA_FN_HOST_ACC inline std::uint32_t Heat2DIndex(std::uint32_t x, std::uint32_t y, std::uint32_t width)

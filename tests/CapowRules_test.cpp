@@ -89,3 +89,30 @@ TEST(capowRules, heat2dCellUsesFixedBoundary)
     EXPECT_FLOAT_EQ(5.0F, result.nextIntensity);
     EXPECT_FLOAT_EQ(0.0F, result.velocity);
 }
+
+TEST(capowRules, wave2dUsesFourNeighborAverage)
+{
+    const capow::Wave2DResult<float> result =
+        capow::ComputeWave2D(10.0F, 20.0F, 15.0F, 5.0F, -5.0F, 7.0F, 0.5F, 100.0F, 0.25F);
+
+    EXPECT_FLOAT_EQ(12.375F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(9.5F, result.velocity);
+}
+
+TEST(capowRules, wave2dClampsAboveMaxIntensity)
+{
+    const capow::Wave2DResult<float> result =
+        capow::ComputeWave2D(90.0F, 200.0F, 200.0F, 200.0F, 200.0F, -90.0F, 1.0F, 100.0F, 2.0F);
+
+    EXPECT_FLOAT_EQ(100.0F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(5.0F, result.velocity);
+}
+
+TEST(capowRules, wave2dClampsBelowMaxIntensity)
+{
+    const capow::Wave2DResult<float> result =
+        capow::ComputeWave2D(-90.0F, -200.0F, -200.0F, -200.0F, -200.0F, 90.0F, 1.0F, 100.0F, 2.0F);
+
+    EXPECT_FLOAT_EQ(-100.0F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(-5.0F, result.velocity);
+}
