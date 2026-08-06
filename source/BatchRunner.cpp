@@ -17,7 +17,6 @@
 
 extern CAlist *calife_list;
 extern HWND masterhwnd;
-extern WindowBitmap *WBM;
 
 namespace
 {
@@ -275,7 +274,7 @@ int RunBatchMode(const BatchOptions &options)
     {
         return 3;
     }
-    if (calife_list == 0 || WBM == 0 || masterhwnd == 0)
+    if (calife_list == nullptr || masterhwnd == nullptr)
     {
         OutputDebugStringA("batch mode is missing application state\n");
         return 4;
@@ -286,7 +285,7 @@ int RunBatchMode(const BatchOptions &options)
     calife_list->SetSleep(FALSE);
 
     CA *focus = calife_list->FocusCA();
-    if (focus == 0)
+    if (focus == nullptr)
     {
         OutputDebugStringA("batch mode is missing focus CA\n");
         return 4;
@@ -311,7 +310,7 @@ int RunBatchMode(const BatchOptions &options)
     }
 
     HDC hdc = GetDC(masterhwnd);
-    if (hdc == 0)
+    if (hdc == nullptr)
     {
         OutputDebugStringA("batch mode could not get window DC\n");
         return 5;
@@ -329,8 +328,8 @@ int RunBatchMode(const BatchOptions &options)
         calife_list->UpdateGenerationCount();
     }
 
-    const bool ok = WriteBmpFromHdc(WBM->GetHDC(), focus->Minx(), focus->Miny(), FocusImageWidth(focus),
-        FocusImageHeight(focus), options.output.c_str(), &error);
+    const bool ok = WriteBmpFromHdc(hdc, focus->Minx(), focus->Miny(), FocusImageWidth(focus), FocusImageHeight(focus),
+        options.output.c_str(), &error);
 
     ReleaseDC(masterhwnd, hdc);
     if (!ok)

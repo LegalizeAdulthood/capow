@@ -738,12 +738,12 @@ void CA::ClearDisplayImages()
 {
     const capow::ImageBuffer::Pixel black = capow::ImageBuffer::Pixel(0xFF000000U);
 
-    if (wavePlaneImage.Data() != 0)
+    if (wavePlaneImage.Data() != nullptr)
         wavePlaneImage.Clear(black);
 
     if (viewmode == IDC_2D_VIEW)
     {
-        if (historyImage.Data() != 0)
+        if (historyImage.Data() != nullptr)
             historyImage.Clear(black);
     }
     else
@@ -1490,28 +1490,11 @@ void CA::MarkAlpakaHeat2DDirty()
 
 void CA::PaintHeat2DPlaneToBitmap(const Wavecell2 *plane)
 {
-    if (WBM == 0 || plane == 0)
+    if (plane == nullptr)
         return;
 
-    for (short y = 0; y < vert_count_2D; ++y)
-    {
-        int c = index(0, y);
-        short pixx = (short) minx;
-        const short pixy = (short) (miny + y);
-        for (short x = 0; x < horz_count_2D; ++x)
-        {
-            Real displayValue = plane[c].intensity;
-            if (showvelocity)
-                displayValue = AMPLIFY_VEL_COLOR_2D * plane[c].variable[1];
-
-            unsigned short colindex = (unsigned short) (((MAX_COLOR - 1) * (displayValue + _max_intensity.Val())) /
-                (2.0 * _max_intensity.Val()));
-            POSITIVECLAMP(colindex, (unsigned short) (MAX_COLOR - 1));
-            WBM->WBMOnlyPutPixel(pixx, pixy, colortable[colindex]);
-            ++c;
-            ++pixx;
-        }
-    }
+    capow::RenderWavePlaneToImageBuffer(&wavePlaneImage, plane, horz_count_2D, vert_count_2D, CX_2D, colortable,
+        _max_intensity.Val(), showvelocity != 0);
 }
 
 bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
@@ -1523,7 +1506,7 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
     }
 
     capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
-    const bool liveGpuType = capowgl != 0 && capowgl->Type() == LIVE_GPU;
+    const bool liveGpuType = capowgl != nullptr && capowgl->Type() == LIVE_GPU;
     const bool canUseGpu = backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU &&
         backendManager.CanRunGpu(capow::ALPAKA_RULE_CA_HEAT_2D) && viewmode == IDC_2D_VIEW &&
         IsAlpakaHeat2DWrapFlagSupported(wrapflag) && _smoothsteps == 0 && !generatorflag &&
@@ -1595,7 +1578,7 @@ bool CA::DrawAlpakaHeat2DTexture(HDC hdc, int left, int top, int width, int heig
 {
     if (capow::GetAlpakaManager().GetBackend() != capow::ALPAKA_BACKEND_GPU)
         return false;
-    if (capowgl == 0 || capowgl->Type() != LIVE_GPU)
+    if (capowgl == nullptr || capowgl->Type() != LIVE_GPU)
         return false;
     if (!alpakaHeat2DTextureReady || !alpakaHeat2DLive)
         return false;
