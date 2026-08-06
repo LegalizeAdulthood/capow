@@ -1,6 +1,5 @@
 add_library(CapowCore STATIC
     Autorand.cpp
-    Bitmap.hpp Bitmap.cpp
     ca.hpp ca.cpp
     Calist.cpp
     camore.cpp
@@ -144,7 +143,6 @@ add_carule_rule(Carule2DWinfreeZhaboNew CARULE_2D_WINFREE_ZHABO_NEW "2D Winfree 
 
 add_library(CAScreen SHARED
     Autorand.cpp
-    Bitmap.cpp
     ca.cpp
     Calist.cpp
     camore.cpp

@@ -7,7 +7,6 @@ extern char *szMyAppName;
 extern CapowGL *capowgl;
 #pragma hdrstop
 extern class CAlist *calife_list;
-extern WindowBitmap *WBM;
 
 extern BOOL zoomviewflag;
 extern void realLabel (HWND, int, Real);

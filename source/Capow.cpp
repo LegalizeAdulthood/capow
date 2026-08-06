@@ -11,7 +11,6 @@
 // These first two headers are needed for Randomize()
 #include "ca.hpp"
 #include "resource.h"
-#include "Bitmap.hpp"
 #include "Random.h"
 #include <commdlg.h>
 #include <string.h>
@@ -111,7 +110,7 @@ BOOL  windowIsMinimized     = FALSE;
 BOOL  inloadsave = FALSE;
 BOOL randomizenow = FALSE;
 int divider_width = 1; //Defined in CAPOW.CPP and in CASCREEN.CPP
-    //Width of the gray line dividers, used in Bitmap.cpp
+    //Width of the gray line dividers.
 short focusflag            = START_FOCUSFLAG;  //Set in ca.hpp to ALL=0, or FOCUS=1
 short WhichToolBar         = 0;    // 1 = NEW  0 = OLD
 BOOL ActionToolbar         = 0;   // 0 means off   1 means on
@@ -165,7 +164,6 @@ int  nDrawMode       = R2_COPYPEN;
 int  cxParent, cyParent;
 
 CapowGL *capowgl;
-WindowBitmap *WBM;  // our memory bitmap
 
 
 /* Here is a flag I use in CONFIGURE.CPP to decide whether that dialog's code
@@ -387,13 +385,10 @@ BOOL MyWnd_CREATE(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 
     char Extension[5] = { '\0' };
 
-    WBM         = new WindowBitmap(hwnd);
-
     capowgl = new CapowGL(hwnd);
     capowgl->Size(hwnd);
 
     calife_list = new CAlist(hwnd, MAX_CAS); //Calls CA:Allocate for members
-    calife_list->SetWindowBitmap(WBM); //Registers
 
     hViewMenu   = LoadMenuA ( hInst, "ViewPopMenu" );
     hCATypeMenu = LoadMenuA ( hInst, "CATYPEPOPMENU" );
@@ -473,21 +468,28 @@ static void MyWnd_SIZE(HWND hwnd, UINT state, int cx, int cy)
 
     RECT scr;
     int  framepixels, width, height;
-    if (rect.right > WBM->CX() ||   rect.bottom  > WBM->CY())
+#ifdef FORCENARROW
+    const int maxClientWidth = FORCEXSIZE;
+    const int maxClientHeight = FORCEYSIZE;
+#else //not FORCENARROW
+    const int maxClientWidth = 640;
+    const int maxClientHeight = 480;
+#endif //FORCENARROW
+    if (rect.right > maxClientWidth || rect.bottom > maxClientHeight)
     {   //Correct one or both measurements of the window.
         GetWindowRect(hwnd, &scr);
         width = scr.right - scr.left; //window width
         height = scr.bottom - scr.top;  //window height
-        if (rect.right > WBM->CX())
+        if (rect.right > maxClientWidth)
         {
             framepixels = width - rect.right;
             //window width - client width
-            width = WBM->CX() + framepixels;
+            width = maxClientWidth + framepixels;
         }
-        if (rect.bottom  > WBM->CY())
+        if (rect.bottom > maxClientHeight)
         {
             framepixels = height - rect.bottom; //window height - client height
-            height = WBM->CY() + framepixels;
+            height = maxClientHeight + framepixels;
         }
         //Then resize window to the correct rect.
 
@@ -1546,8 +1548,6 @@ static void MyWnd_CLOSE(HWND hwnd)   //((fn)(hwnd), 0L)
             hDlgOpenGL = 0;
         }
 
-        // Free bitmap
-        delete WBM;
         delete capowgl;
         delete calife_list;
         calife_list = NULL; //This way you can avoid update after it's gone.

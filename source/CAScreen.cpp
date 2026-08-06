@@ -130,7 +130,7 @@ extern char szScreenSaverFileName[]; //Lives in CONFIGURE.CPP, we concatenate th
 //and we get that from the Profile
 
 //===CAPOW overhead variables======================================
-int divider_width = 3; //Width of the gray line dividers, used in Bitmap.cpp
+int divider_width = 3; //Width of the gray line dividers.
     //Note that I use 1 for this in the *.EXE.
 CAlist *calife_list = NULL;
 CapowGL *capowgl;

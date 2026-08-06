@@ -14,7 +14,6 @@
 
 #include "types.h"
 #include "ca.hpp"
-#include "Bitmap.hpp"
 #include "OpenGlImagePresenter.hpp"
 #include <GL/gl.h>
 #include <GL/glu.h>

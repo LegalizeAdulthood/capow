@@ -536,15 +536,6 @@ int CAlist::Zoom(int onoff)
     return 1;
 }
 
-void CAlist::DrawDivider(HDC hdc)
-{
-    if (!zoomflag)
-        for (int i = 0; i<count; i++)
-            WBM->PutRectangle(hdc, list[i]->minx-3,
-                list[i]->miny-3, list[i]->maxx+3, list[i]->maxy+3,
-                RGB(128,128,128));
-}
-
 void CAlist::Sortfitness()
 {
 #define RUDYWAY
@@ -715,13 +706,6 @@ void CAlist::Copymutate()
             list[i]->CopyCA(focus);
             list[i]->Mutate(mutation_strength);
         }
-}
-
-void CAlist::SetWindowBitmap(WindowBitmap *myWBM)
-{
-    WBM = myWBM;    // To put the box focus into the bitmap
-    for (int i = 0; i < MAX_CAS; i++)
-        list[i]->WBM = myWBM;
 }
 
 BOOL CAlist::GetOpenGLDisplayRect(RECT *rect)

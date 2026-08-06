@@ -34,9 +34,8 @@ to CheckExtension in CAPOW.CPP.  It was fine in Visual C++ Version 5.  Presumabl
 this is a bug in VCC 6 that, God willing, will be fixed by a coming service patch.*/
 
 //#define FORCENARROW
-/*The FORCENARROW switch is used in the WindowBitmap constructor in
-bitmap.cpp to force the bitmap to have the x by y dimensions of
-FORCEXSIZE by FORCEYSIZE, which I define immediately below.
+/*The FORCENARROW switch forces the display to have the x by y dimensions
+of FORCEXSIZE by FORCEYSIZE, which I define immediately below.
 I used the FORCENARROW switch on May 5, 2005, so as
 to be able to make 128 by 1280 bitmaps for borders of my book,
 The Lifebox, the Seashell and the Soul, see http://www.rudyrucker.com/lifebox
@@ -55,10 +54,9 @@ in types.h, we can define DOUBLE or not, and build CAPOWDBL.EXE or
 CAPOWDLO.EXE, if we wanted to combine LITE and DOUBLE.*/
 #ifdef LITE
 #define FIXED_640_480 //Control this being in or not with LITE.
-/* Allow only a maximum bitmap size of 640 by 480.  This lowers the
-memory requirements by (a) making the _max_horz_count lower in the CAs
-and, more important by lowering the size of the CX and CY in your
-WindowBitmap WBM.  Ordinarily I turn this on just when LITE is on.*/
+/* Allow only a maximum display size of 640 by 480.  This lowers the
+memory requirements by making the _max_horz_count lower in the CAs.
+Ordinarily I turn this on just when LITE is on.*/
 #endif//LITE
 
 //#define FIXED_FREQ //incorrect attempt to fix global freq at 1.0
@@ -109,7 +107,6 @@ then the program hangs on startup.*/
 //=================INCLUDES==================================
 #include <fstream> //For iostream
 #include <iomanip>
-#include "Bitmap.hpp" //For WindowBitmap class
 #include "ImageBuffer.hpp"
 #include "Tweak.hpp"   //For TweakParam class
 //============MACROS============================================
@@ -562,7 +559,6 @@ class CA
     friend BOOL outBinary(ofstream& ofs, CA* target);
 private:
 //==============================CA Private=========================
-    WindowBitmap *WBM; //AUTOSET by CAlist::SetWindowBitmap
     HWND hwnd; //AUTOSET by CAlist::CAlist.Where I live.
     class CAlist *calist_ptr; //AUTOSET by CAlist::CAlist.  The parent.
     int type_ca; //LOADSAVE set, used by CA::Settype.
@@ -825,8 +821,6 @@ private:
     void PutHistoryPixel(int x, int y, COLORREF color);
     void FillHistoryRect(int left, int top, int right, int bottom, COLORREF color);
     void ScrollHistoryRect(int left, int top, int right, int bottom, int deltaX, int deltaY);
-    void DrawHistoryRectangle(int left, int top, int right, int bottom, COLORREF color);
-    void CopyDisplayImageToWBM();
     void UpdatePointGraph();
 //------------------CA Wave Oscillator private-----------------------------
     Real frequency_factor; /*AUTOSET.  This is
@@ -1095,7 +1089,7 @@ public:
     void (CA::*UpdateCell_9)(int, int, int, int, int, int, int, int, int);
         /*2D member function pointer used by Wave functions
         to update the velocity and intinsity. Can be 1D or 2D.*/
-    void Show(HDC hdc); /* This holds the code common to the STandard
+    void Show(HDC); /* This holds the code common to the STandard
         Updates and the Wave Updates, the show & stripe stuff, also
         the stuff dealing with wire mode. */
     void StandardUpdate(HDC hdc);
@@ -1226,8 +1220,6 @@ private:
     int count; // LOADSAVE. Number of CA objects in the list.
     CA *list[MAX_CAS]; //AUTOSET. Pointer list to the CAs
     CA *focus; //AUTOSET. This is the CA with the box around it.
-    WindowBitmap *WBM; /*AUTOSET WindowBitmap. Put pixels here,
-         then bitblt all to screen*/
     void DrawOpenGLDialogPreview(CA *focus);
     bool DrawZoomed2D(HDC hdc, CA *focus);
     BOOL zoomflag; //LOADSAVE. If this is on, we only show the focus CA.
@@ -1327,8 +1319,6 @@ public:
     void Setshowvelocity(int newshowvelocity, short focusflag);//new way
     int Setfocus(HDC hdc, CA *newfocus);    /* Change focus CA */
     int Setfocusindex(HDC hdc, int focus_index);    /* Change focus CA */
-    void SetWindowBitmap(WindowBitmap *myWBM);  /* Initializes the Bitmap
-        pointer for use by calist and each CA gets a copy also*/
     void SetSleep(BOOL onoff){ sleep = onoff;} //Overriding concern is to PAUSE
     void ToggleSleep(){sleep ^= 1;} //Ditto
     void ToggleGlSleep(){gl_sleep ^= 1; /*if(!sleep)gl_sleep = 0;*/}
@@ -1401,7 +1391,6 @@ for the screensaver */
     CA *Getfocus(int cursorx, int cursory); /* return pointer to the CA
         that is positioned on screen at cursorx,cursory */
     CA *Focus(){return focus;}
-    void DrawDivider(HDC hdc);
     void LocateNewGenerator(int cx, int cy, int sender);
 //------------CAlist Seed Methods----------------------
     void Seed(); //Default seed with CA::Seed

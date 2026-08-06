@@ -769,44 +769,10 @@ void CA::ScrollHistoryRect(int left, int top, int right, int bottom, int deltaX,
     historyImage.ScrollRect(left - minx, top - miny, right - left + 1, bottom - top + 1, deltaX, deltaY);
 }
 
-void CA::DrawHistoryRectangle(int left, int top, int right, int bottom, COLORREF color)
-{
-    for (int x = left; x <= right; ++x)
-    {
-        PutHistoryPixel(x, top, color);
-        PutHistoryPixel(x, bottom, color);
-    }
-    for (int y = top; y <= bottom; ++y)
-    {
-        PutHistoryPixel(left, y, color);
-        PutHistoryPixel(right, y, color);
-    }
-}
-
-void CA::CopyDisplayImageToWBM()
-{
-    if (WBM == 0)
-        return;
-
-    if (viewmode == IDC_2D_VIEW && HasImageBuffer2D() && wavePlaneImage.Data() != 0)
-    {
-        capow::CopyImageBufferToDevice(WBM->GetHDC(), wavePlaneImage, minx, miny, horz_count + 2, vert_count);
-        return;
-    }
-
-    if ((viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW || viewmode == IDC_WIRE_VIEW ||
-            viewmode == IDC_GRAPH_VIEW || viewmode == IDC_SPLIT_VIEW) &&
-        historyImage.Data() != 0)
-        capow::CopyImageBufferToDevice(WBM->GetHDC(), historyImage, minx, miny);
-}
-
-void CA::Show(HDC hdc)
+void CA::Show(HDC)
 {
     int i;
-    int x, y;
     const COLORREF black = RGB(0, 0, 0);
-    const BOOL openGlHistoryView = viewmode == IDC_WIRE_VIEW || viewmode == IDC_GRAPH_VIEW ||
-        viewmode == IDC_POINT_GRAPH || viewmode == IDC_SPLIT_VIEW;
     // Convert target_row values to COLORREF values.  For the Standard
     //(digital) CAs, the values will be unsigned char, for the Wave
     //(analog) CAs, the values will be long int.
@@ -834,62 +800,10 @@ void CA::Show(HDC hdc)
             row_number = maxy - (calist_ptr->_blt_lines) + 1;
         break;
     case IDC_WIRE_VIEW:
-        EnsureHistoryImage();
-        if (!openGlHistoryView)
-        {
-            for (i = 0; i < horz_count; ++i)
-                PutHistoryPixel(minx + i, miny + (int) (vert_count / 2), COLORREF_target_row[i]);
-            CopyDisplayImageToWBM();
-            WBM->WBMWireBlt(hdc, minx, miny + (int) (vert_count / 2.0), maxx, 1);
-        }
         break;
     case IDC_GRAPH_VIEW:
         EnsureHistoryImage();
         FillHistoryRect(minx, miny, maxx, maxy, black);
-        if (!openGlHistoryView)
-        {
-            if (type_ca == CA_STANDARD || type_ca == CA_REVERSIBLE)
-            {
-                for (i = 0; i < horz_count; ++i)
-
-                    PutHistoryPixel(minx + i, maxy - (int) ((vert_count - 1) * ((Real) (target_row[i]) / (states - 1))),
-                        RGB(255, 255, 255));
-
-                // DRAW RED GENERATORS
-                for (i = 0; i < generatorlist.Count(); i++)
-                {
-                    if (generatorlist.Location(i) < horz_count)
-                    {
-                        PutHistoryPixel(minx + generatorlist.Location(i),
-                            maxy -
-                                (int) ((vert_count - 1) *
-                                    ((Real) (target_row[generatorlist.Location(i)]) / (states - 1))),
-                            RGB(255, 0, 0));
-                    }
-                }
-            }
-            else
-            {
-                for (i = 0; i < horz_count; ++i)
-                    PutHistoryPixel(minx + i,
-                        maxy - (int) ((vert_count - 1) * ((float) (colorindex_target_row[i]) / (MAX_COLOR - 1))),
-                        RGB(255, 255, 255));
-
-                // DRAW RED GENERATORS
-                for (i = 0; i < generatorlist.Count(); i++)
-                {
-                    if (generatorlist.Location(i) < horz_count)
-                    {
-                        x = minx + generatorlist.Location(i);
-                        y = maxy -
-                            (int) ((vert_count - 1) *
-                                ((float) (colorindex_target_row[generatorlist.Location(i)]) / (MAX_COLOR - 1)));
-                        DrawHistoryRectangle(x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
-                    }
-                }
-            }
-            CopyDisplayImageToWBM();
-        }
         break;
 
     case IDC_POINT_GRAPH: //===== 3/15/96 - Bang-Nguyen =====
@@ -911,52 +825,6 @@ void CA::Show(HDC hdc)
         // Put vert_count/2 for vert_count.
 
         FillHistoryRect(minx, splity + 1, maxx, maxy, black);
-        if (!openGlHistoryView)
-        {
-            if (type_ca == CA_STANDARD || type_ca == CA_REVERSIBLE)
-            {
-                for (i = 0; i < horz_count; ++i)
-                    PutHistoryPixel(minx + i,
-                        maxy - (int) (((split_vert_count) -2) * ((Real) (target_row[i]) / (states - 1))),
-                        RGB(255, 255, 255));
-
-                // DRAW GENERATORS
-                for (i = 0; i < generatorlist.Count(); i++)
-                {
-                    if (generatorlist.Location(i) < horz_count)
-                    {
-                        x = minx + generatorlist.Location(i);
-                        y = maxy -
-                            (int) (((split_vert_count) -2) *
-                                ((Real) (target_row[generatorlist.Location(i)]) / (states - 1)));
-                        DrawHistoryRectangle(x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
-                    }
-                }
-            }
-            else
-            {
-                for (i = 0; i < horz_count; ++i)
-                    PutHistoryPixel(minx + i,
-                        maxy - (int) (((split_vert_count) -2) * ((float) (colorindex_target_row[i]) / (MAX_COLOR - 1))),
-                        RGB(255, 255, 255));
-
-                // draw generators
-
-                for (i = 0; i < generatorlist.Count(); i++)
-                {
-                    if (generatorlist.Location(i) < horz_count)
-                    {
-                        x = minx + generatorlist.Location(i);
-                        y = maxy -
-                            (int) (((split_vert_count) -2) *
-                                ((float) (colorindex_target_row[generatorlist.Location(i)]) / (MAX_COLOR - 1)));
-
-                        DrawHistoryRectangle(x - 1, y - 1, x + 1, y + 1, RGB(255, 0, 0));
-                    }
-                }
-            }
-            CopyDisplayImageToWBM();
-        }
         break;
     }
     // Roll forward the source and target buffers.

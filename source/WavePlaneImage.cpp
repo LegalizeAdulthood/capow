@@ -38,30 +38,4 @@ void RenderWavePlaneToImageBuffer(ImageBuffer *image, const Wavecell2 *plane, in
     }
 }
 
-bool CopyImageBufferToDevice(HDC hdc, const ImageBuffer &image, int left, int top)
-{
-    return CopyImageBufferToDevice(hdc, image, left, top, image.Width(), image.Height());
-}
-
-bool CopyImageBufferToDevice(HDC hdc, const ImageBuffer &image, int left, int top, int width, int height)
-{
-    if (!image.Data())
-        return false;
-
-    BITMAPINFO info = {};
-    info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    info.bmiHeader.biWidth = image.Width();
-    info.bmiHeader.biHeight = -image.Height();
-    info.bmiHeader.biPlanes = 1;
-    info.bmiHeader.biBitCount = 32;
-    info.bmiHeader.biCompression = BI_RGB;
-
-    if (width <= 0 || height <= 0)
-        return false;
-
-    const int copiedLines = StretchDIBits(hdc, left, top, width, height, 0, 0, image.Width(), image.Height(),
-        image.Data(), &info, DIB_RGB_COLORS, SRCCOPY);
-    return copiedLines != 0;
-}
-
 } // namespace capow
