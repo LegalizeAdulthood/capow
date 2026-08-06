@@ -20,13 +20,9 @@ TEST(alpakaBackend, canSelectCpuAndGpu)
     EXPECT_EQ(capow::ALPAKA_BACKEND_CPU, manager.GetBackend());
 }
 
-TEST(alpakaBackend, laterCaRulesStartDisabledAndCanBeEnabled)
+TEST(alpakaBackend, core2DRulesStartEnabled)
 {
-    capow::AlpakaManager manager;
-
-    EXPECT_FALSE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_WAVE_2D));
-
-    manager.SetRuleEnabled(capow::ALPAKA_RULE_CA_WAVE_2D, true);
+    const capow::AlpakaManager manager;
 
     EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_HEAT_2D));
     EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_WAVE_2D));

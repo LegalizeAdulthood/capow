@@ -11,11 +11,19 @@
 namespace capow
 {
 
+enum Live2DRule
+{
+    LIVE_2D_RULE_HEAT,
+    LIVE_2D_RULE_WAVE
+};
+
 struct Heat2DLiveOptions
 {
     int width;
     int height;
+    Live2DRule rule;
     AlpakaPlaneValue heatIncrement;
+    AlpakaPlaneValue waveSpeed2TimeStep2OverDx2;
     AlpakaPlaneValue maxIntensity;
     AlpakaPlaneValue timeStep;
     AlpakaPlaneValue velocityColorScale;
@@ -39,8 +47,12 @@ public:
     void Deactivate();
     bool DownloadCurrent(AlpakaPlaneValue *targetPlane, int valueStride, AlpakaPlaneValue *targetVelocity,
         int velocityStride, std::string *error);
+    bool DownloadCurrentAndPast(AlpakaPlaneValue *targetPlane, int valueStride, AlpakaPlaneValue *targetVelocity,
+        int velocityStride, AlpakaPlaneValue *pastPlane, int pastStride, std::string *error);
     bool RunFrame(const Heat2DLiveOptions &options, const AlpakaPlaneValue *sourcePlane, int valueStride,
         const std::uint32_t *colorTable, std::string *error);
+    bool RunFrame(const Heat2DLiveOptions &options, const AlpakaPlaneValue *sourcePlane, int valueStride,
+        const AlpakaPlaneValue *pastPlane, int pastStride, const std::uint32_t *colorTable, std::string *error);
 
 private:
     class Impl;

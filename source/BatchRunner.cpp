@@ -4,6 +4,7 @@
 #include "AlpakaBackend.hpp"
 #include "AlpakaHeat2D.hpp"
 #include "AlpakaSyntheticHeat.hpp"
+#include "AlpakaWave2D.hpp"
 #endif
 #include "BatchImage.hpp"
 #include "Random.h"
@@ -154,6 +155,11 @@ bool IsHeat2DBatchRule(capow::BatchRule rule)
     return rule == capow::BATCH_RULE_CA_HEAT_2D;
 }
 
+bool IsWave2DBatchRule(capow::BatchRule rule)
+{
+    return rule == capow::BATCH_RULE_CA_WAVE_2D;
+}
+
 void LogBatchError(const std::string &error)
 {
     if (!error.empty())
@@ -166,6 +172,19 @@ void LogBatchError(const std::string &error)
 #if defined(CAPOW_ENABLE_ALPAKA)
 std::vector<capow::AlpakaPlaneValue> NormalizeHeat2DIntensity(
     const capow::Heat2DOptions &options, const capow::Heat2DFields &fields)
+{
+    std::vector<capow::AlpakaPlaneValue> normalized;
+    normalized.resize(fields.intensityField.size());
+    const capow::AlpakaPlaneValue scale = capow::AlpakaPlaneValue(2) * options.maxIntensity;
+    for (std::size_t index = 0; index < fields.intensityField.size(); ++index)
+    {
+        normalized[index] = (fields.intensityField[index] + options.maxIntensity) / scale;
+    }
+    return normalized;
+}
+
+std::vector<capow::AlpakaPlaneValue> NormalizeWave2DIntensity(
+    const capow::Wave2DOptions &options, const capow::Wave2DFields &fields)
 {
     std::vector<capow::AlpakaPlaneValue> normalized;
     normalized.resize(fields.intensityField.size());
@@ -260,6 +279,55 @@ int RunHeat2DBatchMode(const capow::BatchOptions &options, CA *focus)
 
     return 0;
 }
+
+int RunWave2DBatchMode(const capow::BatchOptions &options, CA *focus)
+{
+    if (options.wrapMode != capow::BATCH_WRAP_WRAP)
+    {
+        OutputDebugStringA("CA_WAVE_2D batch currently supports wrap mode only\n");
+        return 3;
+    }
+
+    capow::Wave2DOptions waveOptions;
+    waveOptions.width = focus->HorzCount2D();
+    waveOptions.height = focus->VertCount2D();
+    waveOptions.steps = options.steps;
+
+    try
+    {
+        std::vector<capow::AlpakaPlaneValue> source;
+        std::vector<capow::AlpakaPlaneValue> past;
+        capow::Wave2DFields result;
+        capow::MakeWave2DInitial(waveOptions, &source, &past);
+        if (options.backend == capow::BATCH_BACKEND_CPU)
+        {
+            capow::RunWave2DHost(waveOptions, source, past, &result);
+        }
+        else
+        {
+            capow::RunWave2DGpu(waveOptions, source, past, &result);
+        }
+
+        const std::vector<capow::AlpakaPlaneValue> normalized = NormalizeWave2DIntensity(waveOptions, result);
+        std::string error;
+        const bool ok = capow::WriteBmpFromIntensityPlane(
+            normalized.data(), waveOptions.width, waveOptions.height, options.output.c_str(), &error);
+        if (!ok)
+        {
+            LogBatchError(error);
+            return 6;
+        }
+    }
+    catch (const std::exception &exception)
+    {
+        OutputDebugStringA("CA_WAVE_2D batch failed: ");
+        OutputDebugStringA(exception.what());
+        OutputDebugStringA("\n");
+        return 7;
+    }
+
+    return 0;
+}
 #endif
 
 } // namespace
@@ -305,6 +373,15 @@ int RunBatchMode(const BatchOptions &options)
         return RunHeat2DBatchMode(options, focus);
 #else
         OutputDebugStringA("CA_HEAT_2D batch rule requires Alpaka build\n");
+        return 3;
+#endif
+    }
+    if (IsWave2DBatchRule(options.rule))
+    {
+#if defined(CAPOW_ENABLE_ALPAKA)
+        return RunWave2DBatchMode(options, focus);
+#else
+        OutputDebugStringA("CA_WAVE_2D batch rule requires Alpaka build\n");
         return 3;
 #endif
     }

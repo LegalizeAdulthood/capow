@@ -67,6 +67,32 @@ struct Heat2DLiveKernel
     }
 };
 
+struct Wave2DLiveKernel
+{
+    template <typename TAcc>
+    ALPAKA_FN_ACC void operator()(const TAcc &acc, const capow::AlpakaPlaneValue *source,
+        const capow::AlpakaPlaneValue *past, capow::AlpakaPlaneValue *targetIntensity,
+        capow::AlpakaPlaneValue *targetVelocity, Idx width, Idx height,
+        capow::AlpakaPlaneValue waveSpeed2TimeStep2OverDx2, capow::AlpakaPlaneValue maxIntensity,
+        capow::AlpakaPlaneValue timeStep) const
+    {
+        const alpaka::Vec<WorkDim, Idx> global = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
+        const Idx y = global[0];
+        const Idx x = global[1];
+
+        if (x >= width || y >= height)
+        {
+            return;
+        }
+
+        const capow::Wave2DResult<capow::AlpakaPlaneValue> result = capow::ComputeWave2DCell<capow::AlpakaPlaneValue>(
+            source, past, x, y, width, height, waveSpeed2TimeStep2OverDx2, maxIntensity, timeStep);
+        const Idx center = capow::Heat2DIndex(x, y, width);
+        targetIntensity[center] = result.nextIntensity;
+        targetVelocity[center] = result.velocity;
+    }
+};
+
 __device__ int ColorIndexForValue(float value, float maxIntensity, int colorCount)
 {
     const float scaled = static_cast<float>(colorCount - 1) * (value + maxIntensity) / (2.0F * maxIntensity);
@@ -133,7 +159,7 @@ void ValidateOptions(const capow::Heat2DLiveOptions &options)
 
 void ValidatePlane(const capow::AlpakaPlaneValue *plane, int valueStride)
 {
-    if (plane == 0)
+    if (plane == nullptr)
     {
         throw std::invalid_argument("live CA_HEAT_2D plane pointer must not be null");
     }
@@ -149,7 +175,7 @@ bool SetCudaError(cudaError_t result, const char *action, std::string *error)
     {
         return true;
     }
-    if (error != 0)
+    if (error != nullptr)
     {
         *error = action;
         *error += ": ";
@@ -175,16 +201,22 @@ public:
     void Deactivate();
     bool DownloadCurrent(AlpakaPlaneValue *targetPlane, int valueStride, AlpakaPlaneValue *targetVelocity,
         int velocityStride, std::string *error);
+    bool DownloadCurrentAndPast(AlpakaPlaneValue *targetPlane, int valueStride, AlpakaPlaneValue *targetVelocity,
+        int velocityStride, AlpakaPlaneValue *pastPlane, int pastStride, std::string *error);
     bool RunFrame(const Heat2DLiveOptions &nextOptions, const AlpakaPlaneValue *sourcePlane, int valueStride,
         const std::uint32_t *colorTable, std::string *error);
+    bool RunFrame(const Heat2DLiveOptions &nextOptions, const AlpakaPlaneValue *sourcePlane, int valueStride,
+        const AlpakaPlaneValue *pastPlane, int pastStride, const std::uint32_t *colorTable, std::string *error);
 
 private:
     void Resize(const Heat2DLiveOptions &nextOptions);
     void ReleaseTexture();
     void EnsureTexture();
     void UploadSource(const AlpakaPlaneValue *sourcePlane, int valueStride);
+    void UploadPast(const AlpakaPlaneValue *pastPlane, int pastStride);
     void UploadColors(const std::uint32_t *colorTable);
     void RunHeatStep();
+    void RunWaveStep();
     bool ColorizeTexture(std::string *error);
     void CopyHostToDevice(std::vector<AlpakaPlaneValue> *hostPlane, PlaneBuffer *devicePlane);
     void CopyDeviceToHost(PlaneBuffer *devicePlane, std::vector<AlpakaPlaneValue> *hostPlane);
@@ -197,9 +229,11 @@ private:
     bool active;
     std::size_t cellCount;
     std::vector<AlpakaPlaneValue> hostSource;
+    std::vector<AlpakaPlaneValue> hostPast;
     std::vector<AlpakaPlaneValue> hostVelocity;
     std::vector<std::uint32_t> hostColors;
     std::optional<PlaneBuffer> deviceCurrent;
+    std::optional<PlaneBuffer> devicePast;
     std::optional<PlaneBuffer> deviceNextIntensity;
     std::optional<PlaneBuffer> deviceVelocity;
     std::optional<ColorBuffer> deviceColors;
@@ -211,13 +245,13 @@ Heat2DLiveState::Impl::Impl() :
     accDevice(alpaka::getDevByIdx(AccPlatform{}, 0U)),
     hostDevice(alpaka::getDevByIdx(HostPlatform{}, 0U)),
     queue(accDevice),
-    options{0, 0, AlpakaPlaneValue(0), AlpakaPlaneValue(0), AlpakaPlaneValue(0), AlpakaPlaneValue(0), 0, false,
-        HEAT_2D_BOUNDARY_WRAP},
+    options{0, 0, LIVE_2D_RULE_HEAT, AlpakaPlaneValue(0), AlpakaPlaneValue(0), AlpakaPlaneValue(0), AlpakaPlaneValue(0),
+        AlpakaPlaneValue(0), 0, false, HEAT_2D_BOUNDARY_WRAP},
     initialized(false),
     active(false),
     cellCount(0U),
     texture(0U),
-    textureResource(0)
+    textureResource(nullptr)
 {
 }
 
@@ -233,9 +267,8 @@ bool Heat2DLiveState::Impl::IsActive() const
 
 bool Heat2DLiveState::Impl::NeedsSource(const Heat2DLiveOptions &nextOptions) const
 {
-    return !active || !initialized || options.width != nextOptions.width ||
-        options.height != nextOptions.height ||
-        options.colorCount != nextOptions.colorCount;
+    return !active || !initialized || options.width != nextOptions.width || options.height != nextOptions.height ||
+        options.colorCount != nextOptions.colorCount || options.rule != nextOptions.rule;
 }
 
 unsigned int Heat2DLiveState::Impl::GetTexture() const
@@ -251,10 +284,21 @@ void Heat2DLiveState::Impl::Deactivate()
 bool Heat2DLiveState::Impl::DownloadCurrent(AlpakaPlaneValue *targetPlane, int valueStride,
     AlpakaPlaneValue *targetVelocity, int velocityStride, std::string *error)
 {
+    return DownloadCurrentAndPast(targetPlane, valueStride, targetVelocity, velocityStride, nullptr, 0, error);
+}
+
+bool Heat2DLiveState::Impl::DownloadCurrentAndPast(AlpakaPlaneValue *targetPlane, int valueStride,
+    AlpakaPlaneValue *targetVelocity, int velocityStride, AlpakaPlaneValue *pastPlane, int pastStride,
+    std::string *error)
+{
     try
     {
         ValidatePlane(targetPlane, valueStride);
         ValidatePlane(targetVelocity, velocityStride);
+        if (pastPlane != nullptr)
+        {
+            ValidatePlane(pastPlane, pastStride);
+        }
         if (!active || !deviceCurrent || !deviceVelocity)
         {
             return true;
@@ -262,16 +306,24 @@ bool Heat2DLiveState::Impl::DownloadCurrent(AlpakaPlaneValue *targetPlane, int v
 
         CopyDeviceToHost(&*deviceCurrent, &hostSource);
         CopyDeviceToHost(&*deviceVelocity, &hostVelocity);
+        if (pastPlane != nullptr && devicePast)
+        {
+            CopyDeviceToHost(&*devicePast, &hostPast);
+        }
         for (std::size_t index = 0; index < cellCount; ++index)
         {
             targetPlane[index * static_cast<std::size_t>(valueStride)] = hostSource[index];
             targetVelocity[index * static_cast<std::size_t>(velocityStride)] = hostVelocity[index];
+            if (pastPlane != nullptr && devicePast)
+            {
+                pastPlane[index * static_cast<std::size_t>(pastStride)] = hostPast[index];
+            }
         }
         return true;
     }
     catch (const std::exception &exception)
     {
-        if (error != 0)
+        if (error != nullptr)
         {
             *error = exception.what();
         }
@@ -282,33 +334,51 @@ bool Heat2DLiveState::Impl::DownloadCurrent(AlpakaPlaneValue *targetPlane, int v
 bool Heat2DLiveState::Impl::RunFrame(const Heat2DLiveOptions &nextOptions, const AlpakaPlaneValue *sourcePlane,
     int valueStride, const std::uint32_t *colorTable, std::string *error)
 {
+    return RunFrame(nextOptions, sourcePlane, valueStride, nullptr, 0, colorTable, error);
+}
+
+bool Heat2DLiveState::Impl::RunFrame(const Heat2DLiveOptions &nextOptions, const AlpakaPlaneValue *sourcePlane,
+    int valueStride, const AlpakaPlaneValue *pastPlane, int pastStride, const std::uint32_t *colorTable,
+    std::string *error)
+{
     try
     {
         ValidateOptions(nextOptions);
-        if (colorTable == 0)
+        if (colorTable == nullptr)
         {
             throw std::invalid_argument("live CA_HEAT_2D color table must not be null");
         }
+        const bool needsSource = NeedsSource(nextOptions);
         Resize(nextOptions);
         EnsureTexture();
-        if (!active)
+        if (needsSource)
         {
             ValidatePlane(sourcePlane, valueStride);
             UploadSource(sourcePlane, valueStride);
+            if (options.rule == LIVE_2D_RULE_WAVE)
+            {
+                ValidatePlane(pastPlane, pastStride);
+                UploadPast(pastPlane, pastStride);
+            }
         }
         UploadColors(colorTable);
-        RunHeatStep();
+        if (options.rule == LIVE_2D_RULE_WAVE)
+            RunWaveStep();
+        else
+            RunHeatStep();
         if (!ColorizeTexture(error))
         {
             return false;
         }
+        if (options.rule == LIVE_2D_RULE_WAVE)
+            std::swap(devicePast, deviceCurrent);
         std::swap(deviceCurrent, deviceNextIntensity);
         active = true;
         return true;
     }
     catch (const std::exception &exception)
     {
-        if (error != 0)
+        if (error != nullptr)
         {
             *error = exception.what();
         }
@@ -330,10 +400,12 @@ void Heat2DLiveState::Impl::Resize(const Heat2DLiveOptions &nextOptions)
     const MemExtent planeExtent = MemExtent{static_cast<Idx>(cellCount)};
     const MemExtent colorExtent = MemExtent{static_cast<Idx>(options.colorCount)};
     deviceCurrent.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, planeExtent));
+    devicePast.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, planeExtent));
     deviceNextIntensity.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, planeExtent));
     deviceVelocity.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, planeExtent));
     deviceColors.emplace(alpaka::allocBuf<std::uint32_t, Idx>(accDevice, colorExtent));
     hostSource.assign(cellCount, AlpakaPlaneValue(0));
+    hostPast.assign(cellCount, AlpakaPlaneValue(0));
     hostVelocity.assign(cellCount, AlpakaPlaneValue(0));
     hostColors.assign(static_cast<std::size_t>(options.colorCount), 0U);
     active = false;
@@ -343,10 +415,10 @@ void Heat2DLiveState::Impl::Resize(const Heat2DLiveOptions &nextOptions)
 
 void Heat2DLiveState::Impl::ReleaseTexture()
 {
-    if (textureResource != 0)
+    if (textureResource != nullptr)
     {
         cudaGraphicsUnregisterResource(textureResource);
-        textureResource = 0;
+        textureResource = nullptr;
     }
     if (texture != 0U)
     {
@@ -358,7 +430,7 @@ void Heat2DLiveState::Impl::ReleaseTexture()
 
 void Heat2DLiveState::Impl::EnsureTexture()
 {
-    if (texture != 0U && textureResource != 0)
+    if (texture != 0U && textureResource != nullptr)
     {
         return;
     }
@@ -395,6 +467,15 @@ void Heat2DLiveState::Impl::UploadSource(const AlpakaPlaneValue *sourcePlane, in
     CopyHostToDevice(&hostSource, &*deviceCurrent);
 }
 
+void Heat2DLiveState::Impl::UploadPast(const AlpakaPlaneValue *pastPlane, int pastStride)
+{
+    for (std::size_t index = 0; index < cellCount; ++index)
+    {
+        hostPast[index] = pastPlane[index * static_cast<std::size_t>(pastStride)];
+    }
+    CopyHostToDevice(&hostPast, &*devicePast);
+}
+
 void Heat2DLiveState::Impl::UploadColors(const std::uint32_t *colorTable)
 {
     for (int index = 0; index < options.colorCount; ++index)
@@ -421,6 +502,22 @@ void Heat2DLiveState::Impl::RunHeatStep()
         alpaka::getPtrNative(*deviceNextIntensity), alpaka::getPtrNative(*deviceVelocity),
         static_cast<Idx>(options.width), static_cast<Idx>(options.height), options.heatIncrement, options.maxIntensity,
         options.timeStep, options.boundaryMode);
+    alpaka::wait(queue);
+}
+
+void Heat2DLiveState::Impl::RunWaveStep()
+{
+    const WorkExtent threads = WorkExtent{16U, 16U};
+    const WorkExtent blocks = WorkExtent{DivideRoundUp(static_cast<std::uint32_t>(options.height), threads[0]),
+        DivideRoundUp(static_cast<std::uint32_t>(options.width), threads[1])};
+    const WorkExtent elements = WorkExtent::all(1U);
+    const WorkDiv workDiv = WorkDiv{blocks, threads, elements};
+    const Wave2DLiveKernel kernel = Wave2DLiveKernel{};
+
+    alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(*deviceCurrent),
+        alpaka::getPtrNative(*devicePast), alpaka::getPtrNative(*deviceNextIntensity),
+        alpaka::getPtrNative(*deviceVelocity), static_cast<Idx>(options.width), static_cast<Idx>(options.height),
+        options.waveSpeed2TimeStep2OverDx2, options.maxIntensity, options.timeStep);
     alpaka::wait(queue);
 }
 
@@ -509,16 +606,30 @@ void Heat2DLiveState::Deactivate()
     impl->Deactivate();
 }
 
-bool Heat2DLiveState::DownloadCurrent(AlpakaPlaneValue *targetPlane, int valueStride,
-    AlpakaPlaneValue *targetVelocity, int velocityStride, std::string *error)
+bool Heat2DLiveState::DownloadCurrent(AlpakaPlaneValue *targetPlane, int valueStride, AlpakaPlaneValue *targetVelocity,
+    int velocityStride, std::string *error)
 {
     return impl->DownloadCurrent(targetPlane, valueStride, targetVelocity, velocityStride, error);
+}
+
+bool Heat2DLiveState::DownloadCurrentAndPast(AlpakaPlaneValue *targetPlane, int valueStride,
+    AlpakaPlaneValue *targetVelocity, int velocityStride, AlpakaPlaneValue *pastPlane, int pastStride,
+    std::string *error)
+{
+    return impl->DownloadCurrentAndPast(
+        targetPlane, valueStride, targetVelocity, velocityStride, pastPlane, pastStride, error);
 }
 
 bool Heat2DLiveState::RunFrame(const Heat2DLiveOptions &options, const AlpakaPlaneValue *sourcePlane, int valueStride,
     const std::uint32_t *colorTable, std::string *error)
 {
     return impl->RunFrame(options, sourcePlane, valueStride, colorTable, error);
+}
+
+bool Heat2DLiveState::RunFrame(const Heat2DLiveOptions &options, const AlpakaPlaneValue *sourcePlane, int valueStride,
+    const AlpakaPlaneValue *pastPlane, int pastStride, const std::uint32_t *colorTable, std::string *error)
+{
+    return impl->RunFrame(options, sourcePlane, valueStride, pastPlane, pastStride, colorTable, error);
 }
 
 } // namespace capow

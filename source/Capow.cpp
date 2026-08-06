@@ -180,17 +180,27 @@ static void SyncAlpakaHeat2DDisplays()
         calife_list->GetCA(i)->MarkAlpakaHeat2DDirty();
 }
 
+static bool IsLiveGpuRuleType(int type)
+{
+    return type == CA_HEAT_2D || type == CA_WAVE_2D;
+}
+
+static capow::AlpakaRule AlpakaRuleForCAType(int type)
+{
+    if (type == CA_WAVE_2D)
+        return capow::ALPAKA_RULE_CA_WAVE_2D;
+    return capow::ALPAKA_RULE_CA_HEAT_2D;
+}
+
 static bool CanShowLiveGpu()
 {
-    if (capowgl == NULL || calife_list == NULL || !zoomviewflag)
+    if (capowgl == nullptr || calife_list == nullptr || !zoomviewflag)
         return false;
 
     CA *focus = calife_list->FocusCA();
     capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
-    return backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU &&
-        backendManager.CanRunGpu(capow::ALPAKA_RULE_CA_HEAT_2D) &&
-        focus != NULL &&
-        focus->Gettype() == CA_HEAT_2D &&
+    return backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU && focus != nullptr &&
+        IsLiveGpuRuleType(focus->Gettype()) && backendManager.CanRunGpu(AlpakaRuleForCAType(focus->Gettype())) &&
         focus->Getviewmode() == IDC_2D_VIEW;
 }
 
