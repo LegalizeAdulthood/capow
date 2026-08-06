@@ -61,6 +61,7 @@ AlpakaManager::AlpakaManager() :
     ruleEnabled[ALPAKA_RULE_CA_HEAT_2D] = true;
     ruleEnabled[ALPAKA_RULE_CA_WAVE_2D] = true;
     ruleEnabled[ALPAKA_RULE_CA_HEATWAVE] = true;
+    ruleEnabled[ALPAKA_RULE_CA_HEATWAVE2] = true;
 }
 
 bool AlpakaManager::IsGpuAvailable() const
@@ -134,6 +135,8 @@ const char *AlpakaRuleName(AlpakaRule rule)
         return "CA_WAVE_2D";
     case ALPAKA_RULE_CA_HEATWAVE:
         return "CA_HEATWAVE";
+    case ALPAKA_RULE_CA_HEATWAVE2:
+        return "CA_HEATWAVE2";
     case ALPAKA_RULE_COUNT:
         break;
     }

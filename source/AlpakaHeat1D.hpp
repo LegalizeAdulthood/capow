@@ -14,6 +14,7 @@ struct Heat1DOptions
 {
     int width;
     int steps;
+    Heat1DRule rule;
     AlpakaPlaneValue dtOverDx2;
     AlpakaPlaneValue heatIncrement;
     AlpakaPlaneValue maxIntensity;

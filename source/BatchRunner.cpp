@@ -35,6 +35,8 @@ int CaTypeForRule(capow::BatchRule rule)
         return CA_WAVE_2D;
     case capow::BATCH_RULE_CA_HEATWAVE:
         return CA_HEATWAVE;
+    case capow::BATCH_RULE_CA_HEATWAVE2:
+        return CA_HEATWAVE2;
     }
     return CA_HEAT_2D;
 }
@@ -70,6 +72,8 @@ capow::AlpakaRule AlpakaRuleForBatchRule(capow::BatchRule rule)
         return capow::ALPAKA_RULE_CA_WAVE_2D;
     case capow::BATCH_RULE_CA_HEATWAVE:
         return capow::ALPAKA_RULE_CA_HEATWAVE;
+    case capow::BATCH_RULE_CA_HEATWAVE2:
+        return capow::ALPAKA_RULE_CA_HEATWAVE2;
     }
     return capow::ALPAKA_RULE_CA_HEAT_2D;
 }
@@ -167,7 +171,7 @@ bool IsWave2DBatchRule(capow::BatchRule rule)
 
 bool IsHeat1DBatchRule(capow::BatchRule rule)
 {
-    return rule == capow::BATCH_RULE_CA_HEATWAVE;
+    return rule == capow::BATCH_RULE_CA_HEATWAVE || rule == capow::BATCH_RULE_CA_HEATWAVE2;
 }
 
 void LogBatchError(const std::string &error)
@@ -356,13 +360,15 @@ int RunHeat1DBatchMode(const capow::BatchOptions &options, CA *focus)
 {
     if (options.wrapMode != capow::BATCH_WRAP_WRAP)
     {
-        OutputDebugStringA("CA_HEATWAVE batch currently supports wrap mode only\n");
+        OutputDebugStringA("1D heat batch currently supports wrap mode only\n");
         return 3;
     }
 
     capow::Heat1DOptions heatOptions;
     heatOptions.width = focus->HorzCount();
     heatOptions.steps = options.steps;
+    heatOptions.rule = options.rule == capow::BATCH_RULE_CA_HEATWAVE2 ? capow::HEAT_1D_RULE_FIVE_NEIGHBOR
+                                                                      : capow::HEAT_1D_RULE_THREE_NEIGHBOR;
 
     try
     {
@@ -390,7 +396,8 @@ int RunHeat1DBatchMode(const capow::BatchOptions &options, CA *focus)
     }
     catch (const std::exception &exception)
     {
-        OutputDebugStringA("CA_HEATWAVE batch failed: ");
+        OutputDebugStringA(capow::BatchRuleName(options.rule));
+        OutputDebugStringA(" batch failed: ");
         OutputDebugStringA(exception.what());
         OutputDebugStringA("\n");
         return 7;
@@ -460,7 +467,7 @@ int RunBatchMode(const BatchOptions &options)
 #if defined(CAPOW_ENABLE_ALPAKA)
         return RunHeat1DBatchMode(options, focus);
 #else
-        OutputDebugStringA("CA_HEATWAVE batch rule requires Alpaka build\n");
+        OutputDebugStringA("1D heat batch rule requires Alpaka build\n");
         return 3;
 #endif
     }

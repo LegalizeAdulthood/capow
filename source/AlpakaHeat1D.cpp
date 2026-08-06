@@ -42,7 +42,7 @@ struct Heat1DKernel
     ALPAKA_FN_ACC void operator()(const TAcc &acc, const capow::AlpakaPlaneValue *source,
         capow::AlpakaPlaneValue *targetIntensity, capow::AlpakaPlaneValue *targetVelocity, Idx width,
         capow::AlpakaPlaneValue dtOverDx2, capow::AlpakaPlaneValue heatIncrement, capow::AlpakaPlaneValue maxIntensity,
-        capow::AlpakaPlaneValue maxVelocity, capow::AlpakaPlaneValue timeStep) const
+        capow::AlpakaPlaneValue maxVelocity, capow::AlpakaPlaneValue timeStep, capow::Heat1DRule rule) const
     {
         const Idx x = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
         if (x >= width)
@@ -50,8 +50,9 @@ struct Heat1DKernel
             return;
         }
 
-        const capow::Heat1DResult<capow::AlpakaPlaneValue> result =
-            capow::ComputeHeat1DCell(source, x, width, dtOverDx2, heatIncrement, maxIntensity, maxVelocity, timeStep);
+        const capow::Heat1DResult<capow::AlpakaPlaneValue> result = rule == capow::HEAT_1D_RULE_FIVE_NEIGHBOR
+            ? capow::ComputeHeat1D5Cell(source, x, width, heatIncrement, maxIntensity, timeStep)
+            : capow::ComputeHeat1DCell(source, x, width, dtOverDx2, heatIncrement, maxIntensity, maxVelocity, timeStep);
         targetIntensity[x] = result.nextIntensity;
         targetVelocity[x] = result.velocity;
     }
@@ -108,9 +109,11 @@ void Heat1DStepHost(const capow::Heat1DOptions &options, const std::vector<capow
     const std::uint32_t width = static_cast<std::uint32_t>(options.width);
     for (std::uint32_t x = 0U; x < width; ++x)
     {
-        const capow::Heat1DResult<capow::AlpakaPlaneValue> result =
-            capow::ComputeHeat1DCell<capow::AlpakaPlaneValue>(source.data(), x, width, options.dtOverDx2,
-                options.heatIncrement, options.maxIntensity, options.maxVelocity, options.timeStep);
+        const capow::Heat1DResult<capow::AlpakaPlaneValue> result = options.rule == capow::HEAT_1D_RULE_FIVE_NEIGHBOR
+            ? capow::ComputeHeat1D5Cell<capow::AlpakaPlaneValue>(
+                  source.data(), x, width, options.heatIncrement, options.maxIntensity, options.timeStep)
+            : capow::ComputeHeat1DCell<capow::AlpakaPlaneValue>(source.data(), x, width, options.dtOverDx2,
+                  options.heatIncrement, options.maxIntensity, options.maxVelocity, options.timeStep);
         (*targetIntensity)[x] = result.nextIntensity;
         (*targetVelocity)[x] = result.velocity;
     }
@@ -138,6 +141,7 @@ namespace capow
 Heat1DOptions::Heat1DOptions() :
     width(0),
     steps(0),
+    rule(HEAT_1D_RULE_THREE_NEIGHBOR),
     dtOverDx2(defaultDtOverDx2),
     heatIncrement(defaultHeatIncrement),
     maxIntensity(defaultMaxIntensity),
@@ -222,7 +226,7 @@ void RunHeat1DGpuTimed(const Heat1DOptions &options, const std::vector<AlpakaPla
                 alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(deviceCurrent),
                     alpaka::getPtrNative(deviceNextIntensity), alpaka::getPtrNative(deviceNextVelocity),
                     static_cast<Idx>(options.width), options.dtOverDx2, options.heatIncrement, options.maxIntensity,
-                    options.maxVelocity, options.timeStep);
+                    options.maxVelocity, options.timeStep, options.rule);
                 std::swap(deviceCurrent, deviceNextIntensity);
             }
             alpaka::wait(queue);

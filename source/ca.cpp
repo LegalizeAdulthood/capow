@@ -1185,14 +1185,11 @@ nC = (C + lam(-LL + 16 L + 16 R - RR))/(1 + 30*lam).
 */
 #define SIMPLE_HEAT2
 #ifdef SIMPLE_HEAT2
-    wave_target_row[c].intensity = _heat_inc.Val() +
-        (wave_source_row[ll].intensity + wave_source_row[l].intensity + wave_source_row[c].intensity +
-            wave_source_row[r].intensity + wave_source_row[rr].intensity) /
-            5.0;
-    if (wave_target_row[c].intensity > _max_intensity.Val())
-        wave_target_row[c].intensity -= 2.0 * _max_intensity.Val();
-    wave_target_row[c].velocity =
-        (wave_target_row[c].intensity - wave_source_row[c].intensity) / _dt.Val(); // Calculate just for graphing.
+    const capow::Heat1DResult<Real> result = capow::ComputeHeat1D5<Real>(wave_source_row[ll].intensity,
+        wave_source_row[l].intensity, wave_source_row[c].intensity, wave_source_row[r].intensity,
+        wave_source_row[rr].intensity, _heat_inc.Val(), _max_intensity.Val(), _dt.Val());
+    wave_target_row[c].intensity = result.nextIntensity;
+    wave_target_row[c].velocity = result.velocity; // Calculate just for graphing.
 
     // Assume heat_inc is positive so only wrap at top.  You
     // may possibly get an intensity < -max_intensity, but this

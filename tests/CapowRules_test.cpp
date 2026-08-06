@@ -29,6 +29,32 @@ TEST(capowRules, heat1dCellUsesWrapBoundary)
     EXPECT_FLOAT_EQ(7.5F, result.velocity);
 }
 
+TEST(capowRules, heat1dFiveNeighborAveragesInputs)
+{
+    const capow::Heat1DResult<float> result = capow::ComputeHeat1D5(1.0F, 2.0F, 3.0F, 4.0F, 5.0F, 0.5F, 10.0F, 0.25F);
+
+    EXPECT_FLOAT_EQ(3.5F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(2.0F, result.velocity);
+}
+
+TEST(capowRules, heat1dFiveNeighborWrapsTopOnly)
+{
+    const capow::Heat1DResult<float> result = capow::ComputeHeat1D5(9.0F, 9.0F, 9.0F, 9.0F, 9.0F, 3.0F, 10.0F, 0.5F);
+
+    EXPECT_FLOAT_EQ(-8.0F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(-34.0F, result.velocity);
+}
+
+TEST(capowRules, heat1dFiveNeighborCellUsesWrapBoundary)
+{
+    const float field[] = {0.0F, 10.0F, 20.0F, 30.0F, 40.0F};
+
+    const capow::Heat1DResult<float> result = capow::ComputeHeat1D5Cell(field, 0U, 5U, 0.0F, 100.0F, 1.0F);
+
+    EXPECT_FLOAT_EQ(20.0F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(20.0F, result.velocity);
+}
+
 TEST(capowRules, heat2dAveragesFiveInputs)
 {
     const capow::Heat2DResult<float> result = capow::ComputeHeat2D(10.0F, 20.0F, -5.0F, 5.0F, 0.0F, 2.0F, 100.0F, 0.5F);

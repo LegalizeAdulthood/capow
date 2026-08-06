@@ -8,7 +8,7 @@
 namespace
 {
 
-void ExpectHeatGpuMatchesHost(int width, int steps, capow::AlpakaPlaneValue tolerance)
+void ExpectHeatGpuMatchesHost(int width, int steps, capow::Heat1DRule rule, capow::AlpakaPlaneValue tolerance)
 {
     capow::AlpakaManager &manager = capow::GetAlpakaManager();
     if (!manager.IsGpuAvailable())
@@ -19,6 +19,7 @@ void ExpectHeatGpuMatchesHost(int width, int steps, capow::AlpakaPlaneValue tole
     capow::Heat1DOptions options;
     options.width = width;
     options.steps = steps;
+    options.rule = rule;
     options.dtOverDx2 = 0.1875F;
     options.heatIncrement = 0.375F;
     options.maxIntensity = 7.0F;
@@ -44,10 +45,20 @@ void ExpectHeatGpuMatchesHost(int width, int steps, capow::AlpakaPlaneValue tole
 
 TEST(alpakaHeat1D, oneStepMatchesHost)
 {
-    ExpectHeatGpuMatchesHost(19, 1, 1.0e-5F);
+    ExpectHeatGpuMatchesHost(19, 1, capow::HEAT_1D_RULE_THREE_NEIGHBOR, 1.0e-5F);
 }
 
 TEST(alpakaHeat1D, thousandStepsMatchHost)
 {
-    ExpectHeatGpuMatchesHost(257, 1000, 2.5e-5F);
+    ExpectHeatGpuMatchesHost(257, 1000, capow::HEAT_1D_RULE_THREE_NEIGHBOR, 2.5e-5F);
+}
+
+TEST(alpakaHeat1D, fiveNeighborOneStepMatchesHost)
+{
+    ExpectHeatGpuMatchesHost(23, 1, capow::HEAT_1D_RULE_FIVE_NEIGHBOR, 1.0e-5F);
+}
+
+TEST(alpakaHeat1D, fiveNeighborThousandStepsMatchHost)
+{
+    ExpectHeatGpuMatchesHost(263, 1000, capow::HEAT_1D_RULE_FIVE_NEIGHBOR, 2.5e-5F);
 }
