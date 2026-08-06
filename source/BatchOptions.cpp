@@ -19,7 +19,7 @@ char LowerAscii(char ch)
 
 bool EqualIgnoreCase(const char *left, const char *right)
 {
-    if (left == 0 || right == 0)
+    if (left == nullptr || right == nullptr)
     {
         return false;
     }
@@ -37,7 +37,7 @@ bool EqualIgnoreCase(const char *left, const char *right)
 
 bool EqualText(const char *left, const char *right)
 {
-    if (left == 0 || right == 0)
+    if (left == nullptr || right == nullptr)
     {
         return false;
     }
@@ -94,6 +94,11 @@ bool ParseRule(const char *text, capow::BatchRule *rule)
         *rule = capow::BATCH_RULE_CA_WAVE_2D;
         return true;
     }
+    if (EqualIgnoreCase(text, "CA_HEATWAVE"))
+    {
+        *rule = capow::BATCH_RULE_CA_HEATWAVE;
+        return true;
+    }
     return false;
 }
 
@@ -129,11 +134,11 @@ bool ParseWrapMode(const char *text, capow::BatchWrapMode *wrapMode)
 
 bool ParsePositiveInt(const char *text, int *value)
 {
-    char *end = 0;
+    char *end = nullptr;
     long parsed;
     errno = 0;
     parsed = std::strtol(text, &end, 10);
-    if (text == 0 || *text == '\0' || *end != '\0' || errno == ERANGE)
+    if (text == nullptr || *text == '\0' || *end != '\0' || errno == ERANGE)
     {
         return false;
     }
@@ -147,9 +152,9 @@ bool ParsePositiveInt(const char *text, int *value)
 
 bool ParsePositiveUnsignedLong(const char *text, unsigned long *value)
 {
-    char *end = 0;
+    char *end = nullptr;
     unsigned long parsed;
-    if (text == 0 || *text < '0' || *text > '9')
+    if (text == nullptr || *text < '0' || *text > '9')
     {
         return false;
     }
@@ -196,7 +201,7 @@ std::vector<std::string> SplitCommandLine(const char *commandLine, std::string *
     bool inQuotes = false;
     const char *scan = commandLine;
 
-    if (scan == 0)
+    if (scan == nullptr)
     {
         return tokens;
     }
@@ -459,6 +464,8 @@ const char *BatchRuleName(BatchRule rule)
         return "CA_HEAT_2D";
     case BATCH_RULE_CA_WAVE_2D:
         return "CA_WAVE_2D";
+    case BATCH_RULE_CA_HEATWAVE:
+        return "CA_HEATWAVE";
     }
     return "unknown";
 }

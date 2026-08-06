@@ -2,6 +2,7 @@
 
 #if defined(CAPOW_ENABLE_ALPAKA)
 #include "AlpakaBackend.hpp"
+#include "AlpakaHeat1D.hpp"
 #include "AlpakaHeat2D.hpp"
 #include "AlpakaSyntheticHeat.hpp"
 #include "AlpakaWave2D.hpp"
@@ -32,6 +33,8 @@ int CaTypeForRule(capow::BatchRule rule)
         return CA_HEAT_2D;
     case capow::BATCH_RULE_CA_WAVE_2D:
         return CA_WAVE_2D;
+    case capow::BATCH_RULE_CA_HEATWAVE:
+        return CA_HEATWAVE;
     }
     return CA_HEAT_2D;
 }
@@ -65,6 +68,8 @@ capow::AlpakaRule AlpakaRuleForBatchRule(capow::BatchRule rule)
         return capow::ALPAKA_RULE_CA_HEAT_2D;
     case capow::BATCH_RULE_CA_WAVE_2D:
         return capow::ALPAKA_RULE_CA_WAVE_2D;
+    case capow::BATCH_RULE_CA_HEATWAVE:
+        return capow::ALPAKA_RULE_CA_HEATWAVE;
     }
     return capow::ALPAKA_RULE_CA_HEAT_2D;
 }
@@ -160,6 +165,11 @@ bool IsWave2DBatchRule(capow::BatchRule rule)
     return rule == capow::BATCH_RULE_CA_WAVE_2D;
 }
 
+bool IsHeat1DBatchRule(capow::BatchRule rule)
+{
+    return rule == capow::BATCH_RULE_CA_HEATWAVE;
+}
+
 void LogBatchError(const std::string &error)
 {
     if (!error.empty())
@@ -185,6 +195,19 @@ std::vector<capow::AlpakaPlaneValue> NormalizeHeat2DIntensity(
 
 std::vector<capow::AlpakaPlaneValue> NormalizeWave2DIntensity(
     const capow::Wave2DOptions &options, const capow::Wave2DFields &fields)
+{
+    std::vector<capow::AlpakaPlaneValue> normalized;
+    normalized.resize(fields.intensityField.size());
+    const capow::AlpakaPlaneValue scale = capow::AlpakaPlaneValue(2) * options.maxIntensity;
+    for (std::size_t index = 0; index < fields.intensityField.size(); ++index)
+    {
+        normalized[index] = (fields.intensityField[index] + options.maxIntensity) / scale;
+    }
+    return normalized;
+}
+
+std::vector<capow::AlpakaPlaneValue> NormalizeHeat1DIntensity(
+    const capow::Heat1DOptions &options, const capow::Heat1DFields &fields)
 {
     std::vector<capow::AlpakaPlaneValue> normalized;
     normalized.resize(fields.intensityField.size());
@@ -328,6 +351,53 @@ int RunWave2DBatchMode(const capow::BatchOptions &options, CA *focus)
 
     return 0;
 }
+
+int RunHeat1DBatchMode(const capow::BatchOptions &options, CA *focus)
+{
+    if (options.wrapMode != capow::BATCH_WRAP_WRAP)
+    {
+        OutputDebugStringA("CA_HEATWAVE batch currently supports wrap mode only\n");
+        return 3;
+    }
+
+    capow::Heat1DOptions heatOptions;
+    heatOptions.width = focus->HorzCount();
+    heatOptions.steps = options.steps;
+
+    try
+    {
+        std::vector<capow::AlpakaPlaneValue> initial;
+        capow::Heat1DFields result;
+        capow::MakeHeat1DInitial(heatOptions, &initial);
+        if (options.backend == capow::BATCH_BACKEND_CPU)
+        {
+            capow::RunHeat1DHost(heatOptions, initial, &result);
+        }
+        else
+        {
+            capow::RunHeat1DGpu(heatOptions, initial, &result);
+        }
+
+        const std::vector<capow::AlpakaPlaneValue> normalized = NormalizeHeat1DIntensity(heatOptions, result);
+        std::string error;
+        const bool ok =
+            capow::WriteBmpFromIntensityPlane(normalized.data(), heatOptions.width, 1, options.output.c_str(), &error);
+        if (!ok)
+        {
+            LogBatchError(error);
+            return 6;
+        }
+    }
+    catch (const std::exception &exception)
+    {
+        OutputDebugStringA("CA_HEATWAVE batch failed: ");
+        OutputDebugStringA(exception.what());
+        OutputDebugStringA("\n");
+        return 7;
+    }
+
+    return 0;
+}
 #endif
 
 } // namespace
@@ -382,6 +452,15 @@ int RunBatchMode(const BatchOptions &options)
         return RunWave2DBatchMode(options, focus);
 #else
         OutputDebugStringA("CA_WAVE_2D batch rule requires Alpaka build\n");
+        return 3;
+#endif
+    }
+    if (IsHeat1DBatchRule(options.rule))
+    {
+#if defined(CAPOW_ENABLE_ALPAKA)
+        return RunHeat1DBatchMode(options, focus);
+#else
+        OutputDebugStringA("CA_HEATWAVE batch rule requires Alpaka build\n");
         return 3;
 #endif
     }

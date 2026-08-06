@@ -15,6 +15,7 @@ if(CAPOW_ENABLE_ALPAKA)
     target_sources(test-CapowCore PRIVATE
         AlpakaBackend_test.cpp
         AlpakaBuffers_test.cpp
+        AlpakaHeat1D_test.cpp
         AlpakaHeat2D_test.cpp
         AlpakaTiming_test.cpp
         AlpakaWave2D_test.cpp
@@ -72,4 +73,5 @@ if(CAPOW_ENABLE_ALPAKA)
     add_capow_batch_image_compare_test(caHeat2DZero CA_HEAT_2D 40 1946 zero)
     add_capow_batch_image_compare_test(caHeat2DFixed CA_HEAT_2D 40 1946 fixed)
     add_capow_batch_image_compare_test(caWave2DWrap CA_WAVE_2D 40 1946 wrap 1)
+    add_capow_batch_image_compare_test(caHeatwaveWrap CA_HEATWAVE 40 1946 wrap 1)
 endif()

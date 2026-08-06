@@ -2,6 +2,33 @@
 
 #include <gtest/gtest.h>
 
+TEST(capowRules, heat1dUsesImplicitThreePointAverage)
+{
+    const capow::Heat1DResult<float> result =
+        capow::ComputeHeat1D(10.0F, 20.0F, -5.0F, 0.25F, 2.0F, 100.0F, 10.0F, 0.5F);
+
+    EXPECT_FLOAT_EQ(15.166667F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(-9.666667F, result.velocity);
+}
+
+TEST(capowRules, heat1dClampsVelocityBeforeIntensityWrap)
+{
+    const capow::Heat1DResult<float> result = capow::ComputeHeat1D(8.0F, 8.0F, 8.0F, 0.5F, 12.0F, 10.0F, 4.0F, 0.5F);
+
+    EXPECT_FLOAT_EQ(-6.0F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(4.0F, result.velocity);
+}
+
+TEST(capowRules, heat1dCellUsesWrapBoundary)
+{
+    const float field[] = {0.0F, 10.0F, 20.0F};
+
+    const capow::Heat1DResult<float> result = capow::ComputeHeat1DCell(field, 0U, 3U, 0.5F, 0.0F, 100.0F, 10.0F, 1.0F);
+
+    EXPECT_FLOAT_EQ(7.5F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(7.5F, result.velocity);
+}
+
 TEST(capowRules, heat2dAveragesFiveInputs)
 {
     const capow::Heat2DResult<float> result = capow::ComputeHeat2D(10.0F, 20.0F, -5.0F, 5.0F, 0.0F, 2.0F, 100.0F, 0.5F);

@@ -89,6 +89,20 @@ TEST(batchOptions, parseValidSyntheticHeatBatch)
     EXPECT_STREQ("SYNTHETIC_HEAT_2D", capow::BatchRuleName(result.options.rule));
 }
 
+TEST(batchOptions, parseValidHeatwaveBatch)
+{
+    const char *argv[] = {
+        "--batch", "--backend", "gpu", "--rule", "CA_HEATWAVE", "--steps", "40", "--output", "heatwave.bmp"};
+
+    const capow::BatchParseResult result = Parse(9, argv);
+
+    EXPECT_TRUE(result.ok);
+    EXPECT_EQ(capow::BATCH_BACKEND_GPU, result.options.backend);
+    EXPECT_EQ(capow::BATCH_RULE_CA_HEATWAVE, result.options.rule);
+    EXPECT_EQ(40, result.options.steps);
+    EXPECT_STREQ("CA_HEATWAVE", capow::BatchRuleName(result.options.rule));
+}
+
 TEST(batchOptions, parseRejectsMissingBackend)
 {
     const char *argv[] = {"--batch", "--rule", "CA_HEAT_2D", "--steps", "100", "--output", "cpu.bmp"};

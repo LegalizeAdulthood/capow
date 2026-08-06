@@ -1163,14 +1163,11 @@ void CA::HeatInt1(int l, int c, int r)
         Rather than clamping, we wrap.
     */
 
-    wave_target_row[c].intensity = (_dt_over_dx_2 * wave_source_row[l].intensity + wave_source_row[c].intensity +
-                                       _dt_over_dx_2 * wave_source_row[r].intensity) /
-            (1 + 2.0 * _dt_over_dx_2) +
-        _dt.Val() * _heat_inc.Val();
-    wave_target_row[c].velocity =
-        (wave_target_row[c].intensity - wave_source_row[c].intensity) / _dt.Val(); // Calculate just for graphing.
-    CLAMP(wave_target_row[c].velocity, -_max_velocity.Val(), _max_velocity.Val());
-    WRAP((wave_target_row[c].intensity), -_max_intensity.Val(), _max_intensity.Val());
+    const capow::Heat1DResult<Real> result = capow::ComputeHeat1D<Real>(wave_source_row[l].intensity,
+        wave_source_row[c].intensity, wave_source_row[r].intensity, _dt_over_dx_2, _heat_inc.Val(),
+        _max_intensity.Val(), _max_velocity.Val(), _dt.Val());
+    wave_target_row[c].intensity = result.nextIntensity;
+    wave_target_row[c].velocity = result.velocity; // Calculate just for graphing.
 }
 
 void CA::HeatInt2(int ll, int l, int c, int r, int rr)

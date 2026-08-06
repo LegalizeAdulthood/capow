@@ -60,6 +60,8 @@ if(CAPOW_ENABLE_ALPAKA)
         AlpakaBackend.cpp
         AlpakaBuffers.hpp
         AlpakaBuffers.cpp
+        AlpakaHeat1D.hpp
+        AlpakaHeat1D.cpp
         AlpakaHeat2D.hpp
         AlpakaHeat2D.cpp
         AlpakaHeat2DLive.hpp
