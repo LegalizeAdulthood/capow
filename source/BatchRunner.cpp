@@ -5,6 +5,7 @@
 #include "AlpakaHeat1D.hpp"
 #include "AlpakaHeat2D.hpp"
 #include "AlpakaSyntheticHeat.hpp"
+#include "AlpakaWave1D.hpp"
 #include "AlpakaWave2D.hpp"
 #endif
 #include "BatchImage.hpp"
@@ -37,6 +38,8 @@ int CaTypeForRule(capow::BatchRule rule)
         return CA_HEATWAVE;
     case capow::BATCH_RULE_CA_HEATWAVE2:
         return CA_HEATWAVE2;
+    case capow::BATCH_RULE_CA_WAVE:
+        return ALT_CA_WAVE;
     }
     return CA_HEAT_2D;
 }
@@ -74,6 +77,8 @@ capow::AlpakaRule AlpakaRuleForBatchRule(capow::BatchRule rule)
         return capow::ALPAKA_RULE_CA_HEATWAVE;
     case capow::BATCH_RULE_CA_HEATWAVE2:
         return capow::ALPAKA_RULE_CA_HEATWAVE2;
+    case capow::BATCH_RULE_CA_WAVE:
+        return capow::ALPAKA_RULE_CA_WAVE;
     }
     return capow::ALPAKA_RULE_CA_HEAT_2D;
 }
@@ -174,6 +179,11 @@ bool IsHeat1DBatchRule(capow::BatchRule rule)
     return rule == capow::BATCH_RULE_CA_HEATWAVE || rule == capow::BATCH_RULE_CA_HEATWAVE2;
 }
 
+bool IsWave1DBatchRule(capow::BatchRule rule)
+{
+    return rule == capow::BATCH_RULE_CA_WAVE;
+}
+
 void LogBatchError(const std::string &error)
 {
     if (!error.empty())
@@ -212,6 +222,19 @@ std::vector<capow::AlpakaPlaneValue> NormalizeWave2DIntensity(
 
 std::vector<capow::AlpakaPlaneValue> NormalizeHeat1DIntensity(
     const capow::Heat1DOptions &options, const capow::Heat1DFields &fields)
+{
+    std::vector<capow::AlpakaPlaneValue> normalized;
+    normalized.resize(fields.intensityField.size());
+    const capow::AlpakaPlaneValue scale = capow::AlpakaPlaneValue(2) * options.maxIntensity;
+    for (std::size_t index = 0; index < fields.intensityField.size(); ++index)
+    {
+        normalized[index] = (fields.intensityField[index] + options.maxIntensity) / scale;
+    }
+    return normalized;
+}
+
+std::vector<capow::AlpakaPlaneValue> NormalizeWave1DIntensity(
+    const capow::Wave1DOptions &options, const capow::Wave1DFields &fields)
 {
     std::vector<capow::AlpakaPlaneValue> normalized;
     normalized.resize(fields.intensityField.size());
@@ -356,6 +379,54 @@ int RunWave2DBatchMode(const capow::BatchOptions &options, CA *focus)
     return 0;
 }
 
+int RunWave1DBatchMode(const capow::BatchOptions &options, CA *focus)
+{
+    if (options.wrapMode != capow::BATCH_WRAP_WRAP)
+    {
+        OutputDebugStringA("1D wave batch currently supports wrap mode only\n");
+        return 3;
+    }
+
+    capow::Wave1DOptions waveOptions;
+    waveOptions.width = focus->HorzCount();
+    waveOptions.steps = options.steps;
+
+    try
+    {
+        std::vector<capow::AlpakaPlaneValue> source;
+        std::vector<capow::AlpakaPlaneValue> past;
+        capow::Wave1DFields result;
+        capow::MakeWave1DInitial(waveOptions, &source, &past);
+        if (options.backend == capow::BATCH_BACKEND_CPU)
+        {
+            capow::RunWave1DHost(waveOptions, source, past, &result);
+        }
+        else
+        {
+            capow::RunWave1DGpu(waveOptions, source, past, &result);
+        }
+
+        const std::vector<capow::AlpakaPlaneValue> normalized = NormalizeWave1DIntensity(waveOptions, result);
+        std::string error;
+        const bool ok =
+            capow::WriteBmpFromIntensityPlane(normalized.data(), waveOptions.width, 1, options.output.c_str(), &error);
+        if (!ok)
+        {
+            LogBatchError(error);
+            return 6;
+        }
+    }
+    catch (const std::exception &exception)
+    {
+        OutputDebugStringA("CA_WAVE batch failed: ");
+        OutputDebugStringA(exception.what());
+        OutputDebugStringA("\n");
+        return 7;
+    }
+
+    return 0;
+}
+
 int RunHeat1DBatchMode(const capow::BatchOptions &options, CA *focus)
 {
     if (options.wrapMode != capow::BATCH_WRAP_WRAP)
@@ -459,6 +530,15 @@ int RunBatchMode(const BatchOptions &options)
         return RunWave2DBatchMode(options, focus);
 #else
         OutputDebugStringA("CA_WAVE_2D batch rule requires Alpaka build\n");
+        return 3;
+#endif
+    }
+    if (IsWave1DBatchRule(options.rule))
+    {
+#if defined(CAPOW_ENABLE_ALPAKA)
+        return RunWave1DBatchMode(options, focus);
+#else
+        OutputDebugStringA("1D wave batch rule requires Alpaka build\n");
         return 3;
 #endif
     }

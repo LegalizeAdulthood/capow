@@ -18,6 +18,7 @@ if(CAPOW_ENABLE_ALPAKA)
         AlpakaHeat1D_test.cpp
         AlpakaHeat2D_test.cpp
         AlpakaTiming_test.cpp
+        AlpakaWave1D_test.cpp
         AlpakaWave2D_test.cpp
         AlpakaSyntheticHeat_test.cpp)
     target_link_libraries(test-CapowCore PUBLIC CapowAlpaka)
@@ -75,4 +76,5 @@ if(CAPOW_ENABLE_ALPAKA)
     add_capow_batch_image_compare_test(caWave2DWrap CA_WAVE_2D 40 1946 wrap 1)
     add_capow_batch_image_compare_test(caHeatwaveWrap CA_HEATWAVE 40 1946 wrap 1)
     add_capow_batch_image_compare_test(caHeatwave2Wrap CA_HEATWAVE2 40 1946 wrap 1)
+    add_capow_batch_image_compare_test(caWave1DWrap CA_WAVE 40 1946 wrap 1)
 endif()

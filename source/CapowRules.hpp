@@ -53,6 +53,13 @@ struct Wave2DResult
 };
 
 template <typename T>
+struct Wave1DResult
+{
+    T nextIntensity;
+    T velocity;
+};
+
+template <typename T>
 ALPAKA_FN_HOST_ACC T ClampRange(T value, T lowValue, T highValue)
 {
     if (value < lowValue)
@@ -108,6 +115,16 @@ ALPAKA_FN_HOST_ACC Heat1DResult<T> ComputeHeat1D5(T leftLeftIntensity, T leftInt
         nextIntensity -= T(2) * maxIntensity;
     }
     return Heat1DResult<T>{nextIntensity, (nextIntensity - centerIntensity) / timeStep};
+}
+
+template <typename T>
+ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeWave1D(T leftIntensity, T centerIntensity, T rightIntensity, T pastIntensity,
+    T waveSpeed2TimeStep2OverDx2, T maxIntensity, T timeStep)
+{
+    const T unclampedNext = -pastIntensity + T(2) * centerIntensity +
+        waveSpeed2TimeStep2OverDx2 * (leftIntensity - T(2) * centerIntensity + rightIntensity);
+    const T nextIntensity = ClampRange(unclampedNext, -maxIntensity, maxIntensity);
+    return Wave1DResult<T>{nextIntensity, (nextIntensity - centerIntensity) / timeStep};
 }
 
 template <typename T>
@@ -171,6 +188,16 @@ ALPAKA_FN_HOST_ACC Heat1DResult<T> ComputeHeat1D5Cell(
     const std::uint32_t rightRightX = Heat2DWrapNext(rightX, width);
     return ComputeHeat1D5<T>(source[leftLeftX], source[leftX], source[x], source[rightX], source[rightRightX],
         heatIncrement, maxIntensity, timeStep);
+}
+
+template <typename T>
+ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeWave1DCell(const T *source, const T *past, std::uint32_t x,
+    std::uint32_t width, T waveSpeed2TimeStep2OverDx2, T maxIntensity, T timeStep)
+{
+    const std::uint32_t leftX = Heat2DWrapPrevious(x, width);
+    const std::uint32_t rightX = Heat2DWrapNext(x, width);
+    return ComputeWave1D<T>(
+        source[leftX], source[x], source[rightX], past[x], waveSpeed2TimeStep2OverDx2, maxIntensity, timeStep);
 }
 
 template <typename T>

@@ -1,0 +1,42 @@
+#ifndef ALPAKAWAVE1D_HPP
+#define ALPAKAWAVE1D_HPP
+
+#include "AlpakaBuffers.hpp"
+#include "AlpakaTiming.hpp"
+
+#include <vector>
+
+namespace capow
+{
+
+struct Wave1DOptions
+{
+    int width;
+    int steps;
+    AlpakaPlaneValue waveSpeed2TimeStep2OverDx2;
+    AlpakaPlaneValue maxIntensity;
+    AlpakaPlaneValue timeStep;
+
+    Wave1DOptions();
+};
+
+struct Wave1DFields
+{
+    std::vector<AlpakaPlaneValue> intensityField;
+    std::vector<AlpakaPlaneValue> velocityField;
+};
+
+void MakeWave1DInitial(
+    const Wave1DOptions &options, std::vector<AlpakaPlaneValue> *source, std::vector<AlpakaPlaneValue> *past);
+void RunWave1DHost(const Wave1DOptions &options, const std::vector<AlpakaPlaneValue> &initialSource,
+    const std::vector<AlpakaPlaneValue> &initialPast, Wave1DFields *result);
+void RunWave1DGpu(const Wave1DOptions &options, const std::vector<AlpakaPlaneValue> &initialSource,
+    const std::vector<AlpakaPlaneValue> &initialPast, Wave1DFields *result);
+void RunWave1DGpuTimed(const Wave1DOptions &options, const std::vector<AlpakaPlaneValue> &initialSource,
+    const std::vector<AlpakaPlaneValue> &initialPast, Wave1DFields *result, AlpakaTimingMeasurements *timing);
+AlpakaPlaneValue MaxWave1DDifference(
+    const std::vector<AlpakaPlaneValue> &expected, const std::vector<AlpakaPlaneValue> &actual);
+
+} // namespace capow
+
+#endif

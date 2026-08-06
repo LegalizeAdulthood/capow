@@ -55,6 +55,41 @@ TEST(capowRules, heat1dFiveNeighborCellUsesWrapBoundary)
     EXPECT_FLOAT_EQ(20.0F, result.velocity);
 }
 
+TEST(capowRules, wave1dUsesThreeNeighborSecondDifference)
+{
+    const capow::Wave1DResult<float> result = capow::ComputeWave1D(2.0F, 3.0F, 4.0F, 1.0F, 0.5F, 100.0F, 0.25F);
+
+    EXPECT_FLOAT_EQ(5.0F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(8.0F, result.velocity);
+}
+
+TEST(capowRules, wave1dClampsAboveMaxIntensity)
+{
+    const capow::Wave1DResult<float> result = capow::ComputeWave1D(0.0F, 100.0F, 0.0F, -100.0F, 0.0F, 10.0F, 2.0F);
+
+    EXPECT_FLOAT_EQ(10.0F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(-45.0F, result.velocity);
+}
+
+TEST(capowRules, wave1dClampsBelowMaxIntensity)
+{
+    const capow::Wave1DResult<float> result = capow::ComputeWave1D(0.0F, -100.0F, 0.0F, 100.0F, 0.0F, 10.0F, 2.0F);
+
+    EXPECT_FLOAT_EQ(-10.0F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(45.0F, result.velocity);
+}
+
+TEST(capowRules, wave1dCellUsesWrapBoundary)
+{
+    const float source[] = {0.0F, 10.0F, 20.0F};
+    const float past[] = {5.0F, 6.0F, 7.0F};
+
+    const capow::Wave1DResult<float> result = capow::ComputeWave1DCell(source, past, 0U, 3U, 0.5F, 100.0F, 1.0F);
+
+    EXPECT_FLOAT_EQ(10.0F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(10.0F, result.velocity);
+}
+
 TEST(capowRules, heat2dAveragesFiveInputs)
 {
     const capow::Heat2DResult<float> result = capow::ComputeHeat2D(10.0F, 20.0F, -5.0F, 5.0F, 0.0F, 2.0F, 100.0F, 0.5F);

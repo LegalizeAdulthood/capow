@@ -1216,12 +1216,11 @@ void CA::AltWaveVelInt1(int l, int c, int r)
     with Wave = _wavespeed_2_times_dt_2_over_dx_2.  2*Wave has to be below 2 for
     stability, so this rule is stable as long as dt < dx.
     */
-    wave_target_row[c].intensity = -wave_past_row[c].intensity + 2.0 * wave_source_row[c].intensity +
-        _wavespeed_2_times_dt_2_over_dx_2 *
-            (wave_source_row[l].intensity - 2.0 * wave_source_row[c].intensity + wave_source_row[r].intensity);
-    CLAMP(wave_target_row[c].intensity, -_max_intensity.Val(), _max_intensity.Val());
-    wave_target_row[c].velocity =
-        (wave_target_row[c].intensity - wave_source_row[c].intensity) / _dt.Val(); // Calculate just for graphing.
+    const capow::Wave1DResult<Real> result = capow::ComputeWave1D<Real>(wave_source_row[l].intensity,
+        wave_source_row[c].intensity, wave_source_row[r].intensity, wave_past_row[c].intensity,
+        _wavespeed_2_times_dt_2_over_dx_2, _max_intensity.Val(), _dt.Val());
+    wave_target_row[c].intensity = result.nextIntensity;
+    wave_target_row[c].velocity = result.velocity; // Calculate just for graphing.
 }
 
 void CA::WaveVelInt2(int ll, int l, int c, int r, int rr)
