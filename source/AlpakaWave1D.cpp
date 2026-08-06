@@ -31,7 +31,9 @@ using ConstHostView = alpaka::ViewPlainPtr<HostDevice, const capow::AlpakaPlaneV
 using DeviceBuffer = alpaka::Buf<AccPlatform, capow::AlpakaPlaneValue, MemDim, Idx>;
 
 const capow::AlpakaPlaneValue defaultWaveSpeed2TimeStep2OverDx2 = capow::AlpakaPlaneValue(0.5F);
+const capow::AlpakaPlaneValue defaultDtOver12Dx2 = capow::AlpakaPlaneValue(0.03125F);
 const capow::AlpakaPlaneValue defaultMaxIntensity = capow::AlpakaPlaneValue(10.0F);
+const capow::AlpakaPlaneValue defaultMaxVelocity = capow::AlpakaPlaneValue(10.0F);
 const capow::AlpakaPlaneValue defaultTimeStep = capow::AlpakaPlaneValue(0.25F);
 
 struct Wave1DKernel
@@ -40,7 +42,8 @@ struct Wave1DKernel
     ALPAKA_FN_ACC void operator()(const TAcc &acc, const capow::AlpakaPlaneValue *source,
         const capow::AlpakaPlaneValue *past, capow::AlpakaPlaneValue *targetIntensity,
         capow::AlpakaPlaneValue *targetVelocity, Idx width, capow::AlpakaPlaneValue waveSpeed2TimeStep2OverDx2,
-        capow::AlpakaPlaneValue maxIntensity, capow::AlpakaPlaneValue timeStep) const
+        capow::AlpakaPlaneValue dtOver12Dx2, capow::AlpakaPlaneValue maxIntensity, capow::AlpakaPlaneValue maxVelocity,
+        capow::AlpakaPlaneValue timeStep, capow::Wave1DRule rule) const
     {
         const Idx x = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
         if (x >= width)
@@ -48,8 +51,11 @@ struct Wave1DKernel
             return;
         }
 
-        const capow::Wave1DResult<capow::AlpakaPlaneValue> result = capow::ComputeWave1DCell<capow::AlpakaPlaneValue>(
-            source, past, x, width, waveSpeed2TimeStep2OverDx2, maxIntensity, timeStep);
+        const capow::Wave1DResult<capow::AlpakaPlaneValue> result = rule == capow::WAVE_1D_RULE_FIVE_NEIGHBOR
+            ? capow::ComputeWave1D5Cell<capow::AlpakaPlaneValue>(
+                  source, past, x, width, dtOver12Dx2, maxIntensity, maxVelocity, timeStep)
+            : capow::ComputeWave1DCell<capow::AlpakaPlaneValue>(
+                  source, past, x, width, waveSpeed2TimeStep2OverDx2, maxIntensity, timeStep);
         targetIntensity[x] = result.nextIntensity;
         targetVelocity[x] = result.velocity;
     }
@@ -68,6 +74,10 @@ void ValidateOptions(const capow::Wave1DOptions &options)
     if (options.maxIntensity <= capow::AlpakaPlaneValue(0))
     {
         throw std::invalid_argument("CA_WAVE max intensity must be positive");
+    }
+    if (options.maxVelocity <= capow::AlpakaPlaneValue(0))
+    {
+        throw std::invalid_argument("CA_WAVE max velocity must be positive");
     }
     if (options.timeStep == capow::AlpakaPlaneValue(0))
     {
@@ -103,9 +113,11 @@ void Wave1DStepHost(const capow::Wave1DOptions &options, const std::vector<capow
     const std::uint32_t width = static_cast<std::uint32_t>(options.width);
     for (std::uint32_t x = 0U; x < width; ++x)
     {
-        const capow::Wave1DResult<capow::AlpakaPlaneValue> result =
-            capow::ComputeWave1DCell<capow::AlpakaPlaneValue>(source.data(), past.data(), x, width,
-                options.waveSpeed2TimeStep2OverDx2, options.maxIntensity, options.timeStep);
+        const capow::Wave1DResult<capow::AlpakaPlaneValue> result = options.rule == capow::WAVE_1D_RULE_FIVE_NEIGHBOR
+            ? capow::ComputeWave1D5Cell<capow::AlpakaPlaneValue>(source.data(), past.data(), x, width,
+                  options.dtOver12Dx2, options.maxIntensity, options.maxVelocity, options.timeStep)
+            : capow::ComputeWave1DCell<capow::AlpakaPlaneValue>(source.data(), past.data(), x, width,
+                  options.waveSpeed2TimeStep2OverDx2, options.maxIntensity, options.timeStep);
         (*targetIntensity)[x] = result.nextIntensity;
         (*targetVelocity)[x] = result.velocity;
     }
@@ -133,8 +145,11 @@ namespace capow
 Wave1DOptions::Wave1DOptions() :
     width(0),
     steps(0),
+    rule(WAVE_1D_RULE_THREE_NEIGHBOR),
     waveSpeed2TimeStep2OverDx2(defaultWaveSpeed2TimeStep2OverDx2),
+    dtOver12Dx2(defaultDtOver12Dx2),
     maxIntensity(defaultMaxIntensity),
+    maxVelocity(defaultMaxVelocity),
     timeStep(defaultTimeStep)
 {
 }
@@ -229,7 +244,8 @@ void RunWave1DGpuTimed(const Wave1DOptions &options, const std::vector<AlpakaPla
                 alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(deviceCurrent),
                     alpaka::getPtrNative(devicePast), alpaka::getPtrNative(deviceNextIntensity),
                     alpaka::getPtrNative(deviceNextVelocity), static_cast<Idx>(options.width),
-                    options.waveSpeed2TimeStep2OverDx2, options.maxIntensity, options.timeStep);
+                    options.waveSpeed2TimeStep2OverDx2, options.dtOver12Dx2, options.maxIntensity, options.maxVelocity,
+                    options.timeStep, options.rule);
                 std::swap(devicePast, deviceCurrent);
                 std::swap(deviceCurrent, deviceNextIntensity);
             }

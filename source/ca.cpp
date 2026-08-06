@@ -1229,17 +1229,12 @@ void CA::WaveVelInt2(int ll, int l, int c, int r, int rr)
     we look at five neighbors.  The second differences formula for
     uxx = (-LL + 16 L -30 C + 16 R - RR)/(12 dx*dx).
   */
-    Real dtutt = _dt_over_12_times_dx_2 *
-        (-wave_source_row[ll].intensity + 16.0 * wave_source_row[l].intensity - 30.0 * wave_source_row[c].intensity +
-            16.0 * wave_source_row[r].intensity - wave_source_row[rr].intensity);
-
-    wave_target_row[c].velocity = wave_source_row[c].velocity + dtutt;
-    CLAMP(wave_target_row[c].velocity, -_max_velocity.Val(), _max_velocity.Val());
-    wave_target_row[c].intensity =
-        wave_source_row[c].intensity + _dt.Val() * wave_target_row[c].velocity + _dt_over_2 * dtutt;
-    WRAP((wave_target_row[c].intensity), -_max_intensity.Val(), _max_intensity.Val());
-    wave_target_row[c].velocity =
-        (wave_target_row[c].intensity - wave_source_row[c].intensity) / _dt.Val(); // Calculate just for graphing.
+    const capow::Wave1DResult<Real> result =
+        capow::ComputeWave1D5<Real>(wave_source_row[ll].intensity, wave_source_row[l].intensity,
+            wave_source_row[c].intensity, wave_source_row[r].intensity, wave_source_row[rr].intensity,
+            wave_source_row[c].velocity, _dt_over_12_times_dx_2, _max_intensity.Val(), _max_velocity.Val(), _dt.Val());
+    wave_target_row[c].intensity = result.nextIntensity;
+    wave_target_row[c].velocity = result.velocity; // Calculate just for graphing.
 }
 
 //============= Oscillator Rules====================================

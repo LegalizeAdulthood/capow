@@ -31,6 +31,12 @@ enum Heat1DRule
     HEAT_1D_RULE_FIVE_NEIGHBOR
 };
 
+enum Wave1DRule
+{
+    WAVE_1D_RULE_THREE_NEIGHBOR,
+    WAVE_1D_RULE_FIVE_NEIGHBOR
+};
+
 template <typename T>
 struct Heat2DResult
 {
@@ -128,6 +134,20 @@ ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeWave1D(T leftIntensity, T centerIntens
 }
 
 template <typename T>
+ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeWave1D5(T leftLeftIntensity, T leftIntensity, T centerIntensity,
+    T rightIntensity, T rightRightIntensity, T sourceVelocity, T dtOver12Dx2, T maxIntensity, T maxVelocity, T timeStep)
+{
+    const T dtutt = dtOver12Dx2 *
+        (-leftLeftIntensity + T(16) * leftIntensity - T(30) * centerIntensity + T(16) * rightIntensity -
+            rightRightIntensity);
+    T nextVelocity = sourceVelocity + dtutt;
+    nextVelocity = ClampRange(nextVelocity, -maxVelocity, maxVelocity);
+    T nextIntensity = centerIntensity + timeStep * nextVelocity + (timeStep / T(2)) * dtutt;
+    nextIntensity = WrapRange(nextIntensity, -maxIntensity, maxIntensity);
+    return Wave1DResult<T>{nextIntensity, (nextIntensity - centerIntensity) / timeStep};
+}
+
+template <typename T>
 ALPAKA_FN_HOST_ACC Heat2DResult<T> ComputeHeat2D(T centerIntensity, T eastIntensity, T northIntensity, T westIntensity,
     T southIntensity, T heatIncrement, T maxIntensity, T timeStep)
 {
@@ -198,6 +218,18 @@ ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeWave1DCell(const T *source, const T *p
     const std::uint32_t rightX = Heat2DWrapNext(x, width);
     return ComputeWave1D<T>(
         source[leftX], source[x], source[rightX], past[x], waveSpeed2TimeStep2OverDx2, maxIntensity, timeStep);
+}
+
+template <typename T>
+ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeWave1D5Cell(const T *source, const T *past, std::uint32_t x,
+    std::uint32_t width, T dtOver12Dx2, T maxIntensity, T maxVelocity, T timeStep)
+{
+    const std::uint32_t leftX = Heat2DWrapPrevious(x, width);
+    const std::uint32_t rightX = Heat2DWrapNext(x, width);
+    const std::uint32_t leftLeftX = Heat2DWrapPrevious(leftX, width);
+    const std::uint32_t rightRightX = Heat2DWrapNext(rightX, width);
+    return ComputeWave1D5<T>(source[leftLeftX], source[leftX], source[x], source[rightX], source[rightRightX],
+        (source[x] - past[x]) / timeStep, dtOver12Dx2, maxIntensity, maxVelocity, timeStep);
 }
 
 template <typename T>

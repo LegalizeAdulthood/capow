@@ -63,6 +63,13 @@ TEST(alpakaBackend, waveStartsEnabled)
     EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_WAVE));
 }
 
+TEST(alpakaBackend, wave2StartsEnabled)
+{
+    const capow::AlpakaManager manager;
+
+    EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_WAVE2));
+}
+
 TEST(alpakaBackend, gpuRunsRequireDeviceAndEnabledRule)
 {
     capow::AlpakaManager manager;
@@ -85,4 +92,5 @@ TEST(alpakaBackend, namesMatchMenuAndRuleLabels)
     EXPECT_STREQ("CA_HEATWAVE", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_HEATWAVE));
     EXPECT_STREQ("CA_HEATWAVE2", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_HEATWAVE2));
     EXPECT_STREQ("CA_WAVE", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_WAVE));
+    EXPECT_STREQ("CA_WAVE2", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_WAVE2));
 }

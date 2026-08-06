@@ -3,6 +3,7 @@
 
 #include "AlpakaBuffers.hpp"
 #include "AlpakaTiming.hpp"
+#include "CapowRules.hpp"
 
 #include <vector>
 
@@ -13,8 +14,11 @@ struct Wave1DOptions
 {
     int width;
     int steps;
+    Wave1DRule rule;
     AlpakaPlaneValue waveSpeed2TimeStep2OverDx2;
+    AlpakaPlaneValue dtOver12Dx2;
     AlpakaPlaneValue maxIntensity;
+    AlpakaPlaneValue maxVelocity;
     AlpakaPlaneValue timeStep;
 
     Wave1DOptions();

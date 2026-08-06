@@ -8,7 +8,7 @@
 namespace
 {
 
-void ExpectWaveGpuMatchesHost(int width, int steps, capow::AlpakaPlaneValue tolerance)
+void ExpectWaveGpuMatchesHost(int width, int steps, capow::Wave1DRule rule, capow::AlpakaPlaneValue tolerance)
 {
     capow::AlpakaManager &manager = capow::GetAlpakaManager();
     if (!manager.IsGpuAvailable())
@@ -19,8 +19,11 @@ void ExpectWaveGpuMatchesHost(int width, int steps, capow::AlpakaPlaneValue tole
     capow::Wave1DOptions options;
     options.width = width;
     options.steps = steps;
+    options.rule = rule;
     options.waveSpeed2TimeStep2OverDx2 = 0.375F;
+    options.dtOver12Dx2 = 0.03125F;
     options.maxIntensity = 7.0F;
+    options.maxVelocity = 5.0F;
     options.timeStep = 0.25F;
 
     std::vector<capow::AlpakaPlaneValue> source;
@@ -43,10 +46,20 @@ void ExpectWaveGpuMatchesHost(int width, int steps, capow::AlpakaPlaneValue tole
 
 TEST(alpakaWave1D, oneStepMatchesHost)
 {
-    ExpectWaveGpuMatchesHost(19, 1, 1.0e-5F);
+    ExpectWaveGpuMatchesHost(19, 1, capow::WAVE_1D_RULE_THREE_NEIGHBOR, 1.0e-5F);
 }
 
 TEST(alpakaWave1D, fiftyStepsMatchHost)
 {
-    ExpectWaveGpuMatchesHost(257, 50, 2.5e-5F);
+    ExpectWaveGpuMatchesHost(257, 50, capow::WAVE_1D_RULE_THREE_NEIGHBOR, 2.5e-5F);
+}
+
+TEST(alpakaWave1D, fiveNeighborOneStepMatchesHost)
+{
+    ExpectWaveGpuMatchesHost(23, 1, capow::WAVE_1D_RULE_FIVE_NEIGHBOR, 1.0e-5F);
+}
+
+TEST(alpakaWave1D, fiveNeighborFiftyStepsMatchHost)
+{
+    ExpectWaveGpuMatchesHost(263, 50, capow::WAVE_1D_RULE_FIVE_NEIGHBOR, 2.5e-5F);
 }

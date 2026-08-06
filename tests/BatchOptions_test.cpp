@@ -142,6 +142,20 @@ TEST(batchOptions, parseValidWaveAliasBatch)
     EXPECT_STREQ("CA_WAVE", capow::BatchRuleName(result.options.rule));
 }
 
+TEST(batchOptions, parseValidWave2Batch)
+{
+    const char *argv[] = {
+        "--batch", "--backend", "gpu", "--rule", "CA_WAVE2", "--steps", "40", "--output", "wave2.bmp"};
+
+    const capow::BatchParseResult result = Parse(9, argv);
+
+    EXPECT_TRUE(result.ok);
+    EXPECT_EQ(capow::BATCH_BACKEND_GPU, result.options.backend);
+    EXPECT_EQ(capow::BATCH_RULE_CA_WAVE2, result.options.rule);
+    EXPECT_EQ(40, result.options.steps);
+    EXPECT_STREQ("CA_WAVE2", capow::BatchRuleName(result.options.rule));
+}
+
 TEST(batchOptions, parseRejectsMissingBackend)
 {
     const char *argv[] = {"--batch", "--rule", "CA_HEAT_2D", "--steps", "100", "--output", "cpu.bmp"};

@@ -100,6 +100,11 @@ bool ParseRule(const char *text, capow::BatchRule *rule)
         *rule = capow::BATCH_RULE_CA_WAVE;
         return true;
     }
+    if (EqualIgnoreCase(text, "CA_WAVE2"))
+    {
+        *rule = capow::BATCH_RULE_CA_WAVE2;
+        return true;
+    }
     if (EqualIgnoreCase(text, "CA_HEATWAVE"))
     {
         *rule = capow::BATCH_RULE_CA_HEATWAVE;
@@ -481,6 +486,8 @@ const char *BatchRuleName(BatchRule rule)
         return "CA_HEATWAVE2";
     case BATCH_RULE_CA_WAVE:
         return "CA_WAVE";
+    case BATCH_RULE_CA_WAVE2:
+        return "CA_WAVE2";
     }
     return "unknown";
 }

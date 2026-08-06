@@ -40,6 +40,8 @@ int CaTypeForRule(capow::BatchRule rule)
         return CA_HEATWAVE2;
     case capow::BATCH_RULE_CA_WAVE:
         return ALT_CA_WAVE;
+    case capow::BATCH_RULE_CA_WAVE2:
+        return CA_WAVE2;
     }
     return CA_HEAT_2D;
 }
@@ -79,6 +81,8 @@ capow::AlpakaRule AlpakaRuleForBatchRule(capow::BatchRule rule)
         return capow::ALPAKA_RULE_CA_HEATWAVE2;
     case capow::BATCH_RULE_CA_WAVE:
         return capow::ALPAKA_RULE_CA_WAVE;
+    case capow::BATCH_RULE_CA_WAVE2:
+        return capow::ALPAKA_RULE_CA_WAVE2;
     }
     return capow::ALPAKA_RULE_CA_HEAT_2D;
 }
@@ -181,7 +185,7 @@ bool IsHeat1DBatchRule(capow::BatchRule rule)
 
 bool IsWave1DBatchRule(capow::BatchRule rule)
 {
-    return rule == capow::BATCH_RULE_CA_WAVE;
+    return rule == capow::BATCH_RULE_CA_WAVE || rule == capow::BATCH_RULE_CA_WAVE2;
 }
 
 void LogBatchError(const std::string &error)
@@ -390,6 +394,8 @@ int RunWave1DBatchMode(const capow::BatchOptions &options, CA *focus)
     capow::Wave1DOptions waveOptions;
     waveOptions.width = focus->HorzCount();
     waveOptions.steps = options.steps;
+    waveOptions.rule = options.rule == capow::BATCH_RULE_CA_WAVE2 ? capow::WAVE_1D_RULE_FIVE_NEIGHBOR
+                                                                  : capow::WAVE_1D_RULE_THREE_NEIGHBOR;
 
     try
     {
@@ -418,7 +424,8 @@ int RunWave1DBatchMode(const capow::BatchOptions &options, CA *focus)
     }
     catch (const std::exception &exception)
     {
-        OutputDebugStringA("CA_WAVE batch failed: ");
+        OutputDebugStringA(capow::BatchRuleName(options.rule));
+        OutputDebugStringA(" batch failed: ");
         OutputDebugStringA(exception.what());
         OutputDebugStringA("\n");
         return 7;
