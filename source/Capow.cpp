@@ -445,17 +445,9 @@ static void MyWnd_PAINT(HWND hwnd)
 {   //((fn)(hwnd), 0L)
 
     PAINTSTRUCT ps;
-    HPALETTE    old_hpal;
     HDC         hdc = BeginPaint (hwnd, &ps) ;
 
-    if (calife_list->numcolor() == 256)
-    {
-        old_hpal = WBM->WBMSelectPalette(hdc, calife_list->hpal());
-        WBM->WBMRealizePalette(hdc);
-    }
     calife_list->Show(hdc, ps.rcPaint);
-    if (calife_list->numcolor() == 256)
-        WBM->WBMSelectPalette(hdc, old_hpal);
 
     EndPaint (hwnd, &ps) ;
 }
@@ -1797,7 +1789,6 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 void Cellmain(HWND hwnd)
 {
     HDC hdc;
-    HPALETTE old_hpal;
     static long GenCount;
     static char GenCountChar[10];
 
@@ -1833,12 +1824,6 @@ behavior if we wanted to.*/
     }
 
     hdc = GetDC(hwnd);
-
-    if (calife_list->numcolor() == 256)
-    {
-        old_hpal = WBM->WBMSelectPalette(hdc, calife_list->hpal());
-        WBM->WBMRealizePalette(hdc);
-    }
 
     calife_list->Update_and_Show(hdc); //Does the 3D stuff.
 
@@ -1883,8 +1868,6 @@ behavior if we wanted to.*/
         update_flag = FALSE;
     }
 
-    if (calife_list->numcolor() == 256)
-        WBM->WBMSelectPalette(hdc, old_hpal);
     ReleaseDC(hwnd, hdc);
 }
 
