@@ -16,6 +16,7 @@ if(CAPOW_ENABLE_ALPAKA)
         AlpakaBackend_test.cpp
         AlpakaBuffers_test.cpp
         AlpakaHeat2D_test.cpp
+        AlpakaTiming_test.cpp
         AlpakaWave2D_test.cpp
         AlpakaSyntheticHeat_test.cpp)
     target_link_libraries(test-CapowCore PUBLIC CapowAlpaka)

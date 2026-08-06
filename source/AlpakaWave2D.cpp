@@ -5,6 +5,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -126,6 +127,15 @@ std::uint32_t DivideRoundUp(std::uint32_t value, std::uint32_t divisor)
     return (value + divisor - 1U) / divisor;
 }
 
+template <typename TFunc>
+double MeasureMilliseconds(TFunc function)
+{
+    const std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    function();
+    const std::chrono::steady_clock::time_point finish = std::chrono::steady_clock::now();
+    return std::chrono::duration<double, std::milli>(finish - start).count();
+}
+
 } // namespace
 
 namespace capow
@@ -183,6 +193,12 @@ void RunWave2DHost(const Wave2DOptions &options, const std::vector<AlpakaPlaneVa
 void RunWave2DGpu(const Wave2DOptions &options, const std::vector<AlpakaPlaneValue> &initialSource,
     const std::vector<AlpakaPlaneValue> &initialPast, Wave2DFields *result)
 {
+    RunWave2DGpuTimed(options, initialSource, initialPast, result, nullptr);
+}
+
+void RunWave2DGpuTimed(const Wave2DOptions &options, const std::vector<AlpakaPlaneValue> &initialSource,
+    const std::vector<AlpakaPlaneValue> &initialPast, Wave2DFields *result, AlpakaTimingMeasurements *timing)
+{
     ValidateOptions(options);
     ValidateFieldSize(options, initialSource);
     ValidateFieldSize(options, initialPast);
@@ -218,24 +234,35 @@ void RunWave2DGpu(const Wave2DOptions &options, const std::vector<AlpakaPlaneVal
     const WorkDiv workDiv = WorkDiv{blocks, threads, elements};
     const Wave2DKernel kernel = Wave2DKernel{};
 
-    for (int step = 0; step < options.steps; ++step)
-    {
-        alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(deviceCurrent),
-            alpaka::getPtrNative(devicePast), alpaka::getPtrNative(deviceNextIntensity),
-            alpaka::getPtrNative(deviceNextVelocity), static_cast<Idx>(options.width), static_cast<Idx>(options.height),
-            options.waveSpeed2TimeStep2OverDx2, options.maxIntensity, options.timeStep);
-        std::swap(devicePast, deviceCurrent);
-        std::swap(deviceCurrent, deviceNextIntensity);
-    }
-    alpaka::wait(queue);
+    const double updateMs = MeasureMilliseconds(
+        [&]()
+        {
+            for (int step = 0; step < options.steps; ++step)
+            {
+                alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(deviceCurrent),
+                    alpaka::getPtrNative(devicePast), alpaka::getPtrNative(deviceNextIntensity),
+                    alpaka::getPtrNative(deviceNextVelocity), static_cast<Idx>(options.width),
+                    static_cast<Idx>(options.height), options.waveSpeed2TimeStep2OverDx2, options.maxIntensity,
+                    options.timeStep);
+                std::swap(devicePast, deviceCurrent);
+                std::swap(deviceCurrent, deviceNextIntensity);
+            }
+            alpaka::wait(queue);
+        });
+    AddAlpakaTiming(timing, ALPAKA_TIMING_GPU_UPDATE_ONLY, updateMs);
 
     result->intensityField.resize(CellCount(options));
     result->velocityField.resize(CellCount(options));
     HostView hostIntensity = alpaka::createView(hostDevice, result->intensityField.data(), memExtent);
     HostView hostVelocity = alpaka::createView(hostDevice, result->velocityField.data(), memExtent);
-    alpaka::memcpy(queue, hostIntensity, deviceCurrent, memExtent);
-    alpaka::memcpy(queue, hostVelocity, deviceNextVelocity, memExtent);
-    alpaka::wait(queue);
+    const double readbackMs = MeasureMilliseconds(
+        [&]()
+        {
+            alpaka::memcpy(queue, hostIntensity, deviceCurrent, memExtent);
+            alpaka::memcpy(queue, hostVelocity, deviceNextVelocity, memExtent);
+            alpaka::wait(queue);
+        });
+    AddAlpakaTiming(timing, ALPAKA_TIMING_GPU_BATCH_SAVE_READBACK, readbackMs);
 }
 
 AlpakaPlaneValue MaxWave2DDifference(

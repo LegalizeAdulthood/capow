@@ -2,6 +2,7 @@
 #define ALPAKAHEAT2D_HPP
 
 #include "AlpakaBuffers.hpp"
+#include "AlpakaTiming.hpp"
 #include "CapowRules.hpp"
 
 #include <vector>
@@ -31,6 +32,8 @@ struct Heat2DFields
 void MakeHeat2DInitial(const Heat2DOptions &options, std::vector<AlpakaPlaneValue> *field);
 void RunHeat2DHost(const Heat2DOptions &options, const std::vector<AlpakaPlaneValue> &initial, Heat2DFields *result);
 void RunHeat2DGpu(const Heat2DOptions &options, const std::vector<AlpakaPlaneValue> &initial, Heat2DFields *result);
+void RunHeat2DGpuTimed(const Heat2DOptions &options, const std::vector<AlpakaPlaneValue> &initial, Heat2DFields *result,
+    AlpakaTimingMeasurements *timing);
 AlpakaPlaneValue MaxHeat2DDifference(
     const std::vector<AlpakaPlaneValue> &expected, const std::vector<AlpakaPlaneValue> &actual);
 

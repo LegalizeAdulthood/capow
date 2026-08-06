@@ -2,6 +2,7 @@
 #define ALPAKAWAVE2D_HPP
 
 #include "AlpakaBuffers.hpp"
+#include "AlpakaTiming.hpp"
 
 #include <vector>
 
@@ -32,6 +33,8 @@ void RunWave2DHost(const Wave2DOptions &options, const std::vector<AlpakaPlaneVa
     const std::vector<AlpakaPlaneValue> &initialPast, Wave2DFields *result);
 void RunWave2DGpu(const Wave2DOptions &options, const std::vector<AlpakaPlaneValue> &initialSource,
     const std::vector<AlpakaPlaneValue> &initialPast, Wave2DFields *result);
+void RunWave2DGpuTimed(const Wave2DOptions &options, const std::vector<AlpakaPlaneValue> &initialSource,
+    const std::vector<AlpakaPlaneValue> &initialPast, Wave2DFields *result, AlpakaTimingMeasurements *timing);
 AlpakaPlaneValue MaxWave2DDifference(
     const std::vector<AlpakaPlaneValue> &expected, const std::vector<AlpakaPlaneValue> &actual);
 

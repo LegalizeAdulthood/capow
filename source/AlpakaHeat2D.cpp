@@ -5,6 +5,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -144,6 +145,15 @@ std::uint32_t DivideRoundUp(std::uint32_t value, std::uint32_t divisor)
     return (value + divisor - 1U) / divisor;
 }
 
+template <typename TFunc>
+double MeasureMilliseconds(TFunc function)
+{
+    const std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    function();
+    const std::chrono::steady_clock::time_point finish = std::chrono::steady_clock::now();
+    return std::chrono::duration<double, std::milli>(finish - start).count();
+}
+
 } // namespace
 
 namespace capow
@@ -192,6 +202,12 @@ void RunHeat2DHost(const Heat2DOptions &options, const std::vector<AlpakaPlaneVa
 
 void RunHeat2DGpu(const Heat2DOptions &options, const std::vector<AlpakaPlaneValue> &initial, Heat2DFields *result)
 {
+    RunHeat2DGpuTimed(options, initial, result, nullptr);
+}
+
+void RunHeat2DGpuTimed(const Heat2DOptions &options, const std::vector<AlpakaPlaneValue> &initial, Heat2DFields *result,
+    AlpakaTimingMeasurements *timing)
+{
     ValidateOptions(options);
     ValidateFieldSize(options, initial);
 
@@ -226,23 +242,33 @@ void RunHeat2DGpu(const Heat2DOptions &options, const std::vector<AlpakaPlaneVal
     const WorkDiv workDiv = WorkDiv{blocks, threads, elements};
     const Heat2DKernel kernel = Heat2DKernel{};
 
-    for (int step = 0; step < options.steps; ++step)
-    {
-        alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(deviceCurrent),
-            alpaka::getPtrNative(deviceNextIntensity), alpaka::getPtrNative(deviceNextVelocity),
-            static_cast<Idx>(options.width), static_cast<Idx>(options.height), options.heatIncrement,
-            options.maxIntensity, options.timeStep, options.boundaryMode);
-        std::swap(deviceCurrent, deviceNextIntensity);
-    }
-    alpaka::wait(queue);
+    const double updateMs = MeasureMilliseconds(
+        [&]()
+        {
+            for (int step = 0; step < options.steps; ++step)
+            {
+                alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(deviceCurrent),
+                    alpaka::getPtrNative(deviceNextIntensity), alpaka::getPtrNative(deviceNextVelocity),
+                    static_cast<Idx>(options.width), static_cast<Idx>(options.height), options.heatIncrement,
+                    options.maxIntensity, options.timeStep, options.boundaryMode);
+                std::swap(deviceCurrent, deviceNextIntensity);
+            }
+            alpaka::wait(queue);
+        });
+    AddAlpakaTiming(timing, ALPAKA_TIMING_GPU_UPDATE_ONLY, updateMs);
 
     result->intensityField.resize(CellCount(options));
     result->velocityField.resize(CellCount(options));
     HostView hostIntensity = alpaka::createView(hostDevice, result->intensityField.data(), memExtent);
     HostView hostVelocity = alpaka::createView(hostDevice, result->velocityField.data(), memExtent);
-    alpaka::memcpy(queue, hostIntensity, deviceCurrent, memExtent);
-    alpaka::memcpy(queue, hostVelocity, deviceNextVelocity, memExtent);
-    alpaka::wait(queue);
+    const double readbackMs = MeasureMilliseconds(
+        [&]()
+        {
+            alpaka::memcpy(queue, hostIntensity, deviceCurrent, memExtent);
+            alpaka::memcpy(queue, hostVelocity, deviceNextVelocity, memExtent);
+            alpaka::wait(queue);
+        });
+    AddAlpakaTiming(timing, ALPAKA_TIMING_GPU_BATCH_SAVE_READBACK, readbackMs);
 }
 
 AlpakaPlaneValue MaxHeat2DDifference(

@@ -66,6 +66,8 @@ if(CAPOW_ENABLE_ALPAKA)
         AlpakaHeat2DLive.cpp
         AlpakaSyntheticHeat.hpp
         AlpakaSyntheticHeat.cpp
+        AlpakaTiming.hpp
+        AlpakaTiming.cpp
         AlpakaWave2D.hpp
         AlpakaWave2D.cpp
         CapowRules.hpp
