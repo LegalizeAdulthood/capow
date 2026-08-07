@@ -36,7 +36,9 @@ enum Wave1DRule
     WAVE_1D_RULE_THREE_NEIGHBOR,
     WAVE_1D_RULE_FIVE_NEIGHBOR,
     WAVE_1D_RULE_OSCILLATOR,
-    WAVE_1D_RULE_DIVERSE_OSCILLATOR
+    WAVE_1D_RULE_DIVERSE_OSCILLATOR,
+    WAVE_1D_RULE_OSCILLATOR_WAVE,
+    WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE
 };
 
 template <typename T>
@@ -173,6 +175,37 @@ ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeDiverseOscillator1D(T centerIntensity,
     const T clampedVelocity = ClampRange(nextVelocity, -maxVelocity, maxVelocity);
     T nextIntensity = centerIntensity + timeStep * nextVelocity;
     nextIntensity = ClampRange(nextIntensity, -maxIntensity, maxIntensity);
+    return Wave1DResult<T>{nextIntensity, clampedVelocity};
+}
+
+template <typename T>
+ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeOscillatorWave1D(T leftIntensity, T centerIntensity, T rightIntensity,
+    T sourceVelocity, T dtOverMass, T frictionMultiplier, T springMultiplier, T driverValue, T dtOverDx2,
+    T maxIntensity, T maxVelocity, T timeStep)
+{
+    const T oscillator =
+        dtOverMass * (-frictionMultiplier * sourceVelocity - springMultiplier * centerIntensity + driverValue);
+    const T wave = dtOverDx2 * (leftIntensity - T(2) * centerIntensity + rightIntensity);
+    const T nextVelocity = sourceVelocity + oscillator + wave;
+    T nextIntensity = centerIntensity + timeStep * nextVelocity;
+    nextIntensity = ClampRange(nextIntensity, -maxIntensity, maxIntensity);
+    const T clampedVelocity = ClampRange(nextVelocity, -maxVelocity, maxVelocity);
+    return Wave1DResult<T>{nextIntensity, clampedVelocity};
+}
+
+template <typename T>
+ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeDiverseOscillatorWave1D(T leftIntensity, T centerIntensity, T rightIntensity,
+    T sourceVelocity, T dtOverMass, T frictionMultiplier, T springMultiplier, T driverValue, T frictionTweak,
+    T springTweak, T massTweak, T dtOverDx2, T maxIntensity, T maxVelocity, T timeStep)
+{
+    const T oscillator = dtOverMass / massTweak *
+        (-frictionMultiplier * frictionTweak * sourceVelocity - springMultiplier * springTweak * centerIntensity +
+            driverValue);
+    const T wave = dtOverDx2 * (leftIntensity - T(2) * centerIntensity + rightIntensity);
+    const T nextVelocity = sourceVelocity + oscillator + wave;
+    T nextIntensity = centerIntensity + timeStep * nextVelocity;
+    nextIntensity = ClampRange(nextIntensity, -maxIntensity, maxIntensity);
+    const T clampedVelocity = ClampRange(nextVelocity, -maxVelocity, maxVelocity);
     return Wave1DResult<T>{nextIntensity, clampedVelocity};
 }
 

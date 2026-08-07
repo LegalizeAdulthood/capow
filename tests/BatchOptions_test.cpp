@@ -180,6 +180,30 @@ TEST(batchOptions, parseValidDiverseOscillatorBatch)
     EXPECT_STREQ("CA_DIVERSE_OSCILLATOR", capow::BatchRuleName(result.options.rule));
 }
 
+TEST(batchOptions, parseValidOscillatorWaveBatch)
+{
+    const char *argv[] = {
+        "--batch", "--backend", "gpu", "--rule", "ALT_CA_OSCILLATOR_WAVE", "--steps", "40", "--output", "oscw.bmp"};
+
+    const capow::BatchParseResult result = Parse(9, argv);
+
+    EXPECT_TRUE(result.ok);
+    EXPECT_EQ(capow::BATCH_RULE_ALT_CA_OSCILLATOR_WAVE, result.options.rule);
+    EXPECT_STREQ("ALT_CA_OSCILLATOR_WAVE", capow::BatchRuleName(result.options.rule));
+}
+
+TEST(batchOptions, parseValidDiverseOscillatorWaveBatch)
+{
+    const char *argv[] = {"--batch", "--backend", "gpu", "--rule", "CA_DIVERSE_OSCILLATOR_WAVE", "--steps", "40",
+        "--output", "diverse-oscw.bmp"};
+
+    const capow::BatchParseResult result = Parse(9, argv);
+
+    EXPECT_TRUE(result.ok);
+    EXPECT_EQ(capow::BATCH_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE, result.options.rule);
+    EXPECT_STREQ("ALT_CA_DIVERSE_OSCILLATOR_WAVE", capow::BatchRuleName(result.options.rule));
+}
+
 TEST(batchOptions, parseRejectsMissingBackend)
 {
     const char *argv[] = {"--batch", "--rule", "CA_HEAT_2D", "--steps", "100", "--output", "cpu.bmp"};

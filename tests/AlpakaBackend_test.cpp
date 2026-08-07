@@ -84,6 +84,20 @@ TEST(alpakaBackend, diverseOscillatorStartsEnabled)
     EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_DIVERSE_OSCILLATOR));
 }
 
+TEST(alpakaBackend, oscillatorWaveStartsEnabled)
+{
+    const capow::AlpakaManager manager;
+
+    EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE));
+}
+
+TEST(alpakaBackend, diverseOscillatorWaveStartsEnabled)
+{
+    const capow::AlpakaManager manager;
+
+    EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE));
+}
+
 TEST(alpakaBackend, gpuRunsRequireDeviceAndEnabledRule)
 {
     capow::AlpakaManager manager;
@@ -109,4 +123,7 @@ TEST(alpakaBackend, namesMatchMenuAndRuleLabels)
     EXPECT_STREQ("CA_WAVE2", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_WAVE2));
     EXPECT_STREQ("CA_OSCILLATOR", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_OSCILLATOR));
     EXPECT_STREQ("CA_DIVERSE_OSCILLATOR", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_DIVERSE_OSCILLATOR));
+    EXPECT_STREQ("ALT_CA_OSCILLATOR_WAVE", capow::AlpakaRuleName(capow::ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE));
+    EXPECT_STREQ(
+        "ALT_CA_DIVERSE_OSCILLATOR_WAVE", capow::AlpakaRuleName(capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE));
 }

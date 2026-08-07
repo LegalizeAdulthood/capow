@@ -147,6 +147,33 @@ TEST(capowRules, diverseOscillatorUsesTweaks)
     EXPECT_FLOAT_EQ(0.35F, result.velocity);
 }
 
+TEST(capowRules, oscillatorWaveAddsWaveContribution)
+{
+    const capow::Wave1DResult<float> result =
+        capow::ComputeOscillatorWave1D(1.0F, 2.0F, 4.0F, 0.5F, 0.25F, 0.1F, 0.2F, 1.0F, 0.125F, 10.0F, 10.0F, 0.5F);
+
+    EXPECT_FLOAT_EQ(2.38125F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(0.7625F, result.velocity);
+}
+
+TEST(capowRules, oscillatorWaveClampsVelocityAfterIntensity)
+{
+    const capow::Wave1DResult<float> result =
+        capow::ComputeOscillatorWave1D(0.0F, 0.0F, 0.0F, 20.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 100.0F, 1.0F, 1.0F);
+
+    EXPECT_FLOAT_EQ(20.0F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(1.0F, result.velocity);
+}
+
+TEST(capowRules, diverseOscillatorWaveUsesTweaksAndWave)
+{
+    const capow::Wave1DResult<float> result = capow::ComputeDiverseOscillatorWave1D(
+        1.0F, 2.0F, 4.0F, 0.5F, 0.25F, 0.1F, 0.2F, 1.0F, 2.0F, 3.0F, 0.5F, 0.125F, 10.0F, 10.0F, 0.5F);
+
+    EXPECT_FLOAT_EQ(2.2375F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(0.475F, result.velocity);
+}
+
 TEST(capowRules, heat2dAveragesFiveInputs)
 {
     const capow::Heat2DResult<float> result = capow::ComputeHeat2D(10.0F, 20.0F, -5.0F, 5.0F, 0.0F, 2.0F, 100.0F, 0.5F);

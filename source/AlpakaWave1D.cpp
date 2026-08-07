@@ -32,6 +32,7 @@ using DeviceBuffer = alpaka::Buf<AccPlatform, capow::AlpakaPlaneValue, MemDim, I
 
 const capow::AlpakaPlaneValue defaultWaveSpeed2TimeStep2OverDx2 = capow::AlpakaPlaneValue(0.5F);
 const capow::AlpakaPlaneValue defaultDtOver12Dx2 = capow::AlpakaPlaneValue(0.03125F);
+const capow::AlpakaPlaneValue defaultDtOverDx2 = capow::AlpakaPlaneValue(0.125F);
 const capow::AlpakaPlaneValue defaultMaxIntensity = capow::AlpakaPlaneValue(10.0F);
 const capow::AlpakaPlaneValue defaultMaxVelocity = capow::AlpakaPlaneValue(10.0F);
 const capow::AlpakaPlaneValue defaultTimeStep = capow::AlpakaPlaneValue(0.25F);
@@ -48,8 +49,8 @@ struct Wave1DKernel
         const capow::AlpakaPlaneValue *frictionTweaks, const capow::AlpakaPlaneValue *springTweaks,
         const capow::AlpakaPlaneValue *massTweaks, capow::AlpakaPlaneValue *targetIntensity,
         capow::AlpakaPlaneValue *targetVelocity, Idx width, capow::AlpakaPlaneValue waveSpeed2TimeStep2OverDx2,
-        capow::AlpakaPlaneValue dtOver12Dx2, capow::AlpakaPlaneValue maxIntensity, capow::AlpakaPlaneValue maxVelocity,
-        capow::AlpakaPlaneValue timeStep, capow::AlpakaPlaneValue dtOverMass,
+        capow::AlpakaPlaneValue dtOver12Dx2, capow::AlpakaPlaneValue dtOverDx2, capow::AlpakaPlaneValue maxIntensity,
+        capow::AlpakaPlaneValue maxVelocity, capow::AlpakaPlaneValue timeStep, capow::AlpakaPlaneValue dtOverMass,
         capow::AlpakaPlaneValue frictionMultiplier, capow::AlpakaPlaneValue springMultiplier,
         capow::AlpakaPlaneValue driverValue, capow::Wave1DRule rule) const
     {
@@ -70,6 +71,22 @@ struct Wave1DKernel
             result = capow::ComputeDiverseOscillator1D<capow::AlpakaPlaneValue>(source[x], sourceVelocity[x],
                 dtOverMass, frictionMultiplier, springMultiplier, driverValue, frictionTweaks[x], springTweaks[x],
                 massTweaks[x], maxIntensity, maxVelocity, timeStep);
+        }
+        else if (rule == capow::WAVE_1D_RULE_OSCILLATOR_WAVE)
+        {
+            const Idx leftX = x == 0U ? width - 1U : x - 1U;
+            const Idx rightX = x + 1U == width ? 0U : x + 1U;
+            result = capow::ComputeOscillatorWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x], source[rightX],
+                sourceVelocity[x], dtOverMass, frictionMultiplier, springMultiplier, driverValue, dtOverDx2,
+                maxIntensity, maxVelocity, timeStep);
+        }
+        else if (rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE)
+        {
+            const Idx leftX = x == 0U ? width - 1U : x - 1U;
+            const Idx rightX = x + 1U == width ? 0U : x + 1U;
+            result = capow::ComputeDiverseOscillatorWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x],
+                source[rightX], sourceVelocity[x], dtOverMass, frictionMultiplier, springMultiplier, driverValue,
+                frictionTweaks[x], springTweaks[x], massTweaks[x], dtOverDx2, maxIntensity, maxVelocity, timeStep);
         }
         else if (rule == capow::WAVE_1D_RULE_FIVE_NEIGHBOR)
         {
@@ -133,7 +150,8 @@ capow::AlpakaPlaneValue UnitValue(std::uint32_t index)
 
 bool IsOscillatorRule(capow::Wave1DRule rule)
 {
-    return rule == capow::WAVE_1D_RULE_OSCILLATOR || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR;
+    return rule == capow::WAVE_1D_RULE_OSCILLATOR || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR ||
+        rule == capow::WAVE_1D_RULE_OSCILLATOR_WAVE || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE;
 }
 
 void MakeWave1DVelocityFromPast(const capow::Wave1DOptions &options, const std::vector<capow::AlpakaPlaneValue> &source,
@@ -187,6 +205,23 @@ void Wave1DStepHost(const capow::Wave1DOptions &options, const std::vector<capow
                 frictionTweaks[x], springTweaks[x], massTweaks[x], options.maxIntensity, options.maxVelocity,
                 options.timeStep);
         }
+        else if (options.rule == capow::WAVE_1D_RULE_OSCILLATOR_WAVE)
+        {
+            const std::uint32_t leftX = x == 0U ? width - 1U : x - 1U;
+            const std::uint32_t rightX = x + 1U == width ? 0U : x + 1U;
+            result = capow::ComputeOscillatorWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x], source[rightX],
+                sourceVelocity[x], options.dtOverMass, options.frictionMultiplier, options.springMultiplier,
+                options.driverValue, options.dtOverDx2, options.maxIntensity, options.maxVelocity, options.timeStep);
+        }
+        else if (options.rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE)
+        {
+            const std::uint32_t leftX = x == 0U ? width - 1U : x - 1U;
+            const std::uint32_t rightX = x + 1U == width ? 0U : x + 1U;
+            result = capow::ComputeDiverseOscillatorWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x],
+                source[rightX], sourceVelocity[x], options.dtOverMass, options.frictionMultiplier,
+                options.springMultiplier, options.driverValue, frictionTweaks[x], springTweaks[x], massTweaks[x],
+                options.dtOverDx2, options.maxIntensity, options.maxVelocity, options.timeStep);
+        }
         else if (options.rule == capow::WAVE_1D_RULE_FIVE_NEIGHBOR)
         {
             result = capow::ComputeWave1D5Cell<capow::AlpakaPlaneValue>(source.data(), past.data(), x, width,
@@ -227,6 +262,7 @@ Wave1DOptions::Wave1DOptions() :
     rule(WAVE_1D_RULE_THREE_NEIGHBOR),
     waveSpeed2TimeStep2OverDx2(defaultWaveSpeed2TimeStep2OverDx2),
     dtOver12Dx2(defaultDtOver12Dx2),
+    dtOverDx2(defaultDtOverDx2),
     maxIntensity(defaultMaxIntensity),
     maxVelocity(defaultMaxVelocity),
     timeStep(defaultTimeStep),
@@ -376,9 +412,9 @@ void RunWave1DGpuTimed(const Wave1DOptions &options, const std::vector<AlpakaPla
                     alpaka::getPtrNative(deviceFrictionTweaks), alpaka::getPtrNative(deviceSpringTweaks),
                     alpaka::getPtrNative(deviceMassTweaks), alpaka::getPtrNative(deviceNextIntensity),
                     alpaka::getPtrNative(deviceNextVelocity), static_cast<Idx>(options.width),
-                    options.waveSpeed2TimeStep2OverDx2, options.dtOver12Dx2, options.maxIntensity, options.maxVelocity,
-                    options.timeStep, options.dtOverMass, options.frictionMultiplier, options.springMultiplier,
-                    options.driverValue, options.rule);
+                    options.waveSpeed2TimeStep2OverDx2, options.dtOver12Dx2, options.dtOverDx2, options.maxIntensity,
+                    options.maxVelocity, options.timeStep, options.dtOverMass, options.frictionMultiplier,
+                    options.springMultiplier, options.driverValue, options.rule);
                 std::swap(devicePast, deviceCurrent);
                 std::swap(deviceCurrent, deviceNextIntensity);
                 std::swap(deviceCurrentVelocity, deviceNextVelocity);

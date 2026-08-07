@@ -22,6 +22,7 @@ void ExpectWaveGpuMatchesHost(int width, int steps, capow::Wave1DRule rule, capo
     options.rule = rule;
     options.waveSpeed2TimeStep2OverDx2 = 0.375F;
     options.dtOver12Dx2 = 0.03125F;
+    options.dtOverDx2 = 0.125F;
     options.maxIntensity = 7.0F;
     options.maxVelocity = 5.0F;
     options.timeStep = 0.25F;
@@ -76,4 +77,14 @@ TEST(alpakaWave1D, oscillatorFiftyStepsMatchHost)
 TEST(alpakaWave1D, diverseOscillatorFiftyStepsMatchHost)
 {
     ExpectWaveGpuMatchesHost(257, 50, capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR, 2.5e-5F);
+}
+
+TEST(alpakaWave1D, oscillatorWaveFiftyStepsMatchHost)
+{
+    ExpectWaveGpuMatchesHost(257, 50, capow::WAVE_1D_RULE_OSCILLATOR_WAVE, 2.5e-5F);
+}
+
+TEST(alpakaWave1D, diverseOscillatorWaveFiftyStepsMatchHost)
+{
+    ExpectWaveGpuMatchesHost(257, 50, capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE, 2.5e-5F);
 }

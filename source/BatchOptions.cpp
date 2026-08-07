@@ -115,6 +115,16 @@ bool ParseRule(const char *text, capow::BatchRule *rule)
         *rule = capow::BATCH_RULE_CA_DIVERSE_OSCILLATOR;
         return true;
     }
+    if (EqualIgnoreCase(text, "ALT_CA_OSCILLATOR_WAVE"))
+    {
+        *rule = capow::BATCH_RULE_ALT_CA_OSCILLATOR_WAVE;
+        return true;
+    }
+    if (EqualIgnoreCase(text, "CA_DIVERSE_OSCILLATOR_WAVE") || EqualIgnoreCase(text, "ALT_CA_DIVERSE_OSCILLATOR_WAVE"))
+    {
+        *rule = capow::BATCH_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE;
+        return true;
+    }
     if (EqualIgnoreCase(text, "CA_HEATWAVE"))
     {
         *rule = capow::BATCH_RULE_CA_HEATWAVE;
@@ -502,6 +512,10 @@ const char *BatchRuleName(BatchRule rule)
         return "CA_OSCILLATOR";
     case BATCH_RULE_CA_DIVERSE_OSCILLATOR:
         return "CA_DIVERSE_OSCILLATOR";
+    case BATCH_RULE_ALT_CA_OSCILLATOR_WAVE:
+        return "ALT_CA_OSCILLATOR_WAVE";
+    case BATCH_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE:
+        return "ALT_CA_DIVERSE_OSCILLATOR_WAVE";
     }
     return "unknown";
 }

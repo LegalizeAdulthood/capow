@@ -46,6 +46,10 @@ int CaTypeForRule(capow::BatchRule rule)
         return CA_OSCILLATOR;
     case capow::BATCH_RULE_CA_DIVERSE_OSCILLATOR:
         return CA_DIVERSE_OSCILLATOR;
+    case capow::BATCH_RULE_ALT_CA_OSCILLATOR_WAVE:
+        return ALT_CA_OSCILLATOR_WAVE;
+    case capow::BATCH_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE:
+        return ALT_CA_DIVERSE_OSCILLATOR_WAVE;
     }
     return CA_HEAT_2D;
 }
@@ -91,6 +95,10 @@ capow::AlpakaRule AlpakaRuleForBatchRule(capow::BatchRule rule)
         return capow::ALPAKA_RULE_CA_OSCILLATOR;
     case capow::BATCH_RULE_CA_DIVERSE_OSCILLATOR:
         return capow::ALPAKA_RULE_CA_DIVERSE_OSCILLATOR;
+    case capow::BATCH_RULE_ALT_CA_OSCILLATOR_WAVE:
+        return capow::ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE;
+    case capow::BATCH_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE:
+        return capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE;
     }
     return capow::ALPAKA_RULE_CA_HEAT_2D;
 }
@@ -194,7 +202,8 @@ bool IsHeat1DBatchRule(capow::BatchRule rule)
 bool IsWave1DBatchRule(capow::BatchRule rule)
 {
     return rule == capow::BATCH_RULE_CA_WAVE || rule == capow::BATCH_RULE_CA_WAVE2 ||
-        rule == capow::BATCH_RULE_CA_OSCILLATOR || rule == capow::BATCH_RULE_CA_DIVERSE_OSCILLATOR;
+        rule == capow::BATCH_RULE_CA_OSCILLATOR || rule == capow::BATCH_RULE_CA_DIVERSE_OSCILLATOR ||
+        rule == capow::BATCH_RULE_ALT_CA_OSCILLATOR_WAVE || rule == capow::BATCH_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE;
 }
 
 void LogBatchError(const std::string &error)
@@ -403,7 +412,15 @@ int RunWave1DBatchMode(const capow::BatchOptions &options, CA *focus)
     capow::Wave1DOptions waveOptions;
     waveOptions.width = focus->HorzCount();
     waveOptions.steps = options.steps;
-    if (options.rule == capow::BATCH_RULE_CA_DIVERSE_OSCILLATOR)
+    if (options.rule == capow::BATCH_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE)
+    {
+        waveOptions.rule = capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE;
+    }
+    else if (options.rule == capow::BATCH_RULE_ALT_CA_OSCILLATOR_WAVE)
+    {
+        waveOptions.rule = capow::WAVE_1D_RULE_OSCILLATOR_WAVE;
+    }
+    else if (options.rule == capow::BATCH_RULE_CA_DIVERSE_OSCILLATOR)
     {
         waveOptions.rule = capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR;
     }

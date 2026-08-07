@@ -17,6 +17,7 @@ struct Wave1DOptions
     Wave1DRule rule;
     AlpakaPlaneValue waveSpeed2TimeStep2OverDx2;
     AlpakaPlaneValue dtOver12Dx2;
+    AlpakaPlaneValue dtOverDx2;
     AlpakaPlaneValue maxIntensity;
     AlpakaPlaneValue maxVelocity;
     AlpakaPlaneValue timeStep;

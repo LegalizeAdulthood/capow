@@ -1272,34 +1272,24 @@ void CA::AltOscillatorWave(int l, int c, int r)
     newU - U + dt*( (U-PastU)/dt + dt wavespeed^2 * (L-2U+R)/dx^2),
     which in turn becomes the Wave Equation schema.*/
 
-    wave_target_row[c].velocity = wave_source_row[c].velocity +
-        // The oscillator contribution
-        _dt_over_mass *
-            (-_friction_multiplier.Val() * wave_source_row[c].velocity -
-                _spring_multiplier.Val() * wave_source_row[c].intensity +
-                _driver_multiplier.Val() * cos(_phase + frequency_factor * time)) +
-        // The wave contribution
-        (_dt_over_dx_2) *
-            (wave_source_row[l].intensity - 2.0 * wave_source_row[c].intensity + wave_source_row[r].intensity);
-    wave_target_row[c].intensity = wave_source_row[c].intensity + _dt.Val() * wave_target_row[c].velocity;
-    CLAMP(wave_target_row[c].intensity, -_max_intensity.Val(), _max_intensity.Val());
-    CLAMP(wave_target_row[c].velocity, -_max_velocity.Val(), _max_velocity.Val());
+    const auto driverValue = _driver_multiplier.Val() * cos(_phase + frequency_factor * time);
+    const auto result = capow::ComputeOscillatorWave1D(wave_source_row[l].intensity, wave_source_row[c].intensity,
+        wave_source_row[r].intensity, wave_source_row[c].velocity, _dt_over_mass, _friction_multiplier.Val(),
+        _spring_multiplier.Val(), driverValue, _dt_over_dx_2, _max_intensity.Val(), _max_velocity.Val(), _dt.Val());
+    wave_target_row[c].intensity = result.nextIntensity;
+    wave_target_row[c].velocity = result.velocity;
 }
 
 void CA::AltDiverseOscillatorWave(int l, int c, int r)
 {
-    wave_target_row[c].velocity = wave_source_row[c].velocity +
-        // The oscillator contribution
-        (_dt_over_mass / wave_target_row[c].mass_tweak) *
-            (-_friction_multiplier.Val() * wave_target_row[c].friction_tweak * wave_source_row[c].velocity -
-                _spring_multiplier.Val() * wave_target_row[c].spring_tweak * wave_source_row[c].intensity +
-                _driver_multiplier.Val() * cos(_phase + frequency_factor * time)) +
-        // The wave contribution
-        (_dt_over_dx_2) *
-            (wave_source_row[l].intensity - 2.0 * wave_source_row[c].intensity + wave_source_row[r].intensity);
-    wave_target_row[c].intensity = wave_source_row[c].intensity + _dt.Val() * wave_target_row[c].velocity;
-    CLAMP(wave_target_row[c].intensity, -_max_intensity.Val(), _max_intensity.Val());
-    CLAMP(wave_target_row[c].velocity, -_max_velocity.Val(), _max_velocity.Val());
+    const auto driverValue = _driver_multiplier.Val() * cos(_phase + frequency_factor * time);
+    const auto result =
+        capow::ComputeDiverseOscillatorWave1D(wave_source_row[l].intensity, wave_source_row[c].intensity,
+            wave_source_row[r].intensity, wave_source_row[c].velocity, _dt_over_mass, _friction_multiplier.Val(),
+            _spring_multiplier.Val(), driverValue, wave_target_row[c].friction_tweak, wave_target_row[c].spring_tweak,
+            wave_target_row[c].mass_tweak, _dt_over_dx_2, _max_intensity.Val(), _max_velocity.Val(), _dt.Val());
+    wave_target_row[c].intensity = result.nextIntensity;
+    wave_target_row[c].velocity = result.velocity;
 }
 
 //================Nonlinear Waves==================
