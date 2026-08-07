@@ -503,6 +503,23 @@ bool CapowGL::RenderHistoryView(CA *focus)
 
 bool CapowGL::DrawHistoryView(HDC hdc, CA *focus)
 {
+#if defined(CAPOW_ENABLE_ALPAKA)
+    if (graphtype == LIVE_GPU && focus != nullptr && (focus->viewmode == IDC_DOWN_VIEW || focus->viewmode == IDC_SCROLL_VIEW))
+    {
+        if (!wglMakeCurrent(hdc, hRC))
+            return false;
+        const bool drawn = focus->DrawAlpakaWave1DTexture(
+            hdc, focus->minx, focus->miny, focus->maxx - focus->minx + 1, focus->maxy - focus->miny + 1);
+        if (drawn)
+        {
+            SwapBuffers(hdc);
+            wglMakeCurrent(NULL, NULL);
+            return true;
+        }
+        wglMakeCurrent(NULL, NULL);
+    }
+#endif
+
     if (!wglMakeCurrent(hdc, hRC))
         return false;
 

@@ -260,14 +260,22 @@ void CAlist::Update_and_Show(HDC hdc)
             break;
 
         case IDC_DOWN_VIEW:
+#if defined(CAPOW_ENABLE_ALPAKA)
+            if (capowgl->Type() == LIVE_GPU || !(blt_flag % _blt_lines))
+#else
             if (!(blt_flag % _blt_lines))
+#endif
             {
                 capowgl->DrawHistoryView(hdc, focus);
                 blt_flag = 0;
             }
             break;
         case IDC_SCROLL_VIEW:
+#if defined(CAPOW_ENABLE_ALPAKA)
+            if (capowgl->Type() == LIVE_GPU || !(blt_flag % _blt_lines))
+#else
             if (!(blt_flag % _blt_lines))
+#endif
             {
                 capowgl->DrawHistoryView(hdc, focus);
                 blt_flag = 0;

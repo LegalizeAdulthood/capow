@@ -171,7 +171,7 @@ int  cxParent, cyParent;
 CapowGL *capowgl;
 
 #if defined(CAPOW_ENABLE_ALPAKA)
-static void SyncAlpakaHeat2DDisplays()
+static void SyncAlpakaLiveDisplays()
 {
     if (calife_list == NULL)
         return;
@@ -182,14 +182,41 @@ static void SyncAlpakaHeat2DDisplays()
 
 static bool IsLiveGpuRuleType(int type)
 {
-    return type == CA_HEAT_2D || type == CA_WAVE_2D;
+    return type == CA_HEAT_2D || type == CA_WAVE_2D ||
+        type == CA_OSCILLATOR || type == CA_DIVERSE_OSCILLATOR ||
+        type == ALT_CA_OSCILLATOR_WAVE ||
+        type == ALT_CA_DIVERSE_OSCILLATOR_WAVE;
 }
 
 static capow::AlpakaRule AlpakaRuleForCAType(int type)
 {
-    if (type == CA_WAVE_2D)
+    switch (type)
+    {
+    case CA_WAVE_2D:
         return capow::ALPAKA_RULE_CA_WAVE_2D;
-    return capow::ALPAKA_RULE_CA_HEAT_2D;
+    case CA_OSCILLATOR:
+        return capow::ALPAKA_RULE_CA_OSCILLATOR;
+    case CA_DIVERSE_OSCILLATOR:
+        return capow::ALPAKA_RULE_CA_DIVERSE_OSCILLATOR;
+    case ALT_CA_OSCILLATOR_WAVE:
+        return capow::ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE;
+    case ALT_CA_DIVERSE_OSCILLATOR_WAVE:
+        return capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE;
+    default:
+        return capow::ALPAKA_RULE_CA_HEAT_2D;
+    }
+}
+
+static bool IsLiveGpuViewSupported(CA *focus)
+{
+    if (focus == nullptr)
+        return false;
+
+    const int type = focus->Gettype();
+    if (type == CA_HEAT_2D || type == CA_WAVE_2D)
+        return focus->Getviewmode() == IDC_2D_VIEW;
+    return focus->Getviewmode() == IDC_DOWN_VIEW ||
+        focus->Getviewmode() == IDC_SCROLL_VIEW;
 }
 
 static bool CanShowLiveGpu()
@@ -201,7 +228,7 @@ static bool CanShowLiveGpu()
     capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
     return backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU && focus != nullptr &&
         IsLiveGpuRuleType(focus->Gettype()) && backendManager.CanRunGpu(AlpakaRuleForCAType(focus->Gettype())) &&
-        focus->Getviewmode() == IDC_2D_VIEW;
+        IsLiveGpuViewSupported(focus);
 }
 
 static void UpdateAlpakaDisplayType()
@@ -213,7 +240,7 @@ static void UpdateAlpakaDisplayType()
     {
         if (capowgl->Type() != LIVE_GPU)
         {
-            SyncAlpakaHeat2DDisplays();
+            SyncAlpakaLiveDisplays();
             capowgl->Type(LIVE_GPU);
             InvalidateRect(masterhwnd, NULL, FALSE);
         }
@@ -222,7 +249,7 @@ static void UpdateAlpakaDisplayType()
 
     if (capowgl->Type() == LIVE_GPU)
     {
-        SyncAlpakaHeat2DDisplays();
+        SyncAlpakaLiveDisplays();
         capowgl->Type(FLATCOLOR);
         InvalidateRect(masterhwnd, NULL, FALSE);
     }
@@ -687,7 +714,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
         case IDM_BACKEND_CPU:
 #if defined(CAPOW_ENABLE_ALPAKA)
-            SyncAlpakaHeat2DDisplays();
+            SyncAlpakaLiveDisplays();
             capow::GetAlpakaManager().SetBackend(capow::ALPAKA_BACKEND_CPU);
             if (capowgl != NULL && capowgl->Type() == LIVE_GPU)
             {
@@ -731,6 +758,9 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
         case RADIO_SPLIT_VIEW:
         case RADIO_POINT_VIEW:
             ViewProc( hDlgView, WM_COMMAND, id, 0L );
+#if defined(CAPOW_ENABLE_ALPAKA)
+            UpdateAlpakaDisplayType();
+#endif
             break;
 
         // For CA Drop down Menu...
@@ -1996,6 +2026,10 @@ behavior if we wanted to.*/
         GenCount = calife_list->FocusCA()->GetGenerationCount();
         ltoa ( GenCount, GenCountChar, 10 );
         Status_SetText(hwndStatusBar, 2, 0, GenCountChar);
+#if defined(CAPOW_ENABLE_ALPAKA)
+        if (capowgl != nullptr && capowgl->Type() == LIVE_GPU)
+            UpdateWindow(hwndStatusBar);
+#endif
     }
 
 /* if update_flag is TRUE, then some procedure changed some vital information

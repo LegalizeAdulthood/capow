@@ -12,6 +12,7 @@
 #if defined(CAPOW_ENABLE_ALPAKA)
 #include "AlpakaBackend.hpp"
 #include "AlpakaHeat2DLive.hpp"
+#include "AlpakaWave1DLive.hpp"
 #include "CapowGL.hpp"
 #include <cstdint>
 #include <memory>
@@ -58,6 +59,34 @@ static bool IsAlpakaHeat2DWrapFlagSupported(int wrapFlag)
 {
     return wrapFlag == WF_WRAP || wrapFlag == WF_FREE || wrapFlag == WF_ABSORB || wrapFlag == WF_ZERO ||
         wrapFlag == WF_FIXED;
+}
+
+static bool IsAlpakaWave1DType(int type)
+{
+    return type == CA_OSCILLATOR || type == CA_DIVERSE_OSCILLATOR || type == ALT_CA_OSCILLATOR_WAVE ||
+        type == ALT_CA_DIVERSE_OSCILLATOR_WAVE;
+}
+
+static capow::Wave1DRule AlpakaWave1DRuleForType(int type)
+{
+    if (type == CA_DIVERSE_OSCILLATOR)
+        return capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR;
+    if (type == ALT_CA_OSCILLATOR_WAVE)
+        return capow::WAVE_1D_RULE_OSCILLATOR_WAVE;
+    if (type == ALT_CA_DIVERSE_OSCILLATOR_WAVE)
+        return capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE;
+    return capow::WAVE_1D_RULE_OSCILLATOR;
+}
+
+static capow::AlpakaRule AlpakaWave1DAlpakaRuleForType(int type)
+{
+    if (type == CA_DIVERSE_OSCILLATOR)
+        return capow::ALPAKA_RULE_CA_DIVERSE_OSCILLATOR;
+    if (type == ALT_CA_OSCILLATOR_WAVE)
+        return capow::ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE;
+    if (type == ALT_CA_DIVERSE_OSCILLATOR_WAVE)
+        return capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE;
+    return capow::ALPAKA_RULE_CA_OSCILLATOR;
 }
 #endif
 
@@ -129,6 +158,7 @@ CA::CA(CAlist *mylist) :
     wavetargetindex = 1;
     wavepastindex = 2; // Like -1 relative to the 3 wave row buffers.
 #if defined(CAPOW_ENABLE_ALPAKA)
+    alpakaWave1DTextureReady = false;
     alpakaHeat2DTextureReady = false;
 #endif
     generatorflag = START_GENERATOR_FLAG;
@@ -956,6 +986,11 @@ void CA::ReversibleUpdate(HDC hdc)
 
 void CA::WaveUpdate(HDC hdc)
 {
+#if defined(CAPOW_ENABLE_ALPAKA)
+    if (TryAlpakaWave1DUpdate(hdc))
+        return;
+#endif
+
     if (!_smoothsteps) // Normal situation
     {
         for (short i = 1; i < horz_count - 1; i++)
@@ -1417,6 +1452,36 @@ void CA::RotateWavePlanes2D()
 }
 
 #if defined(CAPOW_ENABLE_ALPAKA)
+void CA::CopyAlpakaWave1DToCpu()
+{
+    if (!alpakaWave1DLive || !alpakaWave1DLive->IsActive())
+        return;
+
+    std::vector<capow::AlpakaPlaneValue> intensityValues(static_cast<std::size_t>(horz_count));
+    std::vector<capow::AlpakaPlaneValue> velocityValues(static_cast<std::size_t>(horz_count));
+    std::vector<capow::AlpakaPlaneValue> pastValues(static_cast<std::size_t>(horz_count));
+    std::string errorText;
+    const bool ok = alpakaWave1DLive->DownloadCurrentAndPast(
+        intensityValues.data(), 1, velocityValues.data(), 1, pastValues.data(), 1, &errorText);
+    if (!ok)
+    {
+        OutputDebugStringA("1D GPU download failed: ");
+        OutputDebugStringA(errorText.c_str());
+        OutputDebugStringA("\n");
+        return;
+    }
+
+    for (int x = 0; x < horz_count; ++x)
+    {
+        const std::size_t indexValue = static_cast<std::size_t>(x);
+        wave_source_row[x].intensity = intensityValues[indexValue];
+        wave_source_row[x].velocity = velocityValues[indexValue];
+        wave_target_row[x] = wave_source_row[x];
+        wave_past_row[x] = wave_source_row[x];
+        wave_past_row[x].intensity = pastValues[indexValue];
+    }
+}
+
 void CA::CopyAlpakaHeat2DToCpu()
 {
     if (!alpakaHeat2DLive || !alpakaHeat2DLive->IsActive())
@@ -1463,10 +1528,143 @@ void CA::CopyAlpakaHeat2DToCpu()
 
 void CA::MarkAlpakaHeat2DDirty()
 {
+    CopyAlpakaWave1DToCpu();
     CopyAlpakaHeat2DToCpu();
+    if (alpakaWave1DLive)
+        alpakaWave1DLive->Deactivate();
     if (alpakaHeat2DLive)
         alpakaHeat2DLive->Deactivate();
+    alpakaWave1DTextureReady = false;
     alpakaHeat2DTextureReady = false;
+}
+
+bool CA::TryAlpakaWave1DUpdate(HDC hdc)
+{
+    if (!IsAlpakaWave1DType(type_ca))
+    {
+        if (alpakaWave1DLive && alpakaWave1DLive->IsActive())
+            MarkAlpakaHeat2DDirty();
+        return false;
+    }
+
+    capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
+    const capow::AlpakaRule rule = AlpakaWave1DAlpakaRuleForType(type_ca);
+    const bool liveGpuType = capowgl != nullptr && capowgl->Type() == LIVE_GPU;
+    const bool supportedView = viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW;
+    const bool liveGpuCandidate =
+        backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU && backendManager.CanRunGpu(rule) &&
+        liveGpuType && supportedView && wrapflag == WF_WRAP && showmode == BOTH_SHOW &&
+        _chunk.Val() <= MIN_POS_CHUNK && !generatorflag && generatorlist.Count() == 0;
+    const bool canUseGpu = liveGpuCandidate && _smoothsteps == 0;
+    if (!canUseGpu)
+    {
+        if (alpakaWave1DLive && alpakaWave1DLive->IsActive())
+            MarkAlpakaHeat2DDirty();
+        if (liveGpuType && !liveGpuCandidate)
+            capowgl->Type(FLATCOLOR);
+        return false;
+    }
+
+    if (!alpakaWave1DLive)
+        alpakaWave1DLive = std::make_unique<capow::Wave1DLiveState>();
+
+    capow::Wave1DLiveOptions options;
+    options.width = horz_count;
+    options.historyWidth = maxx - minx + 1;
+    options.historyHeight = maxy - miny + 1;
+    options.row = row_number - miny;
+    options.bltLines = calist_ptr->_blt_lines;
+    options.view = viewmode == IDC_DOWN_VIEW ? capow::WAVE_1D_LIVE_VIEW_DOWN : capow::WAVE_1D_LIVE_VIEW_SCROLL;
+    options.rule = AlpakaWave1DRuleForType(type_ca);
+    options.waveSpeed2TimeStep2OverDx2 = _wavespeed_2_times_dt_2_over_dx_2;
+    options.dtOverDx2 = _dt_over_dx_2;
+    options.maxIntensity = _max_intensity.Val();
+    options.maxVelocity = _max_velocity.Val();
+    options.timeStep = _dt.Val();
+    options.dtOverMass = _dt_over_mass;
+    options.frictionMultiplier = _friction_multiplier.Val();
+    options.springMultiplier = _spring_multiplier.Val();
+    options.driverValue = _driver_multiplier.Val() * cos(_phase + frequency_factor * time);
+    options.velocityColorScale = AMPLIFY_VEL_COLOR;
+    options.colorCount = MAX_COLOR;
+    options.showVelocity = showvelocity != 0;
+
+    std::vector<capow::AlpakaPlaneValue> sourceIntensity;
+    std::vector<capow::AlpakaPlaneValue> pastIntensity;
+    std::vector<capow::AlpakaPlaneValue> sourceVelocity;
+    std::vector<capow::AlpakaPlaneValue> frictionTweaks;
+    std::vector<capow::AlpakaPlaneValue> springTweaks;
+    std::vector<capow::AlpakaPlaneValue> massTweaks;
+    const capow::AlpakaPlaneValue *sourceData = nullptr;
+    const capow::AlpakaPlaneValue *pastData = nullptr;
+    const capow::AlpakaPlaneValue *velocityData = nullptr;
+    const capow::AlpakaPlaneValue *frictionData = nullptr;
+    const capow::AlpakaPlaneValue *springData = nullptr;
+    const capow::AlpakaPlaneValue *massData = nullptr;
+    if (alpakaWave1DLive->NeedsSource(options))
+    {
+        sourceIntensity.resize(static_cast<std::size_t>(horz_count));
+        pastIntensity.resize(static_cast<std::size_t>(horz_count));
+        sourceVelocity.resize(static_cast<std::size_t>(horz_count));
+        frictionTweaks.resize(static_cast<std::size_t>(horz_count));
+        springTweaks.resize(static_cast<std::size_t>(horz_count));
+        massTweaks.resize(static_cast<std::size_t>(horz_count));
+        for (int x = 0; x < horz_count; ++x)
+        {
+            const std::size_t indexValue = static_cast<std::size_t>(x);
+            sourceIntensity[indexValue] = wave_source_row[x].intensity;
+            pastIntensity[indexValue] = wave_past_row[x].intensity;
+            sourceVelocity[indexValue] = wave_source_row[x].velocity;
+            frictionTweaks[indexValue] = wave_target_row[x].friction_tweak;
+            springTweaks[indexValue] = wave_target_row[x].spring_tweak;
+            massTweaks[indexValue] = wave_target_row[x].mass_tweak;
+        }
+        sourceData = sourceIntensity.data();
+        pastData = pastIntensity.data();
+        velocityData = sourceVelocity.data();
+        frictionData = frictionTweaks.data();
+        springData = springTweaks.data();
+        massData = massTweaks.data();
+    }
+
+    if (!capowgl->MakeCurrent(hdc))
+    {
+        if (alpakaWave1DLive && alpakaWave1DLive->IsActive())
+            MarkAlpakaHeat2DDirty();
+        return false;
+    }
+
+    std::string errorText;
+    const bool ok = alpakaWave1DLive->RunFrame(options, sourceData, 1, pastData, 1, velocityData, 1, frictionData,
+        springData, massData, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
+    capowgl->ReleaseCurrent();
+    if (!ok)
+    {
+        OutputDebugStringA("CA_WAVE_1D GPU update failed: ");
+        OutputDebugStringA(errorText.c_str());
+        OutputDebugStringA("\n");
+        MarkAlpakaHeat2DDirty();
+        capowgl->Type(FLATCOLOR);
+        return false;
+    }
+
+    alpakaWave1DTextureReady = true;
+    if (viewmode == IDC_DOWN_VIEW)
+    {
+        row_number++;
+        if (row_number > maxy)
+            row_number = miny;
+    }
+    else
+    {
+        row_number++;
+        if (row_number > maxy)
+            row_number = maxy - (calist_ptr->_blt_lines) + 1;
+    }
+    time += _dt.Val();
+    if (time > TIMEWRAP)
+        time -= TIMEWRAP;
+    return true;
 }
 
 void CA::PaintHeat2DPlaneToBitmap(const Wavecell2 *plane)
@@ -1580,6 +1778,22 @@ bool CA::DrawAlpakaHeat2DTexture(HDC hdc, int left, int top, int width, int heig
         return false;
 
     const unsigned int texture = alpakaHeat2DLive->GetTexture();
+    if (texture == 0U)
+        return false;
+
+    return capowgl->DrawTexture2D(hdc, texture, left, top, width, height);
+}
+
+bool CA::DrawAlpakaWave1DTexture(HDC hdc, int left, int top, int width, int height)
+{
+    if (capow::GetAlpakaManager().GetBackend() != capow::ALPAKA_BACKEND_GPU)
+        return false;
+    if (capowgl == nullptr || capowgl->Type() != LIVE_GPU)
+        return false;
+    if (!alpakaWave1DTextureReady || !alpakaWave1DLive)
+        return false;
+
+    const unsigned int texture = alpakaWave1DLive->GetTexture();
     if (texture == 0U)
         return false;
 
