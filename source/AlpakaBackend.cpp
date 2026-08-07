@@ -64,6 +64,8 @@ AlpakaManager::AlpakaManager() :
     ruleEnabled[ALPAKA_RULE_CA_HEATWAVE2] = true;
     ruleEnabled[ALPAKA_RULE_CA_WAVE] = true;
     ruleEnabled[ALPAKA_RULE_CA_WAVE2] = true;
+    ruleEnabled[ALPAKA_RULE_CA_OSCILLATOR] = true;
+    ruleEnabled[ALPAKA_RULE_CA_DIVERSE_OSCILLATOR] = true;
 }
 
 bool AlpakaManager::IsGpuAvailable() const
@@ -143,6 +145,10 @@ const char *AlpakaRuleName(AlpakaRule rule)
         return "CA_WAVE";
     case ALPAKA_RULE_CA_WAVE2:
         return "CA_WAVE2";
+    case ALPAKA_RULE_CA_OSCILLATOR:
+        return "CA_OSCILLATOR";
+    case ALPAKA_RULE_CA_DIVERSE_OSCILLATOR:
+        return "CA_DIVERSE_OSCILLATOR";
     case ALPAKA_RULE_COUNT:
         break;
     }

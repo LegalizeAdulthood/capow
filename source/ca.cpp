@@ -1242,27 +1242,24 @@ void CA::WaveVelInt2(int ll, int l, int c, int r, int rr)
 #pragma argsused // Because we don't actually use l,c, or r
 void CA::Oscillator(int l, int c, int r)
 {
-    wave_target_row[c].velocity = wave_source_row[c].velocity +
-        _dt_over_mass *
-            (-_friction_multiplier.Val() * wave_source_row[c].velocity -
-                _spring_multiplier.Val() * wave_source_row[c].intensity +
-                _driver_multiplier.Val() * cos(_phase + frequency_factor * time));
-    wave_target_row[c].intensity = wave_source_row[c].intensity + _dt.Val() * wave_target_row[c].velocity;
-    CLAMP(wave_target_row[c].velocity, -_max_velocity.Val(), _max_velocity.Val());
-    CLAMP(wave_target_row[c].intensity, -_max_intensity.Val(), _max_intensity.Val());
+    const auto driverValue = _driver_multiplier.Val() * cos(_phase + frequency_factor * time);
+    const auto result = capow::ComputeOscillator1D(wave_source_row[c].intensity, wave_source_row[c].velocity,
+        _dt_over_mass, _friction_multiplier.Val(), _spring_multiplier.Val(), driverValue, _max_intensity.Val(),
+        _max_velocity.Val(), _dt.Val());
+    wave_target_row[c].intensity = result.nextIntensity;
+    wave_target_row[c].velocity = result.velocity;
 }
 
 #pragma argsused // Because we don't actually use l,c, or r
 void CA::DiverseOscillator(int l, int c, int r)
 {
-    wave_target_row[c].velocity = wave_source_row[c].velocity +
-        (_dt_over_mass / wave_target_row[c].mass_tweak) *
-            (-_friction_multiplier.Val() * wave_target_row[c].friction_tweak * wave_source_row[c].velocity -
-                _spring_multiplier.Val() * wave_target_row[c].spring_tweak * wave_source_row[c].intensity +
-                _driver_multiplier.Val() * cos(_phase + frequency_factor * time));
-    wave_target_row[c].intensity = wave_source_row[c].intensity + _dt.Val() * wave_target_row[c].velocity;
-    CLAMP(wave_target_row[c].velocity, -_max_velocity.Val(), _max_velocity.Val());
-    CLAMP(wave_target_row[c].intensity, -_max_intensity.Val(), _max_intensity.Val());
+    const auto driverValue = _driver_multiplier.Val() * cos(_phase + frequency_factor * time);
+    const auto result = capow::ComputeDiverseOscillator1D(wave_source_row[c].intensity, wave_source_row[c].velocity,
+        _dt_over_mass, _friction_multiplier.Val(), _spring_multiplier.Val(), driverValue,
+        wave_target_row[c].friction_tweak, wave_target_row[c].spring_tweak, wave_target_row[c].mass_tweak,
+        _max_intensity.Val(), _max_velocity.Val(), _dt.Val());
+    wave_target_row[c].intensity = result.nextIntensity;
+    wave_target_row[c].velocity = result.velocity;
 }
 
 void CA::AltOscillatorWave(int l, int c, int r)

@@ -20,6 +20,10 @@ struct Wave1DOptions
     AlpakaPlaneValue maxIntensity;
     AlpakaPlaneValue maxVelocity;
     AlpakaPlaneValue timeStep;
+    AlpakaPlaneValue dtOverMass;
+    AlpakaPlaneValue frictionMultiplier;
+    AlpakaPlaneValue springMultiplier;
+    AlpakaPlaneValue driverValue;
 
     Wave1DOptions();
 };

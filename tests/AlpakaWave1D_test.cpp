@@ -25,6 +25,10 @@ void ExpectWaveGpuMatchesHost(int width, int steps, capow::Wave1DRule rule, capo
     options.maxIntensity = 7.0F;
     options.maxVelocity = 5.0F;
     options.timeStep = 0.25F;
+    options.dtOverMass = 0.125F;
+    options.frictionMultiplier = 0.25F;
+    options.springMultiplier = 0.75F;
+    options.driverValue = 0.5F;
 
     std::vector<capow::AlpakaPlaneValue> source;
     std::vector<capow::AlpakaPlaneValue> past;
@@ -62,4 +66,14 @@ TEST(alpakaWave1D, fiveNeighborOneStepMatchesHost)
 TEST(alpakaWave1D, fiveNeighborFiftyStepsMatchHost)
 {
     ExpectWaveGpuMatchesHost(263, 50, capow::WAVE_1D_RULE_FIVE_NEIGHBOR, 2.5e-5F);
+}
+
+TEST(alpakaWave1D, oscillatorFiftyStepsMatchHost)
+{
+    ExpectWaveGpuMatchesHost(257, 50, capow::WAVE_1D_RULE_OSCILLATOR, 2.5e-5F);
+}
+
+TEST(alpakaWave1D, diverseOscillatorFiftyStepsMatchHost)
+{
+    ExpectWaveGpuMatchesHost(257, 50, capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR, 2.5e-5F);
 }

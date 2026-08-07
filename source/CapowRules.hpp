@@ -34,7 +34,9 @@ enum Heat1DRule
 enum Wave1DRule
 {
     WAVE_1D_RULE_THREE_NEIGHBOR,
-    WAVE_1D_RULE_FIVE_NEIGHBOR
+    WAVE_1D_RULE_FIVE_NEIGHBOR,
+    WAVE_1D_RULE_OSCILLATOR,
+    WAVE_1D_RULE_DIVERSE_OSCILLATOR
 };
 
 template <typename T>
@@ -145,6 +147,33 @@ ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeWave1D5(T leftLeftIntensity, T leftInt
     T nextIntensity = centerIntensity + timeStep * nextVelocity + (timeStep / T(2)) * dtutt;
     nextIntensity = WrapRange(nextIntensity, -maxIntensity, maxIntensity);
     return Wave1DResult<T>{nextIntensity, (nextIntensity - centerIntensity) / timeStep};
+}
+
+template <typename T>
+ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeOscillator1D(T centerIntensity, T sourceVelocity, T dtOverMass,
+    T frictionMultiplier, T springMultiplier, T driverValue, T maxIntensity, T maxVelocity, T timeStep)
+{
+    const T nextVelocity = sourceVelocity +
+        dtOverMass * (-frictionMultiplier * sourceVelocity - springMultiplier * centerIntensity + driverValue);
+    const T clampedVelocity = ClampRange(nextVelocity, -maxVelocity, maxVelocity);
+    T nextIntensity = centerIntensity + timeStep * nextVelocity;
+    nextIntensity = ClampRange(nextIntensity, -maxIntensity, maxIntensity);
+    return Wave1DResult<T>{nextIntensity, clampedVelocity};
+}
+
+template <typename T>
+ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeDiverseOscillator1D(T centerIntensity, T sourceVelocity, T dtOverMass,
+    T frictionMultiplier, T springMultiplier, T driverValue, T frictionTweak, T springTweak, T massTweak,
+    T maxIntensity, T maxVelocity, T timeStep)
+{
+    const T nextVelocity = sourceVelocity +
+        dtOverMass / massTweak *
+            (-frictionMultiplier * frictionTweak * sourceVelocity - springMultiplier * springTweak * centerIntensity +
+                driverValue);
+    const T clampedVelocity = ClampRange(nextVelocity, -maxVelocity, maxVelocity);
+    T nextIntensity = centerIntensity + timeStep * nextVelocity;
+    nextIntensity = ClampRange(nextIntensity, -maxIntensity, maxIntensity);
+    return Wave1DResult<T>{nextIntensity, clampedVelocity};
 }
 
 template <typename T>

@@ -35,15 +35,23 @@ const capow::AlpakaPlaneValue defaultDtOver12Dx2 = capow::AlpakaPlaneValue(0.031
 const capow::AlpakaPlaneValue defaultMaxIntensity = capow::AlpakaPlaneValue(10.0F);
 const capow::AlpakaPlaneValue defaultMaxVelocity = capow::AlpakaPlaneValue(10.0F);
 const capow::AlpakaPlaneValue defaultTimeStep = capow::AlpakaPlaneValue(0.25F);
+const capow::AlpakaPlaneValue defaultDtOverMass = capow::AlpakaPlaneValue(0.125F);
+const capow::AlpakaPlaneValue defaultFrictionMultiplier = capow::AlpakaPlaneValue(0.25F);
+const capow::AlpakaPlaneValue defaultSpringMultiplier = capow::AlpakaPlaneValue(0.75F);
+const capow::AlpakaPlaneValue defaultDriverValue = capow::AlpakaPlaneValue(0.5F);
 
 struct Wave1DKernel
 {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc &acc, const capow::AlpakaPlaneValue *source,
-        const capow::AlpakaPlaneValue *past, capow::AlpakaPlaneValue *targetIntensity,
+        const capow::AlpakaPlaneValue *past, const capow::AlpakaPlaneValue *sourceVelocity,
+        const capow::AlpakaPlaneValue *frictionTweaks, const capow::AlpakaPlaneValue *springTweaks,
+        const capow::AlpakaPlaneValue *massTweaks, capow::AlpakaPlaneValue *targetIntensity,
         capow::AlpakaPlaneValue *targetVelocity, Idx width, capow::AlpakaPlaneValue waveSpeed2TimeStep2OverDx2,
         capow::AlpakaPlaneValue dtOver12Dx2, capow::AlpakaPlaneValue maxIntensity, capow::AlpakaPlaneValue maxVelocity,
-        capow::AlpakaPlaneValue timeStep, capow::Wave1DRule rule) const
+        capow::AlpakaPlaneValue timeStep, capow::AlpakaPlaneValue dtOverMass,
+        capow::AlpakaPlaneValue frictionMultiplier, capow::AlpakaPlaneValue springMultiplier,
+        capow::AlpakaPlaneValue driverValue, capow::Wave1DRule rule) const
     {
         const Idx x = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
         if (x >= width)
@@ -51,11 +59,28 @@ struct Wave1DKernel
             return;
         }
 
-        const capow::Wave1DResult<capow::AlpakaPlaneValue> result = rule == capow::WAVE_1D_RULE_FIVE_NEIGHBOR
-            ? capow::ComputeWave1D5Cell<capow::AlpakaPlaneValue>(
-                  source, past, x, width, dtOver12Dx2, maxIntensity, maxVelocity, timeStep)
-            : capow::ComputeWave1DCell<capow::AlpakaPlaneValue>(
-                  source, past, x, width, waveSpeed2TimeStep2OverDx2, maxIntensity, timeStep);
+        capow::Wave1DResult<capow::AlpakaPlaneValue> result = {capow::AlpakaPlaneValue(0), capow::AlpakaPlaneValue(0)};
+        if (rule == capow::WAVE_1D_RULE_OSCILLATOR)
+        {
+            result = capow::ComputeOscillator1D<capow::AlpakaPlaneValue>(source[x], sourceVelocity[x], dtOverMass,
+                frictionMultiplier, springMultiplier, driverValue, maxIntensity, maxVelocity, timeStep);
+        }
+        else if (rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR)
+        {
+            result = capow::ComputeDiverseOscillator1D<capow::AlpakaPlaneValue>(source[x], sourceVelocity[x],
+                dtOverMass, frictionMultiplier, springMultiplier, driverValue, frictionTweaks[x], springTweaks[x],
+                massTweaks[x], maxIntensity, maxVelocity, timeStep);
+        }
+        else if (rule == capow::WAVE_1D_RULE_FIVE_NEIGHBOR)
+        {
+            result = capow::ComputeWave1D5Cell<capow::AlpakaPlaneValue>(
+                source, past, x, width, dtOver12Dx2, maxIntensity, maxVelocity, timeStep);
+        }
+        else
+        {
+            result = capow::ComputeWave1DCell<capow::AlpakaPlaneValue>(
+                source, past, x, width, waveSpeed2TimeStep2OverDx2, maxIntensity, timeStep);
+        }
         targetIntensity[x] = result.nextIntensity;
         targetVelocity[x] = result.velocity;
     }
@@ -106,18 +131,72 @@ capow::AlpakaPlaneValue UnitValue(std::uint32_t index)
         static_cast<capow::AlpakaPlaneValue>(0x00ffffffU);
 }
 
+bool IsOscillatorRule(capow::Wave1DRule rule)
+{
+    return rule == capow::WAVE_1D_RULE_OSCILLATOR || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR;
+}
+
+void MakeWave1DVelocityFromPast(const capow::Wave1DOptions &options, const std::vector<capow::AlpakaPlaneValue> &source,
+    const std::vector<capow::AlpakaPlaneValue> &past, std::vector<capow::AlpakaPlaneValue> *targetVelocity)
+{
+    targetVelocity->resize(CellCount(options));
+    for (std::size_t index = 0; index < targetVelocity->size(); ++index)
+    {
+        (*targetVelocity)[index] = (source[index] - past[index]) / options.timeStep;
+    }
+}
+
+void MakeWave1DTweaks(const capow::Wave1DOptions &options, std::vector<capow::AlpakaPlaneValue> *frictionTweaks,
+    std::vector<capow::AlpakaPlaneValue> *springTweaks, std::vector<capow::AlpakaPlaneValue> *massTweaks)
+{
+    const std::size_t width = CellCount(options);
+    frictionTweaks->resize(width);
+    springTweaks->resize(width);
+    massTweaks->resize(width);
+    for (std::size_t index = 0; index < width; ++index)
+    {
+        (*frictionTweaks)[index] = capow::AlpakaPlaneValue(0.8F) +
+            capow::AlpakaPlaneValue(0.4F) * UnitValue(static_cast<std::uint32_t>(index + width));
+        (*springTweaks)[index] = capow::AlpakaPlaneValue(0.75F) +
+            capow::AlpakaPlaneValue(0.5F) * UnitValue(static_cast<std::uint32_t>(index + 2U * width));
+        (*massTweaks)[index] = capow::AlpakaPlaneValue(0.8F) +
+            capow::AlpakaPlaneValue(0.4F) * UnitValue(static_cast<std::uint32_t>(index + 3U * width));
+    }
+}
+
 void Wave1DStepHost(const capow::Wave1DOptions &options, const std::vector<capow::AlpakaPlaneValue> &source,
-    const std::vector<capow::AlpakaPlaneValue> &past, std::vector<capow::AlpakaPlaneValue> *targetIntensity,
-    std::vector<capow::AlpakaPlaneValue> *targetVelocity)
+    const std::vector<capow::AlpakaPlaneValue> &past, const std::vector<capow::AlpakaPlaneValue> &sourceVelocity,
+    const std::vector<capow::AlpakaPlaneValue> &frictionTweaks,
+    const std::vector<capow::AlpakaPlaneValue> &springTweaks, const std::vector<capow::AlpakaPlaneValue> &massTweaks,
+    std::vector<capow::AlpakaPlaneValue> *targetIntensity, std::vector<capow::AlpakaPlaneValue> *targetVelocity)
 {
     const std::uint32_t width = static_cast<std::uint32_t>(options.width);
     for (std::uint32_t x = 0U; x < width; ++x)
     {
-        const capow::Wave1DResult<capow::AlpakaPlaneValue> result = options.rule == capow::WAVE_1D_RULE_FIVE_NEIGHBOR
-            ? capow::ComputeWave1D5Cell<capow::AlpakaPlaneValue>(source.data(), past.data(), x, width,
-                  options.dtOver12Dx2, options.maxIntensity, options.maxVelocity, options.timeStep)
-            : capow::ComputeWave1DCell<capow::AlpakaPlaneValue>(source.data(), past.data(), x, width,
-                  options.waveSpeed2TimeStep2OverDx2, options.maxIntensity, options.timeStep);
+        capow::Wave1DResult<capow::AlpakaPlaneValue> result = {capow::AlpakaPlaneValue(0), capow::AlpakaPlaneValue(0)};
+        if (options.rule == capow::WAVE_1D_RULE_OSCILLATOR)
+        {
+            result = capow::ComputeOscillator1D<capow::AlpakaPlaneValue>(source[x], sourceVelocity[x],
+                options.dtOverMass, options.frictionMultiplier, options.springMultiplier, options.driverValue,
+                options.maxIntensity, options.maxVelocity, options.timeStep);
+        }
+        else if (options.rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR)
+        {
+            result = capow::ComputeDiverseOscillator1D<capow::AlpakaPlaneValue>(source[x], sourceVelocity[x],
+                options.dtOverMass, options.frictionMultiplier, options.springMultiplier, options.driverValue,
+                frictionTweaks[x], springTweaks[x], massTweaks[x], options.maxIntensity, options.maxVelocity,
+                options.timeStep);
+        }
+        else if (options.rule == capow::WAVE_1D_RULE_FIVE_NEIGHBOR)
+        {
+            result = capow::ComputeWave1D5Cell<capow::AlpakaPlaneValue>(source.data(), past.data(), x, width,
+                options.dtOver12Dx2, options.maxIntensity, options.maxVelocity, options.timeStep);
+        }
+        else
+        {
+            result = capow::ComputeWave1DCell<capow::AlpakaPlaneValue>(source.data(), past.data(), x, width,
+                options.waveSpeed2TimeStep2OverDx2, options.maxIntensity, options.timeStep);
+        }
         (*targetIntensity)[x] = result.nextIntensity;
         (*targetVelocity)[x] = result.velocity;
     }
@@ -150,7 +229,11 @@ Wave1DOptions::Wave1DOptions() :
     dtOver12Dx2(defaultDtOver12Dx2),
     maxIntensity(defaultMaxIntensity),
     maxVelocity(defaultMaxVelocity),
-    timeStep(defaultTimeStep)
+    timeStep(defaultTimeStep),
+    dtOverMass(defaultDtOverMass),
+    frictionMultiplier(defaultFrictionMultiplier),
+    springMultiplier(defaultSpringMultiplier),
+    driverValue(defaultDriverValue)
 {
 }
 
@@ -163,11 +246,21 @@ void MakeWave1DInitial(
     for (std::size_t index = 0; index < source->size(); ++index)
     {
         const AlpakaPlaneValue sourceUnit = UnitValue(static_cast<std::uint32_t>(index));
-        const AlpakaPlaneValue pastUnit = UnitValue(static_cast<std::uint32_t>(index + source->size()));
         (*source)[index] =
             (sourceUnit * AlpakaPlaneValue(2) - AlpakaPlaneValue(1)) * options.maxIntensity * AlpakaPlaneValue(0.5F);
-        (*past)[index] =
-            (pastUnit * AlpakaPlaneValue(2) - AlpakaPlaneValue(1)) * options.maxIntensity * AlpakaPlaneValue(0.5F);
+        if (IsOscillatorRule(options.rule))
+        {
+            const AlpakaPlaneValue velocityUnit = UnitValue(static_cast<std::uint32_t>(index + source->size()));
+            const AlpakaPlaneValue velocity = (velocityUnit * AlpakaPlaneValue(2) - AlpakaPlaneValue(1)) *
+                options.maxVelocity * AlpakaPlaneValue(0.25F);
+            (*past)[index] = (*source)[index] - velocity * options.timeStep;
+        }
+        else
+        {
+            const AlpakaPlaneValue pastUnit = UnitValue(static_cast<std::uint32_t>(index + source->size()));
+            (*past)[index] =
+                (pastUnit * AlpakaPlaneValue(2) - AlpakaPlaneValue(1)) * options.maxIntensity * AlpakaPlaneValue(0.5F);
+        }
     }
 }
 
@@ -178,19 +271,34 @@ void RunWave1DHost(const Wave1DOptions &options, const std::vector<AlpakaPlaneVa
     ValidateFieldSize(options, initialSource);
     ValidateFieldSize(options, initialPast);
 
+    if (options.steps == 0)
+    {
+        result->intensityField = initialSource;
+        result->velocityField.assign(initialSource.size(), AlpakaPlaneValue(0));
+        return;
+    }
+
     std::vector<AlpakaPlaneValue> current = initialSource;
     std::vector<AlpakaPlaneValue> past = initialPast;
+    std::vector<AlpakaPlaneValue> currentVelocity;
     std::vector<AlpakaPlaneValue> nextIntensity(CellCount(options));
     std::vector<AlpakaPlaneValue> nextVelocity(CellCount(options), AlpakaPlaneValue(0));
+    std::vector<AlpakaPlaneValue> frictionTweaks;
+    std::vector<AlpakaPlaneValue> springTweaks;
+    std::vector<AlpakaPlaneValue> massTweaks;
+    MakeWave1DVelocityFromPast(options, current, past, &currentVelocity);
+    MakeWave1DTweaks(options, &frictionTweaks, &springTweaks, &massTweaks);
     for (int step = 0; step < options.steps; ++step)
     {
-        Wave1DStepHost(options, current, past, &nextIntensity, &nextVelocity);
+        Wave1DStepHost(options, current, past, currentVelocity, frictionTweaks, springTweaks, massTweaks,
+            &nextIntensity, &nextVelocity);
         std::swap(past, current);
         std::swap(current, nextIntensity);
+        std::swap(currentVelocity, nextVelocity);
     }
 
     result->intensityField = current;
-    result->velocityField = nextVelocity;
+    result->velocityField = currentVelocity;
 }
 
 void RunWave1DGpu(const Wave1DOptions &options, const std::vector<AlpakaPlaneValue> &initialSource,
@@ -219,15 +327,37 @@ void RunWave1DGpuTimed(const Wave1DOptions &options, const std::vector<AlpakaPla
     const HostDevice hostDevice = alpaka::getDevByIdx(hostPlatform, 0U);
     Queue queue(accDevice);
     const Extent extent = Extent{static_cast<Idx>(CellCount(options))};
+    std::vector<AlpakaPlaneValue> initialVelocity;
+    std::vector<AlpakaPlaneValue> frictionTweaks;
+    std::vector<AlpakaPlaneValue> springTweaks;
+    std::vector<AlpakaPlaneValue> massTweaks;
+    MakeWave1DVelocityFromPast(options, initialSource, initialPast, &initialVelocity);
+    MakeWave1DTweaks(options, &frictionTweaks, &springTweaks, &massTweaks);
 
     DeviceBuffer deviceCurrent = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
     DeviceBuffer devicePast = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
     DeviceBuffer deviceNextIntensity = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
+    DeviceBuffer deviceCurrentVelocity = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
     DeviceBuffer deviceNextVelocity = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
+    DeviceBuffer deviceFrictionTweaks = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
+    DeviceBuffer deviceSpringTweaks = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
+    DeviceBuffer deviceMassTweaks = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
     ConstHostView hostSource = alpaka::createView(hostDevice, initialSource.data(), extent);
     ConstHostView hostPast = alpaka::createView(hostDevice, initialPast.data(), extent);
+    ConstHostView hostInitialVelocity =
+        alpaka::createView(hostDevice, static_cast<const AlpakaPlaneValue *>(initialVelocity.data()), extent);
+    ConstHostView hostFrictionTweaks =
+        alpaka::createView(hostDevice, static_cast<const AlpakaPlaneValue *>(frictionTweaks.data()), extent);
+    ConstHostView hostSpringTweaks =
+        alpaka::createView(hostDevice, static_cast<const AlpakaPlaneValue *>(springTweaks.data()), extent);
+    ConstHostView hostMassTweaks =
+        alpaka::createView(hostDevice, static_cast<const AlpakaPlaneValue *>(massTweaks.data()), extent);
     alpaka::memcpy(queue, deviceCurrent, hostSource, extent);
     alpaka::memcpy(queue, devicePast, hostPast, extent);
+    alpaka::memcpy(queue, deviceCurrentVelocity, hostInitialVelocity, extent);
+    alpaka::memcpy(queue, deviceFrictionTweaks, hostFrictionTweaks, extent);
+    alpaka::memcpy(queue, deviceSpringTweaks, hostSpringTweaks, extent);
+    alpaka::memcpy(queue, deviceMassTweaks, hostMassTweaks, extent);
     alpaka::wait(queue);
 
     const Extent threads = Extent{128U};
@@ -242,12 +372,16 @@ void RunWave1DGpuTimed(const Wave1DOptions &options, const std::vector<AlpakaPla
             for (int step = 0; step < options.steps; ++step)
             {
                 alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(deviceCurrent),
-                    alpaka::getPtrNative(devicePast), alpaka::getPtrNative(deviceNextIntensity),
+                    alpaka::getPtrNative(devicePast), alpaka::getPtrNative(deviceCurrentVelocity),
+                    alpaka::getPtrNative(deviceFrictionTweaks), alpaka::getPtrNative(deviceSpringTweaks),
+                    alpaka::getPtrNative(deviceMassTweaks), alpaka::getPtrNative(deviceNextIntensity),
                     alpaka::getPtrNative(deviceNextVelocity), static_cast<Idx>(options.width),
                     options.waveSpeed2TimeStep2OverDx2, options.dtOver12Dx2, options.maxIntensity, options.maxVelocity,
-                    options.timeStep, options.rule);
+                    options.timeStep, options.dtOverMass, options.frictionMultiplier, options.springMultiplier,
+                    options.driverValue, options.rule);
                 std::swap(devicePast, deviceCurrent);
                 std::swap(deviceCurrent, deviceNextIntensity);
+                std::swap(deviceCurrentVelocity, deviceNextVelocity);
             }
             alpaka::wait(queue);
         });
@@ -261,7 +395,7 @@ void RunWave1DGpuTimed(const Wave1DOptions &options, const std::vector<AlpakaPla
         [&]()
         {
             alpaka::memcpy(queue, hostIntensity, deviceCurrent, extent);
-            alpaka::memcpy(queue, hostVelocity, deviceNextVelocity, extent);
+            alpaka::memcpy(queue, hostVelocity, deviceCurrentVelocity, extent);
             alpaka::wait(queue);
         });
     AddAlpakaTiming(timing, ALPAKA_TIMING_GPU_BATCH_SAVE_READBACK, readbackMs);

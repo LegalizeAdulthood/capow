@@ -120,6 +120,33 @@ TEST(capowRules, wave1dFiveNeighborCellUsesWrapBoundary)
     EXPECT_FLOAT_EQ(12.25F, result.velocity);
 }
 
+TEST(capowRules, oscillatorUsesDriver)
+{
+    const capow::Wave1DResult<float> result =
+        capow::ComputeOscillator1D(2.0F, 0.5F, 0.25F, 0.1F, 0.2F, 1.0F, 10.0F, 10.0F, 0.5F);
+
+    EXPECT_FLOAT_EQ(2.31875F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(0.6375F, result.velocity);
+}
+
+TEST(capowRules, oscillatorClampsVelocityAfterIntensity)
+{
+    const capow::Wave1DResult<float> result =
+        capow::ComputeOscillator1D(0.0F, 20.0F, 0.0F, 0.0F, 0.0F, 0.0F, 100.0F, 1.0F, 1.0F);
+
+    EXPECT_FLOAT_EQ(20.0F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(1.0F, result.velocity);
+}
+
+TEST(capowRules, diverseOscillatorUsesTweaks)
+{
+    const capow::Wave1DResult<float> result =
+        capow::ComputeDiverseOscillator1D(2.0F, 0.5F, 0.25F, 0.1F, 0.2F, 1.0F, 2.0F, 3.0F, 0.5F, 10.0F, 10.0F, 0.5F);
+
+    EXPECT_FLOAT_EQ(2.175F, result.nextIntensity);
+    EXPECT_FLOAT_EQ(0.35F, result.velocity);
+}
+
 TEST(capowRules, heat2dAveragesFiveInputs)
 {
     const capow::Heat2DResult<float> result = capow::ComputeHeat2D(10.0F, 20.0F, -5.0F, 5.0F, 0.0F, 2.0F, 100.0F, 0.5F);
