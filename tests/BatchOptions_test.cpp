@@ -275,6 +275,17 @@ TEST(batchOptions, parseRejectsMissingBackend)
     EXPECT_EQ("missing --backend", result.error);
 }
 
+TEST(batchOptions, parseRejectsUserRule)
+{
+    const char *argv[] = {"--batch", "--backend", "gpu", "--rule", "CA_USER", "--steps", "100", "--output", "user.bmp"};
+
+    const capow::BatchParseResult result = Parse(9, argv);
+
+    EXPECT_FALSE(result.ok);
+    EXPECT_TRUE(result.batch);
+    EXPECT_EQ("invalid rule", result.error);
+}
+
 TEST(batchOptions, parseRejectsMissingOutput)
 {
     const char *argv[] = {"--batch", "--backend", "cpu", "--rule", "CA_HEAT_2D", "--steps", "100"};

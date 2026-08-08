@@ -1,5 +1,8 @@
 #include "ca.hpp"
 #include <commdlg.h>
+#if defined(CAPOW_ENABLE_ALPAKA)
+#include "Capow.hpp"
+#endif
 #include "Userpara.hpp"
 
 static char temp_user_rule_file_name[MAXFILENAME];
@@ -51,6 +54,9 @@ BOOL CA::LoadUserRule(HWND hwnd)
 
 BOOL CA::LoadUserRule(HWND hwnd, char *DLLname)
 {
+#if defined(CAPOW_ENABLE_ALPAKA)
+    ForceAlpakaCpuBackend();
+#endif
 /* First we save all of the old user-rule related fields in case the
 loading of the user rule fails at some point.  Another reason to save
 these fields is that if the load is successful, you will want to do a
@@ -67,6 +73,9 @@ FreeLibrary on the old _DLLhandle, if that handle was non-NULL. */
     //Now try and load the USERRULE_? function pointer.
     if (GetUserRulePtr(hwnd, DLLname))
     {
+#if defined(CAPOW_ENABLE_ALPAKA)
+        UpdateAlpakaDisplayType();
+#endif
         /* You loaded everything successfully, so call
         FreeLibrary on the old _DLLhandle*/
         if (old_DLLhandle)

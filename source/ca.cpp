@@ -1659,6 +1659,9 @@ void CA::MarkAlpakaHeat2DDirty()
 
 bool CA::CanUseAlpakaLiveGpu(void)
 {
+    if (type_ca == CA_USER)
+        return false;
+
     capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
     if (type_ca == CA_STANDARD || type_ca == CA_REVERSIBLE)
     {
