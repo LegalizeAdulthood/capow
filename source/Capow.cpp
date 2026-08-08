@@ -180,6 +180,27 @@ static void SyncAlpakaLiveDisplays()
         calife_list->GetCA(i)->MarkAlpakaHeat2DDirty();
 }
 
+static void UpdateBackendToolbarState()
+{
+    BOOL gpuAvailable = FALSE;
+    BOOL gpuBackend = FALSE;
+#if defined(CAPOW_ENABLE_ALPAKA)
+    capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
+    gpuAvailable = backendManager.IsGpuAvailable() ? TRUE : FALSE;
+    gpuBackend = backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU ? TRUE : FALSE;
+#endif
+    if (hwndActionToolbar != NULL)
+    {
+        ToolBar_EnableButton(hwndActionToolbar, IDM_BACKEND_TOGGLE, gpuAvailable);
+        ToolBar_CheckButton(hwndActionToolbar, IDM_BACKEND_TOGGLE, gpuBackend);
+    }
+    if (hwndDialogToolbar != NULL)
+    {
+        ToolBar_EnableButton(hwndDialogToolbar, IDM_BACKEND_TOGGLE, gpuAvailable);
+        ToolBar_CheckButton(hwndDialogToolbar, IDM_BACKEND_TOGGLE, gpuBackend);
+    }
+}
+
 static bool IsLiveGpuRuleType(int type)
 {
     return type == CA_HEAT_2D || type == CA_WAVE_2D ||
@@ -264,9 +285,19 @@ static void UpdateAlpakaDisplayType()
     }
 }
 
-static bool IsLiveGpuDisplayActive()
+#else
+static void UpdateBackendToolbarState()
 {
-    return CanShowLiveGpu() && capowgl->Type() == LIVE_GPU;
+    if (hwndActionToolbar != NULL)
+    {
+        ToolBar_EnableButton(hwndActionToolbar, IDM_BACKEND_TOGGLE, FALSE);
+        ToolBar_CheckButton(hwndActionToolbar, IDM_BACKEND_TOGGLE, FALSE);
+    }
+    if (hwndDialogToolbar != NULL)
+    {
+        ToolBar_EnableButton(hwndDialogToolbar, IDM_BACKEND_TOGGLE, FALSE);
+        ToolBar_CheckButton(hwndDialogToolbar, IDM_BACKEND_TOGGLE, FALSE);
+    }
 }
 #endif
 
@@ -549,6 +580,7 @@ BOOL MyWnd_CREATE(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
     hwndStatusBar = InitStatusBar ( hwnd );  // Loads Status Bar
     hwndActionToolbar   = InitActionToolBar   ( hwnd );  // Loads Tool Bar
     hwndDialogToolbar   = InitDialogToolBar   ( hwnd );  // Loads Tool Bar
+    UpdateBackendToolbarState();
     if (toolbarON)
         ShowWindow (hwndDialogToolbar, SW_SHOW);
 
@@ -717,37 +749,32 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             TrackToolbarButtonMenu(hwnd, hwndActionToolbar, SEEDMENU_BUTTON, hSeedMenu);
         break;
 
-        case IDM_BACKEND_CPU:
+        case IDM_BACKEND_TOGGLE:
 #if defined(CAPOW_ENABLE_ALPAKA)
-            SyncAlpakaLiveDisplays();
-            capow::GetAlpakaManager().SetBackend(capow::ALPAKA_BACKEND_CPU);
-            if (capowgl != NULL && capowgl->Type() == LIVE_GPU)
-            {
-                capowgl->Type(FLATCOLOR);
-                InvalidateRect(masterhwnd, NULL, FALSE);
-            }
-#else
-            MessageBoxA(hwnd, "CPU backend is active.", "Backend",
-                MB_OK | MB_ICONINFORMATION);
-#endif
-            break;
-
-        case IDM_BACKEND_GPU:
-#if defined(CAPOW_ENABLE_ALPAKA)
-            {
+        {
             capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
-            if (backendManager.IsGpuAvailable())
+            if (backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU)
+            {
+                SyncAlpakaLiveDisplays();
+                backendManager.SetBackend(capow::ALPAKA_BACKEND_CPU);
+                if (capowgl != NULL && capowgl->Type() == LIVE_GPU)
+                {
+                    capowgl->Type(FLATCOLOR);
+                    InvalidateRect(masterhwnd, NULL, FALSE);
+                }
+            }
+            else if (backendManager.IsGpuAvailable())
             {
                 backendManager.SetBackend(capow::ALPAKA_BACKEND_GPU);
                 UpdateAlpakaDisplayType();
             }
             else
             {
-                MessageBoxA(hwnd, backendManager.GetAvailabilityMessage(),
-                    "GPU Backend", MB_OK | MB_ICONINFORMATION);
+                MessageBoxA(hwnd, backendManager.GetAvailabilityMessage(), "GPU Backend", MB_OK | MB_ICONINFORMATION);
             }
+            UpdateBackendToolbarState();
             break;
-            }
+        }
 #else
             MessageBoxA(hwnd, "GPU backend is not compiled.", "GPU Backend",
                 MB_OK | MB_ICONINFORMATION);
@@ -1782,26 +1809,6 @@ static void MyWnd_LBUTTONUP(HWND hwnd, int x, int y, UINT flags)
 
 static void MyWnd_INITMENUPOPUP(HWND hwnd,  HMENU menu, UINT menuindex, BOOL x )
 {
-    if (GetMenuState(menu, IDM_BACKEND_CPU, MF_BYCOMMAND) != (UINT)-1)
-    {
-#if defined(CAPOW_ENABLE_ALPAKA)
-        capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
-        const bool gpuBackend =
-            backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU;
-        CheckMenuItem(menu, IDM_BACKEND_CPU, MF_BYCOMMAND |
-            (gpuBackend?MF_UNCHECKED:MF_CHECKED));
-        CheckMenuItem(menu, IDM_BACKEND_GPU, MF_BYCOMMAND |
-            (gpuBackend?MF_CHECKED:MF_UNCHECKED));
-        EnableMenuItem(menu, IDM_BACKEND_GPU, MF_BYCOMMAND |
-            (backendManager.IsGpuAvailable()?MF_ENABLED:MF_GRAYED));
-#else
-        CheckMenuItem(menu, IDM_BACKEND_CPU, MF_BYCOMMAND | MF_CHECKED);
-        CheckMenuItem(menu, IDM_BACKEND_GPU, MF_BYCOMMAND | MF_UNCHECKED);
-        EnableMenuItem(menu, IDM_BACKEND_GPU, MF_BYCOMMAND | MF_GRAYED);
-#endif
-        return;
-    }
-
     switch ( menuindex )
     {
         case 0:         // File Menu

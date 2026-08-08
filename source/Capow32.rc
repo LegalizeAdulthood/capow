@@ -602,13 +602,6 @@ BEGIN
         MENUITEM "&Breeding...",                IDM_CYCLE
         MENUITEM SEPARATOR
         MENUITEM "3D View Controls...\tCtrl + G", IDM_OPENGL
-        MENUITEM SEPARATOR
-        POPUP "Backend"
-        BEGIN
-            MENUITEM "CPU",                         IDM_BACKEND_CPU, CHECKED
-            MENUITEM "GPU",                         IDM_BACKEND_GPU
-        END
-        MENUITEM SEPARATOR
         MENUITEM "Change All\tCtrl + A",        IDM_CHANGEALLMENU, CHECKED
         MENUITEM "Change Focus\tCtrl + F",      IDM_CHANGEFOCUSMENU
     END
@@ -943,8 +936,7 @@ BEGIN
     IDM_GENERATORS          "Opens the generators dialog."
     IDM_CHANGEALLMENU       "Apply Changes to All CAs."
     IDM_CHANGEFOCUSMENU     "Apply Changes to Focus CA."
-    IDM_BACKEND_CPU         "Use CPU update paths."
-    IDM_BACKEND_GPU         "Use GPU update paths when available."
+    IDM_BACKEND_TOGGLE      "Toggles between CPU and GPU update paths."
     IDM_OLDTOOLBAR          "Show/Hide Dialog Toolbar."
     IDM_NEWTOOLBAR          "Show/Hide Action Toolbar."
 END

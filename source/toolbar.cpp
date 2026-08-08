@@ -42,6 +42,7 @@ TBBUTTON OldToolbar[] = {
     {BUT_GENERATOR, IDM_GENERATORS, TBSTATE_ENABLED, TBSTYLE_BUTTON, {0}, 0, 5}, // Generator
     //  BUT_FOURIERLARGE,    IDM_FOURIER,    TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,6,
     {BUT_CLONELARGE, IDM_CELL, TBSTATE_ENABLED, TBSTYLE_BUTTON, {0}, 0, 7},
+    {BUT_DIALOG_SWAP, IDM_BACKEND_TOGGLE, TBSTATE_ENABLED, TBSTYLE_CHECK, {0}, 0, 0},
     //  BUT_EXPERIMENTLARGE, IDM_EXP,        TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,9,
     //  BUT_CLOSELARGE,      IDM_CLOSE,      TBSTATE_ENABLED, TBSTYLE_BUTTON,0,0,0,12,
     {0, 0, TBSTATE_ENABLED, TBSTYLE_SEP, {0}, 0, 0},
@@ -76,6 +77,7 @@ TBBUTTON ChangeSection[] = {
     {BUT_VIEWMENU, IDM_VIEW_MENU, TBSTATE_ENABLED, TBSTYLE_BUTTON, {0}, 0, 0},
     {BUT_SEEDMENU, IDM_SEED_MENU, TBSTATE_ENABLED, TBSTYLE_BUTTON, {0}, 0, 0},
     {BUT_CHANGEALLLARGE, IDM_CHANGEALL, TBSTATE_ENABLED, TBSTYLE_BUTTON, {0}, 0, 0},
+    {BUT_ACTION_SWAP, IDM_BACKEND_TOGGLE, TBSTATE_ENABLED, TBSTYLE_CHECK, {0}, 0, 0},
     //  BUT_CHANGEFOCUSLARGE,  IDM_CHANGEFOCUS, TBSTATE_ENABLED, TBSTYLE_CHECKGROUP,0,0,0,0,
 };
 
@@ -176,8 +178,11 @@ LRESULT ToolBarNotify(HWND hwnd, int idForm, NMHDR  * pnmhdr)
                 break;
             case IDM_OPENGL:
                 ToolTip->lpszText = "3-D View Controls";
-               break;
-         }
+                break;
+            case IDM_BACKEND_TOGGLE:
+                ToolTip->lpszText = "Toggle CPU/GPU Backend";
+                break;
+            }
     }
    return 1;
 }
