@@ -457,11 +457,7 @@ int WINAPI CapowWinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
         else
         {
             QueryPerformanceCounter((LARGE_INTEGER*)&_end);
-            bool runCellmain = false;
-#if defined(CAPOW_ENABLE_ALPAKA)
-            runCellmain = IsLiveGpuDisplayActive();
-#endif
-            if (runCellmain || (_end - _start) >= _update_ticks_per_cycle)
+            if ((_end - _start) >= _update_ticks_per_cycle)
             /* If you set update_ticks_per_cycle unrealistically low, then you are going
             to spend so much time in here that your program will be unresponsive.
             And don't be greedy and try and work a "while" instead of an "if" to
