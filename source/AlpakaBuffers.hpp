@@ -2,12 +2,14 @@
 #define ALPAKABUFFERS_HPP
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 
 namespace capow
 {
 
 using AlpakaPlaneValue = float;
+using AlpakaDigitalValue = std::uint8_t;
 
 class AlpakaPlaneMirror2D
 {
@@ -64,6 +66,42 @@ public:
     void RotateRows();
     void CopyTargetToHost(AlpakaPlaneValue *targetIntensity, AlpakaPlaneValue *targetVelocity, int valueStride);
     void CopyDisplayRowToHost(AlpakaPlaneValue *displayIntensity, AlpakaPlaneValue *displayVelocity, int valueStride);
+
+private:
+    class Impl;
+    std::unique_ptr<Impl> impl;
+};
+
+class AlpakaDigitalRowMirror1D
+{
+public:
+    AlpakaDigitalRowMirror1D();
+    ~AlpakaDigitalRowMirror1D();
+
+    AlpakaDigitalRowMirror1D(const AlpakaDigitalRowMirror1D &) = delete;
+    AlpakaDigitalRowMirror1D &operator=(const AlpakaDigitalRowMirror1D &) = delete;
+
+    bool IsInitialized() const;
+    bool IsDirty() const;
+    bool HasPastRow() const;
+    int GetWidth() const;
+    int GetLookupCount() const;
+    std::size_t GetCellCount() const;
+    int GetSourceSlot() const;
+    int GetTargetSlot() const;
+    int GetPastSlot() const;
+
+    void Resize(int width, int lookupCount, bool hasPastRow);
+    void MarkDirty();
+    void CopyRowsAndLookupToDevice(const AlpakaDigitalValue *sourceRow, const AlpakaDigitalValue *targetRow,
+        const AlpakaDigitalValue *pastRow, const AlpakaDigitalValue *lookup);
+    void DebugCopySourceToTarget();
+    void DebugCopyPastToTarget();
+    void RotateRows();
+    void CopySourceToHost(AlpakaDigitalValue *sourceRow);
+    void CopyTargetToHost(AlpakaDigitalValue *targetRow);
+    void CopyPastToHost(AlpakaDigitalValue *pastRow);
+    void CopyLookupToHost(AlpakaDigitalValue *lookup);
 
 private:
     class Impl;

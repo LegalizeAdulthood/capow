@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 
+#include <cstdint>
 #include <vector>
 
 namespace
@@ -57,6 +58,27 @@ void ExpectRowsEqual(
     {
         EXPECT_EQ(expected[index], actual[index]);
         EXPECT_EQ(expected[index + 1U], actual[index + 1U]);
+    }
+}
+
+std::vector<capow::AlpakaDigitalValue> MakeDigitalBytes(int count, unsigned int base)
+{
+    std::vector<capow::AlpakaDigitalValue> values(static_cast<std::size_t>(count));
+    for (int index = 0; index < count; ++index)
+    {
+        values[static_cast<std::size_t>(index)] =
+            static_cast<capow::AlpakaDigitalValue>((base + static_cast<unsigned int>(index) * 17U) & 0xFFU);
+    }
+    return values;
+}
+
+void ExpectBytesEqual(
+    const std::vector<capow::AlpakaDigitalValue> &expected, const std::vector<capow::AlpakaDigitalValue> &actual)
+{
+    ASSERT_EQ(expected.size(), actual.size());
+    for (std::size_t index = 0; index < expected.size(); ++index)
+    {
+        EXPECT_EQ(expected[index], actual[index]) << "byte index " << index;
     }
 }
 
@@ -231,6 +253,129 @@ TEST(alpakaBuffers, continuousRowRotationMatchesWaveUpdateStep)
 
     capow::AlpakaContinuousRowMirror1D mirror;
     mirror.Resize(4);
+
+    mirror.RotateRows();
+
+    EXPECT_EQ(1, mirror.GetSourceSlot());
+    EXPECT_EQ(2, mirror.GetTargetSlot());
+    EXPECT_EQ(0, mirror.GetPastSlot());
+
+    mirror.RotateRows();
+
+    EXPECT_EQ(2, mirror.GetSourceSlot());
+    EXPECT_EQ(0, mirror.GetTargetSlot());
+    EXPECT_EQ(1, mirror.GetPastSlot());
+
+    mirror.RotateRows();
+
+    EXPECT_EQ(0, mirror.GetSourceSlot());
+    EXPECT_EQ(1, mirror.GetTargetSlot());
+    EXPECT_EQ(2, mirror.GetPastSlot());
+}
+
+TEST(alpakaBuffers, digitalRowTracksDimensionsDirtyStateAndSlots)
+{
+    SkipWithoutGpu();
+
+    capow::AlpakaDigitalRowMirror1D mirror;
+
+    EXPECT_FALSE(mirror.IsInitialized());
+    EXPECT_FALSE(mirror.IsDirty());
+    EXPECT_FALSE(mirror.HasPastRow());
+    EXPECT_EQ(0, mirror.GetWidth());
+    EXPECT_EQ(0, mirror.GetLookupCount());
+    EXPECT_EQ(0U, mirror.GetCellCount());
+    EXPECT_EQ(0, mirror.GetSourceSlot());
+    EXPECT_EQ(1, mirror.GetTargetSlot());
+    EXPECT_EQ(2, mirror.GetPastSlot());
+
+    mirror.Resize(9, 32, false);
+
+    EXPECT_TRUE(mirror.IsInitialized());
+    EXPECT_TRUE(mirror.IsDirty());
+    EXPECT_FALSE(mirror.HasPastRow());
+    EXPECT_EQ(9, mirror.GetWidth());
+    EXPECT_EQ(32, mirror.GetLookupCount());
+    EXPECT_EQ(9U, mirror.GetCellCount());
+    EXPECT_EQ(0, mirror.GetSourceSlot());
+    EXPECT_EQ(1, mirror.GetTargetSlot());
+    EXPECT_EQ(2, mirror.GetPastSlot());
+
+    mirror.Resize(9, 32, true);
+
+    EXPECT_TRUE(mirror.HasPastRow());
+    EXPECT_EQ(0, mirror.GetSourceSlot());
+    EXPECT_EQ(1, mirror.GetTargetSlot());
+    EXPECT_EQ(2, mirror.GetPastSlot());
+}
+
+TEST(alpakaBuffers, digitalRowSourceRoundTripsThroughTarget)
+{
+    SkipWithoutGpu();
+
+    const int width = 11;
+    const int lookupCount = 64;
+    std::vector<capow::AlpakaDigitalValue> source = MakeDigitalBytes(width, 3U);
+    std::vector<capow::AlpakaDigitalValue> target = MakeDigitalBytes(width, 200U);
+    std::vector<capow::AlpakaDigitalValue> lookup = MakeDigitalBytes(lookupCount, 19U);
+
+    capow::AlpakaDigitalRowMirror1D mirror;
+    mirror.Resize(width, lookupCount, false);
+    mirror.CopyRowsAndLookupToDevice(source.data(), target.data(), nullptr, lookup.data());
+    mirror.DebugCopySourceToTarget();
+    mirror.CopyTargetToHost(target.data());
+
+    EXPECT_FALSE(mirror.IsDirty());
+    ExpectBytesEqual(source, target);
+}
+
+TEST(alpakaBuffers, digitalRowPastRoundTripsThroughTarget)
+{
+    SkipWithoutGpu();
+
+    const int width = 7;
+    const int lookupCount = 16;
+    std::vector<capow::AlpakaDigitalValue> source = MakeDigitalBytes(width, 5U);
+    std::vector<capow::AlpakaDigitalValue> target = MakeDigitalBytes(width, 90U);
+    std::vector<capow::AlpakaDigitalValue> past = MakeDigitalBytes(width, 131U);
+    std::vector<capow::AlpakaDigitalValue> lookup = MakeDigitalBytes(lookupCount, 29U);
+
+    capow::AlpakaDigitalRowMirror1D mirror;
+    mirror.Resize(width, lookupCount, true);
+    mirror.CopyRowsAndLookupToDevice(source.data(), target.data(), past.data(), lookup.data());
+    mirror.DebugCopyPastToTarget();
+    mirror.CopyTargetToHost(target.data());
+
+    EXPECT_FALSE(mirror.IsDirty());
+    ExpectBytesEqual(past, target);
+}
+
+TEST(alpakaBuffers, digitalRowLookupRoundTripsExactly)
+{
+    SkipWithoutGpu();
+
+    const int width = 5;
+    const int lookupCount = 128;
+    std::vector<capow::AlpakaDigitalValue> source = MakeDigitalBytes(width, 11U);
+    std::vector<capow::AlpakaDigitalValue> target = MakeDigitalBytes(width, 12U);
+    std::vector<capow::AlpakaDigitalValue> lookup = MakeDigitalBytes(lookupCount, 41U);
+    std::vector<capow::AlpakaDigitalValue> lookupCopy(lookup.size(), capow::AlpakaDigitalValue(0));
+
+    capow::AlpakaDigitalRowMirror1D mirror;
+    mirror.Resize(width, lookupCount, false);
+    mirror.CopyRowsAndLookupToDevice(source.data(), target.data(), nullptr, lookup.data());
+    mirror.CopyLookupToHost(lookupCopy.data());
+
+    EXPECT_FALSE(mirror.IsDirty());
+    ExpectBytesEqual(lookup, lookupCopy);
+}
+
+TEST(alpakaBuffers, digitalRowRotationMatchesReversibleUpdateStep)
+{
+    SkipWithoutGpu();
+
+    capow::AlpakaDigitalRowMirror1D mirror;
+    mirror.Resize(4, 16, true);
 
     mirror.RotateRows();
 

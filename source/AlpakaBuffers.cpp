@@ -21,7 +21,9 @@ using HostDevice = alpaka::Dev<HostPlatform>;
 using Queue = alpaka::Queue<Acc, alpaka::Blocking>;
 using Extent = alpaka::Vec<Dim, Idx>;
 using HostView = alpaka::ViewPlainPtr<HostDevice, capow::AlpakaPlaneValue, Dim, Idx>;
+using HostDigitalView = alpaka::ViewPlainPtr<HostDevice, capow::AlpakaDigitalValue, Dim, Idx>;
 using PlaneBuffer = alpaka::Buf<AccPlatform, capow::AlpakaPlaneValue, Dim, Idx>;
+using DigitalBuffer = alpaka::Buf<AccPlatform, capow::AlpakaDigitalValue, Dim, Idx>;
 
 constexpr int rowSlotCount = 3;
 constexpr int initialSourceSlot = 0;
@@ -70,6 +72,30 @@ void ValidateRow(const capow::AlpakaPlaneValue *row, int valueStride)
     if (valueStride <= 0)
     {
         throw std::invalid_argument("Alpaka 1D row value stride must be positive");
+    }
+}
+
+void ValidateDigitalRow(const capow::AlpakaDigitalValue *row)
+{
+    if (row == nullptr)
+    {
+        throw std::invalid_argument("Alpaka digital row pointer must not be null");
+    }
+}
+
+void ValidateLookupCount(int lookupCount)
+{
+    if (lookupCount <= 0)
+    {
+        throw std::invalid_argument("Alpaka digital lookup count must be positive");
+    }
+}
+
+void ValidateLookup(const capow::AlpakaDigitalValue *lookup)
+{
+    if (lookup == nullptr)
+    {
+        throw std::invalid_argument("Alpaka digital lookup pointer must not be null");
     }
 }
 
@@ -700,6 +726,427 @@ void AlpakaContinuousRowMirror1D::CopyDisplayRowToHost(
     AlpakaPlaneValue *displayIntensity, AlpakaPlaneValue *displayVelocity, int valueStride)
 {
     impl->CopyDisplayRowToHost(displayIntensity, displayVelocity, valueStride);
+}
+
+class AlpakaDigitalRowMirror1D::Impl
+{
+public:
+    Impl();
+
+    bool IsInitialized() const;
+    bool IsDirty() const;
+    bool HasPastRow() const;
+    int GetWidth() const;
+    int GetLookupCount() const;
+    std::size_t GetCellCount() const;
+    int GetSourceSlot() const;
+    int GetTargetSlot() const;
+    int GetPastSlot() const;
+
+    void Resize(int nextWidth, int nextLookupCount, bool nextHasPastRow);
+    void MarkDirty();
+    void CopyRowsAndLookupToDevice(const AlpakaDigitalValue *sourceRow, const AlpakaDigitalValue *targetRow,
+        const AlpakaDigitalValue *pastRow, const AlpakaDigitalValue *lookup);
+    void DebugCopySourceToTarget();
+    void DebugCopyPastToTarget();
+    void RotateRows();
+    void CopySourceToHost(AlpakaDigitalValue *sourceRow);
+    void CopyTargetToHost(AlpakaDigitalValue *targetRow);
+    void CopyPastToHost(AlpakaDigitalValue *pastRow);
+    void CopyLookupToHost(AlpakaDigitalValue *lookup);
+
+private:
+    void RequireInitialized() const;
+    void RequirePastRow() const;
+    void ResetSlots();
+    void PackRow(std::vector<AlpakaDigitalValue> *hostRow, const AlpakaDigitalValue *row) const;
+    void PackLookup(const AlpakaDigitalValue *lookup);
+    void UnpackRow(const std::vector<AlpakaDigitalValue> &hostRow, AlpakaDigitalValue *row) const;
+    void UnpackLookup(AlpakaDigitalValue *lookup) const;
+    void CopyHostToDevice(
+        std::vector<AlpakaDigitalValue> *hostBuffer, DigitalBuffer *deviceBuffer, std::size_t valueCount);
+    void CopyDeviceToHost(
+        DigitalBuffer *deviceBuffer, std::vector<AlpakaDigitalValue> *hostBuffer, std::size_t valueCount);
+    void CopyDeviceRowToTarget(int sourceRowSlot);
+
+    AccDevice accDevice;
+    HostDevice hostDevice;
+    Queue queue;
+    int width;
+    int lookupCount;
+    std::size_t cellCount;
+    std::size_t lookupCellCount;
+    bool initialized;
+    bool dirty;
+    bool hasPastRow;
+    int sourceSlot;
+    int targetSlot;
+    int pastSlot;
+    std::array<std::vector<AlpakaDigitalValue>, rowSlotCount> hostRows;
+    std::vector<AlpakaDigitalValue> hostLookup;
+    std::array<std::optional<DigitalBuffer>, rowSlotCount> deviceRows;
+    std::optional<DigitalBuffer> deviceLookup;
+};
+
+AlpakaDigitalRowMirror1D::Impl::Impl() :
+    accDevice(alpaka::getDevByIdx(AccPlatform{}, 0U)),
+    hostDevice(alpaka::getDevByIdx(HostPlatform{}, 0U)),
+    queue(accDevice),
+    width(0),
+    lookupCount(0),
+    cellCount(0U),
+    lookupCellCount(0U),
+    initialized(false),
+    dirty(false),
+    hasPastRow(false),
+    sourceSlot(initialSourceSlot),
+    targetSlot(initialTargetSlot),
+    pastSlot(initialPastSlot)
+{
+}
+
+bool AlpakaDigitalRowMirror1D::Impl::IsInitialized() const
+{
+    return initialized;
+}
+
+bool AlpakaDigitalRowMirror1D::Impl::IsDirty() const
+{
+    return dirty;
+}
+
+bool AlpakaDigitalRowMirror1D::Impl::HasPastRow() const
+{
+    return hasPastRow;
+}
+
+int AlpakaDigitalRowMirror1D::Impl::GetWidth() const
+{
+    return width;
+}
+
+int AlpakaDigitalRowMirror1D::Impl::GetLookupCount() const
+{
+    return lookupCount;
+}
+
+std::size_t AlpakaDigitalRowMirror1D::Impl::GetCellCount() const
+{
+    return cellCount;
+}
+
+int AlpakaDigitalRowMirror1D::Impl::GetSourceSlot() const
+{
+    return sourceSlot;
+}
+
+int AlpakaDigitalRowMirror1D::Impl::GetTargetSlot() const
+{
+    return targetSlot;
+}
+
+int AlpakaDigitalRowMirror1D::Impl::GetPastSlot() const
+{
+    return pastSlot;
+}
+
+void AlpakaDigitalRowMirror1D::Impl::Resize(int nextWidth, int nextLookupCount, bool nextHasPastRow)
+{
+    ValidateRowWidth(nextWidth);
+    ValidateLookupCount(nextLookupCount);
+
+    const std::size_t nextCellCount = CellCountForWidth(nextWidth);
+    const std::size_t nextLookupCellCount = static_cast<std::size_t>(nextLookupCount);
+    if (initialized && width == nextWidth && lookupCount == nextLookupCount && hasPastRow == nextHasPastRow)
+    {
+        dirty = true;
+        return;
+    }
+
+    const Extent rowExtent = Extent{static_cast<Idx>(nextCellCount)};
+    const Extent lookupExtent = Extent{static_cast<Idx>(nextLookupCellCount)};
+    for (int slot = 0; slot < rowSlotCount; ++slot)
+    {
+        deviceRows[slot].emplace(alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, rowExtent));
+        hostRows[slot].assign(nextCellCount, AlpakaDigitalValue(0));
+    }
+    deviceLookup.emplace(alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, lookupExtent));
+    hostLookup.assign(nextLookupCellCount, AlpakaDigitalValue(0));
+
+    width = nextWidth;
+    lookupCount = nextLookupCount;
+    cellCount = nextCellCount;
+    lookupCellCount = nextLookupCellCount;
+    initialized = true;
+    dirty = true;
+    hasPastRow = nextHasPastRow;
+    ResetSlots();
+}
+
+void AlpakaDigitalRowMirror1D::Impl::MarkDirty()
+{
+    dirty = true;
+}
+
+void AlpakaDigitalRowMirror1D::Impl::CopyRowsAndLookupToDevice(const AlpakaDigitalValue *sourceRow,
+    const AlpakaDigitalValue *targetRow, const AlpakaDigitalValue *pastRow, const AlpakaDigitalValue *lookup)
+{
+    RequireInitialized();
+    PackRow(&hostRows[sourceSlot], sourceRow);
+    PackRow(&hostRows[targetSlot], targetRow);
+    CopyHostToDevice(&hostRows[sourceSlot], &*deviceRows[sourceSlot], cellCount);
+    CopyHostToDevice(&hostRows[targetSlot], &*deviceRows[targetSlot], cellCount);
+    if (hasPastRow)
+    {
+        PackRow(&hostRows[pastSlot], pastRow);
+        CopyHostToDevice(&hostRows[pastSlot], &*deviceRows[pastSlot], cellCount);
+    }
+    PackLookup(lookup);
+    CopyHostToDevice(&hostLookup, &*deviceLookup, lookupCellCount);
+    dirty = false;
+}
+
+void AlpakaDigitalRowMirror1D::Impl::DebugCopySourceToTarget()
+{
+    RequireInitialized();
+    CopyDeviceRowToTarget(sourceSlot);
+}
+
+void AlpakaDigitalRowMirror1D::Impl::DebugCopyPastToTarget()
+{
+    RequirePastRow();
+    CopyDeviceRowToTarget(pastSlot);
+}
+
+void AlpakaDigitalRowMirror1D::Impl::RotateRows()
+{
+    RequireInitialized();
+    sourceSlot = NextSlot(sourceSlot);
+    targetSlot = NextSlot(targetSlot);
+    if (hasPastRow)
+    {
+        pastSlot = NextSlot(pastSlot);
+    }
+}
+
+void AlpakaDigitalRowMirror1D::Impl::CopySourceToHost(AlpakaDigitalValue *sourceRow)
+{
+    RequireInitialized();
+    ValidateDigitalRow(sourceRow);
+    CopyDeviceToHost(&*deviceRows[sourceSlot], &hostRows[sourceSlot], cellCount);
+    UnpackRow(hostRows[sourceSlot], sourceRow);
+}
+
+void AlpakaDigitalRowMirror1D::Impl::CopyTargetToHost(AlpakaDigitalValue *targetRow)
+{
+    RequireInitialized();
+    ValidateDigitalRow(targetRow);
+    CopyDeviceToHost(&*deviceRows[targetSlot], &hostRows[targetSlot], cellCount);
+    UnpackRow(hostRows[targetSlot], targetRow);
+}
+
+void AlpakaDigitalRowMirror1D::Impl::CopyPastToHost(AlpakaDigitalValue *pastRow)
+{
+    RequirePastRow();
+    ValidateDigitalRow(pastRow);
+    CopyDeviceToHost(&*deviceRows[pastSlot], &hostRows[pastSlot], cellCount);
+    UnpackRow(hostRows[pastSlot], pastRow);
+}
+
+void AlpakaDigitalRowMirror1D::Impl::CopyLookupToHost(AlpakaDigitalValue *lookup)
+{
+    RequireInitialized();
+    ValidateLookup(lookup);
+    CopyDeviceToHost(&*deviceLookup, &hostLookup, lookupCellCount);
+    UnpackLookup(lookup);
+}
+
+void AlpakaDigitalRowMirror1D::Impl::RequireInitialized() const
+{
+    if (!initialized)
+    {
+        throw std::logic_error("Alpaka digital row mirror is not initialized");
+    }
+}
+
+void AlpakaDigitalRowMirror1D::Impl::RequirePastRow() const
+{
+    RequireInitialized();
+    if (!hasPastRow)
+    {
+        throw std::logic_error("Alpaka digital past row is not enabled");
+    }
+}
+
+void AlpakaDigitalRowMirror1D::Impl::ResetSlots()
+{
+    sourceSlot = initialSourceSlot;
+    targetSlot = initialTargetSlot;
+    pastSlot = initialPastSlot;
+}
+
+void AlpakaDigitalRowMirror1D::Impl::PackRow(
+    std::vector<AlpakaDigitalValue> *hostRow, const AlpakaDigitalValue *row) const
+{
+    ValidateDigitalRow(row);
+    for (std::size_t index = 0; index < cellCount; ++index)
+    {
+        (*hostRow)[index] = row[index];
+    }
+}
+
+void AlpakaDigitalRowMirror1D::Impl::PackLookup(const AlpakaDigitalValue *lookup)
+{
+    ValidateLookup(lookup);
+    for (std::size_t index = 0; index < lookupCellCount; ++index)
+    {
+        hostLookup[index] = lookup[index];
+    }
+}
+
+void AlpakaDigitalRowMirror1D::Impl::UnpackRow(
+    const std::vector<AlpakaDigitalValue> &hostRow, AlpakaDigitalValue *row) const
+{
+    for (std::size_t index = 0; index < cellCount; ++index)
+    {
+        row[index] = hostRow[index];
+    }
+}
+
+void AlpakaDigitalRowMirror1D::Impl::UnpackLookup(AlpakaDigitalValue *lookup) const
+{
+    for (std::size_t index = 0; index < lookupCellCount; ++index)
+    {
+        lookup[index] = hostLookup[index];
+    }
+}
+
+void AlpakaDigitalRowMirror1D::Impl::CopyHostToDevice(
+    std::vector<AlpakaDigitalValue> *hostBuffer, DigitalBuffer *deviceBuffer, std::size_t valueCount)
+{
+    const Extent extent = Extent{static_cast<Idx>(valueCount)};
+    HostDigitalView hostView = alpaka::createView(hostDevice, hostBuffer->data(), extent);
+    alpaka::memcpy(queue, *deviceBuffer, hostView, extent);
+    alpaka::wait(queue);
+}
+
+void AlpakaDigitalRowMirror1D::Impl::CopyDeviceToHost(
+    DigitalBuffer *deviceBuffer, std::vector<AlpakaDigitalValue> *hostBuffer, std::size_t valueCount)
+{
+    const Extent extent = Extent{static_cast<Idx>(valueCount)};
+    HostDigitalView hostView = alpaka::createView(hostDevice, hostBuffer->data(), extent);
+    alpaka::memcpy(queue, hostView, *deviceBuffer, extent);
+    alpaka::wait(queue);
+}
+
+void AlpakaDigitalRowMirror1D::Impl::CopyDeviceRowToTarget(int sourceRowSlot)
+{
+    const Extent extent = Extent{static_cast<Idx>(cellCount)};
+    alpaka::memcpy(queue, *deviceRows[targetSlot], *deviceRows[sourceRowSlot], extent);
+    alpaka::wait(queue);
+}
+
+AlpakaDigitalRowMirror1D::AlpakaDigitalRowMirror1D() :
+    impl(std::make_unique<Impl>())
+{
+}
+
+AlpakaDigitalRowMirror1D::~AlpakaDigitalRowMirror1D() = default;
+
+bool AlpakaDigitalRowMirror1D::IsInitialized() const
+{
+    return impl->IsInitialized();
+}
+
+bool AlpakaDigitalRowMirror1D::IsDirty() const
+{
+    return impl->IsDirty();
+}
+
+bool AlpakaDigitalRowMirror1D::HasPastRow() const
+{
+    return impl->HasPastRow();
+}
+
+int AlpakaDigitalRowMirror1D::GetWidth() const
+{
+    return impl->GetWidth();
+}
+
+int AlpakaDigitalRowMirror1D::GetLookupCount() const
+{
+    return impl->GetLookupCount();
+}
+
+std::size_t AlpakaDigitalRowMirror1D::GetCellCount() const
+{
+    return impl->GetCellCount();
+}
+
+int AlpakaDigitalRowMirror1D::GetSourceSlot() const
+{
+    return impl->GetSourceSlot();
+}
+
+int AlpakaDigitalRowMirror1D::GetTargetSlot() const
+{
+    return impl->GetTargetSlot();
+}
+
+int AlpakaDigitalRowMirror1D::GetPastSlot() const
+{
+    return impl->GetPastSlot();
+}
+
+void AlpakaDigitalRowMirror1D::Resize(int width, int lookupCount, bool hasPastRow)
+{
+    impl->Resize(width, lookupCount, hasPastRow);
+}
+
+void AlpakaDigitalRowMirror1D::MarkDirty()
+{
+    impl->MarkDirty();
+}
+
+void AlpakaDigitalRowMirror1D::CopyRowsAndLookupToDevice(const AlpakaDigitalValue *sourceRow,
+    const AlpakaDigitalValue *targetRow, const AlpakaDigitalValue *pastRow, const AlpakaDigitalValue *lookup)
+{
+    impl->CopyRowsAndLookupToDevice(sourceRow, targetRow, pastRow, lookup);
+}
+
+void AlpakaDigitalRowMirror1D::DebugCopySourceToTarget()
+{
+    impl->DebugCopySourceToTarget();
+}
+
+void AlpakaDigitalRowMirror1D::DebugCopyPastToTarget()
+{
+    impl->DebugCopyPastToTarget();
+}
+
+void AlpakaDigitalRowMirror1D::RotateRows()
+{
+    impl->RotateRows();
+}
+
+void AlpakaDigitalRowMirror1D::CopySourceToHost(AlpakaDigitalValue *sourceRow)
+{
+    impl->CopySourceToHost(sourceRow);
+}
+
+void AlpakaDigitalRowMirror1D::CopyTargetToHost(AlpakaDigitalValue *targetRow)
+{
+    impl->CopyTargetToHost(targetRow);
+}
+
+void AlpakaDigitalRowMirror1D::CopyPastToHost(AlpakaDigitalValue *pastRow)
+{
+    impl->CopyPastToHost(pastRow);
+}
+
+void AlpakaDigitalRowMirror1D::CopyLookupToHost(AlpakaDigitalValue *lookup)
+{
+    impl->CopyLookupToHost(lookup);
 }
 
 } // namespace capow
