@@ -140,6 +140,18 @@ TEST(capowRules, standardDigitalCellUsesLookup)
     EXPECT_EQ(9U, value);
 }
 
+TEST(capowRules, reversibleDigitalCellSubtractsPastModuloStates)
+{
+    const std::uint8_t source[] = {1U, 2U, 3U, 0U};
+    const std::uint8_t past[] = {0U, 0U, 2U, 0U};
+    std::uint8_t lookup[64] = {};
+    lookup[44] = 1U;
+
+    const std::uint8_t value = capow::ComputeReversibleDigitalCellWrap(source, past, lookup, 2U, 4U, 1U, 2U, 4U);
+
+    EXPECT_EQ(3U, value);
+}
+
 TEST(capowRules, oscillatorUsesDriver)
 {
     const capow::Wave1DResult<float> result =

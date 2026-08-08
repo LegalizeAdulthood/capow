@@ -59,6 +59,8 @@ int CaTypeForRule(capow::BatchRule rule)
         return CA_CUBIC_ULAM_WAVE;
     case capow::BATCH_RULE_CA_STANDARD:
         return CA_STANDARD;
+    case capow::BATCH_RULE_CA_REVERSIBLE:
+        return CA_REVERSIBLE;
     }
     return CA_HEAT_2D;
 }
@@ -116,6 +118,8 @@ capow::AlpakaRule AlpakaRuleForBatchRule(capow::BatchRule rule)
         return capow::ALPAKA_RULE_CA_CUBIC_ULAM_WAVE;
     case capow::BATCH_RULE_CA_STANDARD:
         return capow::ALPAKA_RULE_CA_STANDARD;
+    case capow::BATCH_RULE_CA_REVERSIBLE:
+        return capow::ALPAKA_RULE_CA_REVERSIBLE;
     }
     return capow::ALPAKA_RULE_CA_HEAT_2D;
 }
@@ -227,7 +231,7 @@ bool IsWave1DBatchRule(capow::BatchRule rule)
 
 bool IsStandardDigitalBatchRule(capow::BatchRule rule)
 {
-    return rule == capow::BATCH_RULE_CA_STANDARD;
+    return rule == capow::BATCH_RULE_CA_STANDARD || rule == capow::BATCH_RULE_CA_REVERSIBLE;
 }
 
 void LogBatchError(const std::string &error)
@@ -564,9 +568,10 @@ int RunStandardDigitalBatchMode(const capow::BatchOptions &options, CA *focus)
 {
     if (options.wrapMode != capow::BATCH_WRAP_WRAP)
     {
-        OutputDebugStringA("CA_STANDARD batch currently supports wrap mode only\n");
+        OutputDebugStringA("digital batch currently supports wrap mode only\n");
         return 3;
     }
+    const bool reversible = options.rule == capow::BATCH_RULE_CA_REVERSIBLE;
 
     capow::StandardDigitalOptions digitalOptions;
     digitalOptions.width = focus->HorzCount();
@@ -579,12 +584,23 @@ int RunStandardDigitalBatchMode(const capow::BatchOptions &options, CA *focus)
     try
     {
         std::vector<capow::AlpakaDigitalValue> source;
+        std::vector<capow::AlpakaDigitalValue> past;
         std::vector<capow::AlpakaDigitalValue> lookup;
         std::vector<capow::AlpakaDigitalValue> result;
         std::vector<capow::AlpakaPlaneValue> normalized;
         capow::MakeStandardDigitalInitial(digitalOptions, &source);
+        if (reversible)
+            capow::MakeReversibleDigitalPast(digitalOptions, &past);
         capow::MakeStandardDigitalLookup(digitalOptions, &lookup);
-        if (options.backend == capow::BATCH_BACKEND_CPU)
+        if (reversible && options.backend == capow::BATCH_BACKEND_CPU)
+        {
+            capow::RunReversibleDigitalHost(digitalOptions, source, past, lookup, &result);
+        }
+        else if (reversible)
+        {
+            capow::RunReversibleDigitalGpu(digitalOptions, source, past, lookup, &result);
+        }
+        else if (options.backend == capow::BATCH_BACKEND_CPU)
         {
             capow::RunStandardDigitalHost(digitalOptions, source, lookup, &result);
         }
@@ -605,7 +621,7 @@ int RunStandardDigitalBatchMode(const capow::BatchOptions &options, CA *focus)
     }
     catch (const std::exception &exception)
     {
-        OutputDebugStringA("CA_STANDARD batch failed: ");
+        OutputDebugStringA(reversible ? "CA_REVERSIBLE batch failed: " : "CA_STANDARD batch failed: ");
         OutputDebugStringA(exception.what());
         OutputDebugStringA("\n");
         return 7;

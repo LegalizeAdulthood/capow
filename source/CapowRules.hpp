@@ -332,6 +332,14 @@ ALPAKA_FN_HOST_ACC inline std::uint8_t ComputeStandardDigitalCellWrap(const std:
     return lookup[ComputeStandardDigitalNabeWrap(source, x, width, radius, stateBits)];
 }
 
+ALPAKA_FN_HOST_ACC inline std::uint8_t ComputeReversibleDigitalCellWrap(const std::uint8_t *source,
+    const std::uint8_t *past, const std::uint8_t *lookup, std::uint32_t x, std::uint32_t width, std::uint32_t radius,
+    std::uint32_t stateBits, std::uint32_t stateCount)
+{
+    const std::uint32_t nabe = ComputeStandardDigitalNabeWrap(source, x, width, radius, stateBits);
+    return static_cast<std::uint8_t>((lookup[nabe] + stateCount - past[x]) & (stateCount - 1U));
+}
+
 template <typename T>
 ALPAKA_FN_HOST_ACC Heat1DResult<T> ComputeHeat1DCell(const T *source, std::uint32_t x, std::uint32_t width, T dtOverDx2,
     T heatIncrement, T maxIntensity, T maxVelocity, T timeStep)

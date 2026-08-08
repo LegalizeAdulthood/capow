@@ -114,6 +114,13 @@ TEST(alpakaBackend, standardStartsEnabled)
     EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_STANDARD));
 }
 
+TEST(alpakaBackend, reversibleStartsEnabled)
+{
+    const capow::AlpakaManager manager;
+
+    EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_REVERSIBLE));
+}
+
 TEST(alpakaBackend, gpuRunsRequireDeviceAndEnabledRule)
 {
     capow::AlpakaManager manager;
@@ -146,4 +153,5 @@ TEST(alpakaBackend, namesMatchMenuAndRuleLabels)
     EXPECT_STREQ("CA_AUTO_ULAM_WAVE", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_AUTO_ULAM_WAVE));
     EXPECT_STREQ("CA_CUBIC_ULAM_WAVE", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_CUBIC_ULAM_WAVE));
     EXPECT_STREQ("CA_STANDARD", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_STANDARD));
+    EXPECT_STREQ("CA_REVERSIBLE", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_REVERSIBLE));
 }

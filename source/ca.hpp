@@ -1465,7 +1465,7 @@ public:
     void AccumulateAlpakaStandardEntropy();
     void MarkAlpakaHeat2DDirty();
     void PaintHeat2DPlaneToBitmap(const Wavecell2 *plane);
-    bool TryAlpakaStandardUpdate(HDC hdc);
+    bool TryAlpakaDigitalUpdate(HDC hdc);
     bool TryAlpakaWave1DUpdate(HDC hdc);
     bool TryAlpakaHeat2DUpdate(HDC hdc);
     bool CanUseAlpakaLiveGpu(void);

@@ -40,6 +40,40 @@ void ExpectStandardGpuMatchesHost(int width, int steps, int stateCount, int radi
     EXPECT_EQ(0, capow::CountStandardDigitalDifferences(hostResult, gpuResult));
 }
 
+void ExpectReversibleGpuMatchesHost(int width, int steps, int stateCount, int radius)
+{
+    capow::AlpakaManager &manager = capow::GetAlpakaManager();
+    if (!manager.IsGpuAvailable())
+    {
+        GTEST_SKIP() << manager.GetAvailabilityMessage();
+    }
+
+    capow::StandardDigitalOptions options;
+    options.width = width;
+    options.steps = steps;
+    options.stateCount = stateCount;
+    options.radius = radius;
+    options.stateBits = stateCount == 16 ? 4 : stateCount == 4 ? 2 : 1;
+    options.lookupCount = 1;
+    for (int i = 0; i < 1 + 2 * radius; ++i)
+    {
+        options.lookupCount *= stateCount;
+    }
+
+    std::vector<capow::AlpakaDigitalValue> source;
+    std::vector<capow::AlpakaDigitalValue> past;
+    std::vector<capow::AlpakaDigitalValue> lookup;
+    std::vector<capow::AlpakaDigitalValue> hostResult;
+    std::vector<capow::AlpakaDigitalValue> gpuResult;
+    capow::MakeStandardDigitalInitial(options, &source);
+    capow::MakeReversibleDigitalPast(options, &past);
+    capow::MakeStandardDigitalLookup(options, &lookup);
+    capow::RunReversibleDigitalHost(options, source, past, lookup, &hostResult);
+    capow::RunReversibleDigitalGpu(options, source, past, lookup, &gpuResult);
+
+    EXPECT_EQ(0, capow::CountStandardDigitalDifferences(hostResult, gpuResult));
+}
+
 } // namespace
 
 TEST(alpakaDigital, oneStepMatchesHost)
@@ -55,4 +89,19 @@ TEST(alpakaDigital, fiftyStepsMatchHost)
 TEST(alpakaDigital, widerRadiusMatchesHost)
 {
     ExpectStandardGpuMatchesHost(263, 50, 4, 2);
+}
+
+TEST(alpakaDigital, reversibleOneStepMatchesHost)
+{
+    ExpectReversibleGpuMatchesHost(31, 1, 16, 1);
+}
+
+TEST(alpakaDigital, reversibleFiftyStepsMatchHost)
+{
+    ExpectReversibleGpuMatchesHost(257, 50, 16, 1);
+}
+
+TEST(alpakaDigital, reversibleWiderRadiusMatchesHost)
+{
+    ExpectReversibleGpuMatchesHost(263, 50, 4, 2);
 }

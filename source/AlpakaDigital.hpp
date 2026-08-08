@@ -21,10 +21,17 @@ struct StandardDigitalOptions
 };
 
 void MakeStandardDigitalInitial(const StandardDigitalOptions &options, std::vector<AlpakaDigitalValue> *source);
+void MakeReversibleDigitalPast(const StandardDigitalOptions &options, std::vector<AlpakaDigitalValue> *past);
 void MakeStandardDigitalLookup(const StandardDigitalOptions &options, std::vector<AlpakaDigitalValue> *lookup);
 void RunStandardDigitalHost(const StandardDigitalOptions &options, const std::vector<AlpakaDigitalValue> &initialSource,
     const std::vector<AlpakaDigitalValue> &lookup, std::vector<AlpakaDigitalValue> *result);
 void RunStandardDigitalGpu(const StandardDigitalOptions &options, const std::vector<AlpakaDigitalValue> &initialSource,
+    const std::vector<AlpakaDigitalValue> &lookup, std::vector<AlpakaDigitalValue> *result);
+void RunReversibleDigitalHost(const StandardDigitalOptions &options,
+    const std::vector<AlpakaDigitalValue> &initialSource, const std::vector<AlpakaDigitalValue> &initialPast,
+    const std::vector<AlpakaDigitalValue> &lookup, std::vector<AlpakaDigitalValue> *result);
+void RunReversibleDigitalGpu(const StandardDigitalOptions &options,
+    const std::vector<AlpakaDigitalValue> &initialSource, const std::vector<AlpakaDigitalValue> &initialPast,
     const std::vector<AlpakaDigitalValue> &lookup, std::vector<AlpakaDigitalValue> *result);
 int CountStandardDigitalDifferences(
     const std::vector<AlpakaDigitalValue> &expected, const std::vector<AlpakaDigitalValue> &actual);

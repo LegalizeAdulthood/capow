@@ -252,6 +252,18 @@ TEST(batchOptions, parseValidStandardBatch)
     EXPECT_STREQ("CA_STANDARD", capow::BatchRuleName(result.options.rule));
 }
 
+TEST(batchOptions, parseValidReversibleBatch)
+{
+    const char *argv[] = {
+        "--batch", "--backend", "gpu", "--rule", "CA_REVERSIBLE", "--steps", "40", "--output", "reversible.bmp"};
+
+    const capow::BatchParseResult result = Parse(9, argv);
+
+    EXPECT_TRUE(result.ok);
+    EXPECT_EQ(capow::BATCH_RULE_CA_REVERSIBLE, result.options.rule);
+    EXPECT_STREQ("CA_REVERSIBLE", capow::BatchRuleName(result.options.rule));
+}
+
 TEST(batchOptions, parseRejectsMissingBackend)
 {
     const char *argv[] = {"--batch", "--rule", "CA_HEAT_2D", "--steps", "100", "--output", "cpu.bmp"};

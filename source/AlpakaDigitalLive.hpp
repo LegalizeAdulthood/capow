@@ -16,6 +16,12 @@ enum Digital1DLiveView
     DIGITAL_1D_LIVE_VIEW_SCROLL
 };
 
+enum Digital1DLiveRule
+{
+    DIGITAL_1D_LIVE_RULE_STANDARD,
+    DIGITAL_1D_LIVE_RULE_REVERSIBLE
+};
+
 struct Digital1DLiveOptions
 {
     int width;
@@ -24,8 +30,10 @@ struct Digital1DLiveOptions
     int row;
     int bltLines;
     Digital1DLiveView view;
+    Digital1DLiveRule rule;
     int radius;
     int stateBits;
+    int stateCount;
     int lookupCount;
     int colorCount;
 
@@ -46,8 +54,10 @@ public:
     unsigned int GetTexture() const;
     void Deactivate();
     bool DownloadCurrent(AlpakaDigitalValue *targetRow, std::string *error);
+    bool DownloadPast(AlpakaDigitalValue *pastRow, std::string *error);
     bool RunFrame(const Digital1DLiveOptions &options, const AlpakaDigitalValue *sourceRow,
-        const AlpakaDigitalValue *lookup, const std::uint32_t *colorTable, std::string *error);
+        const AlpakaDigitalValue *pastRow, const AlpakaDigitalValue *lookup, const std::uint32_t *colorTable,
+        std::string *error);
 
 private:
     class Impl;

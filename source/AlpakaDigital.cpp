@@ -32,8 +32,8 @@ struct StandardDigitalKernel
 {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc &acc, const capow::AlpakaDigitalValue *source,
-        const capow::AlpakaDigitalValue *lookup, capow::AlpakaDigitalValue *target, Idx width, Idx radius,
-        Idx stateBits) const
+        const capow::AlpakaDigitalValue *past, const capow::AlpakaDigitalValue *lookup,
+        capow::AlpakaDigitalValue *target, Idx width, Idx radius, Idx stateBits, Idx stateCount, bool reversible) const
     {
         const Idx x = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
         if (x >= width)
@@ -41,7 +41,15 @@ struct StandardDigitalKernel
             return;
         }
 
-        target[x] = capow::ComputeStandardDigitalCellWrap(source, lookup, x, width, radius, stateBits);
+        if (reversible)
+        {
+            target[x] =
+                capow::ComputeReversibleDigitalCellWrap(source, past, lookup, x, width, radius, stateBits, stateCount);
+        }
+        else
+        {
+            target[x] = capow::ComputeStandardDigitalCellWrap(source, lookup, x, width, radius, stateBits);
+        }
     }
 };
 
@@ -137,6 +145,18 @@ void StandardDigitalStepHost(const capow::StandardDigitalOptions &options,
     }
 }
 
+void ReversibleDigitalStepHost(const capow::StandardDigitalOptions &options,
+    const std::vector<capow::AlpakaDigitalValue> &source, const std::vector<capow::AlpakaDigitalValue> &past,
+    const std::vector<capow::AlpakaDigitalValue> &lookup, std::vector<capow::AlpakaDigitalValue> *target)
+{
+    for (std::uint32_t x = 0U; x < static_cast<std::uint32_t>(options.width); ++x)
+    {
+        (*target)[x] = capow::ComputeReversibleDigitalCellWrap(source.data(), past.data(), lookup.data(), x,
+            static_cast<std::uint32_t>(options.width), static_cast<std::uint32_t>(options.radius),
+            static_cast<std::uint32_t>(options.stateBits), static_cast<std::uint32_t>(options.stateCount));
+    }
+}
+
 } // namespace
 
 namespace capow
@@ -160,6 +180,18 @@ void MakeStandardDigitalInitial(const StandardDigitalOptions &options, std::vect
     {
         (*source)[index] = static_cast<AlpakaDigitalValue>(
             UnitValue(static_cast<std::uint32_t>(index)) % static_cast<std::uint32_t>(options.stateCount));
+    }
+}
+
+void MakeReversibleDigitalPast(const StandardDigitalOptions &options, std::vector<AlpakaDigitalValue> *past)
+{
+    ValidateOptions(options);
+    past->resize(CellCount(options));
+    for (std::size_t index = 0; index < past->size(); ++index)
+    {
+        (*past)[index] =
+            static_cast<AlpakaDigitalValue>(UnitValue(static_cast<std::uint32_t>(index + past->size() * 3U)) %
+                static_cast<std::uint32_t>(options.stateCount));
     }
 }
 
@@ -213,6 +245,7 @@ void RunStandardDigitalGpu(const StandardDigitalOptions &options, const std::vec
     const Extent lookupExtent = Extent{static_cast<Idx>(lookup.size())};
 
     DigitalBuffer deviceCurrent = alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, rowExtent);
+    DigitalBuffer devicePast = alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, rowExtent);
     DigitalBuffer deviceNext = alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, rowExtent);
     DigitalBuffer deviceLookup = alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, lookupExtent);
     ConstHostDigitalView hostInitial = alpaka::createView(hostDevice, initialSource.data(), rowExtent);
@@ -229,8 +262,87 @@ void RunStandardDigitalGpu(const StandardDigitalOptions &options, const std::vec
     for (int step = 0; step < options.steps; ++step)
     {
         alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(deviceCurrent),
-            alpaka::getPtrNative(deviceLookup), alpaka::getPtrNative(deviceNext), static_cast<Idx>(options.width),
-            static_cast<Idx>(options.radius), static_cast<Idx>(options.stateBits));
+            alpaka::getPtrNative(devicePast), alpaka::getPtrNative(deviceLookup), alpaka::getPtrNative(deviceNext),
+            static_cast<Idx>(options.width), static_cast<Idx>(options.radius), static_cast<Idx>(options.stateBits),
+            static_cast<Idx>(options.stateCount), false);
+        std::swap(deviceCurrent, deviceNext);
+    }
+    alpaka::wait(queue);
+
+    result->resize(CellCount(options));
+    HostDigitalView hostResult = alpaka::createView(hostDevice, result->data(), rowExtent);
+    alpaka::memcpy(queue, hostResult, deviceCurrent, rowExtent);
+    alpaka::wait(queue);
+}
+
+void RunReversibleDigitalHost(const StandardDigitalOptions &options,
+    const std::vector<AlpakaDigitalValue> &initialSource, const std::vector<AlpakaDigitalValue> &initialPast,
+    const std::vector<AlpakaDigitalValue> &lookup, std::vector<AlpakaDigitalValue> *result)
+{
+    ValidateOptions(options);
+    ValidateRowSize(options, initialSource);
+    ValidateRowSize(options, initialPast);
+    ValidateLookupSize(options, lookup);
+
+    std::vector<AlpakaDigitalValue> current = initialSource;
+    std::vector<AlpakaDigitalValue> past = initialPast;
+    std::vector<AlpakaDigitalValue> next(CellCount(options), AlpakaDigitalValue(0));
+    for (int step = 0; step < options.steps; ++step)
+    {
+        ReversibleDigitalStepHost(options, current, past, lookup, &next);
+        std::swap(past, current);
+        std::swap(current, next);
+    }
+    *result = current;
+}
+
+void RunReversibleDigitalGpu(const StandardDigitalOptions &options,
+    const std::vector<AlpakaDigitalValue> &initialSource, const std::vector<AlpakaDigitalValue> &initialPast,
+    const std::vector<AlpakaDigitalValue> &lookup, std::vector<AlpakaDigitalValue> *result)
+{
+    ValidateOptions(options);
+    ValidateRowSize(options, initialSource);
+    ValidateRowSize(options, initialPast);
+    ValidateLookupSize(options, lookup);
+
+    if (options.steps == 0)
+    {
+        *result = initialSource;
+        return;
+    }
+
+    const AccPlatform accPlatform = AccPlatform{};
+    const HostPlatform hostPlatform = HostPlatform{};
+    const AccDevice accDevice = alpaka::getDevByIdx(accPlatform, 0U);
+    const HostDevice hostDevice = alpaka::getDevByIdx(hostPlatform, 0U);
+    Queue queue(accDevice);
+    const Extent rowExtent = Extent{static_cast<Idx>(CellCount(options))};
+    const Extent lookupExtent = Extent{static_cast<Idx>(lookup.size())};
+
+    DigitalBuffer deviceCurrent = alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, rowExtent);
+    DigitalBuffer devicePast = alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, rowExtent);
+    DigitalBuffer deviceNext = alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, rowExtent);
+    DigitalBuffer deviceLookup = alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, lookupExtent);
+    ConstHostDigitalView hostInitial = alpaka::createView(hostDevice, initialSource.data(), rowExtent);
+    ConstHostDigitalView hostPast = alpaka::createView(hostDevice, initialPast.data(), rowExtent);
+    ConstHostDigitalView hostLookup = alpaka::createView(hostDevice, lookup.data(), lookupExtent);
+    alpaka::memcpy(queue, deviceCurrent, hostInitial, rowExtent);
+    alpaka::memcpy(queue, devicePast, hostPast, rowExtent);
+    alpaka::memcpy(queue, deviceLookup, hostLookup, lookupExtent);
+    alpaka::wait(queue);
+
+    const Extent threads = Extent{128U};
+    const Extent blocks = Extent{DivideRoundUp(static_cast<std::uint32_t>(options.width), threads[0])};
+    const Extent elements = Extent::all(1U);
+    const WorkDiv workDiv = WorkDiv{blocks, threads, elements};
+    const StandardDigitalKernel kernel = StandardDigitalKernel{};
+    for (int step = 0; step < options.steps; ++step)
+    {
+        alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(deviceCurrent),
+            alpaka::getPtrNative(devicePast), alpaka::getPtrNative(deviceLookup), alpaka::getPtrNative(deviceNext),
+            static_cast<Idx>(options.width), static_cast<Idx>(options.radius), static_cast<Idx>(options.stateBits),
+            static_cast<Idx>(options.stateCount), true);
+        std::swap(devicePast, deviceCurrent);
         std::swap(deviceCurrent, deviceNext);
     }
     alpaka::wait(queue);

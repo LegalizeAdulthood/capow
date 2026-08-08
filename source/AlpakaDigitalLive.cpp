@@ -46,8 +46,8 @@ struct StandardDigitalLiveKernel
 {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc &acc, const capow::AlpakaDigitalValue *source,
-        const capow::AlpakaDigitalValue *lookup, capow::AlpakaDigitalValue *target, Idx width, Idx radius,
-        Idx stateBits) const
+        const capow::AlpakaDigitalValue *past, const capow::AlpakaDigitalValue *lookup,
+        capow::AlpakaDigitalValue *target, Idx width, Idx radius, Idx stateBits, Idx stateCount, bool reversible) const
     {
         const Idx x = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
         if (x >= width)
@@ -55,13 +55,26 @@ struct StandardDigitalLiveKernel
             return;
         }
 
-        target[x] = capow::ComputeStandardDigitalCellWrap(source, lookup, x, width, radius, stateBits);
+        if (reversible)
+        {
+            target[x] =
+                capow::ComputeReversibleDigitalCellWrap(source, past, lookup, x, width, radius, stateBits, stateCount);
+        }
+        else
+        {
+            target[x] = capow::ComputeStandardDigitalCellWrap(source, lookup, x, width, radius, stateBits);
+        }
     }
 };
 
 std::uint32_t DivideRoundUp(std::uint32_t value, std::uint32_t divisor)
 {
     return (value + divisor - 1U) / divisor;
+}
+
+bool IsPowerOfTwo(int value)
+{
+    return value > 0 && (value & (value - 1)) == 0;
 }
 
 void ValidateOptions(const capow::Digital1DLiveOptions &options)
@@ -85,6 +98,10 @@ void ValidateOptions(const capow::Digital1DLiveOptions &options)
     if (options.radius <= 0 || options.stateBits <= 0 || options.stateBits > 8)
     {
         throw std::invalid_argument("live CA_STANDARD radius or state bits are invalid");
+    }
+    if (!IsPowerOfTwo(options.stateCount) || options.stateCount > 256 || (1 << options.stateBits) != options.stateCount)
+    {
+        throw std::invalid_argument("live digital state count is invalid");
     }
     if (options.lookupCount <= 0 || options.colorCount <= 0)
     {
@@ -212,8 +229,10 @@ public:
     unsigned int GetTexture() const;
     void Deactivate();
     bool DownloadCurrent(AlpakaDigitalValue *targetRow, std::string *error);
+    bool DownloadPast(AlpakaDigitalValue *pastRow, std::string *error);
     bool RunFrame(const Digital1DLiveOptions &nextOptions, const AlpakaDigitalValue *sourceRow,
-        const AlpakaDigitalValue *lookup, const std::uint32_t *colorTable, std::string *error);
+        const AlpakaDigitalValue *pastRow, const AlpakaDigitalValue *lookup, const std::uint32_t *colorTable,
+        std::string *error);
 
 private:
     void Resize(const Digital1DLiveOptions &nextOptions);
@@ -221,6 +240,7 @@ private:
     void EnsureTexture();
     void ClearPixels();
     void UploadSource(const AlpakaDigitalValue *sourceRow);
+    void UploadPast(const AlpakaDigitalValue *pastRow);
     void UploadLookup(const AlpakaDigitalValue *lookup);
     void UploadColors(const std::uint32_t *colorTable);
     void RunStep();
@@ -238,9 +258,11 @@ private:
     std::size_t lookupCellCount;
     std::size_t pixelCount;
     std::vector<AlpakaDigitalValue> hostCurrent;
+    std::vector<AlpakaDigitalValue> hostPast;
     std::vector<AlpakaDigitalValue> hostLookup;
     std::vector<std::uint32_t> hostColors;
     std::optional<DigitalBuffer> deviceCurrent;
+    std::optional<DigitalBuffer> devicePast;
     std::optional<DigitalBuffer> deviceNext;
     std::optional<DigitalBuffer> deviceLookup;
     std::optional<PixelBuffer> devicePixels;
@@ -257,8 +279,10 @@ Digital1DLiveOptions::Digital1DLiveOptions() :
     row(0),
     bltLines(1),
     view(DIGITAL_1D_LIVE_VIEW_SCROLL),
+    rule(DIGITAL_1D_LIVE_RULE_STANDARD),
     radius(1),
     stateBits(1),
+    stateCount(2),
     lookupCount(0),
     colorCount(0)
 {
@@ -292,7 +316,8 @@ bool Digital1DLiveState::Impl::NeedsSource(const Digital1DLiveOptions &nextOptio
 {
     return !active || !initialized || options.width != nextOptions.width ||
         options.historyWidth != nextOptions.historyWidth || options.historyHeight != nextOptions.historyHeight ||
-        options.colorCount != nextOptions.colorCount || options.radius != nextOptions.radius ||
+        options.colorCount != nextOptions.colorCount || options.rule != nextOptions.rule ||
+        options.radius != nextOptions.radius || options.stateCount != nextOptions.stateCount ||
         options.stateBits != nextOptions.stateBits || options.lookupCount != nextOptions.lookupCount ||
         options.view != nextOptions.view;
 }
@@ -334,13 +359,42 @@ bool Digital1DLiveState::Impl::DownloadCurrent(AlpakaDigitalValue *targetRow, st
     }
 }
 
+bool Digital1DLiveState::Impl::DownloadPast(AlpakaDigitalValue *pastRow, std::string *error)
+{
+    try
+    {
+        ValidateDigitalRow(pastRow);
+        if (!active || !devicePast)
+        {
+            return true;
+        }
+
+        CopyDeviceToHost(&*devicePast, &hostPast);
+        for (std::size_t index = 0; index < cellCount; ++index)
+        {
+            pastRow[index] = hostPast[index];
+        }
+        return true;
+    }
+    catch (const std::exception &exception)
+    {
+        if (error != nullptr)
+        {
+            *error = exception.what();
+        }
+        return false;
+    }
+}
+
 bool Digital1DLiveState::Impl::RunFrame(const Digital1DLiveOptions &nextOptions, const AlpakaDigitalValue *sourceRow,
-    const AlpakaDigitalValue *lookup, const std::uint32_t *colorTable, std::string *error)
+    const AlpakaDigitalValue *pastRow, const AlpakaDigitalValue *lookup, const std::uint32_t *colorTable,
+    std::string *error)
 {
     try
     {
         ValidateOptions(nextOptions);
         ValidateColorTable(colorTable);
+        const bool reversible = nextOptions.rule == DIGITAL_1D_LIVE_RULE_REVERSIBLE;
         const bool needsSource = NeedsSource(nextOptions);
         Resize(nextOptions);
         EnsureTexture();
@@ -349,6 +403,11 @@ bool Digital1DLiveState::Impl::RunFrame(const Digital1DLiveOptions &nextOptions,
             ValidateDigitalRow(sourceRow);
             ValidateDigitalRow(lookup);
             UploadSource(sourceRow);
+            if (reversible)
+            {
+                ValidateDigitalRow(pastRow);
+                UploadPast(pastRow);
+            }
             UploadLookup(lookup);
         }
         UploadColors(colorTable);
@@ -357,7 +416,15 @@ bool Digital1DLiveState::Impl::RunFrame(const Digital1DLiveOptions &nextOptions,
         {
             return false;
         }
-        std::swap(deviceCurrent, deviceNext);
+        if (reversible)
+        {
+            std::swap(devicePast, deviceCurrent);
+            std::swap(deviceCurrent, deviceNext);
+        }
+        else
+        {
+            std::swap(deviceCurrent, deviceNext);
+        }
         active = true;
         return true;
     }
@@ -392,12 +459,14 @@ void Digital1DLiveState::Impl::Resize(const Digital1DLiveOptions &nextOptions)
     const Extent pixelExtent = Extent{static_cast<Idx>(pixelCount)};
     const Extent colorExtent = Extent{static_cast<Idx>(options.colorCount)};
     deviceCurrent.emplace(alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, cellExtent));
+    devicePast.emplace(alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, cellExtent));
     deviceNext.emplace(alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, cellExtent));
     deviceLookup.emplace(alpaka::allocBuf<AlpakaDigitalValue, Idx>(accDevice, lookupExtent));
     devicePixels.emplace(alpaka::allocBuf<std::uint32_t, Idx>(accDevice, pixelExtent));
     deviceNextPixels.emplace(alpaka::allocBuf<std::uint32_t, Idx>(accDevice, pixelExtent));
     deviceColors.emplace(alpaka::allocBuf<std::uint32_t, Idx>(accDevice, colorExtent));
     hostCurrent.assign(cellCount, AlpakaDigitalValue(0));
+    hostPast.assign(cellCount, AlpakaDigitalValue(0));
     hostLookup.assign(lookupCellCount, AlpakaDigitalValue(0));
     hostColors.assign(static_cast<std::size_t>(options.colorCount), 0U);
     initialized = true;
@@ -476,6 +545,15 @@ void Digital1DLiveState::Impl::UploadSource(const AlpakaDigitalValue *sourceRow)
     CopyHostToDevice(&hostCurrent, &*deviceCurrent, cellCount);
 }
 
+void Digital1DLiveState::Impl::UploadPast(const AlpakaDigitalValue *pastRow)
+{
+    for (std::size_t index = 0; index < cellCount; ++index)
+    {
+        hostPast[index] = pastRow[index];
+    }
+    CopyHostToDevice(&hostPast, &*devicePast, cellCount);
+}
+
 void Digital1DLiveState::Impl::UploadLookup(const AlpakaDigitalValue *lookup)
 {
     for (std::size_t index = 0; index < lookupCellCount; ++index)
@@ -505,10 +583,12 @@ void Digital1DLiveState::Impl::RunStep()
     const Extent elements = Extent::all(1U);
     const WorkDiv workDiv = WorkDiv{blocks, threads, elements};
     const StandardDigitalLiveKernel kernel = StandardDigitalLiveKernel{};
+    const bool reversible = options.rule == DIGITAL_1D_LIVE_RULE_REVERSIBLE;
 
     alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(*deviceCurrent),
-        alpaka::getPtrNative(*deviceLookup), alpaka::getPtrNative(*deviceNext), static_cast<Idx>(options.width),
-        static_cast<Idx>(options.radius), static_cast<Idx>(options.stateBits));
+        alpaka::getPtrNative(*devicePast), alpaka::getPtrNative(*deviceLookup), alpaka::getPtrNative(*deviceNext),
+        static_cast<Idx>(options.width), static_cast<Idx>(options.radius), static_cast<Idx>(options.stateBits),
+        static_cast<Idx>(options.stateCount), reversible);
     alpaka::wait(queue);
 }
 
@@ -619,10 +699,16 @@ bool Digital1DLiveState::DownloadCurrent(AlpakaDigitalValue *targetRow, std::str
     return impl->DownloadCurrent(targetRow, error);
 }
 
-bool Digital1DLiveState::RunFrame(const Digital1DLiveOptions &options, const AlpakaDigitalValue *sourceRow,
-    const AlpakaDigitalValue *lookup, const std::uint32_t *colorTable, std::string *error)
+bool Digital1DLiveState::DownloadPast(AlpakaDigitalValue *pastRow, std::string *error)
 {
-    return impl->RunFrame(options, sourceRow, lookup, colorTable, error);
+    return impl->DownloadPast(pastRow, error);
+}
+
+bool Digital1DLiveState::RunFrame(const Digital1DLiveOptions &options, const AlpakaDigitalValue *sourceRow,
+    const AlpakaDigitalValue *pastRow, const AlpakaDigitalValue *lookup, const std::uint32_t *colorTable,
+    std::string *error)
+{
+    return impl->RunFrame(options, sourceRow, pastRow, lookup, colorTable, error);
 }
 
 } // namespace capow

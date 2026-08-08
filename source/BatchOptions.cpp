@@ -155,6 +155,11 @@ bool ParseRule(const char *text, capow::BatchRule *rule)
         *rule = capow::BATCH_RULE_CA_STANDARD;
         return true;
     }
+    if (EqualIgnoreCase(text, "CA_REVERSIBLE"))
+    {
+        *rule = capow::BATCH_RULE_CA_REVERSIBLE;
+        return true;
+    }
     return false;
 }
 
@@ -544,6 +549,8 @@ const char *BatchRuleName(BatchRule rule)
         return "CA_CUBIC_ULAM_WAVE";
     case BATCH_RULE_CA_STANDARD:
         return "CA_STANDARD";
+    case BATCH_RULE_CA_REVERSIBLE:
+        return "CA_REVERSIBLE";
     }
     return "unknown";
 }

@@ -667,7 +667,7 @@ void CA::Locate(int itile_number, int dmaxx, int dmaxy, int CA_count_per_edge)
 void CA::StandardUpdate(HDC hdc)
 {
 #if defined(CAPOW_ENABLE_ALPAKA)
-    if (TryAlpakaStandardUpdate(hdc))
+    if (TryAlpakaDigitalUpdate(hdc))
         return;
 #endif
     int i, leftindex;
@@ -893,6 +893,10 @@ void CA::Show(HDC)
 
 void CA::ReversibleUpdate(HDC hdc)
 {
+#if defined(CAPOW_ENABLE_ALPAKA)
+    if (TryAlpakaDigitalUpdate(hdc))
+        return;
+#endif
     int i, leftindex;
     unsigned short nabe = 0;
     unsigned char statesmask;
@@ -1556,6 +1560,18 @@ void CA::CopyAlpakaDigital1DToCpu()
         colorindex_target_row[x] = value;
         COLORREF_target_row[x] = colortable[value];
     }
+
+    if (type_ca == CA_REVERSIBLE)
+    {
+        errorText.clear();
+        const bool pastOk = alpakaDigital1DLive->DownloadPast(past_row, &errorText);
+        if (!pastOk)
+        {
+            OutputDebugStringA("digital GPU past download failed: ");
+            OutputDebugStringA(errorText.c_str());
+            OutputDebugStringA("\n");
+        }
+    }
 }
 
 bool CA::CopyAlpakaDigital1DToTargetRow()
@@ -1644,11 +1660,12 @@ void CA::MarkAlpakaHeat2DDirty()
 bool CA::CanUseAlpakaLiveGpu(void)
 {
     capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
-    if (type_ca == CA_STANDARD)
+    if (type_ca == CA_STANDARD || type_ca == CA_REVERSIBLE)
     {
+        const capow::AlpakaRule rule =
+            type_ca == CA_REVERSIBLE ? capow::ALPAKA_RULE_CA_REVERSIBLE : capow::ALPAKA_RULE_CA_STANDARD;
         const bool supportedView = viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW;
-        return backendManager.CanRunGpu(capow::ALPAKA_RULE_CA_STANDARD) && supportedView && wrapflag == WF_WRAP &&
-            generatorlist.Count() == 0;
+        return backendManager.CanRunGpu(rule) && supportedView && wrapflag == WF_WRAP && generatorlist.Count() == 0;
     }
 
     if (IsAlpakaWave1DType(type_ca))
@@ -1670,9 +1687,11 @@ bool CA::CanUseAlpakaLiveGpu(void)
         !generatorflag && generatorlist.Count() == 0;
 }
 
-bool CA::TryAlpakaStandardUpdate(HDC hdc)
+bool CA::TryAlpakaDigitalUpdate(HDC hdc)
 {
-    if (type_ca != CA_STANDARD)
+    const bool reversible = type_ca == CA_REVERSIBLE;
+    const bool standard = type_ca == CA_STANDARD;
+    if (!standard && !reversible)
     {
         if (alpakaDigital1DLive && alpakaDigital1DLive->IsActive())
             MarkAlpakaHeat2DDirty();
@@ -1680,11 +1699,12 @@ bool CA::TryAlpakaStandardUpdate(HDC hdc)
     }
 
     capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
+    const capow::AlpakaRule rule = reversible ? capow::ALPAKA_RULE_CA_REVERSIBLE : capow::ALPAKA_RULE_CA_STANDARD;
     const bool liveGpuType = capowgl != nullptr && capowgl->Type() == LIVE_GPU;
     const bool supportedView = viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW;
     const bool liveGpuCandidate = backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU &&
-        backendManager.CanRunGpu(capow::ALPAKA_RULE_CA_STANDARD) && liveGpuType && supportedView &&
-        wrapflag == WF_WRAP && generatorlist.Count() == 0;
+        backendManager.CanRunGpu(rule) && liveGpuType && supportedView && wrapflag == WF_WRAP &&
+        generatorlist.Count() == 0;
     if (!liveGpuCandidate)
     {
         if (alpakaDigital1DLive && alpakaDigital1DLive->IsActive())
@@ -1704,16 +1724,20 @@ bool CA::TryAlpakaStandardUpdate(HDC hdc)
     options.row = row_number - miny;
     options.bltLines = calist_ptr->_blt_lines;
     options.view = viewmode == IDC_DOWN_VIEW ? capow::DIGITAL_1D_LIVE_VIEW_DOWN : capow::DIGITAL_1D_LIVE_VIEW_SCROLL;
+    options.rule = reversible ? capow::DIGITAL_1D_LIVE_RULE_REVERSIBLE : capow::DIGITAL_1D_LIVE_RULE_STANDARD;
     options.radius = radius;
     options.stateBits = statebits;
+    options.stateCount = states;
     options.lookupCount = nabeoptions;
     options.colorCount = MAX_COLOR;
 
     const capow::AlpakaDigitalValue *sourceData = nullptr;
+    const capow::AlpakaDigitalValue *pastData = nullptr;
     const capow::AlpakaDigitalValue *lookupData = nullptr;
     if (alpakaDigital1DLive->NeedsSource(options))
     {
         sourceData = source_row;
+        pastData = reversible ? past_row : nullptr;
         lookupData = lookup;
     }
 
@@ -1728,11 +1752,11 @@ bool CA::TryAlpakaStandardUpdate(HDC hdc)
 
     std::string errorText;
     const bool ok = alpakaDigital1DLive->RunFrame(
-        options, sourceData, lookupData, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
+        options, sourceData, pastData, lookupData, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
     capowgl->ReleaseCurrent();
     if (!ok)
     {
-        OutputDebugStringA("CA_STANDARD GPU update failed: ");
+        OutputDebugStringA(reversible ? "CA_REVERSIBLE GPU update failed: " : "CA_STANDARD GPU update failed: ");
         OutputDebugStringA(errorText.c_str());
         OutputDebugStringA("\n");
         MarkAlpakaHeat2DDirty();
@@ -1740,8 +1764,9 @@ bool CA::TryAlpakaStandardUpdate(HDC hdc)
         return false;
     }
 
-    const bool needsCpuRowState = entropyflag || calist_ptr->stripeseedflag || calist_ptr->stripekillflag ||
-        (calist_ptr->breedflag && fail_stripe);
+    const bool standardStripeCheck = standard &&
+        (calist_ptr->stripeseedflag || calist_ptr->stripekillflag || (calist_ptr->breedflag && fail_stripe));
+    const bool needsCpuRowState = entropyflag || standardStripeCheck;
     if (needsCpuRowState)
     {
         AccumulateAlpakaStandardEntropy();
@@ -1754,6 +1779,12 @@ bool CA::TryAlpakaStandardUpdate(HDC hdc)
     }
 
     alpakaDigital1DTextureReady = true;
+    if (reversible)
+    {
+        if (++pastrowindex >= MEMORY)
+            pastrowindex = 0;
+        past_row = rowbuffer[pastrowindex];
+    }
     if (viewmode == IDC_DOWN_VIEW)
     {
         row_number++;
@@ -1774,7 +1805,7 @@ bool CA::TryAlpakaStandardUpdate(HDC hdc)
     target_row = rowbuffer[targetrowindex];
     if (cellcount > (calist_ptr->breedcycle * horz_count))
         Entropy();
-    if (sourcerowindex == MEMORY - 1)
+    if (standard && sourcerowindex == MEMORY - 1)
     {
         if (alpakaDigital1DLive)
             alpakaDigital1DLive->Deactivate();
