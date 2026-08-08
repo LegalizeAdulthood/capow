@@ -41,6 +41,7 @@ using HostColorView = alpaka::ViewPlainPtr<HostDevice, std::uint32_t, MemDim, Id
 using PlaneBuffer = alpaka::Buf<AccPlatform, capow::AlpakaPlaneValue, MemDim, Idx>;
 using PixelBuffer = alpaka::Buf<AccPlatform, std::uint32_t, MemDim, Idx>;
 using ColorBuffer = alpaka::Buf<AccPlatform, std::uint32_t, MemDim, Idx>;
+using FlagBuffer = alpaka::Buf<AccPlatform, std::uint8_t, MemDim, Idx>;
 
 struct Wave1DLiveKernel
 {
@@ -48,12 +49,14 @@ struct Wave1DLiveKernel
     ALPAKA_FN_ACC void operator()(const TAcc &acc, const capow::AlpakaPlaneValue *source,
         const capow::AlpakaPlaneValue *past, const capow::AlpakaPlaneValue *sourceVelocity,
         const capow::AlpakaPlaneValue *frictionTweaks, const capow::AlpakaPlaneValue *springTweaks,
-        const capow::AlpakaPlaneValue *massTweaks, capow::AlpakaPlaneValue *targetIntensity,
-        capow::AlpakaPlaneValue *targetVelocity, Idx width, capow::AlpakaPlaneValue waveSpeed2TimeStep2OverDx2,
-        capow::AlpakaPlaneValue dtOverDx2, capow::AlpakaPlaneValue maxIntensity, capow::AlpakaPlaneValue maxVelocity,
-        capow::AlpakaPlaneValue timeStep, capow::AlpakaPlaneValue dtOverMass,
-        capow::AlpakaPlaneValue frictionMultiplier, capow::AlpakaPlaneValue springMultiplier,
-        capow::AlpakaPlaneValue driverValue, capow::Wave1DRule rule) const
+        const capow::AlpakaPlaneValue *massTweaks, const capow::AlpakaPlaneValue *nonlinearityTweaks,
+        capow::AlpakaPlaneValue *targetIntensity, capow::AlpakaPlaneValue *targetVelocity,
+        capow::AlpakaPlaneValue *targetNonlinearityTweaks, std::uint8_t *zeroFlags, Idx width,
+        capow::AlpakaPlaneValue waveSpeed2TimeStep2OverDx2, capow::AlpakaPlaneValue dtOverDx2,
+        capow::AlpakaPlaneValue maxIntensity, capow::AlpakaPlaneValue maxVelocity, capow::AlpakaPlaneValue timeStep,
+        capow::AlpakaPlaneValue dtOverMass, capow::AlpakaPlaneValue frictionMultiplier,
+        capow::AlpakaPlaneValue springMultiplier, capow::AlpakaPlaneValue driverValue,
+        capow::AlpakaPlaneValue nonlinearity1, capow::AlpakaPlaneValue nonlinearity2, capow::Wave1DRule rule) const
     {
         const Idx x = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
         if (x >= width)
@@ -62,6 +65,8 @@ struct Wave1DLiveKernel
         }
 
         capow::Wave1DResult<capow::AlpakaPlaneValue> result = {capow::AlpakaPlaneValue(0), capow::AlpakaPlaneValue(0)};
+        targetNonlinearityTweaks[x] = nonlinearityTweaks[x];
+        zeroFlags[x] = 0U;
         if (rule == capow::WAVE_1D_RULE_OSCILLATOR)
         {
             result = capow::ComputeOscillator1D<capow::AlpakaPlaneValue>(source[x], sourceVelocity[x], dtOverMass,
@@ -81,7 +86,7 @@ struct Wave1DLiveKernel
                 sourceVelocity[x], dtOverMass, frictionMultiplier, springMultiplier, driverValue, dtOverDx2,
                 maxIntensity, maxVelocity, timeStep);
         }
-        else
+        else if (rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE)
         {
             const Idx leftX = x == 0U ? width - 1U : x - 1U;
             const Idx rightX = x + 1U == width ? 0U : x + 1U;
@@ -89,8 +94,70 @@ struct Wave1DLiveKernel
                 source[rightX], sourceVelocity[x], dtOverMass, frictionMultiplier, springMultiplier, driverValue,
                 frictionTweaks[x], springTweaks[x], massTweaks[x], dtOverDx2, maxIntensity, maxVelocity, timeStep);
         }
+        else if (rule == capow::WAVE_1D_RULE_ULAM)
+        {
+            const Idx leftX = x == 0U ? width - 1U : x - 1U;
+            const Idx rightX = x + 1U == width ? 0U : x + 1U;
+            result = capow::ComputeUlamWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x], source[rightX],
+                past[x], waveSpeed2TimeStep2OverDx2, nonlinearity1, maxIntensity, timeStep);
+        }
+        else if (rule == capow::WAVE_1D_RULE_AUTO_ULAM)
+        {
+            const Idx leftX = x == 0U ? width - 1U : x - 1U;
+            const Idx rightX = x + 1U == width ? 0U : x + 1U;
+            const capow::StableUlam1DResult<capow::AlpakaPlaneValue> stableResult =
+                capow::ComputeStableUlamWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x], source[rightX],
+                    sourceVelocity[x], nonlinearityTweaks[x], dtOverDx2, timeStep, nonlinearity2, maxIntensity,
+                    maxVelocity);
+            result = {stableResult.nextIntensity, stableResult.velocity};
+            targetNonlinearityTweaks[x] = stableResult.nextTweak;
+            zeroFlags[x] = stableResult.zeroNeighbors ? 1U : 0U;
+        }
+        else
+        {
+            const Idx leftX = x == 0U ? width - 1U : x - 1U;
+            const Idx rightX = x + 1U == width ? 0U : x + 1U;
+            result = capow::ComputeCubicUlamWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x], source[rightX],
+                past[x], waveSpeed2TimeStep2OverDx2, nonlinearity2, maxIntensity, timeStep);
+        }
         targetIntensity[x] = result.nextIntensity;
         targetVelocity[x] = result.velocity;
+    }
+};
+
+ALPAKA_FN_HOST_ACC Idx Wave1DUpdateOrder(Idx x, Idx width)
+{
+    if (x == 0U)
+    {
+        return width - 2U;
+    }
+    if (x + 1U == width)
+    {
+        return width - 1U;
+    }
+    return x - 1U;
+}
+
+struct StableUlamTweakMaskKernel
+{
+    template <typename TAcc>
+    ALPAKA_FN_ACC void operator()(const TAcc &acc, capow::AlpakaPlaneValue *targetNonlinearityTweaks,
+        const std::uint8_t *zeroFlags, Idx width) const
+    {
+        const Idx x = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
+        if (x >= width)
+        {
+            return;
+        }
+
+        const Idx leftX = x == 0U ? width - 1U : x - 1U;
+        const Idx rightX = x + 1U == width ? 0U : x + 1U;
+        const Idx xOrder = Wave1DUpdateOrder(x, width);
+        if ((Wave1DUpdateOrder(leftX, width) > xOrder && zeroFlags[leftX] != 0U) ||
+            (Wave1DUpdateOrder(rightX, width) > xOrder && zeroFlags[rightX] != 0U))
+        {
+            targetNonlinearityTweaks[x] = capow::AlpakaPlaneValue(0);
+        }
     }
 };
 
@@ -102,7 +169,9 @@ std::uint32_t DivideRoundUp(std::uint32_t value, std::uint32_t divisor)
 bool IsSupportedRule(capow::Wave1DRule rule)
 {
     return rule == capow::WAVE_1D_RULE_OSCILLATOR || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR ||
-        rule == capow::WAVE_1D_RULE_OSCILLATOR_WAVE || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE;
+        rule == capow::WAVE_1D_RULE_OSCILLATOR_WAVE || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE ||
+        rule == capow::WAVE_1D_RULE_ULAM || rule == capow::WAVE_1D_RULE_AUTO_ULAM ||
+        rule == capow::WAVE_1D_RULE_CUBIC_ULAM;
 }
 
 void ValidateOptions(const capow::Wave1DLiveOptions &options)
@@ -265,11 +334,12 @@ public:
     void Deactivate();
     bool DownloadCurrentAndPast(AlpakaPlaneValue *targetIntensity, int intensityStride,
         AlpakaPlaneValue *targetVelocity, int velocityStride, AlpakaPlaneValue *pastIntensity, int pastStride,
-        std::string *error);
+        AlpakaPlaneValue *nonlinearityTweaks, int nonlinearityStride, std::string *error);
     bool RunFrame(const Wave1DLiveOptions &nextOptions, const AlpakaPlaneValue *sourceIntensity, int intensityStride,
         const AlpakaPlaneValue *pastIntensity, int pastStride, const AlpakaPlaneValue *sourceVelocity,
         int velocityStride, const AlpakaPlaneValue *frictionTweaks, const AlpakaPlaneValue *springTweaks,
-        const AlpakaPlaneValue *massTweaks, const std::uint32_t *colorTable, std::string *error);
+        const AlpakaPlaneValue *massTweaks, const AlpakaPlaneValue *nonlinearityTweaks, const std::uint32_t *colorTable,
+        std::string *error);
 
 private:
     void Resize(const Wave1DLiveOptions &nextOptions);
@@ -280,7 +350,7 @@ private:
         const AlpakaPlaneValue *pastIntensity, int pastStride, const AlpakaPlaneValue *sourceVelocity,
         int velocityStride);
     void UploadTweaks(const AlpakaPlaneValue *frictionTweaks, const AlpakaPlaneValue *springTweaks,
-        const AlpakaPlaneValue *massTweaks);
+        const AlpakaPlaneValue *massTweaks, const AlpakaPlaneValue *nonlinearityTweaks);
     void UploadColors(const std::uint32_t *colorTable);
     void RunStep();
     bool UpdateTexture(std::string *error);
@@ -301,6 +371,7 @@ private:
     std::vector<AlpakaPlaneValue> hostFrictionTweaks;
     std::vector<AlpakaPlaneValue> hostSpringTweaks;
     std::vector<AlpakaPlaneValue> hostMassTweaks;
+    std::vector<AlpakaPlaneValue> hostNonlinearityTweaks;
     std::vector<std::uint32_t> hostColors;
     std::optional<PlaneBuffer> deviceCurrent;
     std::optional<PlaneBuffer> devicePast;
@@ -310,6 +381,9 @@ private:
     std::optional<PlaneBuffer> deviceFrictionTweaks;
     std::optional<PlaneBuffer> deviceSpringTweaks;
     std::optional<PlaneBuffer> deviceMassTweaks;
+    std::optional<PlaneBuffer> deviceNonlinearityTweaks;
+    std::optional<PlaneBuffer> deviceNextNonlinearityTweaks;
+    std::optional<FlagBuffer> deviceZeroFlags;
     std::optional<PixelBuffer> devicePixels;
     std::optional<PixelBuffer> deviceNextPixels;
     std::optional<ColorBuffer> deviceColors;
@@ -334,6 +408,8 @@ Wave1DLiveOptions::Wave1DLiveOptions() :
     frictionMultiplier(AlpakaPlaneValue(0)),
     springMultiplier(AlpakaPlaneValue(0)),
     driverValue(AlpakaPlaneValue(0)),
+    nonlinearity1(AlpakaPlaneValue(0)),
+    nonlinearity2(AlpakaPlaneValue(0)),
     velocityColorScale(AlpakaPlaneValue(1)),
     colorCount(0),
     showVelocity(false)
@@ -382,14 +458,15 @@ void Wave1DLiveState::Impl::Deactivate()
 
 bool Wave1DLiveState::Impl::DownloadCurrentAndPast(AlpakaPlaneValue *targetIntensity, int intensityStride,
     AlpakaPlaneValue *targetVelocity, int velocityStride, AlpakaPlaneValue *pastIntensity, int pastStride,
-    std::string *error)
+    AlpakaPlaneValue *nonlinearityTweaks, int nonlinearityStride, std::string *error)
 {
     try
     {
         ValidatePlane(targetIntensity, intensityStride);
         ValidatePlane(targetVelocity, velocityStride);
         ValidatePlane(pastIntensity, pastStride);
-        if (!active || !deviceCurrent || !deviceCurrentVelocity || !devicePast)
+        ValidatePlane(nonlinearityTweaks, nonlinearityStride);
+        if (!active || !deviceCurrent || !deviceCurrentVelocity || !devicePast || !deviceNonlinearityTweaks)
         {
             return true;
         }
@@ -397,11 +474,13 @@ bool Wave1DLiveState::Impl::DownloadCurrentAndPast(AlpakaPlaneValue *targetInten
         CopyDeviceToHost(&*deviceCurrent, &hostCurrent);
         CopyDeviceToHost(&*deviceCurrentVelocity, &hostVelocity);
         CopyDeviceToHost(&*devicePast, &hostPast);
+        CopyDeviceToHost(&*deviceNonlinearityTweaks, &hostNonlinearityTweaks);
         for (std::size_t index = 0; index < cellCount; ++index)
         {
             targetIntensity[index * static_cast<std::size_t>(intensityStride)] = hostCurrent[index];
             targetVelocity[index * static_cast<std::size_t>(velocityStride)] = hostVelocity[index];
             pastIntensity[index * static_cast<std::size_t>(pastStride)] = hostPast[index];
+            nonlinearityTweaks[index * static_cast<std::size_t>(nonlinearityStride)] = hostNonlinearityTweaks[index];
         }
         return true;
     }
@@ -418,7 +497,8 @@ bool Wave1DLiveState::Impl::DownloadCurrentAndPast(AlpakaPlaneValue *targetInten
 bool Wave1DLiveState::Impl::RunFrame(const Wave1DLiveOptions &nextOptions, const AlpakaPlaneValue *sourceIntensity,
     int intensityStride, const AlpakaPlaneValue *pastIntensity, int pastStride, const AlpakaPlaneValue *sourceVelocity,
     int velocityStride, const AlpakaPlaneValue *frictionTweaks, const AlpakaPlaneValue *springTweaks,
-    const AlpakaPlaneValue *massTweaks, const std::uint32_t *colorTable, std::string *error)
+    const AlpakaPlaneValue *massTweaks, const AlpakaPlaneValue *nonlinearityTweaks, const std::uint32_t *colorTable,
+    std::string *error)
 {
     try
     {
@@ -438,8 +518,9 @@ bool Wave1DLiveState::Impl::RunFrame(const Wave1DLiveOptions &nextOptions, const
             ValidatePlane(frictionTweaks, 1);
             ValidatePlane(springTweaks, 1);
             ValidatePlane(massTweaks, 1);
+            ValidatePlane(nonlinearityTweaks, 1);
             UploadSource(sourceIntensity, intensityStride, pastIntensity, pastStride, sourceVelocity, velocityStride);
-            UploadTweaks(frictionTweaks, springTweaks, massTweaks);
+            UploadTweaks(frictionTweaks, springTweaks, massTweaks, nonlinearityTweaks);
         }
         UploadColors(colorTable);
         RunStep();
@@ -450,6 +531,7 @@ bool Wave1DLiveState::Impl::RunFrame(const Wave1DLiveOptions &nextOptions, const
         std::swap(devicePast, deviceCurrent);
         std::swap(deviceCurrent, deviceNextIntensity);
         std::swap(deviceCurrentVelocity, deviceNextVelocity);
+        std::swap(deviceNonlinearityTweaks, deviceNextNonlinearityTweaks);
         active = true;
         return true;
     }
@@ -487,6 +569,9 @@ void Wave1DLiveState::Impl::Resize(const Wave1DLiveOptions &nextOptions)
     deviceFrictionTweaks.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, cellExtent));
     deviceSpringTweaks.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, cellExtent));
     deviceMassTweaks.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, cellExtent));
+    deviceNonlinearityTweaks.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, cellExtent));
+    deviceNextNonlinearityTweaks.emplace(alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, cellExtent));
+    deviceZeroFlags.emplace(alpaka::allocBuf<std::uint8_t, Idx>(accDevice, cellExtent));
     devicePixels.emplace(alpaka::allocBuf<std::uint32_t, Idx>(accDevice, pixelExtent));
     deviceNextPixels.emplace(alpaka::allocBuf<std::uint32_t, Idx>(accDevice, pixelExtent));
     deviceColors.emplace(alpaka::allocBuf<std::uint32_t, Idx>(accDevice, colorExtent));
@@ -496,6 +581,7 @@ void Wave1DLiveState::Impl::Resize(const Wave1DLiveOptions &nextOptions)
     hostFrictionTweaks.assign(cellCount, AlpakaPlaneValue(1));
     hostSpringTweaks.assign(cellCount, AlpakaPlaneValue(1));
     hostMassTweaks.assign(cellCount, AlpakaPlaneValue(1));
+    hostNonlinearityTweaks.assign(cellCount, AlpakaPlaneValue(1));
     hostColors.assign(static_cast<std::size_t>(options.colorCount), 0U);
     initialized = true;
     active = false;
@@ -578,18 +664,20 @@ void Wave1DLiveState::Impl::UploadSource(const AlpakaPlaneValue *sourceIntensity
     CopyHostToDevice(&hostVelocity, &*deviceCurrentVelocity);
 }
 
-void Wave1DLiveState::Impl::UploadTweaks(
-    const AlpakaPlaneValue *frictionTweaks, const AlpakaPlaneValue *springTweaks, const AlpakaPlaneValue *massTweaks)
+void Wave1DLiveState::Impl::UploadTweaks(const AlpakaPlaneValue *frictionTweaks, const AlpakaPlaneValue *springTweaks,
+    const AlpakaPlaneValue *massTweaks, const AlpakaPlaneValue *nonlinearityTweaks)
 {
     for (std::size_t index = 0; index < cellCount; ++index)
     {
         hostFrictionTweaks[index] = frictionTweaks[index];
         hostSpringTweaks[index] = springTweaks[index];
         hostMassTweaks[index] = massTweaks[index];
+        hostNonlinearityTweaks[index] = nonlinearityTweaks[index];
     }
     CopyHostToDevice(&hostFrictionTweaks, &*deviceFrictionTweaks);
     CopyHostToDevice(&hostSpringTweaks, &*deviceSpringTweaks);
     CopyHostToDevice(&hostMassTweaks, &*deviceMassTweaks);
+    CopyHostToDevice(&hostNonlinearityTweaks, &*deviceNonlinearityTweaks);
 }
 
 void Wave1DLiveState::Impl::UploadColors(const std::uint32_t *colorTable)
@@ -616,10 +704,19 @@ void Wave1DLiveState::Impl::RunStep()
     alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(*deviceCurrent),
         alpaka::getPtrNative(*devicePast), alpaka::getPtrNative(*deviceCurrentVelocity),
         alpaka::getPtrNative(*deviceFrictionTweaks), alpaka::getPtrNative(*deviceSpringTweaks),
-        alpaka::getPtrNative(*deviceMassTweaks), alpaka::getPtrNative(*deviceNextIntensity),
-        alpaka::getPtrNative(*deviceNextVelocity), static_cast<Idx>(options.width), options.waveSpeed2TimeStep2OverDx2,
-        options.dtOverDx2, options.maxIntensity, options.maxVelocity, options.timeStep, options.dtOverMass,
-        options.frictionMultiplier, options.springMultiplier, options.driverValue, options.rule);
+        alpaka::getPtrNative(*deviceMassTweaks), alpaka::getPtrNative(*deviceNonlinearityTweaks),
+        alpaka::getPtrNative(*deviceNextIntensity), alpaka::getPtrNative(*deviceNextVelocity),
+        alpaka::getPtrNative(*deviceNextNonlinearityTweaks), alpaka::getPtrNative(*deviceZeroFlags),
+        static_cast<Idx>(options.width), options.waveSpeed2TimeStep2OverDx2, options.dtOverDx2, options.maxIntensity,
+        options.maxVelocity, options.timeStep, options.dtOverMass, options.frictionMultiplier, options.springMultiplier,
+        options.driverValue, options.nonlinearity1, options.nonlinearity2, options.rule);
+    if (options.rule == WAVE_1D_RULE_AUTO_ULAM)
+    {
+        const StableUlamTweakMaskKernel maskKernel = StableUlamTweakMaskKernel{};
+        alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, maskKernel,
+            alpaka::getPtrNative(*deviceNextNonlinearityTweaks), alpaka::getPtrNative(*deviceZeroFlags),
+            static_cast<Idx>(options.width));
+    }
     alpaka::wait(queue);
 }
 
@@ -728,19 +825,20 @@ void Wave1DLiveState::Deactivate()
 
 bool Wave1DLiveState::DownloadCurrentAndPast(AlpakaPlaneValue *targetIntensity, int intensityStride,
     AlpakaPlaneValue *targetVelocity, int velocityStride, AlpakaPlaneValue *pastIntensity, int pastStride,
-    std::string *error)
+    AlpakaPlaneValue *nonlinearityTweaks, int nonlinearityStride, std::string *error)
 {
-    return impl->DownloadCurrentAndPast(
-        targetIntensity, intensityStride, targetVelocity, velocityStride, pastIntensity, pastStride, error);
+    return impl->DownloadCurrentAndPast(targetIntensity, intensityStride, targetVelocity, velocityStride, pastIntensity,
+        pastStride, nonlinearityTweaks, nonlinearityStride, error);
 }
 
 bool Wave1DLiveState::RunFrame(const Wave1DLiveOptions &options, const AlpakaPlaneValue *sourceIntensity,
     int intensityStride, const AlpakaPlaneValue *pastIntensity, int pastStride, const AlpakaPlaneValue *sourceVelocity,
     int velocityStride, const AlpakaPlaneValue *frictionTweaks, const AlpakaPlaneValue *springTweaks,
-    const AlpakaPlaneValue *massTweaks, const std::uint32_t *colorTable, std::string *error)
+    const AlpakaPlaneValue *massTweaks, const AlpakaPlaneValue *nonlinearityTweaks, const std::uint32_t *colorTable,
+    std::string *error)
 {
     return impl->RunFrame(options, sourceIntensity, intensityStride, pastIntensity, pastStride, sourceVelocity,
-        velocityStride, frictionTweaks, springTweaks, massTweaks, colorTable, error);
+        velocityStride, frictionTweaks, springTweaks, massTweaks, nonlinearityTweaks, colorTable, error);
 }
 
 } // namespace capow

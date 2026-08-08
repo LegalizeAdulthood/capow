@@ -68,6 +68,9 @@ AlpakaManager::AlpakaManager() :
     ruleEnabled[ALPAKA_RULE_CA_DIVERSE_OSCILLATOR] = true;
     ruleEnabled[ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE] = true;
     ruleEnabled[ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE] = true;
+    ruleEnabled[ALPAKA_RULE_CA_ULAM_WAVE] = true;
+    ruleEnabled[ALPAKA_RULE_CA_AUTO_ULAM_WAVE] = true;
+    ruleEnabled[ALPAKA_RULE_CA_CUBIC_ULAM_WAVE] = true;
 }
 
 bool AlpakaManager::IsGpuAvailable() const
@@ -155,6 +158,12 @@ const char *AlpakaRuleName(AlpakaRule rule)
         return "ALT_CA_OSCILLATOR_WAVE";
     case ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE:
         return "ALT_CA_DIVERSE_OSCILLATOR_WAVE";
+    case ALPAKA_RULE_CA_ULAM_WAVE:
+        return "CA_ULAM_WAVE";
+    case ALPAKA_RULE_CA_AUTO_ULAM_WAVE:
+        return "CA_AUTO_ULAM_WAVE";
+    case ALPAKA_RULE_CA_CUBIC_ULAM_WAVE:
+        return "CA_CUBIC_ULAM_WAVE";
     case ALPAKA_RULE_COUNT:
         break;
     }

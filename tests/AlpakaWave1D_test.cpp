@@ -88,3 +88,18 @@ TEST(alpakaWave1D, diverseOscillatorWaveFiftyStepsMatchHost)
 {
     ExpectWaveGpuMatchesHost(257, 50, capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE, 2.5e-5F);
 }
+
+TEST(alpakaWave1D, ulamFiftyStepsMatchHost)
+{
+    ExpectWaveGpuMatchesHost(257, 50, capow::WAVE_1D_RULE_ULAM, 2.5e-5F);
+}
+
+TEST(alpakaWave1D, autoUlamFiftyStepsMatchHost)
+{
+    ExpectWaveGpuMatchesHost(257, 50, capow::WAVE_1D_RULE_AUTO_ULAM, 2.5e-5F);
+}
+
+TEST(alpakaWave1D, cubicUlamFiftyStepsMatchHost)
+{
+    ExpectWaveGpuMatchesHost(257, 50, capow::WAVE_1D_RULE_CUBIC_ULAM, 2.5e-5F);
+}

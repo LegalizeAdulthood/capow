@@ -25,6 +25,8 @@ struct Wave1DOptions
     AlpakaPlaneValue frictionMultiplier;
     AlpakaPlaneValue springMultiplier;
     AlpakaPlaneValue driverValue;
+    AlpakaPlaneValue nonlinearity1;
+    AlpakaPlaneValue nonlinearity2;
 
     Wave1DOptions();
 };

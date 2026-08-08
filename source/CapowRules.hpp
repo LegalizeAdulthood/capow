@@ -38,7 +38,10 @@ enum Wave1DRule
     WAVE_1D_RULE_OSCILLATOR,
     WAVE_1D_RULE_DIVERSE_OSCILLATOR,
     WAVE_1D_RULE_OSCILLATOR_WAVE,
-    WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE
+    WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE,
+    WAVE_1D_RULE_ULAM,
+    WAVE_1D_RULE_AUTO_ULAM,
+    WAVE_1D_RULE_CUBIC_ULAM
 };
 
 template <typename T>
@@ -67,6 +70,15 @@ struct Wave1DResult
 {
     T nextIntensity;
     T velocity;
+};
+
+template <typename T>
+struct StableUlam1DResult
+{
+    T nextIntensity;
+    T velocity;
+    T nextTweak;
+    bool zeroNeighbors;
 };
 
 template <typename T>
@@ -207,6 +219,57 @@ ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeDiverseOscillatorWave1D(T leftIntensit
     nextIntensity = ClampRange(nextIntensity, -maxIntensity, maxIntensity);
     const T clampedVelocity = ClampRange(nextVelocity, -maxVelocity, maxVelocity);
     return Wave1DResult<T>{nextIntensity, clampedVelocity};
+}
+
+template <typename T>
+ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeUlamWave1D(T leftIntensity, T centerIntensity, T rightIntensity,
+    T pastIntensity, T waveSpeed2TimeStep2OverDx2, T nonlinearity, T maxIntensity, T timeStep)
+{
+    const T cldiff = centerIntensity - leftIntensity;
+    const T rcdiff = rightIntensity - centerIntensity;
+    const T unclampedNext = -pastIntensity + T(2) * centerIntensity +
+        waveSpeed2TimeStep2OverDx2 * (rcdiff - cldiff + nonlinearity * (rcdiff * rcdiff - cldiff * cldiff));
+    const T nextIntensity = ClampRange(unclampedNext, -maxIntensity, maxIntensity);
+    return Wave1DResult<T>{nextIntensity, (nextIntensity - centerIntensity) / timeStep};
+}
+
+template <typename T>
+ALPAKA_FN_HOST_ACC StableUlam1DResult<T> ComputeStableUlamWave1D(T leftIntensity, T centerIntensity, T rightIntensity,
+    T sourceVelocity, T sourceTweak, T dtOverDx2, T timeStep, T nonlinearity, T maxIntensity, T maxVelocity)
+{
+    const T cldiff = centerIntensity - leftIntensity;
+    const T rcdiff = rightIntensity - centerIntensity;
+    const T dtutt = dtOverDx2 * (rcdiff - cldiff + sourceTweak * nonlinearity * (rcdiff * rcdiff - cldiff * cldiff));
+    const T unclampedVelocity = sourceVelocity + dtutt;
+    T nextVelocity = ClampRange(unclampedVelocity, -maxVelocity, maxVelocity);
+    bool zeroNeighbors = nextVelocity != unclampedVelocity;
+    const T unclampedIntensity = centerIntensity + timeStep * nextVelocity + (timeStep / T(2)) * dtutt;
+    const T nextIntensity = ClampRange(unclampedIntensity, -maxIntensity, maxIntensity);
+    T nextTweak = sourceTweak;
+    if (nextIntensity != unclampedIntensity)
+    {
+        nextVelocity = T(0);
+        nextTweak = T(0);
+        zeroNeighbors = true;
+    }
+    else
+    {
+        nextTweak = ClampRange(sourceTweak * T(1.01), T(0.001), T(1));
+    }
+    return StableUlam1DResult<T>{nextIntensity, nextVelocity, nextTweak, zeroNeighbors};
+}
+
+template <typename T>
+ALPAKA_FN_HOST_ACC Wave1DResult<T> ComputeCubicUlamWave1D(T leftIntensity, T centerIntensity, T rightIntensity,
+    T pastIntensity, T waveSpeed2TimeStep2OverDx2, T nonlinearity, T maxIntensity, T timeStep)
+{
+    const T cldiff = centerIntensity - leftIntensity;
+    const T rcdiff = rightIntensity - centerIntensity;
+    const T sum = rcdiff + cldiff;
+    const T unclampedNext = -pastIntensity + T(2) * centerIntensity +
+        waveSpeed2TimeStep2OverDx2 * ((T(1) + nonlinearity * sum * sum) * (rcdiff - cldiff));
+    const T nextIntensity = ClampRange(unclampedNext, -maxIntensity, maxIntensity);
+    return Wave1DResult<T>{nextIntensity, (nextIntensity - centerIntensity) / timeStep};
 }
 
 template <typename T>

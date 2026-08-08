@@ -98,6 +98,15 @@ TEST(alpakaBackend, diverseOscillatorWaveStartsEnabled)
     EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE));
 }
 
+TEST(alpakaBackend, ulamRulesStartEnabled)
+{
+    const capow::AlpakaManager manager;
+
+    EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_ULAM_WAVE));
+    EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_AUTO_ULAM_WAVE));
+    EXPECT_TRUE(manager.IsRuleEnabled(capow::ALPAKA_RULE_CA_CUBIC_ULAM_WAVE));
+}
+
 TEST(alpakaBackend, gpuRunsRequireDeviceAndEnabledRule)
 {
     capow::AlpakaManager manager;
@@ -126,4 +135,7 @@ TEST(alpakaBackend, namesMatchMenuAndRuleLabels)
     EXPECT_STREQ("ALT_CA_OSCILLATOR_WAVE", capow::AlpakaRuleName(capow::ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE));
     EXPECT_STREQ(
         "ALT_CA_DIVERSE_OSCILLATOR_WAVE", capow::AlpakaRuleName(capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE));
+    EXPECT_STREQ("CA_ULAM_WAVE", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_ULAM_WAVE));
+    EXPECT_STREQ("CA_AUTO_ULAM_WAVE", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_AUTO_ULAM_WAVE));
+    EXPECT_STREQ("CA_CUBIC_ULAM_WAVE", capow::AlpakaRuleName(capow::ALPAKA_RULE_CA_CUBIC_ULAM_WAVE));
 }

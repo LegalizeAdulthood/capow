@@ -50,6 +50,12 @@ int CaTypeForRule(capow::BatchRule rule)
         return ALT_CA_OSCILLATOR_WAVE;
     case capow::BATCH_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE:
         return ALT_CA_DIVERSE_OSCILLATOR_WAVE;
+    case capow::BATCH_RULE_CA_ULAM_WAVE:
+        return CA_ULAM_WAVE;
+    case capow::BATCH_RULE_CA_AUTO_ULAM_WAVE:
+        return CA_AUTO_ULAM_WAVE;
+    case capow::BATCH_RULE_CA_CUBIC_ULAM_WAVE:
+        return CA_CUBIC_ULAM_WAVE;
     }
     return CA_HEAT_2D;
 }
@@ -99,6 +105,12 @@ capow::AlpakaRule AlpakaRuleForBatchRule(capow::BatchRule rule)
         return capow::ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE;
     case capow::BATCH_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE:
         return capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE;
+    case capow::BATCH_RULE_CA_ULAM_WAVE:
+        return capow::ALPAKA_RULE_CA_ULAM_WAVE;
+    case capow::BATCH_RULE_CA_AUTO_ULAM_WAVE:
+        return capow::ALPAKA_RULE_CA_AUTO_ULAM_WAVE;
+    case capow::BATCH_RULE_CA_CUBIC_ULAM_WAVE:
+        return capow::ALPAKA_RULE_CA_CUBIC_ULAM_WAVE;
     }
     return capow::ALPAKA_RULE_CA_HEAT_2D;
 }
@@ -203,7 +215,9 @@ bool IsWave1DBatchRule(capow::BatchRule rule)
 {
     return rule == capow::BATCH_RULE_CA_WAVE || rule == capow::BATCH_RULE_CA_WAVE2 ||
         rule == capow::BATCH_RULE_CA_OSCILLATOR || rule == capow::BATCH_RULE_CA_DIVERSE_OSCILLATOR ||
-        rule == capow::BATCH_RULE_ALT_CA_OSCILLATOR_WAVE || rule == capow::BATCH_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE;
+        rule == capow::BATCH_RULE_ALT_CA_OSCILLATOR_WAVE || rule == capow::BATCH_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE ||
+        rule == capow::BATCH_RULE_CA_ULAM_WAVE || rule == capow::BATCH_RULE_CA_AUTO_ULAM_WAVE ||
+        rule == capow::BATCH_RULE_CA_CUBIC_ULAM_WAVE;
 }
 
 void LogBatchError(const std::string &error)
@@ -431,6 +445,18 @@ int RunWave1DBatchMode(const capow::BatchOptions &options, CA *focus)
     else if (options.rule == capow::BATCH_RULE_CA_WAVE2)
     {
         waveOptions.rule = capow::WAVE_1D_RULE_FIVE_NEIGHBOR;
+    }
+    else if (options.rule == capow::BATCH_RULE_CA_ULAM_WAVE)
+    {
+        waveOptions.rule = capow::WAVE_1D_RULE_ULAM;
+    }
+    else if (options.rule == capow::BATCH_RULE_CA_AUTO_ULAM_WAVE)
+    {
+        waveOptions.rule = capow::WAVE_1D_RULE_AUTO_ULAM;
+    }
+    else if (options.rule == capow::BATCH_RULE_CA_CUBIC_ULAM_WAVE)
+    {
+        waveOptions.rule = capow::WAVE_1D_RULE_CUBIC_ULAM;
     }
     else
     {

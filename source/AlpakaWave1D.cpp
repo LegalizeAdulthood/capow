@@ -29,6 +29,8 @@ using WorkDiv = alpaka::WorkDivMembers<WorkDim, Idx>;
 using HostView = alpaka::ViewPlainPtr<HostDevice, capow::AlpakaPlaneValue, MemDim, Idx>;
 using ConstHostView = alpaka::ViewPlainPtr<HostDevice, const capow::AlpakaPlaneValue, MemDim, Idx>;
 using DeviceBuffer = alpaka::Buf<AccPlatform, capow::AlpakaPlaneValue, MemDim, Idx>;
+using FlagBuffer = alpaka::Buf<AccPlatform, std::uint8_t, MemDim, Idx>;
+using ConstHostFlagView = alpaka::ViewPlainPtr<HostDevice, const std::uint8_t, MemDim, Idx>;
 
 const capow::AlpakaPlaneValue defaultWaveSpeed2TimeStep2OverDx2 = capow::AlpakaPlaneValue(0.5F);
 const capow::AlpakaPlaneValue defaultDtOver12Dx2 = capow::AlpakaPlaneValue(0.03125F);
@@ -40,6 +42,8 @@ const capow::AlpakaPlaneValue defaultDtOverMass = capow::AlpakaPlaneValue(0.125F
 const capow::AlpakaPlaneValue defaultFrictionMultiplier = capow::AlpakaPlaneValue(0.25F);
 const capow::AlpakaPlaneValue defaultSpringMultiplier = capow::AlpakaPlaneValue(0.75F);
 const capow::AlpakaPlaneValue defaultDriverValue = capow::AlpakaPlaneValue(0.5F);
+const capow::AlpakaPlaneValue defaultNonlinearity1 = capow::AlpakaPlaneValue(0.05F);
+const capow::AlpakaPlaneValue defaultNonlinearity2 = capow::AlpakaPlaneValue(1.25F);
 
 struct Wave1DKernel
 {
@@ -47,12 +51,15 @@ struct Wave1DKernel
     ALPAKA_FN_ACC void operator()(const TAcc &acc, const capow::AlpakaPlaneValue *source,
         const capow::AlpakaPlaneValue *past, const capow::AlpakaPlaneValue *sourceVelocity,
         const capow::AlpakaPlaneValue *frictionTweaks, const capow::AlpakaPlaneValue *springTweaks,
-        const capow::AlpakaPlaneValue *massTweaks, capow::AlpakaPlaneValue *targetIntensity,
-        capow::AlpakaPlaneValue *targetVelocity, Idx width, capow::AlpakaPlaneValue waveSpeed2TimeStep2OverDx2,
-        capow::AlpakaPlaneValue dtOver12Dx2, capow::AlpakaPlaneValue dtOverDx2, capow::AlpakaPlaneValue maxIntensity,
-        capow::AlpakaPlaneValue maxVelocity, capow::AlpakaPlaneValue timeStep, capow::AlpakaPlaneValue dtOverMass,
+        const capow::AlpakaPlaneValue *massTweaks, const capow::AlpakaPlaneValue *nonlinearityTweaks,
+        capow::AlpakaPlaneValue *targetIntensity, capow::AlpakaPlaneValue *targetVelocity,
+        capow::AlpakaPlaneValue *targetNonlinearityTweaks, std::uint8_t *zeroFlags, Idx width,
+        capow::AlpakaPlaneValue waveSpeed2TimeStep2OverDx2, capow::AlpakaPlaneValue dtOver12Dx2,
+        capow::AlpakaPlaneValue dtOverDx2, capow::AlpakaPlaneValue maxIntensity, capow::AlpakaPlaneValue maxVelocity,
+        capow::AlpakaPlaneValue timeStep, capow::AlpakaPlaneValue dtOverMass,
         capow::AlpakaPlaneValue frictionMultiplier, capow::AlpakaPlaneValue springMultiplier,
-        capow::AlpakaPlaneValue driverValue, capow::Wave1DRule rule) const
+        capow::AlpakaPlaneValue driverValue, capow::AlpakaPlaneValue nonlinearity1,
+        capow::AlpakaPlaneValue nonlinearity2, capow::Wave1DRule rule) const
     {
         const Idx x = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
         if (x >= width)
@@ -61,6 +68,8 @@ struct Wave1DKernel
         }
 
         capow::Wave1DResult<capow::AlpakaPlaneValue> result = {capow::AlpakaPlaneValue(0), capow::AlpakaPlaneValue(0)};
+        targetNonlinearityTweaks[x] = nonlinearityTweaks[x];
+        zeroFlags[x] = 0U;
         if (rule == capow::WAVE_1D_RULE_OSCILLATOR)
         {
             result = capow::ComputeOscillator1D<capow::AlpakaPlaneValue>(source[x], sourceVelocity[x], dtOverMass,
@@ -88,6 +97,32 @@ struct Wave1DKernel
                 source[rightX], sourceVelocity[x], dtOverMass, frictionMultiplier, springMultiplier, driverValue,
                 frictionTweaks[x], springTweaks[x], massTweaks[x], dtOverDx2, maxIntensity, maxVelocity, timeStep);
         }
+        else if (rule == capow::WAVE_1D_RULE_ULAM)
+        {
+            const Idx leftX = x == 0U ? width - 1U : x - 1U;
+            const Idx rightX = x + 1U == width ? 0U : x + 1U;
+            result = capow::ComputeUlamWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x], source[rightX],
+                past[x], waveSpeed2TimeStep2OverDx2, nonlinearity1, maxIntensity, timeStep);
+        }
+        else if (rule == capow::WAVE_1D_RULE_AUTO_ULAM)
+        {
+            const Idx leftX = x == 0U ? width - 1U : x - 1U;
+            const Idx rightX = x + 1U == width ? 0U : x + 1U;
+            const capow::StableUlam1DResult<capow::AlpakaPlaneValue> stableResult =
+                capow::ComputeStableUlamWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x], source[rightX],
+                    sourceVelocity[x], nonlinearityTweaks[x], dtOverDx2, timeStep, nonlinearity2, maxIntensity,
+                    maxVelocity);
+            result = {stableResult.nextIntensity, stableResult.velocity};
+            targetNonlinearityTweaks[x] = stableResult.nextTweak;
+            zeroFlags[x] = stableResult.zeroNeighbors ? 1U : 0U;
+        }
+        else if (rule == capow::WAVE_1D_RULE_CUBIC_ULAM)
+        {
+            const Idx leftX = x == 0U ? width - 1U : x - 1U;
+            const Idx rightX = x + 1U == width ? 0U : x + 1U;
+            result = capow::ComputeCubicUlamWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x], source[rightX],
+                past[x], waveSpeed2TimeStep2OverDx2, nonlinearity2, maxIntensity, timeStep);
+        }
         else if (rule == capow::WAVE_1D_RULE_FIVE_NEIGHBOR)
         {
             result = capow::ComputeWave1D5Cell<capow::AlpakaPlaneValue>(
@@ -100,6 +135,42 @@ struct Wave1DKernel
         }
         targetIntensity[x] = result.nextIntensity;
         targetVelocity[x] = result.velocity;
+    }
+};
+
+ALPAKA_FN_HOST_ACC Idx Wave1DUpdateOrder(Idx x, Idx width)
+{
+    if (x == 0U)
+    {
+        return width - 2U;
+    }
+    if (x + 1U == width)
+    {
+        return width - 1U;
+    }
+    return x - 1U;
+}
+
+struct StableUlamTweakMaskKernel
+{
+    template <typename TAcc>
+    ALPAKA_FN_ACC void operator()(const TAcc &acc, capow::AlpakaPlaneValue *targetNonlinearityTweaks,
+        const std::uint8_t *zeroFlags, Idx width) const
+    {
+        const Idx x = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
+        if (x >= width)
+        {
+            return;
+        }
+
+        const Idx leftX = x == 0U ? width - 1U : x - 1U;
+        const Idx rightX = x + 1U == width ? 0U : x + 1U;
+        const Idx xOrder = Wave1DUpdateOrder(x, width);
+        if ((Wave1DUpdateOrder(leftX, width) > xOrder && zeroFlags[leftX] != 0U) ||
+            (Wave1DUpdateOrder(rightX, width) > xOrder && zeroFlags[rightX] != 0U))
+        {
+            targetNonlinearityTweaks[x] = capow::AlpakaPlaneValue(0);
+        }
     }
 };
 
@@ -154,13 +225,25 @@ bool IsOscillatorRule(capow::Wave1DRule rule)
         rule == capow::WAVE_1D_RULE_OSCILLATOR_WAVE || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE;
 }
 
+bool IsStableUlamRule(capow::Wave1DRule rule)
+{
+    return rule == capow::WAVE_1D_RULE_AUTO_ULAM;
+}
+
 void MakeWave1DVelocityFromPast(const capow::Wave1DOptions &options, const std::vector<capow::AlpakaPlaneValue> &source,
     const std::vector<capow::AlpakaPlaneValue> &past, std::vector<capow::AlpakaPlaneValue> *targetVelocity)
 {
     targetVelocity->resize(CellCount(options));
     for (std::size_t index = 0; index < targetVelocity->size(); ++index)
     {
-        (*targetVelocity)[index] = (source[index] - past[index]) / options.timeStep;
+        if (IsStableUlamRule(options.rule))
+        {
+            (*targetVelocity)[index] = capow::AlpakaPlaneValue(0);
+        }
+        else
+        {
+            (*targetVelocity)[index] = (source[index] - past[index]) / options.timeStep;
+        }
     }
 }
 
@@ -182,16 +265,26 @@ void MakeWave1DTweaks(const capow::Wave1DOptions &options, std::vector<capow::Al
     }
 }
 
+void MakeWave1DNonlinearityTweaks(
+    const capow::Wave1DOptions &options, std::vector<capow::AlpakaPlaneValue> *nonlinearityTweaks)
+{
+    nonlinearityTweaks->assign(CellCount(options), capow::AlpakaPlaneValue(1));
+}
+
 void Wave1DStepHost(const capow::Wave1DOptions &options, const std::vector<capow::AlpakaPlaneValue> &source,
     const std::vector<capow::AlpakaPlaneValue> &past, const std::vector<capow::AlpakaPlaneValue> &sourceVelocity,
     const std::vector<capow::AlpakaPlaneValue> &frictionTweaks,
     const std::vector<capow::AlpakaPlaneValue> &springTweaks, const std::vector<capow::AlpakaPlaneValue> &massTweaks,
-    std::vector<capow::AlpakaPlaneValue> *targetIntensity, std::vector<capow::AlpakaPlaneValue> *targetVelocity)
+    const std::vector<capow::AlpakaPlaneValue> &nonlinearityTweaks,
+    std::vector<capow::AlpakaPlaneValue> *targetIntensity, std::vector<capow::AlpakaPlaneValue> *targetVelocity,
+    std::vector<capow::AlpakaPlaneValue> *targetNonlinearityTweaks, std::vector<std::uint8_t> *zeroFlags)
 {
     const std::uint32_t width = static_cast<std::uint32_t>(options.width);
+    zeroFlags->assign(CellCount(options), 0U);
     for (std::uint32_t x = 0U; x < width; ++x)
     {
         capow::Wave1DResult<capow::AlpakaPlaneValue> result = {capow::AlpakaPlaneValue(0), capow::AlpakaPlaneValue(0)};
+        (*targetNonlinearityTweaks)[x] = nonlinearityTweaks[x];
         if (options.rule == capow::WAVE_1D_RULE_OSCILLATOR)
         {
             result = capow::ComputeOscillator1D<capow::AlpakaPlaneValue>(source[x], sourceVelocity[x],
@@ -222,6 +315,34 @@ void Wave1DStepHost(const capow::Wave1DOptions &options, const std::vector<capow
                 options.springMultiplier, options.driverValue, frictionTweaks[x], springTweaks[x], massTweaks[x],
                 options.dtOverDx2, options.maxIntensity, options.maxVelocity, options.timeStep);
         }
+        else if (options.rule == capow::WAVE_1D_RULE_ULAM)
+        {
+            const std::uint32_t leftX = x == 0U ? width - 1U : x - 1U;
+            const std::uint32_t rightX = x + 1U == width ? 0U : x + 1U;
+            result =
+                capow::ComputeUlamWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x], source[rightX], past[x],
+                    options.waveSpeed2TimeStep2OverDx2, options.nonlinearity1, options.maxIntensity, options.timeStep);
+        }
+        else if (options.rule == capow::WAVE_1D_RULE_AUTO_ULAM)
+        {
+            const std::uint32_t leftX = x == 0U ? width - 1U : x - 1U;
+            const std::uint32_t rightX = x + 1U == width ? 0U : x + 1U;
+            const capow::StableUlam1DResult<capow::AlpakaPlaneValue> stableResult =
+                capow::ComputeStableUlamWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x], source[rightX],
+                    sourceVelocity[x], nonlinearityTweaks[x], options.dtOverDx2, options.timeStep,
+                    options.nonlinearity2, options.maxIntensity, options.maxVelocity);
+            result = {stableResult.nextIntensity, stableResult.velocity};
+            (*targetNonlinearityTweaks)[x] = stableResult.nextTweak;
+            (*zeroFlags)[x] = stableResult.zeroNeighbors ? 1U : 0U;
+        }
+        else if (options.rule == capow::WAVE_1D_RULE_CUBIC_ULAM)
+        {
+            const std::uint32_t leftX = x == 0U ? width - 1U : x - 1U;
+            const std::uint32_t rightX = x + 1U == width ? 0U : x + 1U;
+            result = capow::ComputeCubicUlamWave1D<capow::AlpakaPlaneValue>(source[leftX], source[x], source[rightX],
+                past[x], options.waveSpeed2TimeStep2OverDx2, options.nonlinearity2, options.maxIntensity,
+                options.timeStep);
+        }
         else if (options.rule == capow::WAVE_1D_RULE_FIVE_NEIGHBOR)
         {
             result = capow::ComputeWave1D5Cell<capow::AlpakaPlaneValue>(source.data(), past.data(), x, width,
@@ -234,6 +355,21 @@ void Wave1DStepHost(const capow::Wave1DOptions &options, const std::vector<capow
         }
         (*targetIntensity)[x] = result.nextIntensity;
         (*targetVelocity)[x] = result.velocity;
+    }
+
+    if (options.rule == capow::WAVE_1D_RULE_AUTO_ULAM)
+    {
+        for (std::uint32_t x = 0U; x < width; ++x)
+        {
+            const std::uint32_t leftX = x == 0U ? width - 1U : x - 1U;
+            const std::uint32_t rightX = x + 1U == width ? 0U : x + 1U;
+            const std::uint32_t xOrder = Wave1DUpdateOrder(x, width);
+            if ((Wave1DUpdateOrder(leftX, width) > xOrder && (*zeroFlags)[leftX] != 0U) ||
+                (Wave1DUpdateOrder(rightX, width) > xOrder && (*zeroFlags)[rightX] != 0U))
+            {
+                (*targetNonlinearityTweaks)[x] = capow::AlpakaPlaneValue(0);
+            }
+        }
     }
 }
 
@@ -269,7 +405,9 @@ Wave1DOptions::Wave1DOptions() :
     dtOverMass(defaultDtOverMass),
     frictionMultiplier(defaultFrictionMultiplier),
     springMultiplier(defaultSpringMultiplier),
-    driverValue(defaultDriverValue)
+    driverValue(defaultDriverValue),
+    nonlinearity1(defaultNonlinearity1),
+    nonlinearity2(defaultNonlinearity2)
 {
 }
 
@@ -322,15 +460,20 @@ void RunWave1DHost(const Wave1DOptions &options, const std::vector<AlpakaPlaneVa
     std::vector<AlpakaPlaneValue> frictionTweaks;
     std::vector<AlpakaPlaneValue> springTweaks;
     std::vector<AlpakaPlaneValue> massTweaks;
+    std::vector<AlpakaPlaneValue> nonlinearityTweaks;
+    std::vector<AlpakaPlaneValue> nextNonlinearityTweaks(CellCount(options), AlpakaPlaneValue(1));
+    std::vector<std::uint8_t> zeroFlags(CellCount(options), 0U);
     MakeWave1DVelocityFromPast(options, current, past, &currentVelocity);
     MakeWave1DTweaks(options, &frictionTweaks, &springTweaks, &massTweaks);
+    MakeWave1DNonlinearityTweaks(options, &nonlinearityTweaks);
     for (int step = 0; step < options.steps; ++step)
     {
         Wave1DStepHost(options, current, past, currentVelocity, frictionTweaks, springTweaks, massTweaks,
-            &nextIntensity, &nextVelocity);
+            nonlinearityTweaks, &nextIntensity, &nextVelocity, &nextNonlinearityTweaks, &zeroFlags);
         std::swap(past, current);
         std::swap(current, nextIntensity);
         std::swap(currentVelocity, nextVelocity);
+        std::swap(nonlinearityTweaks, nextNonlinearityTweaks);
     }
 
     result->intensityField = current;
@@ -367,8 +510,11 @@ void RunWave1DGpuTimed(const Wave1DOptions &options, const std::vector<AlpakaPla
     std::vector<AlpakaPlaneValue> frictionTweaks;
     std::vector<AlpakaPlaneValue> springTweaks;
     std::vector<AlpakaPlaneValue> massTweaks;
+    std::vector<AlpakaPlaneValue> nonlinearityTweaks;
+    std::vector<std::uint8_t> zeroFlags(CellCount(options), 0U);
     MakeWave1DVelocityFromPast(options, initialSource, initialPast, &initialVelocity);
     MakeWave1DTweaks(options, &frictionTweaks, &springTweaks, &massTweaks);
+    MakeWave1DNonlinearityTweaks(options, &nonlinearityTweaks);
 
     DeviceBuffer deviceCurrent = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
     DeviceBuffer devicePast = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
@@ -378,6 +524,9 @@ void RunWave1DGpuTimed(const Wave1DOptions &options, const std::vector<AlpakaPla
     DeviceBuffer deviceFrictionTweaks = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
     DeviceBuffer deviceSpringTweaks = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
     DeviceBuffer deviceMassTweaks = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
+    DeviceBuffer deviceNonlinearityTweaks = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
+    DeviceBuffer deviceNextNonlinearityTweaks = alpaka::allocBuf<AlpakaPlaneValue, Idx>(accDevice, extent);
+    FlagBuffer deviceZeroFlags = alpaka::allocBuf<std::uint8_t, Idx>(accDevice, extent);
     ConstHostView hostSource = alpaka::createView(hostDevice, initialSource.data(), extent);
     ConstHostView hostPast = alpaka::createView(hostDevice, initialPast.data(), extent);
     ConstHostView hostInitialVelocity =
@@ -388,12 +537,18 @@ void RunWave1DGpuTimed(const Wave1DOptions &options, const std::vector<AlpakaPla
         alpaka::createView(hostDevice, static_cast<const AlpakaPlaneValue *>(springTweaks.data()), extent);
     ConstHostView hostMassTweaks =
         alpaka::createView(hostDevice, static_cast<const AlpakaPlaneValue *>(massTweaks.data()), extent);
+    ConstHostView hostNonlinearityTweaks =
+        alpaka::createView(hostDevice, static_cast<const AlpakaPlaneValue *>(nonlinearityTweaks.data()), extent);
+    ConstHostFlagView hostZeroFlags =
+        alpaka::createView(hostDevice, static_cast<const std::uint8_t *>(zeroFlags.data()), extent);
     alpaka::memcpy(queue, deviceCurrent, hostSource, extent);
     alpaka::memcpy(queue, devicePast, hostPast, extent);
     alpaka::memcpy(queue, deviceCurrentVelocity, hostInitialVelocity, extent);
     alpaka::memcpy(queue, deviceFrictionTweaks, hostFrictionTweaks, extent);
     alpaka::memcpy(queue, deviceSpringTweaks, hostSpringTweaks, extent);
     alpaka::memcpy(queue, deviceMassTweaks, hostMassTweaks, extent);
+    alpaka::memcpy(queue, deviceNonlinearityTweaks, hostNonlinearityTweaks, extent);
+    alpaka::memcpy(queue, deviceZeroFlags, hostZeroFlags, extent);
     alpaka::wait(queue);
 
     const Extent threads = Extent{128U};
@@ -401,6 +556,7 @@ void RunWave1DGpuTimed(const Wave1DOptions &options, const std::vector<AlpakaPla
     const Extent elements = Extent::all(1U);
     const WorkDiv workDiv = WorkDiv{blocks, threads, elements};
     const Wave1DKernel kernel = Wave1DKernel{};
+    const StableUlamTweakMaskKernel tweakMaskKernel = StableUlamTweakMaskKernel{};
 
     const double updateMs = MeasureMilliseconds(
         [&]()
@@ -410,14 +566,23 @@ void RunWave1DGpuTimed(const Wave1DOptions &options, const std::vector<AlpakaPla
                 alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, kernel, alpaka::getPtrNative(deviceCurrent),
                     alpaka::getPtrNative(devicePast), alpaka::getPtrNative(deviceCurrentVelocity),
                     alpaka::getPtrNative(deviceFrictionTweaks), alpaka::getPtrNative(deviceSpringTweaks),
-                    alpaka::getPtrNative(deviceMassTweaks), alpaka::getPtrNative(deviceNextIntensity),
-                    alpaka::getPtrNative(deviceNextVelocity), static_cast<Idx>(options.width),
-                    options.waveSpeed2TimeStep2OverDx2, options.dtOver12Dx2, options.dtOverDx2, options.maxIntensity,
-                    options.maxVelocity, options.timeStep, options.dtOverMass, options.frictionMultiplier,
-                    options.springMultiplier, options.driverValue, options.rule);
+                    alpaka::getPtrNative(deviceMassTweaks), alpaka::getPtrNative(deviceNonlinearityTweaks),
+                    alpaka::getPtrNative(deviceNextIntensity), alpaka::getPtrNative(deviceNextVelocity),
+                    alpaka::getPtrNative(deviceNextNonlinearityTweaks), alpaka::getPtrNative(deviceZeroFlags),
+                    static_cast<Idx>(options.width), options.waveSpeed2TimeStep2OverDx2, options.dtOver12Dx2,
+                    options.dtOverDx2, options.maxIntensity, options.maxVelocity, options.timeStep, options.dtOverMass,
+                    options.frictionMultiplier, options.springMultiplier, options.driverValue, options.nonlinearity1,
+                    options.nonlinearity2, options.rule);
+                if (options.rule == capow::WAVE_1D_RULE_AUTO_ULAM)
+                {
+                    alpaka::exec<alpaka::TagGpuCudaRt>(queue, workDiv, tweakMaskKernel,
+                        alpaka::getPtrNative(deviceNextNonlinearityTweaks), alpaka::getPtrNative(deviceZeroFlags),
+                        static_cast<Idx>(options.width));
+                }
                 std::swap(devicePast, deviceCurrent);
                 std::swap(deviceCurrent, deviceNextIntensity);
                 std::swap(deviceCurrentVelocity, deviceNextVelocity);
+                std::swap(deviceNonlinearityTweaks, deviceNextNonlinearityTweaks);
             }
             alpaka::wait(queue);
         });

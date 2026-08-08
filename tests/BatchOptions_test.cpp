@@ -204,6 +204,42 @@ TEST(batchOptions, parseValidDiverseOscillatorWaveBatch)
     EXPECT_STREQ("ALT_CA_DIVERSE_OSCILLATOR_WAVE", capow::BatchRuleName(result.options.rule));
 }
 
+TEST(batchOptions, parseValidUlamBatch)
+{
+    const char *argv[] = {
+        "--batch", "--backend", "gpu", "--rule", "ALT_CA_ULAM_WAVE", "--steps", "40", "--output", "ulam.bmp"};
+
+    const capow::BatchParseResult result = Parse(9, argv);
+
+    EXPECT_TRUE(result.ok);
+    EXPECT_EQ(capow::BATCH_RULE_CA_ULAM_WAVE, result.options.rule);
+    EXPECT_STREQ("CA_ULAM_WAVE", capow::BatchRuleName(result.options.rule));
+}
+
+TEST(batchOptions, parseValidAutoUlamBatch)
+{
+    const char *argv[] = {
+        "--batch", "--backend", "gpu", "--rule", "CA_AUTO_ULAM_WAVE", "--steps", "40", "--output", "auto.bmp"};
+
+    const capow::BatchParseResult result = Parse(9, argv);
+
+    EXPECT_TRUE(result.ok);
+    EXPECT_EQ(capow::BATCH_RULE_CA_AUTO_ULAM_WAVE, result.options.rule);
+    EXPECT_STREQ("CA_AUTO_ULAM_WAVE", capow::BatchRuleName(result.options.rule));
+}
+
+TEST(batchOptions, parseValidCubicUlamBatch)
+{
+    const char *argv[] = {
+        "--batch", "--backend", "gpu", "--rule", "CA_CUBIC_ULAM_WAVE", "--steps", "40", "--output", "cubic.bmp"};
+
+    const capow::BatchParseResult result = Parse(9, argv);
+
+    EXPECT_TRUE(result.ok);
+    EXPECT_EQ(capow::BATCH_RULE_CA_CUBIC_ULAM_WAVE, result.options.rule);
+    EXPECT_STREQ("CA_CUBIC_ULAM_WAVE", capow::BatchRuleName(result.options.rule));
+}
+
 TEST(batchOptions, parseRejectsMissingBackend)
 {
     const char *argv[] = {"--batch", "--rule", "CA_HEAT_2D", "--steps", "100", "--output", "cpu.bmp"};

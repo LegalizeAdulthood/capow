@@ -185,7 +185,9 @@ static bool IsLiveGpuRuleType(int type)
     return type == CA_HEAT_2D || type == CA_WAVE_2D ||
         type == CA_OSCILLATOR || type == CA_DIVERSE_OSCILLATOR ||
         type == ALT_CA_OSCILLATOR_WAVE ||
-        type == ALT_CA_DIVERSE_OSCILLATOR_WAVE;
+        type == ALT_CA_DIVERSE_OSCILLATOR_WAVE || type == CA_ULAM_WAVE ||
+        type == ALT_CA_ULAM_WAVE || type == CA_AUTO_ULAM_WAVE ||
+        type == CA_CUBIC_ULAM_WAVE;
 }
 
 static capow::AlpakaRule AlpakaRuleForCAType(int type)
@@ -202,6 +204,13 @@ static capow::AlpakaRule AlpakaRuleForCAType(int type)
         return capow::ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE;
     case ALT_CA_DIVERSE_OSCILLATOR_WAVE:
         return capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE;
+    case CA_ULAM_WAVE:
+    case ALT_CA_ULAM_WAVE:
+        return capow::ALPAKA_RULE_CA_ULAM_WAVE;
+    case CA_AUTO_ULAM_WAVE:
+        return capow::ALPAKA_RULE_CA_AUTO_ULAM_WAVE;
+    case CA_CUBIC_ULAM_WAVE:
+        return capow::ALPAKA_RULE_CA_CUBIC_ULAM_WAVE;
     default:
         return capow::ALPAKA_RULE_CA_HEAT_2D;
     }

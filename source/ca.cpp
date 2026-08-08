@@ -64,7 +64,8 @@ static bool IsAlpakaHeat2DWrapFlagSupported(int wrapFlag)
 static bool IsAlpakaWave1DType(int type)
 {
     return type == CA_OSCILLATOR || type == CA_DIVERSE_OSCILLATOR || type == ALT_CA_OSCILLATOR_WAVE ||
-        type == ALT_CA_DIVERSE_OSCILLATOR_WAVE;
+        type == ALT_CA_DIVERSE_OSCILLATOR_WAVE || type == CA_ULAM_WAVE || type == ALT_CA_ULAM_WAVE ||
+        type == CA_AUTO_ULAM_WAVE || type == CA_CUBIC_ULAM_WAVE;
 }
 
 static capow::Wave1DRule AlpakaWave1DRuleForType(int type)
@@ -75,6 +76,12 @@ static capow::Wave1DRule AlpakaWave1DRuleForType(int type)
         return capow::WAVE_1D_RULE_OSCILLATOR_WAVE;
     if (type == ALT_CA_DIVERSE_OSCILLATOR_WAVE)
         return capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE;
+    if (type == CA_ULAM_WAVE || type == ALT_CA_ULAM_WAVE)
+        return capow::WAVE_1D_RULE_ULAM;
+    if (type == CA_AUTO_ULAM_WAVE)
+        return capow::WAVE_1D_RULE_AUTO_ULAM;
+    if (type == CA_CUBIC_ULAM_WAVE)
+        return capow::WAVE_1D_RULE_CUBIC_ULAM;
     return capow::WAVE_1D_RULE_OSCILLATOR;
 }
 
@@ -86,6 +93,12 @@ static capow::AlpakaRule AlpakaWave1DAlpakaRuleForType(int type)
         return capow::ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE;
     if (type == ALT_CA_DIVERSE_OSCILLATOR_WAVE)
         return capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE;
+    if (type == CA_ULAM_WAVE || type == ALT_CA_ULAM_WAVE)
+        return capow::ALPAKA_RULE_CA_ULAM_WAVE;
+    if (type == CA_AUTO_ULAM_WAVE)
+        return capow::ALPAKA_RULE_CA_AUTO_ULAM_WAVE;
+    if (type == CA_CUBIC_ULAM_WAVE)
+        return capow::ALPAKA_RULE_CA_CUBIC_ULAM_WAVE;
     return capow::ALPAKA_RULE_CA_OSCILLATOR;
 }
 #endif
@@ -1331,13 +1344,11 @@ void CA::AltDiverseOscillatorWave(int l, int c, int r)
 
 void CA::AltUlamWave(int l, int c, int r)
 { // Quadratic nonlinear wave
-    Real cldiff = wave_source_row[c].intensity - wave_source_row[l].intensity;
-    Real rcdiff = wave_source_row[r].intensity - wave_source_row[c].intensity;
-    wave_target_row[c].intensity = -wave_past_row[c].intensity + 2.0 * wave_source_row[c].intensity +
-        _wavespeed_2_times_dt_2_over_dx_2 *
-            (rcdiff - cldiff + _nonlinearity1.Val() * (rcdiff * rcdiff - cldiff * cldiff));
-    CLAMP(wave_target_row[c].intensity, -_max_intensity.Val(), _max_intensity.Val());
-    wave_target_row[c].velocity = (wave_target_row[c].intensity - wave_source_row[c].intensity) / _dt.Val();
+    const auto result = capow::ComputeUlamWave1D(wave_source_row[l].intensity, wave_source_row[c].intensity,
+        wave_source_row[r].intensity, wave_past_row[c].intensity, _wavespeed_2_times_dt_2_over_dx_2,
+        _nonlinearity1.Val(), _max_intensity.Val(), _dt.Val());
+    wave_target_row[c].intensity = result.nextIntensity;
+    wave_target_row[c].velocity = result.velocity;
 }
 
 #define nonlinearity_tweak _cell_param[0]
@@ -1346,30 +1357,17 @@ void CA::AltUlamWave(int l, int c, int r)
 #define MIN_NONLINEARITY_TWEAK 0.001
 void CA::StableUlamWave(int l, int c, int r)
 {
-    Real cldiff = wave_source_row[c].intensity - wave_source_row[l].intensity;
-    Real rcdiff = wave_source_row[r].intensity - wave_source_row[c].intensity;
-    Real dtutt = _dt_over_dx_2 *
-        (rcdiff - cldiff +
-            wave_source_row[c].nonlinearity_tweak * max_nonlinearity * (rcdiff * rcdiff - cldiff * cldiff));
-    wave_target_row[c].velocity = wave_source_row[c].velocity + dtutt;
-    if (RealClampAndTell(wave_target_row[c].velocity, -_max_velocity.Val(), _max_velocity.Val()))
+    const auto result = capow::ComputeStableUlamWave1D(wave_source_row[l].intensity, wave_source_row[c].intensity,
+        wave_source_row[r].intensity, wave_source_row[c].velocity, wave_source_row[c].nonlinearity_tweak, _dt_over_dx_2,
+        _dt.Val(), max_nonlinearity, _max_intensity.Val(), _max_velocity.Val());
+    wave_target_row[c].velocity = result.velocity;
+    if (result.zeroNeighbors)
         // Go linear, and try and save the neighbor cells as well.
         wave_target_row[c].nonlinearity_tweak = wave_target_row[r].nonlinearity_tweak =
             wave_target_row[l].nonlinearity_tweak = 0;
-    wave_target_row[c].intensity =
-        wave_source_row[c].intensity + _dt.Val() * wave_target_row[c].velocity + _dt_over_2 * dtutt;
-    if (RealClampAndTell(wave_target_row[c].intensity, -_max_intensity.Val(), _max_intensity.Val()))
-    {
-        wave_target_row[c].velocity = 0; // Stop, as you're stuck to wall.
-        wave_target_row[c].nonlinearity_tweak = wave_target_row[r].nonlinearity_tweak =
-            wave_target_row[l].nonlinearity_tweak = 0;
-    }
-    else // If you're not bouncing off the ceiling, increase nonlinearity.
-    {
-        wave_source_row[c].nonlinearity_tweak *= NONLINEARITY_GROW_FACTOR;
-        CLAMP(wave_source_row[c].nonlinearity_tweak, MIN_NONLINEARITY_TWEAK, 1.0);
-        wave_target_row[c].nonlinearity_tweak = wave_source_row[c].nonlinearity_tweak;
-    }
+    wave_target_row[c].intensity = result.nextIntensity;
+    wave_source_row[c].nonlinearity_tweak = result.nextTweak;
+    wave_target_row[c].nonlinearity_tweak = result.nextTweak;
 }
 
 #define OSTROV_CUBE
@@ -1378,14 +1376,11 @@ void CA::StableUlamWave(int l, int c, int r)
 max_intensity pretty low, so that the cubes don't run away.*/
 void CA::CubicUlamWave(int l, int c, int r) // CubicUlamWave(int l, int c, int r)
 {
-    Real cldiff = wave_source_row[c].intensity - wave_source_row[l].intensity;
-    Real rcdiff = wave_source_row[r].intensity - wave_source_row[c].intensity;
-    wave_target_row[c].intensity = -wave_past_row[c].intensity + 2.0 * wave_source_row[c].intensity +
-        _wavespeed_2_times_dt_2_over_dx_2 *
-            ((1.0 + _nonlinearity2.Val() * (rcdiff + cldiff) * (rcdiff + cldiff)) * (rcdiff - cldiff));
-    CLAMP(wave_target_row[c].intensity, -_max_intensity.Val(), _max_intensity.Val());
-    wave_target_row[c].velocity =
-        (wave_target_row[c].intensity - wave_source_row[c].intensity) / _dt.Val(); // Calculate just for graphing.
+    const auto result = capow::ComputeCubicUlamWave1D(wave_source_row[l].intensity, wave_source_row[c].intensity,
+        wave_source_row[r].intensity, wave_past_row[c].intensity, _wavespeed_2_times_dt_2_over_dx_2,
+        _nonlinearity2.Val(), _max_intensity.Val(), _dt.Val());
+    wave_target_row[c].intensity = result.nextIntensity;
+    wave_target_row[c].velocity = result.velocity;
 }
 #else  // not OSTROV_CUBIC
 void CA::CubicUlamWave(int l, int c, int r) // CubicUlamWave(int l, int c, int r)
@@ -1460,9 +1455,10 @@ void CA::CopyAlpakaWave1DToCpu()
     std::vector<capow::AlpakaPlaneValue> intensityValues(static_cast<std::size_t>(horz_count));
     std::vector<capow::AlpakaPlaneValue> velocityValues(static_cast<std::size_t>(horz_count));
     std::vector<capow::AlpakaPlaneValue> pastValues(static_cast<std::size_t>(horz_count));
+    std::vector<capow::AlpakaPlaneValue> nonlinearityValues(static_cast<std::size_t>(horz_count));
     std::string errorText;
-    const bool ok = alpakaWave1DLive->DownloadCurrentAndPast(
-        intensityValues.data(), 1, velocityValues.data(), 1, pastValues.data(), 1, &errorText);
+    const bool ok = alpakaWave1DLive->DownloadCurrentAndPast(intensityValues.data(), 1, velocityValues.data(), 1,
+        pastValues.data(), 1, nonlinearityValues.data(), 1, &errorText);
     if (!ok)
     {
         OutputDebugStringA("1D GPU download failed: ");
@@ -1479,6 +1475,9 @@ void CA::CopyAlpakaWave1DToCpu()
         wave_target_row[x] = wave_source_row[x];
         wave_past_row[x] = wave_source_row[x];
         wave_past_row[x].intensity = pastValues[indexValue];
+        wave_source_row[x]._cell_param[0] = nonlinearityValues[indexValue];
+        wave_target_row[x]._cell_param[0] = nonlinearityValues[indexValue];
+        wave_past_row[x]._cell_param[0] = nonlinearityValues[indexValue];
     }
 }
 
@@ -1551,10 +1550,9 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
     const capow::AlpakaRule rule = AlpakaWave1DAlpakaRuleForType(type_ca);
     const bool liveGpuType = capowgl != nullptr && capowgl->Type() == LIVE_GPU;
     const bool supportedView = viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW;
-    const bool liveGpuCandidate =
-        backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU && backendManager.CanRunGpu(rule) &&
-        liveGpuType && supportedView && wrapflag == WF_WRAP && showmode == BOTH_SHOW &&
-        _chunk.Val() <= MIN_POS_CHUNK && !generatorflag && generatorlist.Count() == 0;
+    const bool liveGpuCandidate = backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU &&
+        backendManager.CanRunGpu(rule) && liveGpuType && supportedView && wrapflag == WF_WRAP &&
+        showmode == BOTH_SHOW && _chunk.Val() <= MIN_POS_CHUNK && !generatorflag && generatorlist.Count() == 0;
     const bool canUseGpu = liveGpuCandidate && _smoothsteps == 0;
     if (!canUseGpu)
     {
@@ -1585,6 +1583,8 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
     options.frictionMultiplier = _friction_multiplier.Val();
     options.springMultiplier = _spring_multiplier.Val();
     options.driverValue = _driver_multiplier.Val() * cos(_phase + frequency_factor * time);
+    options.nonlinearity1 = _nonlinearity1.Val();
+    options.nonlinearity2 = _nonlinearity2.Val();
     options.velocityColorScale = AMPLIFY_VEL_COLOR;
     options.colorCount = MAX_COLOR;
     options.showVelocity = showvelocity != 0;
@@ -1595,12 +1595,14 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
     std::vector<capow::AlpakaPlaneValue> frictionTweaks;
     std::vector<capow::AlpakaPlaneValue> springTweaks;
     std::vector<capow::AlpakaPlaneValue> massTweaks;
+    std::vector<capow::AlpakaPlaneValue> nonlinearityTweaks;
     const capow::AlpakaPlaneValue *sourceData = nullptr;
     const capow::AlpakaPlaneValue *pastData = nullptr;
     const capow::AlpakaPlaneValue *velocityData = nullptr;
     const capow::AlpakaPlaneValue *frictionData = nullptr;
     const capow::AlpakaPlaneValue *springData = nullptr;
     const capow::AlpakaPlaneValue *massData = nullptr;
+    const capow::AlpakaPlaneValue *nonlinearityData = nullptr;
     if (alpakaWave1DLive->NeedsSource(options))
     {
         sourceIntensity.resize(static_cast<std::size_t>(horz_count));
@@ -1609,6 +1611,7 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
         frictionTweaks.resize(static_cast<std::size_t>(horz_count));
         springTweaks.resize(static_cast<std::size_t>(horz_count));
         massTweaks.resize(static_cast<std::size_t>(horz_count));
+        nonlinearityTweaks.resize(static_cast<std::size_t>(horz_count));
         for (int x = 0; x < horz_count; ++x)
         {
             const std::size_t indexValue = static_cast<std::size_t>(x);
@@ -1618,6 +1621,7 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
             frictionTweaks[indexValue] = wave_target_row[x].friction_tweak;
             springTweaks[indexValue] = wave_target_row[x].spring_tweak;
             massTweaks[indexValue] = wave_target_row[x].mass_tweak;
+            nonlinearityTweaks[indexValue] = wave_source_row[x]._cell_param[0];
         }
         sourceData = sourceIntensity.data();
         pastData = pastIntensity.data();
@@ -1625,6 +1629,7 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
         frictionData = frictionTweaks.data();
         springData = springTweaks.data();
         massData = massTweaks.data();
+        nonlinearityData = nonlinearityTweaks.data();
     }
 
     if (!capowgl->MakeCurrent(hdc))
@@ -1636,7 +1641,7 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
 
     std::string errorText;
     const bool ok = alpakaWave1DLive->RunFrame(options, sourceData, 1, pastData, 1, velocityData, 1, frictionData,
-        springData, massData, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
+        springData, massData, nonlinearityData, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
     capowgl->ReleaseCurrent();
     if (!ok)
     {
