@@ -63,6 +63,21 @@ static bool IsAlpakaHeat2DWrapFlagSupported(int wrapFlag)
         wrapFlag == WF_FIXED;
 }
 
+static bool IsAlpakaHeat1DType(int type)
+{
+    return type == CA_HEATWAVE;
+}
+
+static capow::Heat1DRule AlpakaHeat1DRuleForType(int)
+{
+    return capow::HEAT_1D_RULE_THREE_NEIGHBOR;
+}
+
+static capow::AlpakaRule AlpakaHeat1DAlpakaRuleForType(int)
+{
+    return capow::ALPAKA_RULE_CA_HEATWAVE;
+}
+
 static bool IsAlpakaWave1DType(int type)
 {
     return type == CA_OSCILLATOR || type == CA_DIVERSE_OSCILLATOR || type == ALT_CA_OSCILLATOR_WAVE ||
@@ -1011,6 +1026,8 @@ void CA::ReversibleUpdate(HDC hdc)
 void CA::WaveUpdate(HDC hdc)
 {
 #if defined(CAPOW_ENABLE_ALPAKA)
+    if (TryAlpakaHeat1DUpdate(hdc))
+        return;
     if (TryAlpakaWave1DUpdate(hdc))
         return;
 #endif
@@ -1671,6 +1688,14 @@ bool CA::CanUseAlpakaLiveGpu(void)
         return backendManager.CanRunGpu(rule) && supportedView && wrapflag == WF_WRAP && generatorlist.Count() == 0;
     }
 
+    if (IsAlpakaHeat1DType(type_ca))
+    {
+        const capow::AlpakaRule rule = AlpakaHeat1DAlpakaRuleForType(type_ca);
+        const bool supportedView = viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW;
+        return backendManager.CanRunGpu(rule) && supportedView && wrapflag == WF_WRAP && showmode == BOTH_SHOW &&
+            _chunk.Val() <= MIN_POS_CHUNK && _smoothsteps == 0 && !generatorflag && generatorlist.Count() == 0;
+    }
+
     if (IsAlpakaWave1DType(type_ca))
     {
         const capow::AlpakaRule rule = AlpakaWave1DAlpakaRuleForType(type_ca);
@@ -1814,6 +1839,127 @@ bool CA::TryAlpakaDigitalUpdate(HDC hdc)
             alpakaDigital1DLive->Deactivate();
         Avoidstripes();
     }
+    return true;
+}
+
+bool CA::TryAlpakaHeat1DUpdate(HDC hdc)
+{
+    if (!IsAlpakaHeat1DType(type_ca))
+        return false;
+
+    capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
+    const capow::AlpakaRule rule = AlpakaHeat1DAlpakaRuleForType(type_ca);
+    const bool liveGpuType = capowgl != nullptr && capowgl->Type() == LIVE_GPU;
+    const bool supportedView = viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW;
+    const bool liveGpuCandidate = backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU &&
+        backendManager.CanRunGpu(rule) && liveGpuType && supportedView && wrapflag == WF_WRAP &&
+        showmode == BOTH_SHOW && _chunk.Val() <= MIN_POS_CHUNK && !generatorflag && generatorlist.Count() == 0;
+    const bool canUseGpu = liveGpuCandidate && _smoothsteps == 0;
+    if (!canUseGpu)
+    {
+        if (alpakaWave1DLive && alpakaWave1DLive->IsActive())
+            MarkAlpakaHeat2DDirty();
+        if (liveGpuType && !liveGpuCandidate)
+            ForceAlpakaCpuBackend();
+        return false;
+    }
+
+    if (!alpakaWave1DLive)
+        alpakaWave1DLive = std::make_unique<capow::Wave1DLiveState>();
+
+    capow::Wave1DLiveOptions options;
+    options.width = horz_count;
+    options.historyWidth = maxx - minx + 1;
+    options.historyHeight = maxy - miny + 1;
+    options.row = row_number - miny;
+    options.bltLines = calist_ptr->_blt_lines;
+    options.view = viewmode == IDC_DOWN_VIEW ? capow::WAVE_1D_LIVE_VIEW_DOWN : capow::WAVE_1D_LIVE_VIEW_SCROLL;
+    options.family = capow::WAVE_1D_LIVE_RULE_FAMILY_HEAT;
+    options.heatRule = AlpakaHeat1DRuleForType(type_ca);
+    options.dtOverDx2 = _dt_over_dx_2;
+    options.heatIncrement = _heat_inc.Val();
+    options.maxIntensity = _max_intensity.Val();
+    options.maxVelocity = _max_velocity.Val();
+    options.timeStep = _dt.Val();
+    options.velocityColorScale = AMPLIFY_VEL_COLOR;
+    options.colorCount = MAX_COLOR;
+    options.showVelocity = showvelocity != 0;
+
+    std::vector<capow::AlpakaPlaneValue> sourceIntensity;
+    std::vector<capow::AlpakaPlaneValue> pastIntensity;
+    std::vector<capow::AlpakaPlaneValue> sourceVelocity;
+    std::vector<capow::AlpakaPlaneValue> unitTweaks;
+    const capow::AlpakaPlaneValue *sourceData = nullptr;
+    const capow::AlpakaPlaneValue *pastData = nullptr;
+    const capow::AlpakaPlaneValue *velocityData = nullptr;
+    const capow::AlpakaPlaneValue *unitData = nullptr;
+    if (alpakaWave1DLive->NeedsSource(options))
+    {
+        sourceIntensity.resize(static_cast<std::size_t>(horz_count));
+        pastIntensity.resize(static_cast<std::size_t>(horz_count));
+        sourceVelocity.resize(static_cast<std::size_t>(horz_count));
+        unitTweaks.assign(static_cast<std::size_t>(horz_count), capow::AlpakaPlaneValue(1));
+        for (int x = 0; x < horz_count; ++x)
+        {
+            const std::size_t indexValue = static_cast<std::size_t>(x);
+            sourceIntensity[indexValue] = wave_source_row[x].intensity;
+            pastIntensity[indexValue] = wave_past_row[x].intensity;
+            sourceVelocity[indexValue] = wave_source_row[x].velocity;
+        }
+        sourceData = sourceIntensity.data();
+        pastData = pastIntensity.data();
+        velocityData = sourceVelocity.data();
+        unitData = unitTweaks.data();
+    }
+
+    if (!capowgl->MakeCurrent(hdc))
+    {
+        if (alpakaWave1DLive && alpakaWave1DLive->IsActive())
+            MarkAlpakaHeat2DDirty();
+        if (liveGpuType)
+            ForceAlpakaCpuBackend();
+        return false;
+    }
+
+    std::string errorText;
+    const bool ok = alpakaWave1DLive->RunFrame(options, sourceData, 1, pastData, 1, velocityData, 1, unitData, unitData,
+        unitData, unitData, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
+    capowgl->ReleaseCurrent();
+    if (!ok)
+    {
+        OutputDebugStringA("CA_HEATWAVE GPU update failed: ");
+        OutputDebugStringA(errorText.c_str());
+        OutputDebugStringA("\n");
+        MarkAlpakaHeat2DDirty();
+        ForceAlpakaCpuBackend();
+        return false;
+    }
+
+    alpakaWave1DTextureReady = true;
+    if (viewmode == IDC_DOWN_VIEW)
+    {
+        row_number++;
+        if (row_number > maxy)
+            row_number = miny;
+    }
+    else
+    {
+        row_number++;
+        if (row_number > maxy)
+            row_number = maxy - (calist_ptr->_blt_lines) + 1;
+    }
+    if (++wavesourceindex >= 3)
+        wavesourceindex = 0;
+    if (++wavetargetindex >= 3)
+        wavetargetindex = 0;
+    if (++wavepastindex >= 3)
+        wavepastindex = 0;
+    wave_source_row = waverowbuffer[wavesourceindex];
+    wave_target_row = waverowbuffer[wavetargetindex];
+    wave_past_row = waverowbuffer[wavepastindex];
+    time += _dt.Val();
+    if (time > TIMEWRAP)
+        time -= TIMEWRAP;
     return true;
 }
 

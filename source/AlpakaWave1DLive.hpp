@@ -17,6 +17,12 @@ enum Wave1DLiveView
     WAVE_1D_LIVE_VIEW_SCROLL
 };
 
+enum Wave1DLiveRuleFamily
+{
+    WAVE_1D_LIVE_RULE_FAMILY_WAVE,
+    WAVE_1D_LIVE_RULE_FAMILY_HEAT
+};
+
 struct Wave1DLiveOptions
 {
     int width;
@@ -25,9 +31,12 @@ struct Wave1DLiveOptions
     int row;
     int bltLines;
     Wave1DLiveView view;
+    Wave1DLiveRuleFamily family;
     Wave1DRule rule;
+    Heat1DRule heatRule;
     AlpakaPlaneValue waveSpeed2TimeStep2OverDx2;
     AlpakaPlaneValue dtOverDx2;
+    AlpakaPlaneValue heatIncrement;
     AlpakaPlaneValue maxIntensity;
     AlpakaPlaneValue maxVelocity;
     AlpakaPlaneValue timeStep;

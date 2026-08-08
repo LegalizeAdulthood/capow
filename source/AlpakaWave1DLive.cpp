@@ -56,7 +56,8 @@ struct Wave1DLiveKernel
         capow::AlpakaPlaneValue maxIntensity, capow::AlpakaPlaneValue maxVelocity, capow::AlpakaPlaneValue timeStep,
         capow::AlpakaPlaneValue dtOverMass, capow::AlpakaPlaneValue frictionMultiplier,
         capow::AlpakaPlaneValue springMultiplier, capow::AlpakaPlaneValue driverValue,
-        capow::AlpakaPlaneValue nonlinearity1, capow::AlpakaPlaneValue nonlinearity2, capow::Wave1DRule rule) const
+        capow::AlpakaPlaneValue nonlinearity1, capow::AlpakaPlaneValue nonlinearity2, capow::Wave1DRule rule,
+        capow::Wave1DLiveRuleFamily family, capow::Heat1DRule heatRule, capow::AlpakaPlaneValue heatIncrement) const
     {
         const Idx x = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
         if (x >= width)
@@ -67,6 +68,17 @@ struct Wave1DLiveKernel
         capow::Wave1DResult<capow::AlpakaPlaneValue> result = {capow::AlpakaPlaneValue(0), capow::AlpakaPlaneValue(0)};
         targetNonlinearityTweaks[x] = nonlinearityTweaks[x];
         zeroFlags[x] = 0U;
+        if (family == capow::WAVE_1D_LIVE_RULE_FAMILY_HEAT)
+        {
+            const capow::Heat1DResult<capow::AlpakaPlaneValue> heatResult =
+                heatRule == capow::HEAT_1D_RULE_FIVE_NEIGHBOR
+                ? capow::ComputeHeat1D5Cell(source, x, width, heatIncrement, maxIntensity, timeStep)
+                : capow::ComputeHeat1DCell(
+                      source, x, width, dtOverDx2, heatIncrement, maxIntensity, maxVelocity, timeStep);
+            targetIntensity[x] = heatResult.nextIntensity;
+            targetVelocity[x] = heatResult.velocity;
+            return;
+        }
         if (rule == capow::WAVE_1D_RULE_OSCILLATOR)
         {
             result = capow::ComputeOscillator1D<capow::AlpakaPlaneValue>(source[x], sourceVelocity[x], dtOverMass,
@@ -166,12 +178,17 @@ std::uint32_t DivideRoundUp(std::uint32_t value, std::uint32_t divisor)
     return (value + divisor - 1U) / divisor;
 }
 
-bool IsSupportedRule(capow::Wave1DRule rule)
+bool IsSupportedWaveRule(capow::Wave1DRule rule)
 {
     return rule == capow::WAVE_1D_RULE_OSCILLATOR || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR ||
         rule == capow::WAVE_1D_RULE_OSCILLATOR_WAVE || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE ||
         rule == capow::WAVE_1D_RULE_ULAM || rule == capow::WAVE_1D_RULE_AUTO_ULAM ||
         rule == capow::WAVE_1D_RULE_CUBIC_ULAM;
+}
+
+bool IsSupportedHeatRule(capow::Heat1DRule rule)
+{
+    return rule == capow::HEAT_1D_RULE_THREE_NEIGHBOR || rule == capow::HEAT_1D_RULE_FIVE_NEIGHBOR;
 }
 
 void ValidateOptions(const capow::Wave1DLiveOptions &options)
@@ -192,7 +209,11 @@ void ValidateOptions(const capow::Wave1DLiveOptions &options)
     {
         throw std::invalid_argument("live CA_WAVE_1D blt lines must be positive");
     }
-    if (!IsSupportedRule(options.rule))
+    if (options.family == capow::WAVE_1D_LIVE_RULE_FAMILY_HEAT && !IsSupportedHeatRule(options.heatRule))
+    {
+        throw std::invalid_argument("live CA_WAVE_1D heat rule is unsupported");
+    }
+    if (options.family == capow::WAVE_1D_LIVE_RULE_FAMILY_WAVE && !IsSupportedWaveRule(options.rule))
     {
         throw std::invalid_argument("live CA_WAVE_1D rule is unsupported");
     }
@@ -398,9 +419,12 @@ Wave1DLiveOptions::Wave1DLiveOptions() :
     row(0),
     bltLines(1),
     view(WAVE_1D_LIVE_VIEW_SCROLL),
+    family(WAVE_1D_LIVE_RULE_FAMILY_WAVE),
     rule(WAVE_1D_RULE_OSCILLATOR),
+    heatRule(HEAT_1D_RULE_THREE_NEIGHBOR),
     waveSpeed2TimeStep2OverDx2(AlpakaPlaneValue(0)),
     dtOverDx2(AlpakaPlaneValue(0)),
+    heatIncrement(AlpakaPlaneValue(0)),
     maxIntensity(AlpakaPlaneValue(0)),
     maxVelocity(AlpakaPlaneValue(0)),
     timeStep(AlpakaPlaneValue(0)),
@@ -443,7 +467,8 @@ bool Wave1DLiveState::Impl::NeedsSource(const Wave1DLiveOptions &nextOptions) co
 {
     return !active || !initialized || options.width != nextOptions.width ||
         options.historyWidth != nextOptions.historyWidth || options.historyHeight != nextOptions.historyHeight ||
-        options.colorCount != nextOptions.colorCount || options.rule != nextOptions.rule;
+        options.colorCount != nextOptions.colorCount || options.family != nextOptions.family ||
+        options.rule != nextOptions.rule || options.heatRule != nextOptions.heatRule;
 }
 
 unsigned int Wave1DLiveState::Impl::GetTexture() const
@@ -709,7 +734,8 @@ void Wave1DLiveState::Impl::RunStep()
         alpaka::getPtrNative(*deviceNextNonlinearityTweaks), alpaka::getPtrNative(*deviceZeroFlags),
         static_cast<Idx>(options.width), options.waveSpeed2TimeStep2OverDx2, options.dtOverDx2, options.maxIntensity,
         options.maxVelocity, options.timeStep, options.dtOverMass, options.frictionMultiplier, options.springMultiplier,
-        options.driverValue, options.nonlinearity1, options.nonlinearity2, options.rule);
+        options.driverValue, options.nonlinearity1, options.nonlinearity2, options.rule, options.family,
+        options.heatRule, options.heatIncrement);
     if (options.rule == WAVE_1D_RULE_AUTO_ULAM)
     {
         const StableUlamTweakMaskKernel maskKernel = StableUlamTweakMaskKernel{};

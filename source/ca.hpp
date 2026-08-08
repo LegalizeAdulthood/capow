@@ -1466,6 +1466,7 @@ public:
     void MarkAlpakaHeat2DDirty();
     void PaintHeat2DPlaneToBitmap(const Wavecell2 *plane);
     bool TryAlpakaDigitalUpdate(HDC hdc);
+    bool TryAlpakaHeat1DUpdate(HDC hdc);
     bool TryAlpakaWave1DUpdate(HDC hdc);
     bool TryAlpakaHeat2DUpdate(HDC hdc);
     bool CanUseAlpakaLiveGpu(void);
