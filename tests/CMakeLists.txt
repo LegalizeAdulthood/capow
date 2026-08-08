@@ -39,6 +39,35 @@ add_executable(image-compare
 )
 target_folder(image-compare "Tests")
 
+add_executable(user-rule-smoke
+    UserRuleSmoke.cpp
+)
+target_include_directories(user-rule-smoke PRIVATE "${PROJECT_SOURCE_DIR}/source")
+target_link_libraries(user-rule-smoke PRIVATE
+    CapowCore
+    Glu32.lib
+    opengl32.lib
+    ComCtl32.lib
+    Lz32.lib
+    Winmm.lib
+)
+if(CAPOW_ENABLE_ALPAKA)
+    target_link_libraries(user-rule-smoke PRIVATE CapowAlpaka)
+endif()
+target_folder(user-rule-smoke "Tests")
+
+get_property(capowUserRuleTargets GLOBAL PROPERTY CAPOW_USER_RULE_TARGETS)
+foreach(capowUserRuleTarget IN LISTS capowUserRuleTargets)
+    add_test(NAME userRuleSmoke.${capowUserRuleTarget}
+        COMMAND user-rule-smoke
+            "$<SHELL_PATH:$<TARGET_FILE:${capowUserRuleTarget}>>"
+            "${capowUserRuleTarget}"
+    )
+    set_tests_properties(userRuleSmoke.${capowUserRuleTarget} PROPERTIES
+        LABELS "user-rule"
+    )
+endforeach()
+
 if(CAPOW_ENABLE_ALPAKA)
     function(add_capow_batch_image_compare_test name rule steps seed)
         set(wrapArgument "")

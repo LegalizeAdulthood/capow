@@ -118,7 +118,12 @@ add_library(UserRuleCore STATIC
     Tweak.cpp
     Carule.hpp
 )
+if(CAPOW_ENABLE_ALPAKA)
+    target_compile_definitions(UserRuleCore PUBLIC CAPOW_ENABLE_ALPAKA=1)
+endif()
 target_folder(UserRuleCore "Libraries")
+
+set_property(GLOBAL PROPERTY CAPOW_USER_RULE_TARGETS Carule)
 
 add_library(Carule SHARED Carule.cpp)
 target_link_libraries(Carule PRIVATE UserRuleCore)
@@ -129,6 +134,7 @@ function(add_carule_rule target rule output_name)
     target_link_libraries(${target} PRIVATE UserRuleCore)
     set_target_properties(${target} PROPERTIES OUTPUT_NAME "${output_name}")
     target_folder(${target} "User Rules")
+    set_property(GLOBAL APPEND PROPERTY CAPOW_USER_RULE_TARGETS ${target})
 endfunction()
 
 add_carule_rule(CaruleWave CARULE_WAVE "Wave")
