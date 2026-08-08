@@ -173,98 +173,55 @@ CapowGL *capowgl;
 #if defined(CAPOW_ENABLE_ALPAKA)
 static void SyncAlpakaLiveDisplays()
 {
-    if (calife_list == NULL)
+    if (calife_list == nullptr)
         return;
 
     for (int i = 0; i < calife_list->Count(); ++i)
         calife_list->GetCA(i)->MarkAlpakaHeat2DDirty();
 }
 
+static bool CanSelectGpuBackend()
+{
+    if (capowgl == nullptr || calife_list == nullptr || !zoomviewflag)
+        return false;
+
+    CA *focus = calife_list->FocusCA();
+    return focus != nullptr && focus->CanUseAlpakaLiveGpu();
+}
+
 static void UpdateBackendToolbarState()
 {
-    BOOL gpuAvailable = FALSE;
-    BOOL gpuBackend = FALSE;
-#if defined(CAPOW_ENABLE_ALPAKA)
     capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
-    gpuAvailable = backendManager.IsGpuAvailable() ? TRUE : FALSE;
-    gpuBackend = backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU ? TRUE : FALSE;
-#endif
-    if (hwndActionToolbar != NULL)
+    const BOOL gpuAvailable = CanSelectGpuBackend() ? TRUE : FALSE;
+    const BOOL gpuBackend = gpuAvailable && backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU ? TRUE : FALSE;
+    if (hwndActionToolbar != nullptr)
     {
         ToolBar_EnableButton(hwndActionToolbar, IDM_BACKEND_TOGGLE, gpuAvailable);
         ToolBar_CheckButton(hwndActionToolbar, IDM_BACKEND_TOGGLE, gpuBackend);
     }
-    if (hwndDialogToolbar != NULL)
+    if (hwndDialogToolbar != nullptr)
     {
         ToolBar_EnableButton(hwndDialogToolbar, IDM_BACKEND_TOGGLE, gpuAvailable);
         ToolBar_CheckButton(hwndDialogToolbar, IDM_BACKEND_TOGGLE, gpuBackend);
     }
 }
 
-static bool IsLiveGpuRuleType(int type)
-{
-    return type == CA_HEAT_2D || type == CA_WAVE_2D ||
-        type == CA_OSCILLATOR || type == CA_DIVERSE_OSCILLATOR ||
-        type == ALT_CA_OSCILLATOR_WAVE ||
-        type == ALT_CA_DIVERSE_OSCILLATOR_WAVE || type == CA_ULAM_WAVE ||
-        type == ALT_CA_ULAM_WAVE || type == CA_AUTO_ULAM_WAVE ||
-        type == CA_CUBIC_ULAM_WAVE;
-}
-
-static capow::AlpakaRule AlpakaRuleForCAType(int type)
-{
-    switch (type)
-    {
-    case CA_WAVE_2D:
-        return capow::ALPAKA_RULE_CA_WAVE_2D;
-    case CA_OSCILLATOR:
-        return capow::ALPAKA_RULE_CA_OSCILLATOR;
-    case CA_DIVERSE_OSCILLATOR:
-        return capow::ALPAKA_RULE_CA_DIVERSE_OSCILLATOR;
-    case ALT_CA_OSCILLATOR_WAVE:
-        return capow::ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE;
-    case ALT_CA_DIVERSE_OSCILLATOR_WAVE:
-        return capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE;
-    case CA_ULAM_WAVE:
-    case ALT_CA_ULAM_WAVE:
-        return capow::ALPAKA_RULE_CA_ULAM_WAVE;
-    case CA_AUTO_ULAM_WAVE:
-        return capow::ALPAKA_RULE_CA_AUTO_ULAM_WAVE;
-    case CA_CUBIC_ULAM_WAVE:
-        return capow::ALPAKA_RULE_CA_CUBIC_ULAM_WAVE;
-    default:
-        return capow::ALPAKA_RULE_CA_HEAT_2D;
-    }
-}
-
-static bool IsLiveGpuViewSupported(CA *focus)
-{
-    if (focus == nullptr)
-        return false;
-
-    const int type = focus->Gettype();
-    if (type == CA_HEAT_2D || type == CA_WAVE_2D)
-        return focus->Getviewmode() == IDC_2D_VIEW;
-    return focus->Getviewmode() == IDC_DOWN_VIEW ||
-        focus->Getviewmode() == IDC_SCROLL_VIEW;
-}
-
 static bool CanShowLiveGpu()
 {
-    if (capowgl == nullptr || calife_list == nullptr || !zoomviewflag)
-        return false;
-
-    CA *focus = calife_list->FocusCA();
     capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
-    return backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU && focus != nullptr &&
-        IsLiveGpuRuleType(focus->Gettype()) && backendManager.CanRunGpu(AlpakaRuleForCAType(focus->Gettype())) &&
-        IsLiveGpuViewSupported(focus);
+    return backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU && CanSelectGpuBackend();
 }
 
-static void UpdateAlpakaDisplayType()
+void UpdateAlpakaDisplayType(void)
 {
-    if (capowgl == NULL)
+    if (capowgl == nullptr)
         return;
+
+    if (capow::GetAlpakaManager().GetBackend() == capow::ALPAKA_BACKEND_GPU && !CanSelectGpuBackend())
+    {
+        ForceAlpakaCpuBackend();
+        return;
+    }
 
     if (CanShowLiveGpu())
     {
@@ -274,6 +231,7 @@ static void UpdateAlpakaDisplayType()
             capowgl->Type(LIVE_GPU);
             InvalidateRect(masterhwnd, NULL, FALSE);
         }
+        UpdateBackendToolbarState();
         return;
     }
 
@@ -283,6 +241,18 @@ static void UpdateAlpakaDisplayType()
         capowgl->Type(FLATCOLOR);
         InvalidateRect(masterhwnd, NULL, FALSE);
     }
+    UpdateBackendToolbarState();
+}
+
+void ForceAlpakaCpuBackend(void)
+{
+    SyncAlpakaLiveDisplays();
+    capow::GetAlpakaManager().SetBackend(capow::ALPAKA_BACKEND_CPU);
+    if (capowgl != nullptr && capowgl->Type() == LIVE_GPU)
+        capowgl->Type(FLATCOLOR);
+    if (masterhwnd != nullptr)
+        InvalidateRect(masterhwnd, NULL, FALSE);
+    UpdateBackendToolbarState();
 }
 
 #else
@@ -747,7 +717,7 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 
         case IDM_SEED_MENU:
             TrackToolbarButtonMenu(hwnd, hwndActionToolbar, SEEDMENU_BUTTON, hSeedMenu);
-        break;
+            break;
 
         case IDM_BACKEND_TOGGLE:
 #if defined(CAPOW_ENABLE_ALPAKA)
@@ -765,8 +735,15 @@ static void MyWnd_COMMAND(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             }
             else if (backendManager.IsGpuAvailable())
             {
-                backendManager.SetBackend(capow::ALPAKA_BACKEND_GPU);
-                UpdateAlpakaDisplayType();
+                if (CanSelectGpuBackend())
+                {
+                    backendManager.SetBackend(capow::ALPAKA_BACKEND_GPU);
+                    UpdateAlpakaDisplayType();
+                }
+                else
+                {
+                    UpdateBackendToolbarState();
+                }
             }
             else
             {

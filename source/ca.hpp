@@ -34,6 +34,7 @@ force-fed standard in a buggy way. RR 5/19/98.  */
 #if defined(CAPOW_ENABLE_ALPAKA)
 namespace capow
 {
+class Digital1DLiveState;
 class Heat2DLiveState;
 class Wave1DLiveState;
 } // namespace capow
@@ -913,8 +914,10 @@ private:
 #if defined(CAPOW_ENABLE_ALPAKA)
     std::unique_ptr<capow::Wave1DLiveState> alpakaWave1DLive;
     std::unique_ptr<capow::Heat2DLiveState> alpakaHeat2DLive;
+    std::unique_ptr<capow::Digital1DLiveState> alpakaDigital1DLive;
     bool alpakaWave1DTextureReady;
     bool alpakaHeat2DTextureReady;
+    bool alpakaDigital1DTextureReady;
 #endif
     //------------------CA Wave Oscillator private-----------------------------
     Real frequency_factor; /*AUTOSET.  This is
@@ -1457,12 +1460,18 @@ public:
 #if defined(CAPOW_ENABLE_ALPAKA)
     void CopyAlpakaWave1DToCpu();
     void CopyAlpakaHeat2DToCpu();
+    void CopyAlpakaDigital1DToCpu();
+    bool CopyAlpakaDigital1DToTargetRow();
+    void AccumulateAlpakaStandardEntropy();
     void MarkAlpakaHeat2DDirty();
     void PaintHeat2DPlaneToBitmap(const Wavecell2 *plane);
+    bool TryAlpakaStandardUpdate(HDC hdc);
     bool TryAlpakaWave1DUpdate(HDC hdc);
     bool TryAlpakaHeat2DUpdate(HDC hdc);
+    bool CanUseAlpakaLiveGpu(void);
     bool DrawAlpakaWave1DTexture(HDC hdc, int left, int top, int width, int height);
     bool DrawAlpakaHeat2DTexture(HDC hdc, int left, int top, int width, int height);
+    bool DrawAlpakaDigital1DTexture(HDC hdc, int left, int top, int width, int height);
 #endif
     //--------------CA Network update functions ----------------------
     void NetworkUpdate(HDC hdc);

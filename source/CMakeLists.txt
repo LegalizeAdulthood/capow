@@ -60,6 +60,10 @@ if(CAPOW_ENABLE_ALPAKA)
         AlpakaBackend.cpp
         AlpakaBuffers.hpp
         AlpakaBuffers.cpp
+        AlpakaDigital.hpp
+        AlpakaDigital.cpp
+        AlpakaDigitalLive.hpp
+        AlpakaDigitalLive.cpp
         AlpakaHeat1D.hpp
         AlpakaHeat1D.cpp
         AlpakaHeat2D.hpp

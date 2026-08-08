@@ -11,8 +11,10 @@
 #include "ca.hpp"
 #if defined(CAPOW_ENABLE_ALPAKA)
 #include "AlpakaBackend.hpp"
+#include "AlpakaDigitalLive.hpp"
 #include "AlpakaHeat2DLive.hpp"
 #include "AlpakaWave1DLive.hpp"
+#include "Capow.hpp"
 #include "CapowGL.hpp"
 #include <cstdint>
 #include <memory>
@@ -173,6 +175,7 @@ CA::CA(CAlist *mylist) :
 #if defined(CAPOW_ENABLE_ALPAKA)
     alpakaWave1DTextureReady = false;
     alpakaHeat2DTextureReady = false;
+    alpakaDigital1DTextureReady = false;
 #endif
     generatorflag = START_GENERATOR_FLAG;
     /*End of stuff needed before Allocate*/
@@ -663,6 +666,10 @@ void CA::Locate(int itile_number, int dmaxx, int dmaxy, int CA_count_per_edge)
 
 void CA::StandardUpdate(HDC hdc)
 {
+#if defined(CAPOW_ENABLE_ALPAKA)
+    if (TryAlpakaStandardUpdate(hdc))
+        return;
+#endif
     int i, leftindex;
     unsigned short nabe = 0;
 
@@ -1525,16 +1532,255 @@ void CA::CopyAlpakaHeat2DToCpu()
     PaintHeat2DPlaneToBitmap(wave_source_plane);
 }
 
+void CA::CopyAlpakaDigital1DToCpu()
+{
+    if (!alpakaDigital1DLive || !alpakaDigital1DLive->IsActive())
+        return;
+
+    std::vector<capow::AlpakaDigitalValue> stateValues(static_cast<std::size_t>(horz_count));
+    std::string errorText;
+    const bool ok = alpakaDigital1DLive->DownloadCurrent(stateValues.data(), &errorText);
+    if (!ok)
+    {
+        OutputDebugStringA("digital GPU download failed: ");
+        OutputDebugStringA(errorText.c_str());
+        OutputDebugStringA("\n");
+        return;
+    }
+
+    for (int x = 0; x < horz_count; ++x)
+    {
+        const capow::AlpakaDigitalValue value = stateValues[static_cast<std::size_t>(x)];
+        source_row[x] = value;
+        target_row[x] = value;
+        colorindex_target_row[x] = value;
+        COLORREF_target_row[x] = colortable[value];
+    }
+}
+
+bool CA::CopyAlpakaDigital1DToTargetRow()
+{
+    if (!alpakaDigital1DLive || !alpakaDigital1DLive->IsActive())
+        return true;
+
+    std::vector<capow::AlpakaDigitalValue> stateValues(static_cast<std::size_t>(horz_count));
+    std::string errorText;
+    const bool ok = alpakaDigital1DLive->DownloadCurrent(stateValues.data(), &errorText);
+    if (!ok)
+    {
+        OutputDebugStringA("digital GPU download failed: ");
+        OutputDebugStringA(errorText.c_str());
+        OutputDebugStringA("\n");
+        return false;
+    }
+
+    for (int x = 0; x < horz_count; ++x)
+    {
+        const capow::AlpakaDigitalValue value = stateValues[static_cast<std::size_t>(x)];
+        target_row[x] = value;
+        colorindex_target_row[x] = value;
+        COLORREF_target_row[x] = colortable[value];
+    }
+    return true;
+}
+
+void CA::AccumulateAlpakaStandardEntropy()
+{
+    if (!entropyflag)
+        return;
+
+    unsigned short nabe = 0;
+    for (int i = horz_count - radius; i < horz_count; i++)
+    {
+        nabe |= source_row[i];
+        nabe <<= statebits;
+    }
+    for (int i = 0; i < radius; i++)
+    {
+        nabe |= source_row[i];
+        nabe <<= statebits;
+    }
+    nabe |= source_row[radius];
+    cellcount++;
+    freqlookup[nabe]++;
+
+    for (int i = 1; i < horz_count - radius; i++)
+    {
+        nabe <<= statebits;
+        nabe &= mask;
+        nabe |= source_row[i + radius];
+        cellcount++;
+        freqlookup[nabe]++;
+    }
+
+    int leftindex = 0;
+    for (int i = horz_count - radius; i < horz_count; ++i)
+    {
+        nabe <<= statebits;
+        nabe &= mask;
+        nabe |= source_row[leftindex];
+        cellcount++;
+        freqlookup[nabe]++;
+        leftindex++;
+    }
+}
+
 void CA::MarkAlpakaHeat2DDirty()
 {
     CopyAlpakaWave1DToCpu();
     CopyAlpakaHeat2DToCpu();
+    CopyAlpakaDigital1DToCpu();
     if (alpakaWave1DLive)
         alpakaWave1DLive->Deactivate();
     if (alpakaHeat2DLive)
         alpakaHeat2DLive->Deactivate();
+    if (alpakaDigital1DLive)
+        alpakaDigital1DLive->Deactivate();
     alpakaWave1DTextureReady = false;
     alpakaHeat2DTextureReady = false;
+    alpakaDigital1DTextureReady = false;
+}
+
+bool CA::CanUseAlpakaLiveGpu(void)
+{
+    capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
+    if (type_ca == CA_STANDARD)
+    {
+        const bool supportedView = viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW;
+        return backendManager.CanRunGpu(capow::ALPAKA_RULE_CA_STANDARD) && supportedView && wrapflag == WF_WRAP &&
+            generatorlist.Count() == 0;
+    }
+
+    if (IsAlpakaWave1DType(type_ca))
+    {
+        const capow::AlpakaRule rule = AlpakaWave1DAlpakaRuleForType(type_ca);
+        const bool supportedView = viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW;
+        return backendManager.CanRunGpu(rule) && supportedView && wrapflag == WF_WRAP && showmode == BOTH_SHOW &&
+            _chunk.Val() <= MIN_POS_CHUNK && _smoothsteps == 0 && !generatorflag && generatorlist.Count() == 0;
+    }
+
+    const bool isHeat2D = type_ca == CA_HEAT_2D;
+    const bool isWave2D = type_ca == CA_WAVE_2D;
+    if (!isHeat2D && !isWave2D)
+        return false;
+
+    const capow::AlpakaRule rule = isWave2D ? capow::ALPAKA_RULE_CA_WAVE_2D : capow::ALPAKA_RULE_CA_HEAT_2D;
+    const bool supportedWrap = isHeat2D ? IsAlpakaHeat2DWrapFlagSupported(wrapflag) : wrapflag == WF_WRAP;
+    return backendManager.CanRunGpu(rule) && viewmode == IDC_2D_VIEW && supportedWrap && _smoothsteps == 0 &&
+        !generatorflag && generatorlist.Count() == 0;
+}
+
+bool CA::TryAlpakaStandardUpdate(HDC hdc)
+{
+    if (type_ca != CA_STANDARD)
+    {
+        if (alpakaDigital1DLive && alpakaDigital1DLive->IsActive())
+            MarkAlpakaHeat2DDirty();
+        return false;
+    }
+
+    capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
+    const bool liveGpuType = capowgl != nullptr && capowgl->Type() == LIVE_GPU;
+    const bool supportedView = viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW;
+    const bool liveGpuCandidate = backendManager.GetBackend() == capow::ALPAKA_BACKEND_GPU &&
+        backendManager.CanRunGpu(capow::ALPAKA_RULE_CA_STANDARD) && liveGpuType && supportedView &&
+        wrapflag == WF_WRAP && generatorlist.Count() == 0;
+    if (!liveGpuCandidate)
+    {
+        if (alpakaDigital1DLive && alpakaDigital1DLive->IsActive())
+            MarkAlpakaHeat2DDirty();
+        if (liveGpuType)
+            ForceAlpakaCpuBackend();
+        return false;
+    }
+
+    if (!alpakaDigital1DLive)
+        alpakaDigital1DLive = std::make_unique<capow::Digital1DLiveState>();
+
+    capow::Digital1DLiveOptions options;
+    options.width = horz_count;
+    options.historyWidth = maxx - minx + 1;
+    options.historyHeight = maxy - miny + 1;
+    options.row = row_number - miny;
+    options.bltLines = calist_ptr->_blt_lines;
+    options.view = viewmode == IDC_DOWN_VIEW ? capow::DIGITAL_1D_LIVE_VIEW_DOWN : capow::DIGITAL_1D_LIVE_VIEW_SCROLL;
+    options.radius = radius;
+    options.stateBits = statebits;
+    options.lookupCount = nabeoptions;
+    options.colorCount = MAX_COLOR;
+
+    const capow::AlpakaDigitalValue *sourceData = nullptr;
+    const capow::AlpakaDigitalValue *lookupData = nullptr;
+    if (alpakaDigital1DLive->NeedsSource(options))
+    {
+        sourceData = source_row;
+        lookupData = lookup;
+    }
+
+    if (!capowgl->MakeCurrent(hdc))
+    {
+        if (alpakaDigital1DLive && alpakaDigital1DLive->IsActive())
+            MarkAlpakaHeat2DDirty();
+        if (liveGpuType)
+            ForceAlpakaCpuBackend();
+        return false;
+    }
+
+    std::string errorText;
+    const bool ok = alpakaDigital1DLive->RunFrame(
+        options, sourceData, lookupData, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
+    capowgl->ReleaseCurrent();
+    if (!ok)
+    {
+        OutputDebugStringA("CA_STANDARD GPU update failed: ");
+        OutputDebugStringA(errorText.c_str());
+        OutputDebugStringA("\n");
+        MarkAlpakaHeat2DDirty();
+        ForceAlpakaCpuBackend();
+        return false;
+    }
+
+    const bool needsCpuRowState = entropyflag || calist_ptr->stripeseedflag || calist_ptr->stripekillflag ||
+        (calist_ptr->breedflag && fail_stripe);
+    if (needsCpuRowState)
+    {
+        AccumulateAlpakaStandardEntropy();
+        if (!CopyAlpakaDigital1DToTargetRow())
+        {
+            MarkAlpakaHeat2DDirty();
+            ForceAlpakaCpuBackend();
+            return true;
+        }
+    }
+
+    alpakaDigital1DTextureReady = true;
+    if (viewmode == IDC_DOWN_VIEW)
+    {
+        row_number++;
+        if (row_number > maxy)
+            row_number = miny;
+    }
+    else
+    {
+        row_number++;
+        if (row_number > maxy)
+            row_number = maxy - (calist_ptr->_blt_lines) + 1;
+    }
+    if (++sourcerowindex >= MEMORY)
+        sourcerowindex = 0;
+    if (++targetrowindex >= MEMORY)
+        targetrowindex = 0;
+    source_row = rowbuffer[sourcerowindex];
+    target_row = rowbuffer[targetrowindex];
+    if (cellcount > (calist_ptr->breedcycle * horz_count))
+        Entropy();
+    if (sourcerowindex == MEMORY - 1)
+    {
+        if (alpakaDigital1DLive)
+            alpakaDigital1DLive->Deactivate();
+        Avoidstripes();
+    }
+    return true;
 }
 
 bool CA::TryAlpakaWave1DUpdate(HDC hdc)
@@ -1559,7 +1805,7 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
         if (alpakaWave1DLive && alpakaWave1DLive->IsActive())
             MarkAlpakaHeat2DDirty();
         if (liveGpuType && !liveGpuCandidate)
-            capowgl->Type(FLATCOLOR);
+            ForceAlpakaCpuBackend();
         return false;
     }
 
@@ -1636,6 +1882,8 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
     {
         if (alpakaWave1DLive && alpakaWave1DLive->IsActive())
             MarkAlpakaHeat2DDirty();
+        if (liveGpuType)
+            ForceAlpakaCpuBackend();
         return false;
     }
 
@@ -1649,7 +1897,7 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
         OutputDebugStringA(errorText.c_str());
         OutputDebugStringA("\n");
         MarkAlpakaHeat2DDirty();
-        capowgl->Type(FLATCOLOR);
+        ForceAlpakaCpuBackend();
         return false;
     }
 
@@ -1702,7 +1950,7 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
     {
         MarkAlpakaHeat2DDirty();
         if (liveGpuType)
-            capowgl->Type(FLATCOLOR);
+            ForceAlpakaCpuBackend();
         return false;
     }
 
@@ -1751,6 +1999,8 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
     if (!capowgl->MakeCurrent(hdc))
     {
         MarkAlpakaHeat2DDirty();
+        if (liveGpuType)
+            ForceAlpakaCpuBackend();
         return false;
     }
 
@@ -1764,7 +2014,7 @@ bool CA::TryAlpakaHeat2DUpdate(HDC hdc)
         OutputDebugStringA(errorText.c_str());
         OutputDebugStringA("\n");
         MarkAlpakaHeat2DDirty();
-        capowgl->Type(FLATCOLOR);
+        ForceAlpakaCpuBackend();
         return false;
     }
 
@@ -1799,6 +2049,22 @@ bool CA::DrawAlpakaWave1DTexture(HDC hdc, int left, int top, int width, int heig
         return false;
 
     const unsigned int texture = alpakaWave1DLive->GetTexture();
+    if (texture == 0U)
+        return false;
+
+    return capowgl->DrawTexture2D(hdc, texture, left, top, width, height);
+}
+
+bool CA::DrawAlpakaDigital1DTexture(HDC hdc, int left, int top, int width, int height)
+{
+    if (capow::GetAlpakaManager().GetBackend() != capow::ALPAKA_BACKEND_GPU)
+        return false;
+    if (capowgl == nullptr || capowgl->Type() != LIVE_GPU)
+        return false;
+    if (!alpakaDigital1DTextureReady || !alpakaDigital1DLive)
+        return false;
+
+    const unsigned int texture = alpakaDigital1DLive->GetTexture();
     if (texture == 0U)
         return false;
 

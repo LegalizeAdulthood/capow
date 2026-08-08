@@ -71,6 +71,7 @@ AlpakaManager::AlpakaManager() :
     ruleEnabled[ALPAKA_RULE_CA_ULAM_WAVE] = true;
     ruleEnabled[ALPAKA_RULE_CA_AUTO_ULAM_WAVE] = true;
     ruleEnabled[ALPAKA_RULE_CA_CUBIC_ULAM_WAVE] = true;
+    ruleEnabled[ALPAKA_RULE_CA_STANDARD] = true;
 }
 
 bool AlpakaManager::IsGpuAvailable() const
@@ -164,6 +165,8 @@ const char *AlpakaRuleName(AlpakaRule rule)
         return "CA_AUTO_ULAM_WAVE";
     case ALPAKA_RULE_CA_CUBIC_ULAM_WAVE:
         return "CA_CUBIC_ULAM_WAVE";
+    case ALPAKA_RULE_CA_STANDARD:
+        return "CA_STANDARD";
     case ALPAKA_RULE_COUNT:
         break;
     }

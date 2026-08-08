@@ -1,3 +1,4 @@
+#include "Capow.hpp"
 #include "ca.hpp"
 #include "resource.h"
 #include "status.hpp"
@@ -10,110 +11,100 @@ extern HWND hwndStatusBar;
 static void showparams(HWND);
 extern short focusflag;
 
-
 /*----------------------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------------------*/
 //                          Message Cracker
 
 #pragma argsused
-static int MyWnd_INITDIALOG(HWND hDlg,HWND hwndFocus,LPARAM lParam)
+static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
     HINSTANCE hInstance;
 
     hInstance = (HINSTANCE) GetWindowLongPtr(hDlg, GWLP_HINSTANCE);
-    showparams( hDlg );
+    showparams(hDlg);
     return 0;
 }
 
 #pragma argsused
 static void MyWnd_DESTROY(HWND hDlg)
 {
-            hDlgView = 0;
-            InvalidateRect( masterhwnd, NULL, FALSE );
-
+    hDlgView = 0;
+    InvalidateRect(masterhwnd, NULL, FALSE);
 }
-
 
 #pragma argsused
 static void MyWnd_CLOSE(HWND hDlg)
 {
     DestroyWindow(hDlg);
-
 }
 
-
-
 #pragma argsused
-static void MyWnd_COMMAND(HWND hDlg,int id,HWND hwndCtl,UINT codeNotify)
+static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 {
-            switch( id )
-            {
-                case RADIO_ALL:
-                    SendMessage(masterhwnd, WM_COMMAND, IDM_CHANGEALLMENU, 0L);
-                    break;
+    switch (id)
+    {
+    case RADIO_ALL:
+        SendMessage(masterhwnd, WM_COMMAND, IDM_CHANGEALLMENU, 0L);
+        break;
 
-                case RADIO_FOCUS:
-                    SendMessage(masterhwnd, WM_COMMAND, IDM_CHANGEFOCUSMENU, 0L);
-                    break;
+    case RADIO_FOCUS:
+        SendMessage(masterhwnd, WM_COMMAND, IDM_CHANGEFOCUSMENU, 0L);
+        break;
 
-                case SC_UPDATE:
-                    showparams( hDlg );
-                    break;
-                case RADIO_WIRE_VIEW:
-                    SendMessage(masterhwnd, WM_COMMAND, IDM_CLEAR, 0L);
-                case RADIO_DOWN_VIEW:
-                case RADIO_SCROLL_VIEW:
-                case RADIO_GRAPH_VIEW:
-                case RADIO_SPLIT_VIEW:
-                case RADIO_POINT_VIEW:
-                        if( focusflag )
-                        calife_list->FocusCA()->
-                        Setviewmode( (id - RADIO_DOWN_VIEW) +
-                        IDC_DOWN_VIEW ); //The IDC_?_VIEW are in resource.h
-                        //I could have just used the RADIO_?_VIEW for these
-                        //id numbers, and then I could just use Setviewmode(id).
-                        //But I didn't, and now we don't want to change because
-                        //we want old file params to still mean the same thing.
-                    else
-                        calife_list->
-                        Setviewmode( (id - RADIO_DOWN_VIEW) +
-                         IDC_DOWN_VIEW );
-                    calife_list->SyncRows();
-                    showparams( hDlg );
-                    break;
-                case RADIO_SHOW_CHARGE:
-                case RADIO_SHOW_CURRENT: ///Set the CA's showvelocity flag to 0 for charge or 1 for velocity
-                    //Note that "velocity" is the inhibitor field in Reaction Diffusion rules.
-                    calife_list->Setshowvelocity( id -
-                        RADIO_SHOW_CHARGE, focusflag );
-                    showparams( hDlg );
-                    break;
+    case SC_UPDATE:
+        showparams(hDlg);
+        break;
+    case RADIO_WIRE_VIEW:
+        SendMessage(masterhwnd, WM_COMMAND, IDM_CLEAR, 0L);
+    case RADIO_DOWN_VIEW:
+    case RADIO_SCROLL_VIEW:
+    case RADIO_GRAPH_VIEW:
+    case RADIO_SPLIT_VIEW:
+    case RADIO_POINT_VIEW:
+        if (focusflag)
+            calife_list->FocusCA()->Setviewmode(
+                (id - RADIO_DOWN_VIEW) + IDC_DOWN_VIEW); // The IDC_?_VIEW are in resource.h
+        // I could have just used the RADIO_?_VIEW for these
+        // id numbers, and then I could just use Setviewmode(id).
+        // But I didn't, and now we don't want to change because
+        // we want old file params to still mean the same thing.
+        else
+            calife_list->Setviewmode((id - RADIO_DOWN_VIEW) + IDC_DOWN_VIEW);
+        calife_list->SyncRows();
+#if defined(CAPOW_ENABLE_ALPAKA)
+        UpdateAlpakaDisplayType();
+#endif
+        showparams(hDlg);
+        break;
+    case RADIO_SHOW_CHARGE:
+    case RADIO_SHOW_CURRENT: /// Set the CA's showvelocity flag to 0 for charge or 1 for velocity
+        // Note that "velocity" is the inhibitor field in Reaction Diffusion rules.
+        calife_list->Setshowvelocity(id - RADIO_SHOW_CHARGE, focusflag);
+        showparams(hDlg);
+        break;
 
-                case RADIO_BOTH_SHOW:
-                case RADIO_ODD_SHOW:
-                case RADIO_EVEN_SHOW:
-                    if( focusflag )
-                        calife_list->FocusCA()->Setshowmode( id - RADIO_BOTH_SHOW );
-                    else
-                        calife_list->Setshowmode( id - RADIO_BOTH_SHOW );
-                    showparams( hDlg );
-                    break;
-                case RADIO_VIEW_ONE:
-                    calife_list->Changecount(1);
-                    break;
+    case RADIO_BOTH_SHOW:
+    case RADIO_ODD_SHOW:
+    case RADIO_EVEN_SHOW:
+        if (focusflag)
+            calife_list->FocusCA()->Setshowmode(id - RADIO_BOTH_SHOW);
+        else
+            calife_list->Setshowmode(id - RADIO_BOTH_SHOW);
+        showparams(hDlg);
+        break;
+    case RADIO_VIEW_ONE:
+        calife_list->Changecount(1);
+        break;
 
-                case RADIO_VIEW_FOUR:
-                    calife_list->Changecount(4);
-                    break;
+    case RADIO_VIEW_FOUR:
+        calife_list->Changecount(4);
+        break;
 
-                case RADIO_VIEW_NINE:
-                    calife_list->Changecount(9);
-                    break;
+    case RADIO_VIEW_NINE:
+        calife_list->Changecount(9);
+        break;
 
-
-            } // switch wParam
-
-
+    } // switch wParam
 }
 
 static void MyWnd_MOVE(HWND hDlg,int x, int y)

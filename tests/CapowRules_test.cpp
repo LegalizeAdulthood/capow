@@ -120,6 +120,26 @@ TEST(capowRules, wave1dFiveNeighborCellUsesWrapBoundary)
     EXPECT_FLOAT_EQ(12.25F, result.velocity);
 }
 
+TEST(capowRules, standardDigitalNabeUsesWrapBoundary)
+{
+    const std::uint8_t source[] = {1U, 2U, 3U, 0U};
+
+    const std::uint32_t nabe = capow::ComputeStandardDigitalNabeWrap(source, 0U, 4U, 1U, 2U);
+
+    EXPECT_EQ(6U, nabe);
+}
+
+TEST(capowRules, standardDigitalCellUsesLookup)
+{
+    const std::uint8_t source[] = {1U, 2U, 3U, 0U};
+    std::uint8_t lookup[64] = {};
+    lookup[44] = 9U;
+
+    const std::uint8_t value = capow::ComputeStandardDigitalCellWrap(source, lookup, 2U, 4U, 1U, 2U);
+
+    EXPECT_EQ(9U, value);
+}
+
 TEST(capowRules, oscillatorUsesDriver)
 {
     const capow::Wave1DResult<float> result =

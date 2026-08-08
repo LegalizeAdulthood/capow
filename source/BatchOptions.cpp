@@ -150,6 +150,11 @@ bool ParseRule(const char *text, capow::BatchRule *rule)
         *rule = capow::BATCH_RULE_CA_CUBIC_ULAM_WAVE;
         return true;
     }
+    if (EqualIgnoreCase(text, "CA_STANDARD"))
+    {
+        *rule = capow::BATCH_RULE_CA_STANDARD;
+        return true;
+    }
     return false;
 }
 
@@ -537,6 +542,8 @@ const char *BatchRuleName(BatchRule rule)
         return "CA_AUTO_ULAM_WAVE";
     case BATCH_RULE_CA_CUBIC_ULAM_WAVE:
         return "CA_CUBIC_ULAM_WAVE";
+    case BATCH_RULE_CA_STANDARD:
+        return "CA_STANDARD";
     }
     return "unknown";
 }

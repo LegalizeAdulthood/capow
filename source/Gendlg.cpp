@@ -1,16 +1,16 @@
-//GENDLG.CPP manages the generator dialog box
-//  Mike L. 10/97
-//  Ted C.  11/97
+// GENDLG.CPP manages the generator dialog box
+//   Mike L. 10/97
+//   Ted C.  11/97
 
-
+#include "Capow.hpp"
+#include "CapowGL.hpp"
 #include "ca.hpp"
 #include "resource.h"
-#include "CapowGL.hpp"
 #include <winuser.h>
 
 extern HWND hDlgGenerators, masterhwnd;
 extern char *szMyAppName;
-extern void realLabel (HWND, int, Real);
+extern void realLabel(HWND, int, Real);
 
 #pragma hdrstop
 //====================EXTERNAL DATA===============
@@ -21,12 +21,12 @@ extern CapowGL *capowgl;
 
 //====================DEFINE CONSTANTS ===============
 
-#define MAX_STR_SIZE       20
+#define MAX_STR_SIZE 20
 
 //====================GLOBAL DATA===============
 
-static int edit_id;         // Initialization for editing stage in this dialogbox
-static int focusGen;        // zero based index of generator in the generator list box
+static int edit_id;  // Initialization for editing stage in this dialogbox
+static int focusGen; // zero based index of generator in the generator list box
 static int lb_index = -1;
 static char szIndex[10] = " ";
 static BOOL phase_synced = FALSE;
@@ -60,7 +60,7 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
 {
     edit_id = 0;
     focusGen = -1;
-    if(calife_list->FocusCA()->generatorlist.Count() >0)
+    if (calife_list->FocusCA()->generatorlist.Count() > 0)
         focusGen = calife_list->FocusCA()->generatorlist.Count() - 1;
 
     InvalidateRect(hDlg, NULL, FALSE);
@@ -68,157 +68,156 @@ static int MyWnd_INITDIALOG(HWND hDlg, HWND hwndFocus, LPARAM lParam)
     return TRUE;
 }
 
-
-static void  MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
+static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 {
-    char tmpStr[MAX_STR_SIZE-1];
+    char tmpStr[MAX_STR_SIZE - 1];
     Real num;
     int i, nIndex, newcount;
     char buffer[64];
 
-
     switch (id)
     {
-        case IDC_GENERATORS_CLEAR:
-            if (zoomviewflag)
-            {
-                calife_list->FocusCA()->generatorlist.Clear();
-                focusGen = -1;
-                edit_id = 0;
-                showparams(hDlg);
-            }
-            InvalidateRect(hDlg, NULL, FALSE);
-            UpdateWindow(hDlg);
-            break;
-
-        case IDC_GENERATORS_REMOVE_INDEX_I:
-            if (focusGen >= 0)
-            {
-                newcount = calife_list->FocusCA()->generatorlist.Count() - 1;
-
-                if(calife_list->FocusCA()->Getdimension()==1) //1D CA
-                    calife_list->FocusCA()->generatorlist.Delete(focusGen);
-                else if(calife_list->FocusCA()->Getdimension()==2)//2D CA
-                    calife_list->FocusCA()->generatorlist.Deletexy(focusGen);
-                else
-                    break; //you don't belong here
-
-                if (focusGen == newcount || newcount == 0) //if deleted generator was last in list
-                    focusGen--;                            //or if only one in list, decrement focusGen
-                                                    //Otherwise, the focus stays on the current generator
-                edit_id = 0;
-                showparams(hDlg);
-            }
-            break;
-
-        case IDC_GENERATORS_PICK_CUR:
-                SendMessage(masterhwnd, WM_COMMAND, CUR_PICK, 0L);
-            break;
-
-        case IDC_GENERATORS_GEN_CUR:
-            if (zoomviewflag)
-                SendMessage(masterhwnd, WM_COMMAND, CUR_GENERATOR, 0L);
-            else
-            {
-                SendMessage(masterhwnd, WM_LBUTTONDOWN, CUR_PICK, 0L); // zooms view
-                SendMessage(masterhwnd, WM_COMMAND, CUR_GENERATOR, 0L);
-                SendMessage(hDlg, WM_COMMAND, IDC_GENERATORS_GEN_CUR, 0L);
-            }
-            break;
-
-        case IDC_GENERATORS_SHOW_MARKERS:
-            capowgl->ShowGenerators(
-                IsDlgButtonChecked(hDlg, IDC_GENERATORS_SHOW_MARKERS) == BST_CHECKED);
+    case IDC_GENERATORS_CLEAR:
+        if (zoomviewflag)
+        {
+            calife_list->FocusCA()->generatorlist.Clear();
+            focusGen = -1;
+            edit_id = 0;
             showparams(hDlg);
-            RefreshGeneratorMarkerDisplay();
-            break;
+#if defined(CAPOW_ENABLE_ALPAKA)
+            UpdateAlpakaDisplayType();
+#endif
+        }
+        InvalidateRect(hDlg, NULL, FALSE);
+        UpdateWindow(hDlg);
+        break;
 
+    case IDC_GENERATORS_REMOVE_INDEX_I:
+        if (focusGen >= 0)
+        {
+            newcount = calife_list->FocusCA()->generatorlist.Count() - 1;
 
-        case IDC_GENERATORS_LIST1:
-            if(codeNotify==LBN_SELCHANGE)
+            if (calife_list->FocusCA()->Getdimension() == 1) // 1D CA
+                calife_list->FocusCA()->generatorlist.Delete(focusGen);
+            else if (calife_list->FocusCA()->Getdimension() == 2) // 2D CA
+                calife_list->FocusCA()->generatorlist.Deletexy(focusGen);
+            else
+                break; // you don't belong here
+
+            if (focusGen == newcount || newcount == 0) // if deleted generator was last in list
+                focusGen--;                            // or if only one in list, decrement focusGen
+                            // Otherwise, the focus stays on the current generator
+            edit_id = 0;
+            showparams(hDlg);
+#if defined(CAPOW_ENABLE_ALPAKA)
+            UpdateAlpakaDisplayType();
+#endif
+        }
+        break;
+
+    case IDC_GENERATORS_PICK_CUR:
+        SendMessage(masterhwnd, WM_COMMAND, CUR_PICK, 0L);
+        break;
+
+    case IDC_GENERATORS_GEN_CUR:
+        if (zoomviewflag)
+            SendMessage(masterhwnd, WM_COMMAND, CUR_GENERATOR, 0L);
+        else
+        {
+            SendMessage(masterhwnd, WM_LBUTTONDOWN, CUR_PICK, 0L); // zooms view
+            SendMessage(masterhwnd, WM_COMMAND, CUR_GENERATOR, 0L);
+            SendMessage(hDlg, WM_COMMAND, IDC_GENERATORS_GEN_CUR, 0L);
+        }
+        break;
+
+    case IDC_GENERATORS_SHOW_MARKERS:
+        capowgl->ShowGenerators(IsDlgButtonChecked(hDlg, IDC_GENERATORS_SHOW_MARKERS) == BST_CHECKED);
+        showparams(hDlg);
+        RefreshGeneratorMarkerDisplay();
+        break;
+
+    case IDC_GENERATORS_LIST1:
+        if (codeNotify == LBN_SELCHANGE)
+        {
+            focusGen = SendMessage(hwndCtl, LB_GETCURSEL, 0, 0L);
+            if (focusGen != LB_ERR)
             {
-                focusGen = SendMessage(hwndCtl, LB_GETCURSEL,0,0L);
-                if(focusGen != LB_ERR)
-                {
-                    edit_id = 0; // need this to counter recursive calls to OMEGA and AMP edit boxes
-                    showparams(hDlg);
-                }
+                edit_id = 0; // need this to counter recursive calls to OMEGA and AMP edit boxes
+                showparams(hDlg);
             }
+        }
+        break;
+
+    case IDC_GENERATORS_OMEGA:
+        /*Here we enter the edit-box editing mode.  You can leave this
+        mode either by clicking outside the edit box, which discards
+        the changes, or by pressing ENTER which generates an IDOK and
+        saves the changes.*/
+        edit_id = id; // Enter the edit-box editing mode.
+        break;
+
+    case IDC_GENERATORS_AMP:
+        /*Here we enter the edit-box editing mode.  You can leave this
+        mode either by clicking outside the edit box, which discards
+        the changes, or by pressing ENTER which generates an IDOK and
+        saves the changes.*/
+        edit_id = id; // Enter the edit-box editing mode.
+        break;
+
+    case IDC_GENERATORS_PHASE:
+        if (calife_list->FocusCA()->generatorlist.Count() > 0)
+            calife_list->FocusCA()->generatorlist.Reset();
+        break;
+
+    case SETCURSEL: // called externally when a generator is added
+        focusGen = calife_list->FocusCA()->generatorlist.Count() - 1;
+        edit_id = 0;
+        showparams(hDlg);
+        break;
+
+    case WM_VSCROLL:
+
+        switch (LOWORD(codeNotify))
+        {
+        case SB_LINEUP:
+            edit_id = 0;
             break;
 
-        case IDC_GENERATORS_OMEGA:
-                /*Here we enter the edit-box editing mode.  You can leave this
-                mode either by clicking outside the edit box, which discards
-                the changes, or by pressing ENTER which generates an IDOK and
-                saves the changes.*/
-                edit_id = id; //Enter the edit-box editing mode.
-                break;
+        case SB_LINEDOWN:
+            edit_id = 0;
+        }
+        break;
 
-        case IDC_GENERATORS_AMP:
-                /*Here we enter the edit-box editing mode.  You can leave this
-                mode either by clicking outside the edit box, which discards
-                the changes, or by pressing ENTER which generates an IDOK and
-                saves the changes.*/
-                edit_id = id; //Enter the edit-box editing mode.
-                break;
-
-      case IDC_GENERATORS_PHASE:
-               if(calife_list->FocusCA()->generatorlist.Count() >0)
-                  calife_list->FocusCA()->generatorlist.Reset();
-            break;
-
-        case SETCURSEL:  //called externally when a generator is added
-            focusGen = calife_list->FocusCA()->generatorlist.Count() - 1;
+    case IDOK:
+        switch (edit_id)
+        {
+        case IDC_GENERATORS_LIST1:
             edit_id = 0;
             showparams(hDlg);
             break;
 
-        case WM_VSCROLL:
-
-            switch(LOWORD(codeNotify))
-            {
-                case SB_LINEUP:
-                    edit_id = 0;
-                    break;
-
-                case SB_LINEDOWN:
-                    edit_id = 0;
-            }
+        case IDC_GENERATORS_OMEGA:
+            GetWindowTextA(GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
+            num = atof(tmpStr);
+            calife_list->FocusCA()->generatorlist.SetOmega(focusGen, num);
+            edit_id = 0;
+            showparams(hDlg);
             break;
 
-        case IDOK:
-            switch (edit_id)
-            {
-                case IDC_GENERATORS_LIST1:
-                    edit_id = 0;
-                    showparams(hDlg);
-                    break;
-
-                case IDC_GENERATORS_OMEGA:
-                    GetWindowTextA (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
-                    num = atof(tmpStr);
-                    calife_list->FocusCA()->generatorlist.SetOmega(focusGen, num);
-                    edit_id = 0;
-                    showparams(hDlg);
-                    break;
-
-                case IDC_GENERATORS_AMP:
-                    GetWindowTextA (GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
-                    num = atof(tmpStr);
-                    calife_list->FocusCA()->generatorlist.SetAmplitude(focusGen, num);
-                    edit_id = 0;
-                    showparams(hDlg);
-                    break;
-            }
+        case IDC_GENERATORS_AMP:
+            GetWindowTextA(GetDlgItem(hDlg, edit_id), tmpStr, MAX_STR_SIZE);
+            num = atof(tmpStr);
+            calife_list->FocusCA()->generatorlist.SetAmplitude(focusGen, num);
+            edit_id = 0;
+            showparams(hDlg);
             break;
-        case IDCANCEL:
-        case IDIGNORE:
-            EndDialog(hDlg, 0);
+        }
+        break;
+    case IDCANCEL:
+    case IDIGNORE:
+        EndDialog(hDlg, 0);
     }
 }
-
-
-
 
 static BOOL MyWnd_PAINT(HWND hDlg)
 {

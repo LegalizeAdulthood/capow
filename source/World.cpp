@@ -1,4 +1,5 @@
 #include "ca.hpp"
+#include "Capow.hpp"
 #include "resource.h"
 #include "Userpara.hpp"
 
@@ -232,68 +233,73 @@ static void MyWnd_COMMAND(HWND hDlg, int id, HWND hwndCtl, UINT codeNotify)
 
         case IDC_LOAD_USER_RULE:
             if (!calife_list->LoadUserRule(masterhwnd, focusflag))
-                    break;
+                break;
 
             recreateUserDialog();
             if (focusflag)
-                calife_list->SetCAType(calife_list->FocusCA(), CA_USER,TRUE);
+                calife_list->SetCAType(calife_list->FocusCA(), CA_USER, TRUE);
             else // Second argument says adjust for the rule to be stable.
                 calife_list->SetAllType(CA_USER, TRUE);
+#if defined(CAPOW_ENABLE_ALPAKA)
+            UpdateAlpakaDisplayType();
+#endif
             if (hDlgOpenGL)
                 InvalidateRect(hDlgOpenGL, NULL, TRUE);
             break;
         case IDC_CATYPE_WORLD:
-/* This code keeps you from getting a change type command when you
-open up the list box */
-            if (SendMessage( hwndCtl, CB_GETDROPPEDSTATE, 0, 0L)
-                && world_drop == 0)
+            /* This code keeps you from getting a change type command when you
+            open up the list box */
+            if (SendMessage(hwndCtl, CB_GETDROPPEDSTATE, 0, 0L) && world_drop == 0)
             {
                 world_drop = 1;
                 break;
             }
-            if (SendMessage( hwndCtl, CB_GETDROPPEDSTATE, 0, 0L)
-                || world_drop == 0)
-            break;
-/* Hopefully we only hit this, and hit it ONCE, when we select something
-from the combo box */
-        world_drop = 0; //You just closed the combo box.
+            if (SendMessage(hwndCtl, CB_GETDROPPEDSTATE, 0, 0L) || world_drop == 0)
+                break;
+            /* Hopefully we only hit this, and hit it ONCE, when we select something
+            from the combo box */
+            world_drop = 0; // You just closed the combo box.
             /* convert to ca.hpp's definition on standard .. wave */
-        comboint = boxindex_to_type[(int)SendMessage( hwndCtl, CB_GETCURSEL, 0, 0L)];
-/* For some reason this line was getting hit three times when I select a
-    new type CA_USER*/
-        if (comboint == CA_USER)
-        {   // Care must be taken because user can't change focus or all
-// ******************** // If LoadUserRule, it will handle it after user selected the
-                        // file name
-            if (!calife_list->LoadUserRule(masterhwnd, focusflag))
+            comboint = boxindex_to_type[(int) SendMessage(hwndCtl, CB_GETCURSEL, 0, 0L)];
+            /* For some reason this line was getting hit three times when I select a
+                new type CA_USER*/
+            if (comboint == CA_USER)
+            {   // Care must be taken because user can't change focus or all
+                // ******************** // If LoadUserRule, it will handle it after user selected the
+                // file name
+                if (!calife_list->LoadUserRule(masterhwnd, focusflag))
                     break;
-// ********************
-            recreateUserDialog();
-            if (focusflag)
-                calife_list->SetCAType(calife_list->FocusCA(), comboint,TRUE);
-            else // Second argument says adjust for the rule to be stable.
-                calife_list->SetAllType(comboint, TRUE);
-        }
-        else
-        {
-            if (focusflag)
-            {   removeUserParam(calife_list->FocusCA(), FALSE);
+                // ********************
                 recreateUserDialog();
-                calife_list->SetCAType(calife_list->FocusCA(), comboint, TRUE);
+                if (focusflag)
+                    calife_list->SetCAType(calife_list->FocusCA(), comboint, TRUE);
+                else // Second argument says adjust for the rule to be stable.
+                    calife_list->SetAllType(comboint, TRUE);
             }
             else
             {
-                for(int i = 0; i < calife_list->Count(); i++)
-                    removeUserParam(calife_list->GetCA(i), FALSE);
-                recreateUserDialog();
-                calife_list->SetAllType(comboint, TRUE);
+                if (focusflag)
+                {
+                    removeUserParam(calife_list->FocusCA(), FALSE);
+                    recreateUserDialog();
+                    calife_list->SetCAType(calife_list->FocusCA(), comboint, TRUE);
+                }
+                else
+                {
+                    for (int i = 0; i < calife_list->Count(); i++)
+                        removeUserParam(calife_list->GetCA(i), FALSE);
+                    recreateUserDialog();
+                    calife_list->SetAllType(comboint, TRUE);
+                }
             }
-        }
 
-        update_flag = 1;
-        /* Redraws lookup dialog menu */
-        SendMessage(hDlg, WM_COMMAND, SC_UPDATE, 0L);
-        break;
+            update_flag = 1;
+#if defined(CAPOW_ENABLE_ALPAKA)
+            UpdateAlpakaDisplayType();
+#endif
+            /* Redraws lookup dialog menu */
+            SendMessage(hDlg, WM_COMMAND, SC_UPDATE, 0L);
+            break;
 
         case IDC_AUTOSMOOTH:
             if (focusflag)
@@ -301,20 +307,19 @@ from the combo box */
                     calife_list->FocusCA()->Set_smoothflag(FALSE);
                 else
                     calife_list->FocusCA()->Set_smoothflag(TRUE);
+            else if (calife_list->FocusCA()->Get_smoothflag())
+                calife_list->Set_smoothflag(FALSE);
             else
-                if (calife_list->FocusCA()->Get_smoothflag())
-                    calife_list->Set_smoothflag(FALSE);
-                else
-                    calife_list->Set_smoothflag(TRUE);
-                    // Autosmooth check box
+                calife_list->Set_smoothflag(TRUE);
+            // Autosmooth check box
             showparams(hDlg);
             break;
 
-        case IDC_ZERO: //WF_ZERO
-        case IDC_FIXED: //WF_FIXED
-        case IDC_WRAP: //WF_WRAP
-        case IDC_FREE: //WF_FREE
-        case IDC_ABSORB: //WF_ABSORB
+        case IDC_ZERO:   // WF_ZERO
+        case IDC_FIXED:  // WF_FIXED
+        case IDC_WRAP:   // WF_WRAP
+        case IDC_FREE:   // WF_FREE
+        case IDC_ABSORB: // WF_ABSORB
             if (focusflag)
             {
                 calife_list->FocusCA()->Setwrapflag(WF_ZERO + id - IDC_ZERO);
@@ -326,6 +331,9 @@ from the combo box */
                 calife_list->ResetAllGenerationCount();
             }
             showparams(hDlg);
+#if defined(CAPOW_ENABLE_ALPAKA)
+            UpdateAlpakaDisplayType();
+#endif
             break;
 
         case IDC_GENERATOR:
@@ -344,12 +352,13 @@ from the combo box */
                 else
                     calife_list->Setgeneratorflag(1);
                 calife_list->ResetAllGenerationCount();
-            }   // Generator check box
+            } // Generator check box
             showparams(hDlg);
+#if defined(CAPOW_ENABLE_ALPAKA)
+            UpdateAlpakaDisplayType();
+#endif
             break;
-
-    }
-
+        }
 }
 
 

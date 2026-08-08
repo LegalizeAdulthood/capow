@@ -240,6 +240,18 @@ TEST(batchOptions, parseValidCubicUlamBatch)
     EXPECT_STREQ("CA_CUBIC_ULAM_WAVE", capow::BatchRuleName(result.options.rule));
 }
 
+TEST(batchOptions, parseValidStandardBatch)
+{
+    const char *argv[] = {
+        "--batch", "--backend", "gpu", "--rule", "CA_STANDARD", "--steps", "40", "--output", "standard.bmp"};
+
+    const capow::BatchParseResult result = Parse(9, argv);
+
+    EXPECT_TRUE(result.ok);
+    EXPECT_EQ(capow::BATCH_RULE_CA_STANDARD, result.options.rule);
+    EXPECT_STREQ("CA_STANDARD", capow::BatchRuleName(result.options.rule));
+}
+
 TEST(batchOptions, parseRejectsMissingBackend)
 {
     const char *argv[] = {"--batch", "--rule", "CA_HEAT_2D", "--steps", "100", "--output", "cpu.bmp"};

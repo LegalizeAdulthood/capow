@@ -15,6 +15,7 @@ if(CAPOW_ENABLE_ALPAKA)
     target_sources(test-CapowCore PRIVATE
         AlpakaBackend_test.cpp
         AlpakaBuffers_test.cpp
+        AlpakaDigital_test.cpp
         AlpakaHeat1D_test.cpp
         AlpakaHeat2D_test.cpp
         AlpakaTiming_test.cpp
@@ -85,4 +86,5 @@ if(CAPOW_ENABLE_ALPAKA)
     add_capow_batch_image_compare_test(caUlamWrap CA_ULAM_WAVE 40 1946 wrap 1)
     add_capow_batch_image_compare_test(caAutoUlamWrap CA_AUTO_ULAM_WAVE 40 1946 wrap 1)
     add_capow_batch_image_compare_test(caCubicUlamWrap CA_CUBIC_ULAM_WAVE 40 1946 wrap 1)
+    add_capow_batch_image_compare_test(caStandardWrap CA_STANDARD 40 1946 wrap)
 endif()

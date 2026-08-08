@@ -2,6 +2,7 @@
 
 #if defined(CAPOW_ENABLE_ALPAKA)
 #include "AlpakaBackend.hpp"
+#include "AlpakaDigital.hpp"
 #include "AlpakaHeat1D.hpp"
 #include "AlpakaHeat2D.hpp"
 #include "AlpakaSyntheticHeat.hpp"
@@ -56,6 +57,8 @@ int CaTypeForRule(capow::BatchRule rule)
         return CA_AUTO_ULAM_WAVE;
     case capow::BATCH_RULE_CA_CUBIC_ULAM_WAVE:
         return CA_CUBIC_ULAM_WAVE;
+    case capow::BATCH_RULE_CA_STANDARD:
+        return CA_STANDARD;
     }
     return CA_HEAT_2D;
 }
@@ -111,6 +114,8 @@ capow::AlpakaRule AlpakaRuleForBatchRule(capow::BatchRule rule)
         return capow::ALPAKA_RULE_CA_AUTO_ULAM_WAVE;
     case capow::BATCH_RULE_CA_CUBIC_ULAM_WAVE:
         return capow::ALPAKA_RULE_CA_CUBIC_ULAM_WAVE;
+    case capow::BATCH_RULE_CA_STANDARD:
+        return capow::ALPAKA_RULE_CA_STANDARD;
     }
     return capow::ALPAKA_RULE_CA_HEAT_2D;
 }
@@ -218,6 +223,11 @@ bool IsWave1DBatchRule(capow::BatchRule rule)
         rule == capow::BATCH_RULE_ALT_CA_OSCILLATOR_WAVE || rule == capow::BATCH_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE ||
         rule == capow::BATCH_RULE_CA_ULAM_WAVE || rule == capow::BATCH_RULE_CA_AUTO_ULAM_WAVE ||
         rule == capow::BATCH_RULE_CA_CUBIC_ULAM_WAVE;
+}
+
+bool IsStandardDigitalBatchRule(capow::BatchRule rule)
+{
+    return rule == capow::BATCH_RULE_CA_STANDARD;
 }
 
 void LogBatchError(const std::string &error)
@@ -549,6 +559,60 @@ int RunHeat1DBatchMode(const capow::BatchOptions &options, CA *focus)
 
     return 0;
 }
+
+int RunStandardDigitalBatchMode(const capow::BatchOptions &options, CA *focus)
+{
+    if (options.wrapMode != capow::BATCH_WRAP_WRAP)
+    {
+        OutputDebugStringA("CA_STANDARD batch currently supports wrap mode only\n");
+        return 3;
+    }
+
+    capow::StandardDigitalOptions digitalOptions;
+    digitalOptions.width = focus->HorzCount();
+    digitalOptions.steps = options.steps;
+    digitalOptions.stateCount = 16;
+    digitalOptions.radius = 1;
+    digitalOptions.stateBits = 4;
+    digitalOptions.lookupCount = 4096;
+
+    try
+    {
+        std::vector<capow::AlpakaDigitalValue> source;
+        std::vector<capow::AlpakaDigitalValue> lookup;
+        std::vector<capow::AlpakaDigitalValue> result;
+        std::vector<capow::AlpakaPlaneValue> normalized;
+        capow::MakeStandardDigitalInitial(digitalOptions, &source);
+        capow::MakeStandardDigitalLookup(digitalOptions, &lookup);
+        if (options.backend == capow::BATCH_BACKEND_CPU)
+        {
+            capow::RunStandardDigitalHost(digitalOptions, source, lookup, &result);
+        }
+        else
+        {
+            capow::RunStandardDigitalGpu(digitalOptions, source, lookup, &result);
+        }
+
+        capow::NormalizeStandardDigitalRow(digitalOptions, result, &normalized);
+        std::string error;
+        const bool ok = capow::WriteBmpFromIntensityPlane(
+            normalized.data(), digitalOptions.width, 1, options.output.c_str(), &error);
+        if (!ok)
+        {
+            LogBatchError(error);
+            return 6;
+        }
+    }
+    catch (const std::exception &exception)
+    {
+        OutputDebugStringA("CA_STANDARD batch failed: ");
+        OutputDebugStringA(exception.what());
+        OutputDebugStringA("\n");
+        return 7;
+    }
+
+    return 0;
+}
 #endif
 
 } // namespace
@@ -621,6 +685,15 @@ int RunBatchMode(const BatchOptions &options)
         return RunHeat1DBatchMode(options, focus);
 #else
         OutputDebugStringA("1D heat batch rule requires Alpaka build\n");
+        return 3;
+#endif
+    }
+    if (IsStandardDigitalBatchRule(options.rule))
+    {
+#if defined(CAPOW_ENABLE_ALPAKA)
+        return RunStandardDigitalBatchMode(options, focus);
+#else
+        OutputDebugStringA("CA_STANDARD batch rule requires Alpaka build\n");
         return 3;
 #endif
     }

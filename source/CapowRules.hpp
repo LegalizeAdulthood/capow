@@ -313,6 +313,25 @@ ALPAKA_FN_HOST_ACC inline std::uint32_t Heat2DWrapNext(std::uint32_t value, std:
     return value + 1U == extent ? 0U : value + 1U;
 }
 
+ALPAKA_FN_HOST_ACC inline std::uint32_t ComputeStandardDigitalNabeWrap(
+    const std::uint8_t *source, std::uint32_t x, std::uint32_t width, std::uint32_t radius, std::uint32_t stateBits)
+{
+    std::uint32_t nabe = 0U;
+    const std::uint32_t nabeSize = 1U + 2U * radius;
+    for (std::uint32_t offset = 0U; offset < nabeSize; ++offset)
+    {
+        const std::uint32_t sourceX = (x + width + offset - radius) % width;
+        nabe = (nabe << stateBits) | source[sourceX];
+    }
+    return nabe;
+}
+
+ALPAKA_FN_HOST_ACC inline std::uint8_t ComputeStandardDigitalCellWrap(const std::uint8_t *source,
+    const std::uint8_t *lookup, std::uint32_t x, std::uint32_t width, std::uint32_t radius, std::uint32_t stateBits)
+{
+    return lookup[ComputeStandardDigitalNabeWrap(source, x, width, radius, stateBits)];
+}
+
 template <typename T>
 ALPAKA_FN_HOST_ACC Heat1DResult<T> ComputeHeat1DCell(const T *source, std::uint32_t x, std::uint32_t width, T dtOverDx2,
     T heatIncrement, T maxIntensity, T maxVelocity, T timeStep)

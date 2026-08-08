@@ -40,15 +40,16 @@
     */
 
 // Preprocessor Directives
-#include <math.h>
-#include "ca.hpp"
+#include "Capow.hpp"
 #include "Random.h" // random.h will be needed later for Rain effect
-                          // so I'll just add it now.
+#include "ca.hpp"
+#include <math.h>
+// so I'll just add it now.
 #include "CapowGL.hpp"
 
 // Defines and module globals
 
-extern CapowGL* capowgl;
+extern CapowGL *capowgl;
 // Functions
 void CA::Touch_CA(int cx, int cy, int sender)
 {
@@ -257,32 +258,40 @@ void CAlist::Touch_CA(int x, int y, int sender)
     }
 } // Closes CAlist::Touch_CA
 
-
-void CAlist::LocateNewGenerator(int x, int y, int sender)   //mike 4/97  ,basically a copy of Touch_CA
+void CAlist::LocateNewGenerator(int x, int y, int sender) // mike 4/97  ,basically a copy of Touch_CA
 {
+#if defined(CAPOW_ENABLE_ALPAKA)
+    int oldGeneratorCount = 0;
+    for (int i = 0; i < count; ++i)
+        oldGeneratorCount += list[i]->generatorlist.Count();
+#endif
     if (zoomflag)
     {
-        if (focus->dimension==1)
+        if (focus->dimension == 1)
             focus->generatorlist.Add(x);
-        else //2 dimensions
-        if (capowgl->Type()==0)
-            focus->generatorlist.Add((int)(CX_2D*x/focus->horz_count),(int)(CY_2D*(y-focus->miny)/focus->vert_count));
-
-
+        else // 2 dimensions
+            if (capowgl->Type() == 0)
+                focus->generatorlist.Add(
+                    (int) (CX_2D * x / focus->horz_count), (int) (CY_2D * (y - focus->miny) / focus->vert_count));
     }
     else
     {
-        //Mike 2/98 generator cursor now handles non-zoom case
-        //For 2D cases, it's hard to spot the generator locations
+        // Mike 2/98 generator cursor now handles non-zoom case
+        // For 2D cases, it's hard to spot the generator locations
         for (short i = 0; i < count; i++)
-            if (list[i]->minx - BORDER <= x && x <= list[i]->maxx + BORDER &&
-                list[i]->miny - BORDER  <= y && y <= list[i]->maxy + BORDER)
-                    if (list[i]->dimension ==1)
-                        list[i]->generatorlist.Add(x-list[i]->minx);
-                    else
-                        list[i]->generatorlist.Add( (int)(CX_2D*(x-list[i]->minx)/(list[i]->maxx-list[i]->minx)),
-                                                    (int)(CY_2D*(y-list[i]->miny)/(list[i]->maxy-list[i]->miny)) );
+            if (list[i]->minx - BORDER <= x && x <= list[i]->maxx + BORDER && list[i]->miny - BORDER <= y &&
+                y <= list[i]->maxy + BORDER)
+                if (list[i]->dimension == 1)
+                    list[i]->generatorlist.Add(x - list[i]->minx);
+                else
+                    list[i]->generatorlist.Add((int) (CX_2D * (x - list[i]->minx) / (list[i]->maxx - list[i]->minx)),
+                        (int) (CY_2D * (y - list[i]->miny) / (list[i]->maxy - list[i]->miny)));
     }
+#if defined(CAPOW_ENABLE_ALPAKA)
+    int newGeneratorCount = 0;
+    for (int i = 0; i < count; ++i)
+        newGeneratorCount += list[i]->generatorlist.Count();
+    if (newGeneratorCount != oldGeneratorCount)
+        UpdateAlpakaDisplayType();
+#endif
 }
-
-
