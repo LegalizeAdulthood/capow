@@ -243,6 +243,18 @@ void ValidatePlane(const capow::AlpakaPlaneValue *plane, int stride)
     }
 }
 
+void ValidateHistoryPixels(const std::uint32_t *historyPixels, std::size_t count, std::size_t expectedCount)
+{
+    if (historyPixels == nullptr)
+    {
+        throw std::invalid_argument("live CA_WAVE_1D history pointer must not be null");
+    }
+    if (count != expectedCount)
+    {
+        throw std::invalid_argument("live CA_WAVE_1D history size does not match display");
+    }
+}
+
 bool SetCudaError(cudaError_t result, const char *action, std::string *error)
 {
     if (result == cudaSuccess)
@@ -356,17 +368,19 @@ public:
     bool DownloadCurrentAndPast(AlpakaPlaneValue *targetIntensity, int intensityStride,
         AlpakaPlaneValue *targetVelocity, int velocityStride, AlpakaPlaneValue *pastIntensity, int pastStride,
         AlpakaPlaneValue *nonlinearityTweaks, int nonlinearityStride, std::string *error);
+    bool DownloadHistory(std::uint32_t *historyPixels, std::size_t count, std::string *error);
     bool RunFrame(const Wave1DLiveOptions &nextOptions, const AlpakaPlaneValue *sourceIntensity, int intensityStride,
         const AlpakaPlaneValue *pastIntensity, int pastStride, const AlpakaPlaneValue *sourceVelocity,
         int velocityStride, const AlpakaPlaneValue *frictionTweaks, const AlpakaPlaneValue *springTweaks,
         const AlpakaPlaneValue *massTweaks, const AlpakaPlaneValue *nonlinearityTweaks, const std::uint32_t *colorTable,
-        std::string *error);
+        const std::uint32_t *historyPixels, std::string *error);
 
 private:
     void Resize(const Wave1DLiveOptions &nextOptions);
     void ReleaseTexture();
     void EnsureTexture();
     void ClearPixels();
+    void UploadHistory(const std::uint32_t *historyPixels);
     void UploadSource(const AlpakaPlaneValue *sourceIntensity, int intensityStride,
         const AlpakaPlaneValue *pastIntensity, int pastStride, const AlpakaPlaneValue *sourceVelocity,
         int velocityStride);
@@ -393,6 +407,7 @@ private:
     std::vector<AlpakaPlaneValue> hostSpringTweaks;
     std::vector<AlpakaPlaneValue> hostMassTweaks;
     std::vector<AlpakaPlaneValue> hostNonlinearityTweaks;
+    std::vector<std::uint32_t> hostPixels;
     std::vector<std::uint32_t> hostColors;
     std::optional<PlaneBuffer> deviceCurrent;
     std::optional<PlaneBuffer> devicePast;
@@ -519,11 +534,41 @@ bool Wave1DLiveState::Impl::DownloadCurrentAndPast(AlpakaPlaneValue *targetInten
     }
 }
 
+bool Wave1DLiveState::Impl::DownloadHistory(std::uint32_t *historyPixels, std::size_t count, std::string *error)
+{
+    try
+    {
+        ValidateHistoryPixels(historyPixels, count, pixelCount);
+        if (!active || !devicePixels)
+        {
+            return true;
+        }
+
+        const Extent pixelExtent = Extent{static_cast<Idx>(pixelCount)};
+        HostColorView hostView = alpaka::createView(hostDevice, hostPixels.data(), pixelExtent);
+        alpaka::memcpy(queue, hostView, *devicePixels, pixelExtent);
+        alpaka::wait(queue);
+        for (std::size_t index = 0; index < pixelCount; ++index)
+        {
+            historyPixels[index] = hostPixels[index];
+        }
+        return true;
+    }
+    catch (const std::exception &exception)
+    {
+        if (error != nullptr)
+        {
+            *error = exception.what();
+        }
+        return false;
+    }
+}
+
 bool Wave1DLiveState::Impl::RunFrame(const Wave1DLiveOptions &nextOptions, const AlpakaPlaneValue *sourceIntensity,
     int intensityStride, const AlpakaPlaneValue *pastIntensity, int pastStride, const AlpakaPlaneValue *sourceVelocity,
     int velocityStride, const AlpakaPlaneValue *frictionTweaks, const AlpakaPlaneValue *springTweaks,
     const AlpakaPlaneValue *massTweaks, const AlpakaPlaneValue *nonlinearityTweaks, const std::uint32_t *colorTable,
-    std::string *error)
+    const std::uint32_t *historyPixels, std::string *error)
 {
     try
     {
@@ -546,6 +591,7 @@ bool Wave1DLiveState::Impl::RunFrame(const Wave1DLiveOptions &nextOptions, const
             ValidatePlane(nonlinearityTweaks, 1);
             UploadSource(sourceIntensity, intensityStride, pastIntensity, pastStride, sourceVelocity, velocityStride);
             UploadTweaks(frictionTweaks, springTweaks, massTweaks, nonlinearityTweaks);
+            UploadHistory(historyPixels);
         }
         UploadColors(colorTable);
         RunStep();
@@ -607,6 +653,7 @@ void Wave1DLiveState::Impl::Resize(const Wave1DLiveOptions &nextOptions)
     hostSpringTweaks.assign(cellCount, AlpakaPlaneValue(1));
     hostMassTweaks.assign(cellCount, AlpakaPlaneValue(1));
     hostNonlinearityTweaks.assign(cellCount, AlpakaPlaneValue(1));
+    hostPixels.assign(pixelCount, 0U);
     hostColors.assign(static_cast<std::size_t>(options.colorCount), 0U);
     initialized = true;
     active = false;
@@ -673,6 +720,26 @@ void Wave1DLiveState::Impl::ClearPixels()
     ClearWave1DPixels<<<blocks, threads>>>(alpaka::getPtrNative(*devicePixels), count);
     ClearWave1DPixels<<<blocks, threads>>>(alpaka::getPtrNative(*deviceNextPixels), count);
     cudaDeviceSynchronize();
+}
+
+void Wave1DLiveState::Impl::UploadHistory(const std::uint32_t *historyPixels)
+{
+    if (historyPixels == nullptr)
+    {
+        ClearPixels();
+        return;
+    }
+
+    for (std::size_t index = 0; index < pixelCount; ++index)
+    {
+        hostPixels[index] = historyPixels[index];
+    }
+
+    const Extent pixelExtent = Extent{static_cast<Idx>(pixelCount)};
+    HostColorView hostView = alpaka::createView(hostDevice, hostPixels.data(), pixelExtent);
+    alpaka::memcpy(queue, *devicePixels, hostView, pixelExtent);
+    alpaka::memcpy(queue, *deviceNextPixels, hostView, pixelExtent);
+    alpaka::wait(queue);
 }
 
 void Wave1DLiveState::Impl::UploadSource(const AlpakaPlaneValue *sourceIntensity, int intensityStride,
@@ -857,14 +924,19 @@ bool Wave1DLiveState::DownloadCurrentAndPast(AlpakaPlaneValue *targetIntensity, 
         pastStride, nonlinearityTweaks, nonlinearityStride, error);
 }
 
+bool Wave1DLiveState::DownloadHistory(std::uint32_t *historyPixels, std::size_t count, std::string *error)
+{
+    return impl->DownloadHistory(historyPixels, count, error);
+}
+
 bool Wave1DLiveState::RunFrame(const Wave1DLiveOptions &options, const AlpakaPlaneValue *sourceIntensity,
     int intensityStride, const AlpakaPlaneValue *pastIntensity, int pastStride, const AlpakaPlaneValue *sourceVelocity,
     int velocityStride, const AlpakaPlaneValue *frictionTweaks, const AlpakaPlaneValue *springTweaks,
     const AlpakaPlaneValue *massTweaks, const AlpakaPlaneValue *nonlinearityTweaks, const std::uint32_t *colorTable,
-    std::string *error)
+    const std::uint32_t *historyPixels, std::string *error)
 {
     return impl->RunFrame(options, sourceIntensity, intensityStride, pastIntensity, pastStride, sourceVelocity,
-        velocityStride, frictionTweaks, springTweaks, massTweaks, nonlinearityTweaks, colorTable, error);
+        velocityStride, frictionTweaks, springTweaks, massTweaks, nonlinearityTweaks, colorTable, historyPixels, error);
 }
 
 } // namespace capow

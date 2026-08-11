@@ -125,6 +125,18 @@ void ValidateColorTable(const std::uint32_t *colorTable)
     }
 }
 
+void ValidateHistoryPixels(const std::uint32_t *historyPixels, std::size_t count, std::size_t expectedCount)
+{
+    if (historyPixels == nullptr)
+    {
+        throw std::invalid_argument("live CA_STANDARD history pointer must not be null");
+    }
+    if (count != expectedCount)
+    {
+        throw std::invalid_argument("live CA_STANDARD history size does not match display");
+    }
+}
+
 bool SetCudaError(cudaError_t result, const char *action, std::string *error)
 {
     if (result == cudaSuccess)
@@ -230,15 +242,17 @@ public:
     void Deactivate();
     bool DownloadCurrent(AlpakaDigitalValue *targetRow, std::string *error);
     bool DownloadPast(AlpakaDigitalValue *pastRow, std::string *error);
+    bool DownloadHistory(std::uint32_t *historyPixels, std::size_t count, std::string *error);
     bool RunFrame(const Digital1DLiveOptions &nextOptions, const AlpakaDigitalValue *sourceRow,
         const AlpakaDigitalValue *pastRow, const AlpakaDigitalValue *lookup, const std::uint32_t *colorTable,
-        std::string *error);
+        const std::uint32_t *historyPixels, std::string *error);
 
 private:
     void Resize(const Digital1DLiveOptions &nextOptions);
     void ReleaseTexture();
     void EnsureTexture();
     void ClearPixels();
+    void UploadHistory(const std::uint32_t *historyPixels);
     void UploadSource(const AlpakaDigitalValue *sourceRow);
     void UploadPast(const AlpakaDigitalValue *pastRow);
     void UploadLookup(const AlpakaDigitalValue *lookup);
@@ -260,6 +274,7 @@ private:
     std::vector<AlpakaDigitalValue> hostCurrent;
     std::vector<AlpakaDigitalValue> hostPast;
     std::vector<AlpakaDigitalValue> hostLookup;
+    std::vector<std::uint32_t> hostPixels;
     std::vector<std::uint32_t> hostColors;
     std::optional<DigitalBuffer> deviceCurrent;
     std::optional<DigitalBuffer> devicePast;
@@ -386,9 +401,39 @@ bool Digital1DLiveState::Impl::DownloadPast(AlpakaDigitalValue *pastRow, std::st
     }
 }
 
+bool Digital1DLiveState::Impl::DownloadHistory(std::uint32_t *historyPixels, std::size_t count, std::string *error)
+{
+    try
+    {
+        ValidateHistoryPixels(historyPixels, count, pixelCount);
+        if (!active || !devicePixels)
+        {
+            return true;
+        }
+
+        const Extent pixelExtent = Extent{static_cast<Idx>(pixelCount)};
+        HostColorView hostView = alpaka::createView(hostDevice, hostPixels.data(), pixelExtent);
+        alpaka::memcpy(queue, hostView, *devicePixels, pixelExtent);
+        alpaka::wait(queue);
+        for (std::size_t index = 0; index < pixelCount; ++index)
+        {
+            historyPixels[index] = hostPixels[index];
+        }
+        return true;
+    }
+    catch (const std::exception &exception)
+    {
+        if (error != nullptr)
+        {
+            *error = exception.what();
+        }
+        return false;
+    }
+}
+
 bool Digital1DLiveState::Impl::RunFrame(const Digital1DLiveOptions &nextOptions, const AlpakaDigitalValue *sourceRow,
     const AlpakaDigitalValue *pastRow, const AlpakaDigitalValue *lookup, const std::uint32_t *colorTable,
-    std::string *error)
+    const std::uint32_t *historyPixels, std::string *error)
 {
     try
     {
@@ -409,6 +454,7 @@ bool Digital1DLiveState::Impl::RunFrame(const Digital1DLiveOptions &nextOptions,
                 UploadPast(pastRow);
             }
             UploadLookup(lookup);
+            UploadHistory(historyPixels);
         }
         UploadColors(colorTable);
         RunStep();
@@ -468,6 +514,7 @@ void Digital1DLiveState::Impl::Resize(const Digital1DLiveOptions &nextOptions)
     hostCurrent.assign(cellCount, AlpakaDigitalValue(0));
     hostPast.assign(cellCount, AlpakaDigitalValue(0));
     hostLookup.assign(lookupCellCount, AlpakaDigitalValue(0));
+    hostPixels.assign(pixelCount, 0U);
     hostColors.assign(static_cast<std::size_t>(options.colorCount), 0U);
     initialized = true;
     active = false;
@@ -534,6 +581,26 @@ void Digital1DLiveState::Impl::ClearPixels()
     ClearDigital1DPixels<<<blocks, threads>>>(alpaka::getPtrNative(*devicePixels), count);
     ClearDigital1DPixels<<<blocks, threads>>>(alpaka::getPtrNative(*deviceNextPixels), count);
     cudaDeviceSynchronize();
+}
+
+void Digital1DLiveState::Impl::UploadHistory(const std::uint32_t *historyPixels)
+{
+    if (historyPixels == nullptr)
+    {
+        ClearPixels();
+        return;
+    }
+
+    for (std::size_t index = 0; index < pixelCount; ++index)
+    {
+        hostPixels[index] = historyPixels[index];
+    }
+
+    const Extent pixelExtent = Extent{static_cast<Idx>(pixelCount)};
+    HostColorView hostView = alpaka::createView(hostDevice, hostPixels.data(), pixelExtent);
+    alpaka::memcpy(queue, *devicePixels, hostView, pixelExtent);
+    alpaka::memcpy(queue, *deviceNextPixels, hostView, pixelExtent);
+    alpaka::wait(queue);
 }
 
 void Digital1DLiveState::Impl::UploadSource(const AlpakaDigitalValue *sourceRow)
@@ -704,11 +771,16 @@ bool Digital1DLiveState::DownloadPast(AlpakaDigitalValue *pastRow, std::string *
     return impl->DownloadPast(pastRow, error);
 }
 
+bool Digital1DLiveState::DownloadHistory(std::uint32_t *historyPixels, std::size_t count, std::string *error)
+{
+    return impl->DownloadHistory(historyPixels, count, error);
+}
+
 bool Digital1DLiveState::RunFrame(const Digital1DLiveOptions &options, const AlpakaDigitalValue *sourceRow,
     const AlpakaDigitalValue *pastRow, const AlpakaDigitalValue *lookup, const std::uint32_t *colorTable,
-    std::string *error)
+    const std::uint32_t *historyPixels, std::string *error)
 {
-    return impl->RunFrame(options, sourceRow, pastRow, lookup, colorTable, error);
+    return impl->RunFrame(options, sourceRow, pastRow, lookup, colorTable, historyPixels, error);
 }
 
 } // namespace capow

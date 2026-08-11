@@ -65,16 +65,20 @@ static bool IsAlpakaHeat2DWrapFlagSupported(int wrapFlag)
 
 static bool IsAlpakaHeat1DType(int type)
 {
-    return type == CA_HEATWAVE;
+    return type == CA_HEATWAVE || type == CA_HEATWAVE2;
 }
 
-static capow::Heat1DRule AlpakaHeat1DRuleForType(int)
+static capow::Heat1DRule AlpakaHeat1DRuleForType(int type)
 {
+    if (type == CA_HEATWAVE2)
+        return capow::HEAT_1D_RULE_FIVE_NEIGHBOR;
     return capow::HEAT_1D_RULE_THREE_NEIGHBOR;
 }
 
-static capow::AlpakaRule AlpakaHeat1DAlpakaRuleForType(int)
+static capow::AlpakaRule AlpakaHeat1DAlpakaRuleForType(int type)
 {
+    if (type == CA_HEATWAVE2)
+        return capow::ALPAKA_RULE_CA_HEATWAVE2;
     return capow::ALPAKA_RULE_CA_HEATWAVE;
 }
 
@@ -117,6 +121,31 @@ static capow::AlpakaRule AlpakaWave1DAlpakaRuleForType(int type)
     if (type == CA_CUBIC_ULAM_WAVE)
         return capow::ALPAKA_RULE_CA_CUBIC_ULAM_WAVE;
     return capow::ALPAKA_RULE_CA_OSCILLATOR;
+}
+
+static std::uint32_t AlpakaHistoryPixelFromImagePixel(capow::ImageBuffer::Pixel pixel)
+{
+    return ((pixel >> 16U) & 0xFFU) | (pixel & 0x0000FF00U) | ((pixel & 0x000000FFU) << 16U);
+}
+
+static capow::ImageBuffer::Pixel ImagePixelFromAlpakaHistoryPixel(std::uint32_t pixel)
+{
+    return 0xFF000000U | ((pixel & 0x000000FFU) << 16U) | (pixel & 0x0000FF00U) | ((pixel >> 16U) & 0xFFU);
+}
+
+static void CopyAlpakaHistoryPixels(
+    const capow::ImageBuffer &image, int width, int height, std::vector<std::uint32_t> *historyPixels)
+{
+    historyPixels->clear();
+    if (image.Width() != width || image.Height() != height || image.Data() == nullptr)
+        return;
+
+    const std::size_t count = static_cast<std::size_t>(width) * static_cast<std::size_t>(height);
+    historyPixels->resize(count);
+    for (std::size_t index = 0; index < count; ++index)
+    {
+        (*historyPixels)[index] = AlpakaHistoryPixelFromImagePixel(image.Data()[index]);
+    }
 }
 #endif
 
@@ -1067,6 +1096,11 @@ void CA::WaveUpdate(HDC hdc)
 
 void CA::WaveUpdate_5(HDC hdc)
 {
+#if defined(CAPOW_ENABLE_ALPAKA)
+    if (TryAlpakaHeat1DUpdate(hdc))
+        return;
+#endif
+
     for (short i = 2; i < horz_count - 2; i++)
         (this->*UpdateCell_5)(i - 2, i - 1, i, i + 1, i + 2);
     // Do the same thing at the ends if wrapflag, else set to 0.0.
@@ -1507,6 +1541,19 @@ void CA::CopyAlpakaWave1DToCpu()
         wave_target_row[x]._cell_param[0] = nonlinearityValues[indexValue];
         wave_past_row[x]._cell_param[0] = nonlinearityValues[indexValue];
     }
+
+    std::vector<std::uint32_t> historyPixels(
+        static_cast<std::size_t>(maxx - minx + 1) * static_cast<std::size_t>(maxy - miny + 1));
+    errorText.clear();
+    const bool historyOk = alpakaWave1DLive->DownloadHistory(historyPixels.data(), historyPixels.size(), &errorText);
+    if (!historyOk)
+    {
+        OutputDebugStringA("1D GPU history download failed: ");
+        OutputDebugStringA(errorText.c_str());
+        OutputDebugStringA("\n");
+        return;
+    }
+    CopyAlpaka1DHistoryToCpu(historyPixels.data(), historyPixels.size());
 }
 
 void CA::CopyAlpakaHeat2DToCpu()
@@ -1588,6 +1635,38 @@ void CA::CopyAlpakaDigital1DToCpu()
             OutputDebugStringA(errorText.c_str());
             OutputDebugStringA("\n");
         }
+    }
+
+    std::vector<std::uint32_t> historyPixels(
+        static_cast<std::size_t>(maxx - minx + 1) * static_cast<std::size_t>(maxy - miny + 1));
+    errorText.clear();
+    const bool historyOk = alpakaDigital1DLive->DownloadHistory(historyPixels.data(), historyPixels.size(), &errorText);
+    if (!historyOk)
+    {
+        OutputDebugStringA("digital GPU history download failed: ");
+        OutputDebugStringA(errorText.c_str());
+        OutputDebugStringA("\n");
+        return;
+    }
+    CopyAlpaka1DHistoryToCpu(historyPixels.data(), historyPixels.size());
+}
+
+void CA::CopyAlpaka1DHistoryToCpu(const std::uint32_t *historyPixels, std::size_t count)
+{
+    const int imageWidth = maxx - minx + 1;
+    const int imageHeight = maxy - miny + 1;
+    const std::size_t expectedCount = static_cast<std::size_t>(imageWidth) * static_cast<std::size_t>(imageHeight);
+    if (historyPixels == nullptr || count != expectedCount)
+        return;
+
+    EnsureHistoryImage();
+    capow::ImageBuffer::Pixel *pixels = historyImage.Data();
+    if (pixels == nullptr)
+        return;
+
+    for (std::size_t index = 0; index < expectedCount; ++index)
+    {
+        pixels[index] = ImagePixelFromAlpakaHistoryPixel(historyPixels[index]);
     }
 }
 
@@ -1762,11 +1841,16 @@ bool CA::TryAlpakaDigitalUpdate(HDC hdc)
     const capow::AlpakaDigitalValue *sourceData = nullptr;
     const capow::AlpakaDigitalValue *pastData = nullptr;
     const capow::AlpakaDigitalValue *lookupData = nullptr;
+    std::vector<std::uint32_t> historyPixels;
+    const std::uint32_t *historyData = nullptr;
     if (alpakaDigital1DLive->NeedsSource(options))
     {
         sourceData = source_row;
         pastData = reversible ? past_row : nullptr;
         lookupData = lookup;
+        CopyAlpakaHistoryPixels(historyImage, options.historyWidth, options.historyHeight, &historyPixels);
+        if (!historyPixels.empty())
+            historyData = historyPixels.data();
     }
 
     if (!capowgl->MakeCurrent(hdc))
@@ -1779,8 +1863,8 @@ bool CA::TryAlpakaDigitalUpdate(HDC hdc)
     }
 
     std::string errorText;
-    const bool ok = alpakaDigital1DLive->RunFrame(
-        options, sourceData, pastData, lookupData, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
+    const bool ok = alpakaDigital1DLive->RunFrame(options, sourceData, pastData, lookupData,
+        reinterpret_cast<const std::uint32_t *>(colortable), historyData, &errorText);
     capowgl->ReleaseCurrent();
     if (!ok)
     {
@@ -1893,6 +1977,8 @@ bool CA::TryAlpakaHeat1DUpdate(HDC hdc)
     const capow::AlpakaPlaneValue *pastData = nullptr;
     const capow::AlpakaPlaneValue *velocityData = nullptr;
     const capow::AlpakaPlaneValue *unitData = nullptr;
+    std::vector<std::uint32_t> historyPixels;
+    const std::uint32_t *historyData = nullptr;
     if (alpakaWave1DLive->NeedsSource(options))
     {
         sourceIntensity.resize(static_cast<std::size_t>(horz_count));
@@ -1910,6 +1996,9 @@ bool CA::TryAlpakaHeat1DUpdate(HDC hdc)
         pastData = pastIntensity.data();
         velocityData = sourceVelocity.data();
         unitData = unitTweaks.data();
+        CopyAlpakaHistoryPixels(historyImage, options.historyWidth, options.historyHeight, &historyPixels);
+        if (!historyPixels.empty())
+            historyData = historyPixels.data();
     }
 
     if (!capowgl->MakeCurrent(hdc))
@@ -1923,11 +2012,12 @@ bool CA::TryAlpakaHeat1DUpdate(HDC hdc)
 
     std::string errorText;
     const bool ok = alpakaWave1DLive->RunFrame(options, sourceData, 1, pastData, 1, velocityData, 1, unitData, unitData,
-        unitData, unitData, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
+        unitData, unitData, reinterpret_cast<const std::uint32_t *>(colortable), historyData, &errorText);
     capowgl->ReleaseCurrent();
     if (!ok)
     {
-        OutputDebugStringA("CA_HEATWAVE GPU update failed: ");
+        OutputDebugStringA(
+            type_ca == CA_HEATWAVE2 ? "CA_HEATWAVE2 GPU update failed: " : "CA_HEATWAVE GPU update failed: ");
         OutputDebugStringA(errorText.c_str());
         OutputDebugStringA("\n");
         MarkAlpakaHeat2DDirty();
@@ -2029,6 +2119,8 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
     const capow::AlpakaPlaneValue *springData = nullptr;
     const capow::AlpakaPlaneValue *massData = nullptr;
     const capow::AlpakaPlaneValue *nonlinearityData = nullptr;
+    std::vector<std::uint32_t> historyPixels;
+    const std::uint32_t *historyData = nullptr;
     if (alpakaWave1DLive->NeedsSource(options))
     {
         sourceIntensity.resize(static_cast<std::size_t>(horz_count));
@@ -2056,6 +2148,9 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
         springData = springTweaks.data();
         massData = massTweaks.data();
         nonlinearityData = nonlinearityTweaks.data();
+        CopyAlpakaHistoryPixels(historyImage, options.historyWidth, options.historyHeight, &historyPixels);
+        if (!historyPixels.empty())
+            historyData = historyPixels.data();
     }
 
     if (!capowgl->MakeCurrent(hdc))
@@ -2068,8 +2163,9 @@ bool CA::TryAlpakaWave1DUpdate(HDC hdc)
     }
 
     std::string errorText;
-    const bool ok = alpakaWave1DLive->RunFrame(options, sourceData, 1, pastData, 1, velocityData, 1, frictionData,
-        springData, massData, nonlinearityData, reinterpret_cast<const std::uint32_t *>(colortable), &errorText);
+    const bool ok =
+        alpakaWave1DLive->RunFrame(options, sourceData, 1, pastData, 1, velocityData, 1, frictionData, springData,
+            massData, nonlinearityData, reinterpret_cast<const std::uint32_t *>(colortable), historyData, &errorText);
     capowgl->ReleaseCurrent();
     if (!ok)
     {

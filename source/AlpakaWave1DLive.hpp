@@ -4,6 +4,7 @@
 #include "AlpakaBuffers.hpp"
 #include "CapowRules.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -69,11 +70,12 @@ public:
     bool DownloadCurrentAndPast(AlpakaPlaneValue *targetIntensity, int intensityStride,
         AlpakaPlaneValue *targetVelocity, int velocityStride, AlpakaPlaneValue *pastIntensity, int pastStride,
         AlpakaPlaneValue *nonlinearityTweaks, int nonlinearityStride, std::string *error);
+    bool DownloadHistory(std::uint32_t *historyPixels, std::size_t count, std::string *error);
     bool RunFrame(const Wave1DLiveOptions &options, const AlpakaPlaneValue *sourceIntensity, int intensityStride,
         const AlpakaPlaneValue *pastIntensity, int pastStride, const AlpakaPlaneValue *sourceVelocity,
         int velocityStride, const AlpakaPlaneValue *frictionTweaks, const AlpakaPlaneValue *springTweaks,
         const AlpakaPlaneValue *massTweaks, const AlpakaPlaneValue *nonlinearityTweaks, const std::uint32_t *colorTable,
-        std::string *error);
+        const std::uint32_t *historyPixels, std::string *error);
 
 private:
     class Impl;

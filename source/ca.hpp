@@ -1461,6 +1461,7 @@ public:
     void CopyAlpakaWave1DToCpu();
     void CopyAlpakaHeat2DToCpu();
     void CopyAlpakaDigital1DToCpu();
+    void CopyAlpaka1DHistoryToCpu(const std::uint32_t *historyPixels, std::size_t count);
     bool CopyAlpakaDigital1DToTargetRow();
     void AccumulateAlpakaStandardEntropy();
     void MarkAlpakaHeat2DDirty();

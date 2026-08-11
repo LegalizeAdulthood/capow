@@ -3,6 +3,7 @@
 
 #include "AlpakaBuffers.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -55,9 +56,10 @@ public:
     void Deactivate();
     bool DownloadCurrent(AlpakaDigitalValue *targetRow, std::string *error);
     bool DownloadPast(AlpakaDigitalValue *pastRow, std::string *error);
+    bool DownloadHistory(std::uint32_t *historyPixels, std::size_t count, std::string *error);
     bool RunFrame(const Digital1DLiveOptions &options, const AlpakaDigitalValue *sourceRow,
         const AlpakaDigitalValue *pastRow, const AlpakaDigitalValue *lookup, const std::uint32_t *colorTable,
-        std::string *error);
+        const std::uint32_t *historyPixels, std::string *error);
 
 private:
     class Impl;
