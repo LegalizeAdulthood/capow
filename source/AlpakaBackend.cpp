@@ -1,5 +1,7 @@
 #include "AlpakaBackend.hpp"
 
+#include "resource.h"
+
 #include <alpaka/alpaka.hpp>
 
 #include <cstddef>
@@ -174,6 +176,70 @@ const char *AlpakaRuleName(AlpakaRule rule)
         break;
     }
     return "unknown";
+}
+
+bool GetAlpakaLiveRuleForCaType(int caType, AlpakaLiveRule *liveRule)
+{
+    AlpakaLiveRule result = {ALPAKA_LIVE_RULE_NONE, ALPAKA_RULE_COUNT};
+    switch (caType)
+    {
+    case CA_STANDARD:
+        result = {ALPAKA_LIVE_RULE_DIGITAL_1D, ALPAKA_RULE_CA_STANDARD};
+        break;
+    case CA_REVERSIBLE:
+        result = {ALPAKA_LIVE_RULE_DIGITAL_1D, ALPAKA_RULE_CA_REVERSIBLE};
+        break;
+    case CA_HEATWAVE:
+        result = {ALPAKA_LIVE_RULE_HEAT_1D, ALPAKA_RULE_CA_HEATWAVE};
+        break;
+    case CA_HEATWAVE2:
+        result = {ALPAKA_LIVE_RULE_HEAT_1D, ALPAKA_RULE_CA_HEATWAVE2};
+        break;
+    case CA_WAVE:
+    case ALT_CA_WAVE:
+    case ALT_CA_WAVE2:
+        result = {ALPAKA_LIVE_RULE_WAVE_1D, ALPAKA_RULE_CA_WAVE};
+        break;
+    case CA_WAVE2:
+        result = {ALPAKA_LIVE_RULE_WAVE_1D, ALPAKA_RULE_CA_WAVE2};
+        break;
+    case CA_OSCILLATOR:
+    case ALT_CA_OSCILLATOR:
+        result = {ALPAKA_LIVE_RULE_WAVE_1D, ALPAKA_RULE_CA_OSCILLATOR};
+        break;
+    case CA_DIVERSE_OSCILLATOR:
+    case ALT_CA_DIVERSE_OSCILLATOR:
+        result = {ALPAKA_LIVE_RULE_WAVE_1D, ALPAKA_RULE_CA_DIVERSE_OSCILLATOR};
+        break;
+    case ALT_CA_OSCILLATOR_WAVE:
+        result = {ALPAKA_LIVE_RULE_WAVE_1D, ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE};
+        break;
+    case CA_DIVERSE_OSCILLATOR_WAVE:
+    case ALT_CA_DIVERSE_OSCILLATOR_WAVE:
+        result = {ALPAKA_LIVE_RULE_WAVE_1D, ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE};
+        break;
+    case CA_ULAM_WAVE:
+    case ALT_CA_ULAM_WAVE:
+        result = {ALPAKA_LIVE_RULE_WAVE_1D, ALPAKA_RULE_CA_ULAM_WAVE};
+        break;
+    case CA_AUTO_ULAM_WAVE:
+        result = {ALPAKA_LIVE_RULE_WAVE_1D, ALPAKA_RULE_CA_AUTO_ULAM_WAVE};
+        break;
+    case CA_CUBIC_ULAM_WAVE:
+        result = {ALPAKA_LIVE_RULE_WAVE_1D, ALPAKA_RULE_CA_CUBIC_ULAM_WAVE};
+        break;
+    case CA_WAVE_2D:
+        result = {ALPAKA_LIVE_RULE_PLANE_2D, ALPAKA_RULE_CA_WAVE_2D};
+        break;
+    case CA_HEAT_2D:
+        result = {ALPAKA_LIVE_RULE_PLANE_2D, ALPAKA_RULE_CA_HEAT_2D};
+        break;
+    default:
+        return false;
+    }
+    if (liveRule != nullptr)
+        *liveRule = result;
+    return true;
 }
 
 } // namespace capow

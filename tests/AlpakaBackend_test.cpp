@@ -1,6 +1,38 @@
 #include "AlpakaBackend.hpp"
+#include "resource.h"
 
 #include <gtest/gtest.h>
+
+namespace
+{
+
+struct WorldComboLiveRule
+{
+    int caType;
+    capow::AlpakaLiveRuleKind kind;
+    capow::AlpakaRule rule;
+};
+
+const WorldComboLiveRule kWorldComboLiveRules[] = {
+    {CA_STANDARD, capow::ALPAKA_LIVE_RULE_DIGITAL_1D, capow::ALPAKA_RULE_CA_STANDARD},
+    {CA_REVERSIBLE, capow::ALPAKA_LIVE_RULE_DIGITAL_1D, capow::ALPAKA_RULE_CA_REVERSIBLE},
+    {CA_HEATWAVE, capow::ALPAKA_LIVE_RULE_HEAT_1D, capow::ALPAKA_RULE_CA_HEATWAVE},
+    {CA_HEATWAVE2, capow::ALPAKA_LIVE_RULE_HEAT_1D, capow::ALPAKA_RULE_CA_HEATWAVE2},
+    {ALT_CA_WAVE, capow::ALPAKA_LIVE_RULE_WAVE_1D, capow::ALPAKA_RULE_CA_WAVE},
+    {CA_WAVE2, capow::ALPAKA_LIVE_RULE_WAVE_1D, capow::ALPAKA_RULE_CA_WAVE2},
+    {CA_OSCILLATOR, capow::ALPAKA_LIVE_RULE_WAVE_1D, capow::ALPAKA_RULE_CA_OSCILLATOR},
+    {CA_DIVERSE_OSCILLATOR, capow::ALPAKA_LIVE_RULE_WAVE_1D, capow::ALPAKA_RULE_CA_DIVERSE_OSCILLATOR},
+    {ALT_CA_OSCILLATOR_WAVE, capow::ALPAKA_LIVE_RULE_WAVE_1D, capow::ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE},
+    {ALT_CA_DIVERSE_OSCILLATOR_WAVE, capow::ALPAKA_LIVE_RULE_WAVE_1D,
+        capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE},
+    {ALT_CA_ULAM_WAVE, capow::ALPAKA_LIVE_RULE_WAVE_1D, capow::ALPAKA_RULE_CA_ULAM_WAVE},
+    {CA_CUBIC_ULAM_WAVE, capow::ALPAKA_LIVE_RULE_WAVE_1D, capow::ALPAKA_RULE_CA_CUBIC_ULAM_WAVE},
+    {CA_AUTO_ULAM_WAVE, capow::ALPAKA_LIVE_RULE_WAVE_1D, capow::ALPAKA_RULE_CA_AUTO_ULAM_WAVE},
+    {CA_WAVE_2D, capow::ALPAKA_LIVE_RULE_PLANE_2D, capow::ALPAKA_RULE_CA_WAVE_2D},
+    {CA_HEAT_2D, capow::ALPAKA_LIVE_RULE_PLANE_2D, capow::ALPAKA_RULE_CA_HEAT_2D},
+};
+
+} // namespace
 
 TEST(alpakaBackend, defaultsToCpuBackend)
 {
@@ -131,6 +163,35 @@ TEST(alpakaBackend, gpuRunsRequireDeviceAndEnabledRule)
     manager.SetRuleEnabled(capow::ALPAKA_RULE_CA_HEAT_2D, true);
 
     EXPECT_EQ(manager.IsGpuAvailable(), manager.CanRunGpu(capow::ALPAKA_RULE_CA_HEAT_2D));
+}
+
+TEST(alpakaBackend, worldComboBuiltinsMapToLiveGpuRules)
+{
+    for (const WorldComboLiveRule &expected : kWorldComboLiveRules)
+    {
+        capow::AlpakaLiveRule actual = {capow::ALPAKA_LIVE_RULE_NONE, capow::ALPAKA_RULE_COUNT};
+
+        EXPECT_TRUE(capow::GetAlpakaLiveRuleForCaType(expected.caType, &actual)) << expected.caType;
+        EXPECT_EQ(expected.kind, actual.kind) << expected.caType;
+        EXPECT_EQ(expected.rule, actual.rule) << expected.caType;
+    }
+}
+
+TEST(alpakaBackend, worldComboBuiltinsStartEnabled)
+{
+    const capow::AlpakaManager manager;
+
+    for (const WorldComboLiveRule &entry : kWorldComboLiveRules)
+    {
+        EXPECT_TRUE(manager.IsRuleEnabled(entry.rule)) << capow::AlpakaRuleName(entry.rule);
+    }
+}
+
+TEST(alpakaBackend, worldComboUserRuleIsCpuOnly)
+{
+    capow::AlpakaLiveRule liveRule = {capow::ALPAKA_LIVE_RULE_NONE, capow::ALPAKA_RULE_COUNT};
+
+    EXPECT_FALSE(capow::GetAlpakaLiveRuleForCaType(CA_USER, &liveRule));
 }
 
 TEST(alpakaBackend, namesMatchMenuAndRuleLabels)

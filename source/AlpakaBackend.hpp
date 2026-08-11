@@ -31,6 +31,21 @@ enum AlpakaRule
     ALPAKA_RULE_COUNT
 };
 
+enum AlpakaLiveRuleKind
+{
+    ALPAKA_LIVE_RULE_NONE,
+    ALPAKA_LIVE_RULE_DIGITAL_1D,
+    ALPAKA_LIVE_RULE_HEAT_1D,
+    ALPAKA_LIVE_RULE_WAVE_1D,
+    ALPAKA_LIVE_RULE_PLANE_2D
+};
+
+struct AlpakaLiveRule
+{
+    AlpakaLiveRuleKind kind;
+    AlpakaRule rule;
+};
+
 class AlpakaManager
 {
 public:
@@ -54,6 +69,7 @@ private:
 AlpakaManager &GetAlpakaManager();
 const char *AlpakaBackendName(AlpakaBackend backend);
 const char *AlpakaRuleName(AlpakaRule rule);
+bool GetAlpakaLiveRuleForCaType(int caType, AlpakaLiveRule *liveRule);
 
 } // namespace capow
 

@@ -65,7 +65,8 @@ static bool IsAlpakaHeat2DWrapFlagSupported(int wrapFlag)
 
 static bool IsAlpakaHeat1DType(int type)
 {
-    return type == CA_HEATWAVE || type == CA_HEATWAVE2;
+    capow::AlpakaLiveRule liveRule;
+    return capow::GetAlpakaLiveRuleForCaType(type, &liveRule) && liveRule.kind == capow::ALPAKA_LIVE_RULE_HEAT_1D;
 }
 
 static capow::Heat1DRule AlpakaHeat1DRuleForType(int type)
@@ -77,17 +78,16 @@ static capow::Heat1DRule AlpakaHeat1DRuleForType(int type)
 
 static capow::AlpakaRule AlpakaHeat1DAlpakaRuleForType(int type)
 {
-    if (type == CA_HEATWAVE2)
-        return capow::ALPAKA_RULE_CA_HEATWAVE2;
-    return capow::ALPAKA_RULE_CA_HEATWAVE;
+    capow::AlpakaLiveRule liveRule;
+    if (capow::GetAlpakaLiveRuleForCaType(type, &liveRule))
+        return liveRule.rule;
+    return capow::ALPAKA_RULE_COUNT;
 }
 
 static bool IsAlpakaWave1DType(int type)
 {
-    return type == CA_WAVE || type == ALT_CA_WAVE || type == ALT_CA_WAVE2 || type == CA_WAVE2 ||
-        type == CA_OSCILLATOR || type == CA_DIVERSE_OSCILLATOR || type == ALT_CA_OSCILLATOR_WAVE ||
-        type == ALT_CA_DIVERSE_OSCILLATOR_WAVE || type == CA_ULAM_WAVE || type == ALT_CA_ULAM_WAVE ||
-        type == CA_AUTO_ULAM_WAVE || type == CA_CUBIC_ULAM_WAVE;
+    capow::AlpakaLiveRule liveRule;
+    return capow::GetAlpakaLiveRuleForCaType(type, &liveRule) && liveRule.kind == capow::ALPAKA_LIVE_RULE_WAVE_1D;
 }
 
 static capow::Wave1DRule AlpakaWave1DRuleForType(int type)
@@ -113,23 +113,10 @@ static capow::Wave1DRule AlpakaWave1DRuleForType(int type)
 
 static capow::AlpakaRule AlpakaWave1DAlpakaRuleForType(int type)
 {
-    if (type == CA_WAVE2)
-        return capow::ALPAKA_RULE_CA_WAVE2;
-    if (type == CA_WAVE || type == ALT_CA_WAVE || type == ALT_CA_WAVE2)
-        return capow::ALPAKA_RULE_CA_WAVE;
-    if (type == CA_DIVERSE_OSCILLATOR)
-        return capow::ALPAKA_RULE_CA_DIVERSE_OSCILLATOR;
-    if (type == ALT_CA_OSCILLATOR_WAVE)
-        return capow::ALPAKA_RULE_ALT_CA_OSCILLATOR_WAVE;
-    if (type == ALT_CA_DIVERSE_OSCILLATOR_WAVE)
-        return capow::ALPAKA_RULE_ALT_CA_DIVERSE_OSCILLATOR_WAVE;
-    if (type == CA_ULAM_WAVE || type == ALT_CA_ULAM_WAVE)
-        return capow::ALPAKA_RULE_CA_ULAM_WAVE;
-    if (type == CA_AUTO_ULAM_WAVE)
-        return capow::ALPAKA_RULE_CA_AUTO_ULAM_WAVE;
-    if (type == CA_CUBIC_ULAM_WAVE)
-        return capow::ALPAKA_RULE_CA_CUBIC_ULAM_WAVE;
-    return capow::ALPAKA_RULE_CA_OSCILLATOR;
+    capow::AlpakaLiveRule liveRule;
+    if (capow::GetAlpakaLiveRuleForCaType(type, &liveRule))
+        return liveRule.rule;
+    return capow::ALPAKA_RULE_COUNT;
 }
 
 static std::uint32_t AlpakaHistoryPixelFromImagePixel(capow::ImageBuffer::Pixel pixel)
@@ -1764,42 +1751,33 @@ void CA::MarkAlpakaHeat2DDirty()
 
 bool CA::CanUseAlpakaLiveGpu(void)
 {
-    if (type_ca == CA_USER)
+    capow::AlpakaLiveRule liveRule;
+    if (!capow::GetAlpakaLiveRuleForCaType(type_ca, &liveRule))
         return false;
 
     capow::AlpakaManager &backendManager = capow::GetAlpakaManager();
-    if (type_ca == CA_STANDARD || type_ca == CA_REVERSIBLE)
+    if (liveRule.kind == capow::ALPAKA_LIVE_RULE_DIGITAL_1D)
     {
-        const capow::AlpakaRule rule =
-            type_ca == CA_REVERSIBLE ? capow::ALPAKA_RULE_CA_REVERSIBLE : capow::ALPAKA_RULE_CA_STANDARD;
         const bool supportedView = viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW;
-        return backendManager.CanRunGpu(rule) && supportedView && wrapflag == WF_WRAP && generatorlist.Count() == 0;
+        return backendManager.CanRunGpu(liveRule.rule) && supportedView && wrapflag == WF_WRAP &&
+            generatorlist.Count() == 0;
     }
 
-    if (IsAlpakaHeat1DType(type_ca))
+    if (liveRule.kind == capow::ALPAKA_LIVE_RULE_HEAT_1D || liveRule.kind == capow::ALPAKA_LIVE_RULE_WAVE_1D)
     {
-        const capow::AlpakaRule rule = AlpakaHeat1DAlpakaRuleForType(type_ca);
         const bool supportedView = viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW;
-        return backendManager.CanRunGpu(rule) && supportedView && wrapflag == WF_WRAP && showmode == BOTH_SHOW &&
-            _chunk.Val() <= MIN_POS_CHUNK && _smoothsteps == 0 && !generatorflag && generatorlist.Count() == 0;
+        return backendManager.CanRunGpu(liveRule.rule) && supportedView && wrapflag == WF_WRAP &&
+            showmode == BOTH_SHOW && _chunk.Val() <= MIN_POS_CHUNK && _smoothsteps == 0 && !generatorflag &&
+            generatorlist.Count() == 0;
     }
 
-    if (IsAlpakaWave1DType(type_ca))
-    {
-        const capow::AlpakaRule rule = AlpakaWave1DAlpakaRuleForType(type_ca);
-        const bool supportedView = viewmode == IDC_DOWN_VIEW || viewmode == IDC_SCROLL_VIEW;
-        return backendManager.CanRunGpu(rule) && supportedView && wrapflag == WF_WRAP && showmode == BOTH_SHOW &&
-            _chunk.Val() <= MIN_POS_CHUNK && _smoothsteps == 0 && !generatorflag && generatorlist.Count() == 0;
-    }
-
-    const bool isHeat2D = type_ca == CA_HEAT_2D;
-    const bool isWave2D = type_ca == CA_WAVE_2D;
-    if (!isHeat2D && !isWave2D)
+    if (liveRule.kind != capow::ALPAKA_LIVE_RULE_PLANE_2D)
         return false;
 
-    const capow::AlpakaRule rule = isWave2D ? capow::ALPAKA_RULE_CA_WAVE_2D : capow::ALPAKA_RULE_CA_HEAT_2D;
-    const bool supportedWrap = isHeat2D ? IsAlpakaHeat2DWrapFlagSupported(wrapflag) : wrapflag == WF_WRAP;
-    return backendManager.CanRunGpu(rule) && viewmode == IDC_2D_VIEW && supportedWrap && _smoothsteps == 0 &&
+    const bool supportedWrap = liveRule.rule == capow::ALPAKA_RULE_CA_HEAT_2D
+        ? IsAlpakaHeat2DWrapFlagSupported(wrapflag)
+        : wrapflag == WF_WRAP;
+    return backendManager.CanRunGpu(liveRule.rule) && viewmode == IDC_2D_VIEW && supportedWrap && _smoothsteps == 0 &&
         !generatorflag && generatorlist.Count() == 0;
 }
 
