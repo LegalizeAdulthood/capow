@@ -84,13 +84,15 @@ static capow::AlpakaRule AlpakaHeat1DAlpakaRuleForType(int type)
 
 static bool IsAlpakaWave1DType(int type)
 {
-    return type == CA_OSCILLATOR || type == CA_DIVERSE_OSCILLATOR || type == ALT_CA_OSCILLATOR_WAVE ||
-        type == ALT_CA_DIVERSE_OSCILLATOR_WAVE || type == CA_ULAM_WAVE || type == ALT_CA_ULAM_WAVE ||
-        type == CA_AUTO_ULAM_WAVE || type == CA_CUBIC_ULAM_WAVE;
+    return type == CA_WAVE || type == ALT_CA_WAVE || type == ALT_CA_WAVE2 || type == CA_OSCILLATOR ||
+        type == CA_DIVERSE_OSCILLATOR || type == ALT_CA_OSCILLATOR_WAVE || type == ALT_CA_DIVERSE_OSCILLATOR_WAVE ||
+        type == CA_ULAM_WAVE || type == ALT_CA_ULAM_WAVE || type == CA_AUTO_ULAM_WAVE || type == CA_CUBIC_ULAM_WAVE;
 }
 
 static capow::Wave1DRule AlpakaWave1DRuleForType(int type)
 {
+    if (type == CA_WAVE || type == ALT_CA_WAVE || type == ALT_CA_WAVE2)
+        return capow::WAVE_1D_RULE_THREE_NEIGHBOR;
     if (type == CA_DIVERSE_OSCILLATOR)
         return capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR;
     if (type == ALT_CA_OSCILLATOR_WAVE)
@@ -108,6 +110,8 @@ static capow::Wave1DRule AlpakaWave1DRuleForType(int type)
 
 static capow::AlpakaRule AlpakaWave1DAlpakaRuleForType(int type)
 {
+    if (type == CA_WAVE || type == ALT_CA_WAVE || type == ALT_CA_WAVE2)
+        return capow::ALPAKA_RULE_CA_WAVE;
     if (type == CA_DIVERSE_OSCILLATOR)
         return capow::ALPAKA_RULE_CA_DIVERSE_OSCILLATOR;
     if (type == ALT_CA_OSCILLATOR_WAVE)

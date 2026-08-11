@@ -79,7 +79,14 @@ struct Wave1DLiveKernel
             targetVelocity[x] = heatResult.velocity;
             return;
         }
-        if (rule == capow::WAVE_1D_RULE_OSCILLATOR)
+        if (rule == capow::WAVE_1D_RULE_THREE_NEIGHBOR)
+        {
+            const Idx leftX = x == 0U ? width - 1U : x - 1U;
+            const Idx rightX = x + 1U == width ? 0U : x + 1U;
+            result = capow::ComputeWave1D<capow::AlpakaPlaneValue>(
+                source[leftX], source[x], source[rightX], past[x], waveSpeed2TimeStep2OverDx2, maxIntensity, timeStep);
+        }
+        else if (rule == capow::WAVE_1D_RULE_OSCILLATOR)
         {
             result = capow::ComputeOscillator1D<capow::AlpakaPlaneValue>(source[x], sourceVelocity[x], dtOverMass,
                 frictionMultiplier, springMultiplier, driverValue, maxIntensity, maxVelocity, timeStep);
@@ -180,10 +187,10 @@ std::uint32_t DivideRoundUp(std::uint32_t value, std::uint32_t divisor)
 
 bool IsSupportedWaveRule(capow::Wave1DRule rule)
 {
-    return rule == capow::WAVE_1D_RULE_OSCILLATOR || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR ||
-        rule == capow::WAVE_1D_RULE_OSCILLATOR_WAVE || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE ||
-        rule == capow::WAVE_1D_RULE_ULAM || rule == capow::WAVE_1D_RULE_AUTO_ULAM ||
-        rule == capow::WAVE_1D_RULE_CUBIC_ULAM;
+    return rule == capow::WAVE_1D_RULE_THREE_NEIGHBOR || rule == capow::WAVE_1D_RULE_OSCILLATOR ||
+        rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR || rule == capow::WAVE_1D_RULE_OSCILLATOR_WAVE ||
+        rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE || rule == capow::WAVE_1D_RULE_ULAM ||
+        rule == capow::WAVE_1D_RULE_AUTO_ULAM || rule == capow::WAVE_1D_RULE_CUBIC_ULAM;
 }
 
 bool IsSupportedHeatRule(capow::Heat1DRule rule)
