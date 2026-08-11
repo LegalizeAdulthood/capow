@@ -52,12 +52,13 @@ struct Wave1DLiveKernel
         const capow::AlpakaPlaneValue *massTweaks, const capow::AlpakaPlaneValue *nonlinearityTweaks,
         capow::AlpakaPlaneValue *targetIntensity, capow::AlpakaPlaneValue *targetVelocity,
         capow::AlpakaPlaneValue *targetNonlinearityTweaks, std::uint8_t *zeroFlags, Idx width,
-        capow::AlpakaPlaneValue waveSpeed2TimeStep2OverDx2, capow::AlpakaPlaneValue dtOverDx2,
-        capow::AlpakaPlaneValue maxIntensity, capow::AlpakaPlaneValue maxVelocity, capow::AlpakaPlaneValue timeStep,
-        capow::AlpakaPlaneValue dtOverMass, capow::AlpakaPlaneValue frictionMultiplier,
-        capow::AlpakaPlaneValue springMultiplier, capow::AlpakaPlaneValue driverValue,
-        capow::AlpakaPlaneValue nonlinearity1, capow::AlpakaPlaneValue nonlinearity2, capow::Wave1DRule rule,
-        capow::Wave1DLiveRuleFamily family, capow::Heat1DRule heatRule, capow::AlpakaPlaneValue heatIncrement) const
+        capow::AlpakaPlaneValue waveSpeed2TimeStep2OverDx2, capow::AlpakaPlaneValue dtOver12Dx2,
+        capow::AlpakaPlaneValue dtOverDx2, capow::AlpakaPlaneValue maxIntensity, capow::AlpakaPlaneValue maxVelocity,
+        capow::AlpakaPlaneValue timeStep, capow::AlpakaPlaneValue dtOverMass,
+        capow::AlpakaPlaneValue frictionMultiplier, capow::AlpakaPlaneValue springMultiplier,
+        capow::AlpakaPlaneValue driverValue, capow::AlpakaPlaneValue nonlinearity1,
+        capow::AlpakaPlaneValue nonlinearity2, capow::Wave1DRule rule, capow::Wave1DLiveRuleFamily family,
+        capow::Heat1DRule heatRule, capow::AlpakaPlaneValue heatIncrement) const
     {
         const Idx x = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
         if (x >= width)
@@ -85,6 +86,16 @@ struct Wave1DLiveKernel
             const Idx rightX = x + 1U == width ? 0U : x + 1U;
             result = capow::ComputeWave1D<capow::AlpakaPlaneValue>(
                 source[leftX], source[x], source[rightX], past[x], waveSpeed2TimeStep2OverDx2, maxIntensity, timeStep);
+        }
+        else if (rule == capow::WAVE_1D_RULE_FIVE_NEIGHBOR)
+        {
+            const Idx leftX = x == 0U ? width - 1U : x - 1U;
+            const Idx rightX = x + 1U == width ? 0U : x + 1U;
+            const Idx leftLeftX = leftX == 0U ? width - 1U : leftX - 1U;
+            const Idx rightRightX = rightX + 1U == width ? 0U : rightX + 1U;
+            result = capow::ComputeWave1D5<capow::AlpakaPlaneValue>(source[leftLeftX], source[leftX], source[x],
+                source[rightX], source[rightRightX], sourceVelocity[x], dtOver12Dx2, maxIntensity, maxVelocity,
+                timeStep);
         }
         else if (rule == capow::WAVE_1D_RULE_OSCILLATOR)
         {
@@ -187,10 +198,11 @@ std::uint32_t DivideRoundUp(std::uint32_t value, std::uint32_t divisor)
 
 bool IsSupportedWaveRule(capow::Wave1DRule rule)
 {
-    return rule == capow::WAVE_1D_RULE_THREE_NEIGHBOR || rule == capow::WAVE_1D_RULE_OSCILLATOR ||
-        rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR || rule == capow::WAVE_1D_RULE_OSCILLATOR_WAVE ||
-        rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE || rule == capow::WAVE_1D_RULE_ULAM ||
-        rule == capow::WAVE_1D_RULE_AUTO_ULAM || rule == capow::WAVE_1D_RULE_CUBIC_ULAM;
+    return rule == capow::WAVE_1D_RULE_THREE_NEIGHBOR || rule == capow::WAVE_1D_RULE_FIVE_NEIGHBOR ||
+        rule == capow::WAVE_1D_RULE_OSCILLATOR || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR ||
+        rule == capow::WAVE_1D_RULE_OSCILLATOR_WAVE || rule == capow::WAVE_1D_RULE_DIVERSE_OSCILLATOR_WAVE ||
+        rule == capow::WAVE_1D_RULE_ULAM || rule == capow::WAVE_1D_RULE_AUTO_ULAM ||
+        rule == capow::WAVE_1D_RULE_CUBIC_ULAM;
 }
 
 bool IsSupportedHeatRule(capow::Heat1DRule rule)
@@ -445,6 +457,7 @@ Wave1DLiveOptions::Wave1DLiveOptions() :
     rule(WAVE_1D_RULE_OSCILLATOR),
     heatRule(HEAT_1D_RULE_THREE_NEIGHBOR),
     waveSpeed2TimeStep2OverDx2(AlpakaPlaneValue(0)),
+    dtOver12Dx2(AlpakaPlaneValue(0)),
     dtOverDx2(AlpakaPlaneValue(0)),
     heatIncrement(AlpakaPlaneValue(0)),
     maxIntensity(AlpakaPlaneValue(0)),
@@ -806,10 +819,10 @@ void Wave1DLiveState::Impl::RunStep()
         alpaka::getPtrNative(*deviceMassTweaks), alpaka::getPtrNative(*deviceNonlinearityTweaks),
         alpaka::getPtrNative(*deviceNextIntensity), alpaka::getPtrNative(*deviceNextVelocity),
         alpaka::getPtrNative(*deviceNextNonlinearityTweaks), alpaka::getPtrNative(*deviceZeroFlags),
-        static_cast<Idx>(options.width), options.waveSpeed2TimeStep2OverDx2, options.dtOverDx2, options.maxIntensity,
-        options.maxVelocity, options.timeStep, options.dtOverMass, options.frictionMultiplier, options.springMultiplier,
-        options.driverValue, options.nonlinearity1, options.nonlinearity2, options.rule, options.family,
-        options.heatRule, options.heatIncrement);
+        static_cast<Idx>(options.width), options.waveSpeed2TimeStep2OverDx2, options.dtOver12Dx2, options.dtOverDx2,
+        options.maxIntensity, options.maxVelocity, options.timeStep, options.dtOverMass, options.frictionMultiplier,
+        options.springMultiplier, options.driverValue, options.nonlinearity1, options.nonlinearity2, options.rule,
+        options.family, options.heatRule, options.heatIncrement);
     if (options.rule == WAVE_1D_RULE_AUTO_ULAM)
     {
         const StableUlamTweakMaskKernel maskKernel = StableUlamTweakMaskKernel{};

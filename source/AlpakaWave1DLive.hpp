@@ -36,6 +36,7 @@ struct Wave1DLiveOptions
     Wave1DRule rule;
     Heat1DRule heatRule;
     AlpakaPlaneValue waveSpeed2TimeStep2OverDx2;
+    AlpakaPlaneValue dtOver12Dx2;
     AlpakaPlaneValue dtOverDx2;
     AlpakaPlaneValue heatIncrement;
     AlpakaPlaneValue maxIntensity;
