@@ -232,6 +232,7 @@ private:
     std::vector<AlpakaPlaneValue> hostPast;
     std::vector<AlpakaPlaneValue> hostVelocity;
     std::vector<std::uint32_t> hostColors;
+    bool colorTableUploaded;
     std::optional<PlaneBuffer> deviceCurrent;
     std::optional<PlaneBuffer> devicePast;
     std::optional<PlaneBuffer> deviceNextIntensity;
@@ -250,6 +251,7 @@ Heat2DLiveState::Impl::Impl() :
     initialized(false),
     active(false),
     cellCount(0U),
+    colorTableUploaded(false),
     texture(0U),
     textureResource(nullptr)
 {
@@ -408,6 +410,7 @@ void Heat2DLiveState::Impl::Resize(const Heat2DLiveOptions &nextOptions)
     hostPast.assign(cellCount, AlpakaPlaneValue(0));
     hostVelocity.assign(cellCount, AlpakaPlaneValue(0));
     hostColors.assign(static_cast<std::size_t>(options.colorCount), 0U);
+    colorTableUploaded = false;
     active = false;
     initialized = true;
     ReleaseTexture();
@@ -478,6 +481,9 @@ void Heat2DLiveState::Impl::UploadPast(const AlpakaPlaneValue *pastPlane, int pa
 
 void Heat2DLiveState::Impl::UploadColors(const std::uint32_t *colorTable)
 {
+    if (colorTableUploaded && std::equal(hostColors.begin(), hostColors.end(), colorTable))
+        return;
+
     for (int index = 0; index < options.colorCount; ++index)
     {
         hostColors[static_cast<std::size_t>(index)] = colorTable[index];
@@ -487,6 +493,7 @@ void Heat2DLiveState::Impl::UploadColors(const std::uint32_t *colorTable)
     HostColorView hostView = alpaka::createView(hostDevice, hostColors.data(), colorExtent);
     alpaka::memcpy(queue, *deviceColors, hostView, colorExtent);
     alpaka::wait(queue);
+    colorTableUploaded = true;
 }
 
 void Heat2DLiveState::Impl::RunHeatStep()

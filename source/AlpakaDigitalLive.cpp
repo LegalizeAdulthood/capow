@@ -10,6 +10,7 @@
 
 #include <cuda_gl_interop.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -276,6 +277,7 @@ private:
     std::vector<AlpakaDigitalValue> hostLookup;
     std::vector<std::uint32_t> hostPixels;
     std::vector<std::uint32_t> hostColors;
+    bool colorTableUploaded;
     std::optional<DigitalBuffer> deviceCurrent;
     std::optional<DigitalBuffer> devicePast;
     std::optional<DigitalBuffer> deviceNext;
@@ -312,6 +314,7 @@ Digital1DLiveState::Impl::Impl() :
     cellCount(0U),
     lookupCellCount(0U),
     pixelCount(0U),
+    colorTableUploaded(false),
     texture(0U),
     textureResource(nullptr)
 {
@@ -516,6 +519,7 @@ void Digital1DLiveState::Impl::Resize(const Digital1DLiveOptions &nextOptions)
     hostLookup.assign(lookupCellCount, AlpakaDigitalValue(0));
     hostPixels.assign(pixelCount, 0U);
     hostColors.assign(static_cast<std::size_t>(options.colorCount), 0U);
+    colorTableUploaded = false;
     initialized = true;
     active = false;
     ClearPixels();
@@ -632,6 +636,9 @@ void Digital1DLiveState::Impl::UploadLookup(const AlpakaDigitalValue *lookup)
 
 void Digital1DLiveState::Impl::UploadColors(const std::uint32_t *colorTable)
 {
+    if (colorTableUploaded && std::equal(hostColors.begin(), hostColors.end(), colorTable))
+        return;
+
     for (int index = 0; index < options.colorCount; ++index)
     {
         hostColors[static_cast<std::size_t>(index)] = colorTable[index];
@@ -641,6 +648,7 @@ void Digital1DLiveState::Impl::UploadColors(const std::uint32_t *colorTable)
     HostColorView hostView = alpaka::createView(hostDevice, hostColors.data(), colorExtent);
     alpaka::memcpy(queue, *deviceColors, hostView, colorExtent);
     alpaka::wait(queue);
+    colorTableUploaded = true;
 }
 
 void Digital1DLiveState::Impl::RunStep()
